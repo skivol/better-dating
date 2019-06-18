@@ -1,23 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import { createStore } from 'redux';
-import { enthusiasm } from './reducers/index';
-import { EnthusiasmAction } from './actions/index';
-import { StoreState } from './types/index';
-import Hello from './containers/Hello';
-import { Provider } from 'react-redux';
+import Root from './components/Root';
 import * as serviceWorker from './serviceWorker';
+import { configureAppStore } from './configureStore';
 
-const store = createStore<StoreState | undefined, EnthusiasmAction, any, any>(enthusiasm, {
+const store = configureAppStore({
   enthusiasmLevel: 1,
   languageName: 'TypeScript',
 });
 
 ReactDOM.render(
-  <Provider store={store}>
-    <Hello />
-  </Provider>,
+  <Root store={store} />,
   document.getElementById('root') as HTMLElement
 );
 
