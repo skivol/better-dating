@@ -1,7 +1,7 @@
-import Messages from './Messages';
+import * as Messages from './Messages';
 
-const motivationUrl = `/${Messages.motivation}`;
+const proposalUrl = `/${Messages.proposal}`;
 
 export default {
-	motivationUrl
+	proposalUrl
 };

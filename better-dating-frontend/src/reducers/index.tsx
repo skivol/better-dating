@@ -1,17 +1,23 @@
-import { EnthusiasmAction } from '../actions';
-import { StoreState } from '../types/index';
-import { INCREMENT_ENTHUSIASM, DECREMENT_ENTHUSIASM } from '../constants/index';
+import { BetterDatingAction } from '../actions';
+import { StatusSnackbarState, SnackbarVariant } from '../types';
+import {
+	OPEN_SNACKBAR,
+	CLOSE_SNACKBAR
+} from '../constants';
 
-// FIXME Figure out if "StoreState | undefined" usage is unavoidable using latest Redux
-export function enthusiasm(state: StoreState | undefined, action: EnthusiasmAction): StoreState | undefined {
-  if (state === undefined) {
-    return state;
-  }
-  switch (action.type) {
-    case INCREMENT_ENTHUSIASM:
-      return { ...state, enthusiasmLevel: state.enthusiasmLevel + 3 };
-    case DECREMENT_ENTHUSIASM:
-      return { ...state, enthusiasmLevel: Math.max(1, state.enthusiasmLevel - 1) };
-  }
-  return state;
+const initialSnackbarState: StatusSnackbarState = { 
+	isOpen: false, message: '', variant: SnackbarVariant.info
+};
+export function snackbarReducer(
+	state = initialSnackbarState, action: BetterDatingAction
+): StatusSnackbarState {
+	switch (action.type) {
+		case OPEN_SNACKBAR:
+			const { message, variant } = action;
+			return { ...state, isOpen: true, message, variant };
+		case CLOSE_SNACKBAR:
+			return { ...state, isOpen: false };
+		default:
+			return state;
+	}
 }

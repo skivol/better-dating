@@ -1,14 +1,28 @@
-import { createStore } from 'redux';
+import { createStore, combineReducers, applyMiddleware, Action } from 'redux';
+import { reducer as formReducer } from 'redux-form';
+import thunk, { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import { StoreState } from './types/index';
-import { EnthusiasmAction } from './actions/index';
-import { enthusiasm } from './reducers/index';
+import { BetterDatingAction } from './actions';
+import { snackbarReducer } from './reducers';
 
-export const configureAppStore = (preloadedState : StoreState) => {
-	const composedEnhancers = composeWithDevTools();
-	const store = createStore<StoreState | undefined, EnthusiasmAction, any, any>(enthusiasm, preloadedState, composedEnhancers);
+const rootReducer = combineReducers({
+	snackbar: snackbarReducer,
+	form: formReducer
+});
+
+// https://redux.js.org/recipes/usage-with-typescript
+export type BetterDatingStoreState = ReturnType<typeof rootReducer>;
+
+export type ThunkResult<R> = ThunkAction<R, BetterDatingStoreState, undefined, Action>;
+export type BetterDatingThunkDispatch = ThunkDispatch<BetterDatingStoreState, undefined, Action>;
+
+export const configureAppStore = (preloadedState? : BetterDatingStoreState) => {
+	const composedEnhancers = composeWithDevTools(applyMiddleware(thunk));
+	const store = createStore<BetterDatingStoreState, BetterDatingAction, any, any>(
+		rootReducer, preloadedState, composedEnhancers
+	);
 	if (process.env.NODE_ENV !== 'production' && module.hot) {
-	    module.hot.accept('./reducers', () => store.replaceReducer(enthusiasm))
+		module.hot.accept('./reducers', () => store.replaceReducer(rootReducer))
 	}
 	return store;
 };
