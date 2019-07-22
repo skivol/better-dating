@@ -1,0 +1,66 @@
+server:
+  port: 8080
+  undertow:
+    ioThreads: 15
+    workerThreads: 150
+    accesslog:
+      enabled: true
+  compression:
+    enabled: true
+    mimeTypes: text/xml, text/css, text/html, application/json
+    minResponseSize: 4096
+
+spring:
+  jersey:
+    applicationPath: /api
+  main:
+    banner-mode: "off"
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+  mail:
+    protocol: smtp
+    host: smtp.i.ua
+    port: 465
+    properties:
+      mail:
+        # https://stackoverflow.com/questions/22531062/log-javamailsenderimpl
+        # debug: true
+        smtp:
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
+          auth: true
+          # https://stackoverflow.com/questions/26548059/sending-email-with-ssl-using-javax-mail
+          ssl:
+            enable: true
+
+logging:
+    level:
+        org:
+            springframework: INFO
+
+---
+spring:
+  profiles: production
+  jpa:
+    hibernate:
+      ddl-auto: validate
+baseUrl: https://смотрины.укр
+
+---
+spring:
+  profiles: development | test
+  datasource:
+    url: jdbc:postgresql://localhost/postgres?currentSchema=public
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+            #ddl-auto: create-drop
+      ddl-auto: validate
+baseUrl: http://localhost:3000
