@@ -5,7 +5,7 @@ export const Proposal = 'Предложение';
 export const pictureTooltip = 'Н. П. Петров. Смотрины невесты. 1861';
 export const email = 'Почта';
 export const notifyMeWhenAvailable = 'Сообщите когда запустите!';
-export const footer = 'смотрины.укр';
+export const footer = 'смотрины.укр & смотрины.рус';
 
 export const Idea = 'Идея';
 export const FirstStage = 'Первый этап пользования системой:';
@@ -29,3 +29,8 @@ export const feedbackSystem = 'система обратной связи пос
 export const fullFeaturedForFree = 'возможность свободно пользоваться полноценной системой без рекламы, премиум подписок и прочего (возможность поддержать ресурс может быть только добровольной, если человек получил пользу и хочет отблагодарить его создателей) и пр.';
 
 export const Email = 'Почта для обратной связи';
+
+export const emailVerification = 'Подтверждение почты';
+
+export const tokenName = 'токен';
+export const sendNewVerificationToken = 'Отправить новый токен';

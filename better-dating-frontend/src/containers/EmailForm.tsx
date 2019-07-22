@@ -28,7 +28,7 @@ function checkIfEmailIsAlreadyPresent(email: string) {
 	if (!someEmail) {
 		return Promise.resolve(false);
 	}
-	return getData('/api/user/email-status', { email });
+	return getData('/api/user/email/status', { email });
 }
 const asyncValidate = (values: any, dispatch: (action: actions.BetterDatingAction) => void) => {
 	return checkIfEmailIsAlreadyPresent(values.email)

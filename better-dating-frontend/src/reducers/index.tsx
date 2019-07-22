@@ -1,8 +1,9 @@
 import { BetterDatingAction } from '../actions';
-import { StatusSnackbarState, SnackbarVariant } from '../types';
+import { StatusSnackbarState, SnackbarVariant, ExpiredTokenState } from '../types';
 import {
 	OPEN_SNACKBAR,
-	CLOSE_SNACKBAR
+	CLOSE_SNACKBAR,
+	EXPIRED_TOKEN
 } from '../constants';
 
 const initialSnackbarState: StatusSnackbarState = { 
@@ -17,6 +18,21 @@ export function snackbarReducer(
 			return { ...state, isOpen: true, message, variant };
 		case CLOSE_SNACKBAR:
 			return { ...state, isOpen: false };
+		default:
+			return state;
+	}
+}
+
+const initialExpiredTokenState: ExpiredTokenState = {
+	hasExpiredToken: false
+};
+
+export function expiredTokenReducer(
+	state = initialExpiredTokenState, action: BetterDatingAction
+): ExpiredTokenState {
+	switch (action.type) {
+		case EXPIRED_TOKEN:
+			return { ...state, hasExpiredToken: true };
 		default:
 			return state;
 	}

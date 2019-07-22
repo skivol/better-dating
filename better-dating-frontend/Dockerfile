@@ -1,3 +1,4 @@
 # https://hub.docker.com/_/nginx
-FROM nginx:1.17.0-alpine
+FROM nginx:alpine
 COPY build /usr/share/nginx/html
+COPY nginx/nginx.conf /etc/nginx/nginx.conf

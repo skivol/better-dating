@@ -11,3 +11,6 @@ export type OPEN_SNACKBAR = typeof OPEN_SNACKBAR;
 
 export const CLOSE_SNACKBAR = 'CLOSE_SNACKBAR';
 export type CLOSE_SNACKBAR = typeof CLOSE_SNACKBAR;
+
+export const EXPIRED_TOKEN = 'EXPIRED_TOKEN';
+export type EXPIRED_TOKEN = typeof EXPIRED_TOKEN;

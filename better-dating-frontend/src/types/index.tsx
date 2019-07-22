@@ -10,3 +10,7 @@ export interface StatusSnackbarState {
 	message: string;
 	variant: SnackbarVariant;
 }
+
+export interface ExpiredTokenState {
+	hasExpiredToken: boolean;
+}

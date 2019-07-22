@@ -3,10 +3,11 @@ import { reducer as formReducer } from 'redux-form';
 import thunk, { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { BetterDatingAction } from './actions';
-import { snackbarReducer } from './reducers';
+import { snackbarReducer, expiredTokenReducer } from './reducers';
 
 const rootReducer = combineReducers({
 	snackbar: snackbarReducer,
+	expiredToken: expiredTokenReducer,
 	form: formReducer
 });
 

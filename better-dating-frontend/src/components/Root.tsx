@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-d
 import { BetterDatingStoreState } from '../configureStore';
 import Container from '@material-ui/core/Container';
 import Proposal from '../containers/Proposal';
+import ConfirmEmail from '../containers/ConfirmEmail';
 import StatusSnackbar from '../containers/StatusSnackbar';
 import Header from './Header';
 import Footer from './Footer';
@@ -38,6 +39,7 @@ const Root = ({ store, theme }: Props) => {
 						  {/* TODO add questionnaire ? */}
 						  {/* TODO reference Wikipedia's article and picture: https://ru.wikipedia.org/wiki/Смотрины */}
 						  <Route path={NavigationUrls.proposalUrl} component={Proposal} />
+						  <Route path={NavigationUrls.confirmEmail} component={ConfirmEmail} />
 						  <Route render={redirectToProposal} />
 					  </Switch>
 					  <Footer />
