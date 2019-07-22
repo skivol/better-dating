@@ -1,0 +1,27 @@
+Doc links
+* SWARM mode https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode
+Self signed certificate generation:
+* https://stackoverflow.com/a/10176685
+
+* Docker install
+** https://docs.docker.com/install/linux/docker-ce/centos/#prerequisites
+Docker issues:
+* ftype
+** https://community.hortonworks.com/articles/65714/how-to-modify-the-default-docker-configuration-on.html
+** https://stackoverflow.com/questions/31620825/usage-of-loopback-devices-is-strongly-discouraged-for-production-use
+** https://community.centminmod.com/threads/using-docker-on-centos-7-choose-ext4-over-xfs.12492/
+** https://superuser.com/questions/1321926/recreating-an-xfs-file-system-with-ftype-1
+** https://docs.mesosphere.com/1.10/installing/production/system-requirements/docker-centos/
+** https://docs.docker.com/storage/storagedriver/overlayfs-driver/
+** https://docs.docker.com/engine/reference/commandline/dockerd/
+* vSphere Client 4.1 on Windows 10:
+** https://www.neontribe.co.uk/blog/windows-10-installing-vmware-vsphere-client-5-1 (Microsoft .NET Framework 3.5, Microsoft Visual J# 2.0 x64)
+** https://yellowonline.tweakblogs.net/blog/16139/installing-the-vmware-vsphere-client-41-on-windows-10 (compatibility mode)
+** https://kb.vmware.com/s/article/2069264
+** http://sparrowangelstechnology.blogspot.com/2012/07/boot-virtual-machine-from-iso-tips-on.html
+* Live CD network
+** https://wiki.centos.org/FAQ/CentOS7#ethernet
+** https://askubuntu.com/questions/1062390/activation-of-network-connection-failed-for-ethernet-connection
+** https://www.cyberciti.biz/faq/rhel-centos-linux-7-restart-networking-command-line/
+* Warnings
+** https://gist.github.com/TheBeachMaster/bf4348722032f2c8223b71ea06d2b07b

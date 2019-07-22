@@ -1,0 +1,120 @@
+# https://docs.docker.com/compose/overview/
+# https://docs.docker.com/compose/compose-file/
+# https://dev.to/domysee/setting-up-a-reverse-proxy-with-nginx-and-docker-compose-29jg
+version: '3.3'
+services:
+  bd-reverse-proxy:
+    build: ./better-dating-proxy
+    image: skivol/better-dating-proxy:latest
+    container_name: "bd-prod-reverse-proxy"
+    ports:
+      - "80:80"
+      - "443:443"
+#    volumes:
+#      - ./nginx/cache/:/etc/nginx/cache
+#      - ./nginx/error.log:/etc/nginx/error_log.log
+    depends_on:
+      - bd-backend
+      - bd-frontend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    secrets:
+      - source: ssl_certificate
+        # https://ru.wikipedia.org/wiki/Chmod
+        mode: 0644
+      - source: ssl_certificate_key
+        mode: 0600
+      - source: dhparam
+        mode: 0644
+  bd-postgres:
+    image: postgres:alpine
+    container_name: "bd-prod-postgres"
+    volumes:
+      - better-dating-data-volume:/pgdata
+    environment:
+      POSTGRES_DB: "${BD_DB:?No BD_DB (database name) specified}"
+      POSTGRES_USER: "${BD_DB_USER:?No BD_DB_USER (database user name) specified}"
+      POSTGRES_PASSWORD: "${BD_DB_PASSWORD:?No BD_DB_PASSWORD (database password) specified}"
+      PGDATA: /pgdata
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 120M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+        window: 120s
+    shm_size: '256MB'
+  bd-backend:
+    build: ./better-dating-backend
+    image: skivol/better-dating-backend:latest
+    container_name: "bd-prod-backend"
+    environment:
+      DB_USER: "${BD_DB_USER}"
+      DB_PASSWORD: "${BD_DB_PASSWORD}"
+      DB_URL: "jdbc:postgresql://better-dating_bd-postgres/${BD_DB}?currentSchema=public"
+      MAIL_USER: "${BD_MAIL_USER}"
+      MAIL_PASSWORD: "${BD_MAIL_PASSWORD}"
+    depends_on:
+      - bd-postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 250M
+        reservations:
+          cpus: '0.25'
+          memory: 300M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+        window: 120s
+  bd-frontend:
+    build: ./better-dating-frontend
+    image: skivol/better-dating-ui:latest
+    container_name: "bd-prod-frontend"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 100M
+        reservations:
+          cpus: '0.25'
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+        window: 120s
+volumes:
+  better-dating-data-volume:
+          # better-dating-nginx-volume:
+secrets:
+  ssl_certificate:
+    external: true
+  ssl_certificate_key:
+    external: true
+  dhparam:
+    external: true
+
+networks:
+  default:
+    driver: overlay
+    attachable: true
