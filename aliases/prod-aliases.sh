@@ -27,3 +27,5 @@ alias bd-prod-db-logs='docker service logs /better-dating_bd-postgres'
 
 # https://forums.docker.com/t/rolling-update-with-same-tag/19400/5
 alias bd-prod-update-frontend='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-frontend'
+alias bd-prod-update-backend='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-backend'
+alias bd-prod-update-proxy='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-proxy'

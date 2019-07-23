@@ -91,6 +91,9 @@ alias prod-psql='docker run --rm --name prod-psql --network better-dating_defaul
 # https://stackoverflow.com/questions/50735833/what-is-the-difference-between-chmod-go-rwx-and-chmod-700
 # cat ~/.ssh/id_rsa.pub | ssh adm1n@77.120.103.21 "mkdir -p ~/.ssh && touch ~/.ssh/authorized_keys && chmod -R go= ~/.ssh && cat >> ~/.ssh/authorized_keys"
 alias prod-ssh='ssh adm1n@77.120.103.21'
+prod-ssh-zsh() {
+	prod-ssh "/bin/zsh -ic '$*'"
+}
 # https://www.cyberciti.biz/faq/unix-linux-execute-command-using-ssh/
 # https://stackoverflow.com/questions/55802095/running-local-container-when-connected-to-remote-docker-machine
 alias prod-docker-load="prod-ssh 'cd /home/adm1n/bd/images && docker load --input better-dating-proxy.tar && docker load --input better-dating-backend.tar && docker load --input better-dating-ui.tar'"
@@ -103,4 +106,5 @@ alias bd-rsync-config-to-prod='rsync /d/Downloads/projects/better-dating/docker-
 alias bd-rsync-aliases-to-prod='rsync /d/Downloads/projects/better-dating/aliases/prod-aliases.sh adm1n@77.120.103.21:/home/adm1n/bd'
 # https://www.cyberciti.biz/faq/use-bash-aliases-ssh-based-session/
 alias bd-prod-deploy="prod-ssh '/bin/zsh -ic bd-prod-deploy'"
+alias bd-prod-ui-build-deploy-update='bd-ui-build && bd-ui-docker-build && bd-ui-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-frontend'
 

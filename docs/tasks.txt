@@ -1,8 +1,7 @@
-* create git repository on root folder
 * use file/docker secret for DB/Mail passwords
 * add support for 2 domains
 * add HEALTH CHECKS, check memory/cpu limits in swarm mode (https://docs.docker.com/engine/reference/builder/#healthcheck)
-* double-check prod build of frontend
+* double-check prod build of frontend (redux tools should still work ?)
 * figure out service worker usage... (https://bit.ly/CRA-PWA)
 * fix LOGGING in java
 * register in SEARCH ENGINES
@@ -30,8 +29,10 @@
 * T-shirts / wear with logo/name of the site
 * checkout vim code completion: https://github.com/neoclide/coc.nvim
 * fix ctags regexp warnings
-* add article about beauty;
+* add article about beauty / good qualities;
 * add description of development process;
+
+
 
 * [recurring] pay for email / virtual machine / domain names;
 * configure SSL Let's encrypt (renewal / backup) (https://www.ssllabs.com/ssltest/analyze.html?d=xn--h1aheckdj9e.xn--j1amh)

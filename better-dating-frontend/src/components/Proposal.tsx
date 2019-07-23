@@ -1,5 +1,7 @@
 import * as React from "react";
 import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import Icon from '@material-ui/core/Icon';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -165,6 +167,20 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 						</Grid>
 					</ExpansionPanelDetails>
 				</ExpansionPanel>
+			</Grid>
+			<Grid item>
+				<Paper>
+					<Grid container direction="row" wrap="nowrap" spacing={1} style={{ margin: '10px', padding: '10px' }}>
+						<Grid item style={{ alignItems: 'center', display: 'flex' }}>
+							<Icon style={{ color: 'red' }} className="fas fa-exclamation-circle" />
+						</Grid>
+						<Grid item xs>
+							<Typography>
+								{Messages.spreadTheWordIfSeemsInteresting}
+							</Typography>
+						</Grid>
+					</Grid>
+				</Paper>
 			</Grid>
 			<Grid item>
 				<EmailForm onSubmit={onEmailSubmit} />
