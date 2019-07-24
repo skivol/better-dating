@@ -1,20 +1,27 @@
+* fix email templates (gmail mobile client verification link) / add make contact email available;
+* register in SEARCH ENGINES (google, duckduckgo, yandex, bing, yahoo etc)
+* use social media to publish info (facebook, vk, linkedin?)
 * use file/docker secret for DB/Mail passwords
-* add support for 2 domains
-* add HEALTH CHECKS, check memory/cpu limits in swarm mode (https://docs.docker.com/engine/reference/builder/#healthcheck)
+* add HEALTH CHECKS (https://docs.docker.com/engine/reference/builder/#healthcheck)
+* use forwarded host header for "baseUrl" on backend ?
 * double-check prod build of frontend (redux tools should still work ?)
 * figure out service worker usage... (https://bit.ly/CRA-PWA)
 * fix LOGGING in java
-* register in SEARCH ENGINES
 * consider reCAPCHA ?
 * DB BACKUPS (local vs remote ?)
-* update icon
+* update site icon
 * limit parallel mail sending
 * periodic clean up of non-verified emails ?
 * optimize "is used" checks from frontend
 * use REACTIVE/ASYNC API:s
 * contacts page / technologies used / licenses.
+* fix README file.
+
 * continue developing the concept
-* LEGAL questions (trademark/non-profitable-entity, user agreement ?)
+
+* LEGAL questions (trademark/non-profitable-entity, user agreement / rules ?)
+** https://choosealicense.com
+** https://choosealicense.com/no-permission/
 * protect from DDOS attacks: https://javapipe.com/blog/iptables-ddos-protection/
 * fix caching in Nginx etc
 * use SECRETS https://docs.docker.com/engine/swarm/secrets/
@@ -31,6 +38,9 @@
 * fix ctags regexp warnings
 * add article about beauty / good qualities;
 * add description of development process;
+* consider CI service:
+** https://github.com/ligurio/awesome-ci
+** https://circleci.com/pricing/
 
 
 

@@ -7,15 +7,13 @@
 #      proj-ui  ->  /d/Downloads/projects/better-dating/better-dating-frontend
 # proj-backend  ->  /d/Downloads/projects/better-dating/better-dating-backend
 #   proj-proxy  ->  /d/Downloads/projects/better-dating/better-dating-proxy
-#  proj-images  ->  /d/Downloads/projects/better-dating/images
 
 
 alias bd-ui-server='wd proj-ui && yarn start'
 alias bd-ui-test='wd proj-ui && yarn test'
 alias bd-ui-build='wd proj-ui && yarn build'
 alias bd-ui-docker-build='wd proj-ui && docker build -t skivol/better-dating-ui:latest .'
-alias bd-ui-docker-run='docker run --name better-dating-ui -d -p 8080:80 skivol/better-dating-ui:latest'
-alias bd-ui-docker-start='docker start better-dating-ui'
+alias bd-ui-docker-run='docker run --rm --name better-dating-ui -d -p 8080:80 skivol/better-dating-ui:latest'
 alias bd-ui-docker-stop='docker stop better-dating-ui'
 alias bd-ui-view='wslview http://localhost:3000/предложение'
 alias bd-prod-view='wslview https://смотрины.укр'
@@ -62,6 +60,8 @@ alias bd-rm='docker stack rm better-dating'
 alias docker-cleanup-images='docker rmi $(docker images -f "dangling=true" -q)'
 # https://docs.docker.com/engine/reference/commandline/rm/
 alias docker-cleanup-containers='docker rm $(docker ps -a -q)'
+# https://linuxize.com/post/how-to-remove-docker-images-containers-volumes-and-networks/
+alias docker-cleanup-everything='docker system prune --volumes --force'
 
 gradleIndex=~/projects/gradle-index.txt
 # https://stackoverflow.com/questions/21212060/search-or-list-java-classes-in-classpath-ncluding-jars-via-command-line

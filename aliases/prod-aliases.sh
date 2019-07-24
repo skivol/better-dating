@@ -15,6 +15,7 @@ alias bd-prod-docker-rm-secrets='docker secret rm ssl_certificate ssl_certificat
 # TODO -d смотрины.укр
 # TODO extract puny name to variable
 alias bd-prod-certbot-get='sudo certbot certonly --standalone -d xn--h1aheckdj9e.xn--j1amh'
+alias bd-prod-certbot-expand='sudo certbot certonly --standalone --cert-name xn--h1aheckdj9e.xn--j1amh -d xn--h1aheckdj9e.xn--j1amh -d www.xn--h1aheckdj9e.xn--j1amh -d xn--h1aheckdj9e.xn--p1acf -d www.xn--h1aheckdj9e.xn--p1acf'
 # https://stackoverflow.com/questions/51104049/unable-to-create-docker-secret-with-stdin
 alias bd-prod-docker-add-secret-certificate='sudo cat /etc/letsencrypt/live/xn--h1aheckdj9e.xn--j1amh/fullchain.pem | docker secret create ssl_certificate -'
 alias bd-prod-docker-add-secret-key='sudo cat /etc/letsencrypt/live/xn--h1aheckdj9e.xn--j1amh/privkey.pem | docker secret create ssl_certificate_key -'
@@ -28,4 +29,4 @@ alias bd-prod-db-logs='docker service logs /better-dating_bd-postgres'
 # https://forums.docker.com/t/rolling-update-with-same-tag/19400/5
 alias bd-prod-update-frontend='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-frontend'
 alias bd-prod-update-backend='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-backend'
-alias bd-prod-update-proxy='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-proxy'
+alias bd-prod-update-proxy='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-reverse-proxy'
