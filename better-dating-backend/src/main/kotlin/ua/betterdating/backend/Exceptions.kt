@@ -2,18 +2,24 @@ package ua.betterdating.backend
 
 import com.fasterxml.jackson.annotation.JsonRootName
 import java.lang.IllegalArgumentException
+import javax.ws.rs.NotFoundException
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.Response.Status.BAD_REQUEST
 import javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR
 import javax.ws.rs.ext.ExceptionMapper
 import javax.ws.rs.ext.Provider
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 
 // https://devs4j.com/2017/09/11/spring-boot-rest-error-handling/
 // https://memorynotfound.com/generic-rest-service-jersey-error-handling/ ?
 // http://jersey.576304.n2.nabble.com/How-to-catch-the-response-in-case-of-an-invalid-query-paramter-td6272285.html
 @Provider
 class ExceptionMapper : ExceptionMapper<Throwable> {
+	private val LOG: Logger = LoggerFactory.getLogger(ExceptionMapper::class.java)
+
 	override fun toResponse(e: Throwable): Response {
 		val errorEntity = when(e) {
 			is EmailAlreadyPresentException -> ErrorResponseEntity(BAD_REQUEST, "Email already registered")
@@ -21,7 +27,11 @@ class ExceptionMapper : ExceptionMapper<Throwable> {
 			is NoSuchTokenException -> ErrorResponseEntity(BAD_REQUEST, "No such token")
 			is ExpiredTokenException -> ErrorResponseEntity(BAD_REQUEST, "Expired token")
 			is InvalidTokenException -> ErrorResponseEntity(BAD_REQUEST, "Invalid token format")
-			else -> ErrorResponseEntity(INTERNAL_SERVER_ERROR, "Internal error");
+			is NotFoundException -> ErrorResponseEntity(BAD_REQUEST, "Url not found on server")
+			else -> {
+				LOG.error("Internal error", e)
+				ErrorResponseEntity(INTERNAL_SERVER_ERROR, "Internal error")
+			}
 		};
 		return createResponse(errorEntity)
 	}

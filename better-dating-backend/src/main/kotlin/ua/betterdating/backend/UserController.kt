@@ -10,11 +10,15 @@ import javax.ws.rs.core.MediaType
 import org.springframework.beans.factory.annotation.Autowired
 // https://github.com/spring-projects/spring-data-commons/pull/299/files
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.core.env.Environment
 import java.lang.IllegalArgumentException
 import java.util.Base64
+import javax.ws.rs.core.Response
+import javax.ws.rs.core.Response.Status
 
 
 @Component
@@ -90,6 +94,14 @@ class EmailController @Autowired constructor(
 		return previousRequest
 	}
 
+	@GET
+	@Path("/contact")
+	@Produces(MediaType.APPLICATION_JSON)
+	fun redirectToMailTo(): ContactLink {
+		val mail = environment.getProperty("spring.mail.username")
+		return ContactLink(Base64.getUrlEncoder().encodeToString("mailto:$mail".toByteArray()))
+	}
+
 	fun createAndSaveVerificationToken(email: Email): EmailVerificationToken {
 		val token = EmailVerificationToken(email = email, expires = LocalDateTime.now().plusDays(1))
 		emailVerificationTokenRepository.save(token)
@@ -107,10 +119,11 @@ class EmailController @Autowired constructor(
 		val link = "$baseUrl/подтвердить-почту?токен=$publicToken"
 		val subject = "Подтверждение почты"
 		val body = "Спасибо за проявленный интерес к идее описанной на сайте \"смотрины.укр\"!\n" +
-			"Для подтверждения почты перейдите по ссылке: $link \n\n" +
+			"Для подтверждения почты перейдите по ссылке:\n $link \n\n" +
 			"Если это были не Вы, то не переходите по ссылке и проигнорируйте данное письмо.\n\n" +
+			"Отвечать на него не нужно, так как оно было сгенерировано автоматически.\n\n" +
 			"С уважением,\n" +
-			"смотрины.укр"
+			"смотрины.укр & смотрины.рус"
 		smotrinyMailSender.send(to = email, subject = subject, body = body)
 	}
 }
@@ -118,6 +131,7 @@ class EmailController @Autowired constructor(
 data class EmailStatus(val used: Boolean)
 data class SubmitEmailRequest(@NotNull @ValidEmail val email: String)
 data class VerifyEmailRequest(@NotNull val token: String)
+data class ContactLink(val link: String)
 
 // https://docs.oracle.com/javase/8/docs/api/java/util/Base64.html
 class Token(val id: UUID, val email: String) {

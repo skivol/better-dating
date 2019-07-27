@@ -3,40 +3,6 @@
 # https://dev.to/domysee/setting-up-a-reverse-proxy-with-nginx-and-docker-compose-29jg
 version: '3.3'
 services:
-  bd-reverse-proxy:
-    build: ./better-dating-proxy
-    image: skivol/better-dating-proxy:latest
-    container_name: "bd-prod-reverse-proxy"
-    ports:
-      - "80:80"
-      - "443:443"
-#    volumes:
-#      - ./nginx/cache/:/etc/nginx/cache
-#      - ./nginx/error.log:/etc/nginx/error_log.log
-    depends_on:
-      - bd-backend
-      - bd-frontend
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-        reservations:
-          cpus: '0.25'
-          memory: 20M
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-        window: 120s
-    secrets:
-      - source: ssl_certificate
-        # https://ru.wikipedia.org/wiki/Chmod
-        mode: 0644
-      - source: ssl_certificate_key
-        mode: 0600
-      - source: dhparam
-        mode: 0644
   bd-postgres:
     image: postgres:alpine
     container_name: "bd-prod-postgres"
@@ -84,7 +50,7 @@ services:
       restart_policy:
         condition: on-failure
         delay: 5s
-        max_attempts: 0
+        max_attempts: 1
         window: 120s
   bd-frontend:
     build: ./better-dating-frontend
@@ -103,6 +69,40 @@ services:
         delay: 5s
         max_attempts: 0
         window: 120s
+  bd-reverse-proxy:
+    build: ./better-dating-proxy
+    image: skivol/better-dating-proxy:latest
+    container_name: "bd-prod-reverse-proxy"
+    ports:
+      - "80:80"
+      - "443:443"
+#    volumes:
+#      - ./nginx/cache/:/etc/nginx/cache
+#      - ./nginx/error.log:/etc/nginx/error_log.log
+    depends_on:
+      - bd-backend
+      - bd-frontend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 1
+        window: 120s
+    secrets:
+      - source: ssl_certificate
+        # https://ru.wikipedia.org/wiki/Chmod
+        mode: 0644
+      - source: ssl_certificate_key
+        mode: 0600
+      - source: dhparam
+        mode: 0644
 volumes:
   better-dating-data-volume:
           # better-dating-nginx-volume:

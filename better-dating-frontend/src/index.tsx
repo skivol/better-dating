@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { hydrate, render } from 'react-dom';
 import 'typeface-roboto';
 // Reason using "material-design-icons-iconfont" instead of "material-design-icons"
 // https://github.com/yarnpkg/yarn/issues/5540
@@ -22,10 +22,12 @@ const store = configureAppStore();
 
 const theme = configureTheme();
 
-ReactDOM.render(
-  <Root store={store} theme={theme} />,
-  document.getElementById('root') as HTMLElement
-);
+const rootElement = document.getElementById('root') as HTMLElement;
+if (rootElement.hasChildNodes()) {
+  hydrate(<Root store={store} theme={theme} />, rootElement);
+} else {
+  render(<Root store={store} theme={theme} />, rootElement);
+}
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

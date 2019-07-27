@@ -1,5 +1,6 @@
 export const title = 'Смотрины';
 export const description = 'Сайт способствующий саморазвитию, свиданиям и созданию Семьи (предложение)';
+export const metaDescription = `${description}. Альтернатива сервисам love.ua, tinder.com, loveeto.com, badoo.com, mamba.ru`;
 export const proposal = 'предложение';
 export const Proposal = 'Предложение';
 export const pictureTooltip = 'Н. П. Петров. Смотрины невесты. 1861';
@@ -27,9 +28,11 @@ export const onlyActiveParticipants = 'только активные, уважа
 export const moreInvolvedSystem = 'более активное участие системы для воплощения целей пользователей (участники не будут иметь возможности сидеть и просматривать анкеты друг друга, пары будет предлагать система);';
 export const feedbackSystem = 'система обратной связи после свиданий (встреча не обязывает жениться/выходить замуж, но конструктивный отзыв необходим в любом случае);';
 export const fullFeaturedForFree = 'возможность свободно пользоваться полноценной системой без рекламы, премиум подписок и прочего (возможность поддержать ресурс может быть только добровольной, если человек получил пользу и хочет отблагодарить его создателей) и пр.';
-export const spreadTheWordIfSeemsInteresting = 'Если идея кажется достойной внимания, расскажите о ней знакомым :)';
+export const spreadTheWordIfSeemsInteresting = 'Если идея кажется достойной внимания, то оставляйте почту для обратной связи, и расскажите о сайте знакомым =)';
 
 export const Email = 'Почта для обратной связи';
+export const contactUs = 'С вопросами или предложениями обращайтесь на почту (почтовый клиент должен быть доступен)';
+export const contactUsButton = 'Написать письмо';
 
 export const emailVerification = 'Подтверждение почты';
 

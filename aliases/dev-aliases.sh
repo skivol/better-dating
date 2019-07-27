@@ -9,9 +9,17 @@
 #   proj-proxy  ->  /d/Downloads/projects/better-dating/better-dating-proxy
 
 
-alias bd-ui-server='wd proj-ui && yarn start'
+bd-ui-server() {
+	wd proj-ui && REACT_APP_UPDATED="$(date)" yarn start
+}
 alias bd-ui-test='wd proj-ui && yarn test'
-alias bd-ui-build='wd proj-ui && yarn build'
+# export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser && 
+# https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#alternative-setup-setuid-sandbox
+# export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox && 
+bd-ui-build() {
+	wd proj-ui && REACT_APP_UPDATED="$(date)" yarn build
+}
+# alias bd-ui-build-snap='wd proj-ui && yarn build-snap'
 alias bd-ui-docker-build='wd proj-ui && docker build -t skivol/better-dating-ui:latest .'
 alias bd-ui-docker-run='docker run --rm --name better-dating-ui -d -p 8080:80 skivol/better-dating-ui:latest'
 alias bd-ui-docker-stop='docker stop better-dating-ui'
@@ -38,19 +46,19 @@ alias bd-vim='wd proj && vim -p better-dating-backend better-dating-frontend'
 alias bd-tags='wd proj && ctags -R .'
 
 alias bd-backend-gradle='wd proj-backend && ./gradlew'
-alias bd-backend-build='bd-db-run && bd-backend-gradle build; bd-db-stop'
+alias bd-backend-build='bd-db-stop; bd-db-run && bd-backend-gradle build; bd-db-stop'
 alias bd-backend-compile='bd-backend-gradle compileJava'
 alias bd-backend-test='bd-db-run && bd-backend-gradle test; bd-db-stop'
 alias bd-backend-test-compile='bd-backend-gradle testClasses'
 alias bd-backend-update-deps='bd-backend-gradle useLatestVersions'
 # https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/html/#running-your-application-passing-arguments
-alias bd-backend-server='(export SPRING_PROFILES_ACTIVE=development; bd-backend-gradle bootRun --args="--spring.mail.username=smotriny --spring.mail.password=nMcUbwevetIlei2hxu4d --spring.datasource.username=postgres --spring.datasource.password=postgres")'
+alias bd-backend-server='(wd proj && export $(grep -v "^#" .env-dev | xargs) && bd-backend-gradle bootRun --args="--spring.mail.username=$BD_MAIL_USER --spring.mail.password=$BD_MAIL_PASSWORD --spring.datasource.username=$BD_DB_USER --spring.datasource.password=$BD_DB_PASSWORD")'
 alias bd-backend-test-results='wslview "D:\Downloads\projects\better-dating\better-dating-backend\build\reports\tests\test\index.html"'
 alias bd-build='bd-backend-build && bd-ui-build'
 alias bd-docker-build='bd-backend-docker-build && bd-ui-docker-build && bd-proxy-docker-build'
 # alias bd-start='wd proj && docker-compose up -d'
 # alias bd-stop='wd proj && docker-compose down --volume'
-alias bd-deploy='wd proj && env $(grep -v "^#" .env | xargs) docker stack deploy --compose-file docker-compose.yml better-dating'
+alias bd-deploy='wd proj && env $(grep -v "^#" .env-dev | xargs) docker stack deploy --compose-file docker-compose.yml better-dating'
 alias bd-stop='docker service scale better-dating_bd-reverse-proxy=0 better-dating_bd-backend=0 better-dating_bd-frontend=0 better-dating_bd-postgres=0'
 alias bd-start='docker service scale better-dating_bd-reverse-proxy=1 better-dating_bd-backend=1 better-dating_bd-frontend=1 better-dating_bd-postgres=1'
 alias bd-rm='docker stack rm better-dating'
@@ -106,5 +114,6 @@ alias bd-rsync-config-to-prod='rsync /d/Downloads/projects/better-dating/docker-
 alias bd-rsync-aliases-to-prod='rsync /d/Downloads/projects/better-dating/aliases/prod-aliases.sh adm1n@77.120.103.21:/home/adm1n/bd'
 # https://www.cyberciti.biz/faq/use-bash-aliases-ssh-based-session/
 alias bd-prod-deploy="prod-ssh '/bin/zsh -ic bd-prod-deploy'"
-alias bd-prod-ui-build-deploy-update='bd-ui-build && bd-ui-docker-build && bd-ui-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-frontend'
+alias bd-prod-ui-build-deploy-update='bd-ui-docker-build && bd-ui-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-frontend'
+alias bd-prod-backend-build-deploy-update='bd-backend-build && bd-backend-docker-build && bd-backend-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-backend'
 

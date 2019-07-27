@@ -43,6 +43,8 @@ logging:
     level:
         org:
             springframework: INFO
+        ua:
+            betterdating: INFO
 
 ---
 spring:

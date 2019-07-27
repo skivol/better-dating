@@ -1,55 +1,61 @@
-* fix email templates (gmail mobile client verification link) / add make contact email available;
+* commit/push latest changes / make SEO friendly (meta tags / React Helmet)
+* fix email templates (gmail mobile client verification link, mention that no need replying), add navigation button on verification page;
 * register in SEARCH ENGINES (google, duckduckgo, yandex, bing, yahoo etc)
+* add "back to main" button on "verification" page
 * use social media to publish info (facebook, vk, linkedin?)
 * use file/docker secret for DB/Mail passwords
 * add HEALTH CHECKS (https://docs.docker.com/engine/reference/builder/#healthcheck)
-* use forwarded host header for "baseUrl" on backend ?
+* use forwarded host header for "baseUrl" on backend ? (used for mail content / url)
 * double-check prod build of frontend (redux tools should still work ?)
 * figure out service worker usage... (https://bit.ly/CRA-PWA)
 * fix LOGGING in java
 * consider reCAPCHA ?
-* DB BACKUPS (local vs remote ?)
 * update site icon
 * limit parallel mail sending
-* periodic clean up of non-verified emails ?
 * optimize "is used" checks from frontend
 * use REACTIVE/ASYNC API:s
 * contacts page / technologies used / licenses.
 * fix README file.
 
 * continue developing the concept
+* [authentication] social login as addition to email powered one ?
 
 * LEGAL questions (trademark/non-profitable-entity, user agreement / rules ?)
 ** https://choosealicense.com
 ** https://choosealicense.com/no-permission/
 * protect from DDOS attacks: https://javapipe.com/blog/iptables-ddos-protection/
 * fix caching in Nginx etc
-* use SECRETS https://docs.docker.com/engine/swarm/secrets/
 * investigate increase of SHM_SIZE for postgres
 * add profiles to activate Mail / Flyway on demand
 * figure out Java Modules usage...
-* consider using Docker Registry
-* consider registering Belarusian domain (.бел)
 * command line / git - text based task management (use "taskwarrior" ?)
 * consider using `redux-starter-kit` (https://redux-starter-kit.js.org)
 * checkout GraalVM
 * T-shirts / wear with logo/name of the site
 * checkout vim code completion: https://github.com/neoclide/coc.nvim
 * fix ctags regexp warnings
+* "depends_on" doesn't work in swarm mode (https://github.com/moby/moby/issues/31333)
+
+# Content
 * add article about beauty / good qualities;
 * add description of development process;
+
+# Things to consider
+* consider using Docker Registry
+* consider registering Belarusian domain (.бел)
 * consider CI service:
 ** https://github.com/ligurio/awesome-ci
 ** https://circleci.com/pricing/
 
-
-
+# Recurring tasks
 * [recurring] pay for email / virtual machine / domain names;
+* DB BACKUPS (local vs remote ?)
+* periodic clean up of non-verified emails ?
 * configure SSL Let's encrypt (renewal / backup) (https://www.ssllabs.com/ssltest/analyze.html?d=xn--h1aheckdj9e.xn--j1amh)
+** https://certbot.eff.org/docs/using.html#certbot-commands
 ** https://www.freecodecamp.org/news/docker-nginx-letsencrypt-easy-secure-reverse-proxy-40165ba3aee2/
 ** https://dev.to/domysee/setting-up-a-reverse-proxy-with-nginx-and-docker-compose-29jg
 ** https://blog.ukrnames.com/administrirovanie/usilenie-ssl-dlya-veb-servera-nginx
-** https://certbot.eff.org/docs/using.html#certbot-commands
 ** https://certbot.eff.org/lets-encrypt/centosrhel7-apache.html
 * Backup SSL configs etc:
  - Congratulations! Your certificate and chain have been saved at:

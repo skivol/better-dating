@@ -10,9 +10,11 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import CardMedia from '@material-ui/core/CardMedia';
+import Button from '@material-ui/core/Button';
 
 import Dialog from '@material-ui/core/Dialog';
 
+import { getData } from '../FetchUtils';
 import EmailForm from '../containers/EmailForm';
 import FirstStageFlow from './img/Первый_этап.png';
 import * as Messages from './Messages';
@@ -27,6 +29,9 @@ const useStyles = makeStyles((theme: Theme) =>
       flexBasis: '90%',
       flexShrink: 0,
     },
+    button: {
+      margin: theme.spacing(1),
+    },
   })
 );
 
@@ -35,6 +40,12 @@ const boxStyle: React.CSSProperties = {
 	marginTop: '15px',
 	marginBottom: '15px',
 	minWidth: '395px'
+};
+
+const onContactRequest = () => {
+	return getData("/api/user/email/contact").then(({ link }: any) => {
+		window.location.href = atob(link);
+	});
 };
 
 const DialogWithFirstStageFlowImage = (open: boolean, handleClose: () => void) => (
@@ -54,6 +65,10 @@ const DialogWithFirstStageFlowImage = (open: boolean, handleClose: () => void) =
 export interface Props {
   onEmailSubmit: () => void;
 }
+
+const centerStyle = {
+	style: { alignItems: 'center', display: 'flex' }
+};
 
 const Proposal = ({ onEmailSubmit }: Props) => {
 	const classes = useStyles();
@@ -169,12 +184,12 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 				</ExpansionPanel>
 			</Grid>
 			<Grid item>
-				<Paper>
+				<Paper style={{maxWidth: '650px', margin: 'auto' }}>
 					<Grid container direction="row" wrap="nowrap" spacing={1} style={{ margin: '10px', padding: '10px' }}>
-						<Grid item style={{ alignItems: 'center', display: 'flex' }}>
+						<Grid item xs={1} {...centerStyle}>
 							<Icon style={{ color: 'red' }} className="fas fa-exclamation-circle" />
 						</Grid>
-						<Grid item xs>
+						<Grid item xs={10}>
 							<Typography>
 								{Messages.spreadTheWordIfSeemsInteresting}
 							</Typography>
@@ -184,6 +199,24 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 			</Grid>
 			<Grid item>
 				<EmailForm onSubmit={onEmailSubmit} />
+			</Grid>
+			<Grid item>
+				<Paper style={{maxWidth: '650px', margin: 'auto' }}>
+					<Grid container direction="row" spacing={1} style={{ margin: '10px', padding: '10px' }}>
+						<Grid item xs={6} {...centerStyle}>
+							<Typography style={{fontSize: '0.75rem'}}>
+								{Messages.contactUs}
+							</Typography>
+						</Grid>
+						<Grid item xs={4} {...centerStyle}>
+							{/* https://www.ionos.com/digitalguide/e-mail/e-mail-security/protecting-your-email-address-how-to-do-it/ */}
+							{/* https://www.quora.com/Should-you-pass-an-email-address-in-a-url */}
+							<Button variant="outlined" onClick={onContactRequest} className={classes.button}>
+								{Messages.contactUsButton}
+							</Button>
+						</Grid>
+					</Grid>
+				</Paper>
 			</Grid>
 		{dialog}
 		</Grid>

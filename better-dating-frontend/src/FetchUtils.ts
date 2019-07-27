@@ -9,7 +9,7 @@ const tryParseJson = (response: Response, resolve: (result: any) => void, reject
 	}
 });
 
-export function getData(url: string, params: { [key: string]: string; }) {
+export function getData(url: string, params: { [key: string]: string; } = {}) {
 	const urlSearchParams = new URLSearchParams();
 	Object.keys(params).forEach(key => urlSearchParams.append(key, params[key]))
 	return new Promise((resolve, reject) => fetch(`${url}?${urlSearchParams}`, {
