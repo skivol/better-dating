@@ -1,5 +1,7 @@
 # https://hub.docker.com/r/buildkite/puppeteer/
 FROM buildkite/puppeteer as builder
+# https://stackoverflow.com/questions/50126741/how-to-remove-intermediate-images-from-a-build-after-the-build
+LABEL stage=builder
 
 COPY . /app
 RUN cd /app && yarn install && REACT_APP_UPDATED="$(date)" yarn run build-snap

@@ -57,6 +57,7 @@ const DialogWithFirstStageFlowImage = (open: boolean, handleClose: () => void) =
 		<CardMedia
 			image={FirstStageFlow}
 			component="img"
+			alt={Messages.firstStageFlowAlt}
 			style={{width: '863px', height: '304px'}}
 		/>
 	</Dialog>

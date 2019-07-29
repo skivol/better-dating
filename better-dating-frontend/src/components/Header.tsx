@@ -45,6 +45,7 @@ const Header = () => (
 				<CardMedia
 					image={PetrovSmotrinyNevesty}
 					component="img"
+					alt={Messages.pictureTooltip}
 					style={imageStyle}
 				/>
 			</Tooltip>

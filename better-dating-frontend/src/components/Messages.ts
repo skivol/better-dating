@@ -3,7 +3,7 @@ export const description = 'Сайт способствующий самораз
 export const metaDescription = `${description}. Альтернатива сервисам love.ua, tinder.com, loveeto.com, badoo.com, mamba.ru`;
 export const proposal = 'предложение';
 export const Proposal = 'Предложение';
-export const pictureTooltip = 'Н. П. Петров. Смотрины невесты. 1861';
+export const pictureTooltip = 'Н. П. Петров. Смотрины невесты. 1861 (https://ru.wikipedia.org/wiki/Смотрины)';
 export const email = 'Почта';
 export const notifyMeWhenAvailable = 'Сообщите когда запустите!';
 export const footer = 'смотрины.укр & смотрины.рус';
@@ -38,3 +38,5 @@ export const emailVerification = 'Подтверждение почты';
 
 export const tokenName = 'токен';
 export const sendNewVerificationToken = 'Отправить новый токен';
+
+export const firstStageFlowAlt = 'Диаграмма схематически описывающая первый этап использования предлагаемой системы: анкета - самооценка и саморазвитие - свидания - обратная связь - если оба участника хотят продолжать отношения, то переход на следующий этап, иначе возврат на шаг 2.';

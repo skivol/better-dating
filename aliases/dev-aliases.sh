@@ -20,7 +20,7 @@ bd-ui-build() {
 	wd proj-ui && REACT_APP_UPDATED="$(date)" yarn build
 }
 # alias bd-ui-build-snap='wd proj-ui && yarn build-snap'
-alias bd-ui-docker-build='wd proj-ui && docker build -t skivol/better-dating-ui:latest .'
+alias bd-ui-docker-build='wd proj-ui && docker build -t skivol/better-dating-ui:latest . && docker image prune -f --filter label=stage=builder'
 alias bd-ui-docker-run='docker run --rm --name better-dating-ui -d -p 8080:80 skivol/better-dating-ui:latest'
 alias bd-ui-docker-stop='docker stop better-dating-ui'
 alias bd-ui-view='wslview http://localhost:3000/предложение'
@@ -116,4 +116,5 @@ alias bd-rsync-aliases-to-prod='rsync /d/Downloads/projects/better-dating/aliase
 alias bd-prod-deploy="prod-ssh '/bin/zsh -ic bd-prod-deploy'"
 alias bd-prod-ui-build-deploy-update='bd-ui-docker-build && bd-ui-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-frontend'
 alias bd-prod-backend-build-deploy-update='bd-backend-build && bd-backend-docker-build && bd-backend-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-backend'
+alias bd-prod-proxy-build-deploy-update='bd-proxy-docker-build && bd-proxy-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-proxy'
 

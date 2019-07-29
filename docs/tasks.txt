@@ -1,4 +1,3 @@
-* commit/push latest changes / make SEO friendly (meta tags / React Helmet)
 * fix email templates (gmail mobile client verification link, mention that no need replying), add navigation button on verification page;
 * register in SEARCH ENGINES (google, duckduckgo, yandex, bing, yahoo etc)
 * add "back to main" button on "verification" page
@@ -31,14 +30,22 @@
 * command line / git - text based task management (use "taskwarrior" ?)
 * consider using `redux-starter-kit` (https://redux-starter-kit.js.org)
 * checkout GraalVM
-* T-shirts / wear with logo/name of the site
 * checkout vim code completion: https://github.com/neoclide/coc.nvim
 * fix ctags regexp warnings
 * "depends_on" doesn't work in swarm mode (https://github.com/moby/moby/issues/31333)
+* fix redirect to localhost (FF) ? when it happens ??
+
+Goods
+* design print business cards (QR-code, name / description / "pass on"/spread the word instruction ;) )
+* T-shirts / wear with logo/name of the site
 
 # Content
 * add article about beauty / good qualities;
 * add description of development process;
+
+# SEO
+* https://medium.com/@prestonwallace/3-ways-improve-react-seo-without-isomorphic-app-a6354595e400
+* https://netpeak.net/ru/blog/kak-optimizirovat-spa-sayty/
 
 # Things to consider
 * consider using Docker Registry
