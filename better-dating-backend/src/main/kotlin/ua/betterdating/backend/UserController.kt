@@ -1,5 +1,6 @@
 package ua.betterdating.backend
 
+import freemarker.template.Configuration
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.validation.Valid
@@ -13,6 +14,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.core.env.Environment
 import java.lang.IllegalArgumentException
@@ -27,7 +29,8 @@ class EmailController @Autowired constructor(
 	val emailRepository: EmailRepository,
 	val emailVerificationTokenRepository: EmailVerificationTokenRepository,
 	val smotrinyMailSender: SmotrinyMailSender,
-	val environment: Environment
+	val environment: Environment,
+	val templateConfiguration: Configuration
 ) {
 	@GET
 	@Path("/status")
@@ -98,7 +101,7 @@ class EmailController @Autowired constructor(
 	@Path("/contact")
 	@Produces(MediaType.APPLICATION_JSON)
 	fun redirectToMailTo(): ContactLink {
-		val mail = environment.getProperty("spring.mail.username")
+		val mail = environment.getProperty("spring.mail.username")!!
 		return ContactLink(Base64.getUrlEncoder().encodeToString("mailto:$mail".toByteArray()))
 	}
 
@@ -114,17 +117,14 @@ class EmailController @Autowired constructor(
 	}
 
 	fun sendVerificationEmailWithLink(id: UUID, email: String) {
+		val from = environment.getProperty("spring.mail.username")!!
 		val publicToken = Token(id = id, email = email).base64Value()
 		val baseUrl = environment.getProperty("baseUrl")
 		val link = "$baseUrl/подтвердить-почту?токен=$publicToken"
 		val subject = "Подтверждение почты"
-		val body = "Спасибо за проявленный интерес к идее описанной на сайте \"смотрины.укр\"!\n" +
-			"Для подтверждения почты перейдите по ссылке:\n $link \n\n" +
-			"Если это были не Вы, то не переходите по ссылке и проигнорируйте данное письмо.\n\n" +
-			"Отвечать на него не нужно, так как оно было сгенерировано автоматически.\n\n" +
-			"С уважением,\n" +
-			"смотрины.укр & смотрины.рус"
-		smotrinyMailSender.send(to = email, subject = subject, body = body)
+		val template = templateConfiguration.getTemplate("ValidateEmail.ftlh");
+		val body = FreeMarkerTemplateUtils.processTemplateIntoString(template, VerifyLink(link))
+		smotrinyMailSender.send(from = from, to = email, subject = subject, body = body)
 	}
 }
 
@@ -132,6 +132,7 @@ data class EmailStatus(val used: Boolean)
 data class SubmitEmailRequest(@NotNull @ValidEmail val email: String)
 data class VerifyEmailRequest(@NotNull val token: String)
 data class ContactLink(val link: String)
+data class VerifyLink(val verifyLink: String)
 
 // https://docs.oracle.com/javase/8/docs/api/java/util/Base64.html
 class Token(val id: UUID, val email: String) {

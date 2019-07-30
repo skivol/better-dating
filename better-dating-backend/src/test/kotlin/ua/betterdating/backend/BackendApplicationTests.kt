@@ -68,7 +68,7 @@ class BackendApplicationTests(@Autowired val restTemplate: TestRestTemplate) {
 		// Then
 		assertThat(entity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
 		// TODO return json with error description
-		assertThat(entity.body).contains("<body>Bad Request</body>")
+		assertThat(entity.body).contains("\"status\":400,\"error\":\"Bad Request\"")
 	}
 
 	@Test

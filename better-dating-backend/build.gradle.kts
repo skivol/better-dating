@@ -28,23 +28,34 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter")
+
+	// DB
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.postgresql:postgresql")
+	implementation("org.flywaydb:flyway-core")
+
+	// Web
+	implementation("org.springframework.boot:spring-boot-starter-web") {
+		exclude("org.springframework.boot", "spring-boot-starter-tomcat")
+	}
 	implementation("org.springframework.boot:spring-boot-starter-jersey") {
 		exclude("org.springframework.boot", "spring-boot-starter-tomcat")
 	}
 	implementation("org.springframework.boot:spring-boot-starter-undertow")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
+	// Mail
 	implementation("org.springframework.boot:spring-boot-starter-mail")
-
-	implementation("org.flywaydb:flyway-core")
+	implementation("org.springframework.boot:spring-boot-starter-freemarker")
 
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
+	// Dev Tools
 	runtimeOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("com.h2database:h2")
+
+	// Test
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(module = "junit")
 		exclude(module = "mockito-core")

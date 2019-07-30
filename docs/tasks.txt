@@ -1,6 +1,5 @@
-* fix email templates (gmail mobile client verification link, mention that no need replying), add navigation button on verification page;
+* mention "smotriny.ru" as another alternative which was considered;
 * register in SEARCH ENGINES (google, duckduckgo, yandex, bing, yahoo etc)
-* add "back to main" button on "verification" page
 * use social media to publish info (facebook, vk, linkedin?)
 * use file/docker secret for DB/Mail passwords
 * add HEALTH CHECKS (https://docs.docker.com/engine/reference/builder/#healthcheck)
@@ -15,6 +14,8 @@
 * use REACTIVE/ASYNC API:s
 * contacts page / technologies used / licenses.
 * fix README file.
+* integration tests using kotlin jgiven
+* use WSL 2 as dev environment (https://habr.com/ru/company/microsoft/blog/456204/)
 
 * continue developing the concept
 * [authentication] social login as addition to email powered one ?
@@ -36,7 +37,7 @@
 * fix redirect to localhost (FF) ? when it happens ??
 
 Goods
-* design print business cards (QR-code, name / description / "pass on"/spread the word instruction ;) )
+* design print business cards (QR-code, name / description / "pass on"/spread the word instruction ;), contact email)
 * T-shirts / wear with logo/name of the site
 
 # Content
@@ -48,6 +49,7 @@ Goods
 * https://netpeak.net/ru/blog/kak-optimizirovat-spa-sayty/
 
 # Things to consider
+* Push notifications instead (or as an alternative?) of mail messages ?
 * consider using Docker Registry
 * consider registering Belarusian domain (.бел)
 * consider CI service:
