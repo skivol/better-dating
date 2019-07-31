@@ -180,6 +180,10 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 								<li>{Messages.feedbackSystem}</li>
 								<li>{Messages.fullFeaturedForFree}</li>
 							</ul>
+							<Divider style={{margin: '10px'}} />
+							<Typography>
+								{Messages.AboutSmotrinyRu}
+							</Typography>
 						</Grid>
 					</ExpansionPanelDetails>
 				</ExpansionPanel>
