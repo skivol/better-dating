@@ -1,4 +1,3 @@
-* register in SEARCH ENGINES (google, duckduckgo, yandex, bing, yahoo etc)
 * use social media to publish info (facebook, vk, linkedin?)
 * use file/docker secret for DB/Mail passwords
 * add HEALTH CHECKS (https://docs.docker.com/engine/reference/builder/#healthcheck)

@@ -38,16 +38,19 @@ const getMetaTags = ({
 		{ itemprop: 'name', content: title },
 		{ itemprop: 'description', content: description },
 		{ name: 'description', content: description },
-		{ name: 'twitter:site', content: '@skivol' },
+		/* { name: 'twitter:site', content: '@skivol' },
 		{ name: 'twitter:title', content: `${title} | ${domainName} & ${altDomainName}` },
 		{ name: 'twitter:description', content: description },
-		{ name: 'twitter:creator', content: twitter || '@skivol' },
+		{ name: 'twitter:creator', content: twitter || '@skivol' }, */
 		{ name: 'og:title', content: `${title} | ${domainName} & ${altDomainName}` },
 		{ name: 'og:type', content: contentType },
 		{ name: 'og:url', content: url },
 		{ name: 'og:description', content: description },
 		{ name: 'og:site_name', content: domainName },
 		{ name: 'og:locale', content: 'ru_RU' },
+		{ name: 'google-site-verification', content: 'H5lx792ITP1wTfGQOHvdUgVn-hCec4NVN1_hjojG0uQ' },
+		{ name: 'yandex-verification', content: '7c939c3f5bb596a0' },
+		{ name: 'msvalidate.01', content: 'F40FD4A0E1B52B879491992CE9E2864B' },
 		// { name: 'fb:app_id', content: '<FB App ID>' },
 	];
 	
