@@ -184,6 +184,10 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 							<Typography>
 								{Messages.AboutSmotrinyRu}
 							</Typography>
+							<Divider style={{margin: '10px'}} />
+							<Typography>
+								{Messages.OtherAlternatives}
+							</Typography>
 						</Grid>
 					</ExpansionPanelDetails>
 				</ExpansionPanel>
