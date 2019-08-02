@@ -16,6 +16,14 @@ alias bd-prod-docker-rm-secrets='docker secret rm ssl_certificate ssl_certificat
 # TODO extract puny name to variable
 alias bd-prod-certbot-get='sudo certbot certonly --standalone -d xn--h1aheckdj9e.xn--j1amh'
 alias bd-prod-certbot-expand='sudo certbot certonly --standalone --cert-name xn--h1aheckdj9e.xn--j1amh -d xn--h1aheckdj9e.xn--j1amh -d www.xn--h1aheckdj9e.xn--j1amh -d xn--h1aheckdj9e.xn--p1acf -d www.xn--h1aheckdj9e.xn--p1acf'
+alias bd-prod-certbot-renew='sudo certbot renew --force-renewal'
+# TODO use configure crontab for the command
+# TODO consider starting the proxy in the end regardless of renew success
+# https://askubuntu.com/questions/1071263/multi-line-alias-in-bash
+alias bd-prod-certificates-update='bd-prod-proxy-stop && bd-prod-certbot-renew \
+	&& bd-prod-proxy-remove-secrets && bd-prod-docker-rm-secrets \
+	&& bd-prod-docker-add-secret-certificate && bd-prod-docker-add-secret-key \
+	&& bd-prod-proxy-add-secrets && bd-prod-proxy-start'
 # https://stackoverflow.com/questions/51104049/unable-to-create-docker-secret-with-stdin
 alias bd-prod-docker-add-secret-certificate='sudo cat /etc/letsencrypt/live/xn--h1aheckdj9e.xn--j1amh/fullchain.pem | docker secret create ssl_certificate -'
 alias bd-prod-docker-add-secret-key='sudo cat /etc/letsencrypt/live/xn--h1aheckdj9e.xn--j1amh/privkey.pem | docker secret create ssl_certificate_key -'
@@ -30,3 +38,11 @@ alias bd-prod-db-logs='docker service logs /better-dating_bd-postgres'
 alias bd-prod-update-frontend='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-frontend'
 alias bd-prod-update-backend='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-backend'
 alias bd-prod-update-proxy='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-reverse-proxy'
+
+# Backups
+# Letsencrypt
+alias bd-prod-backup-letsencrypt-create='sudo zip -r /home/adm1n/backups/bd-letsencrypt.zip /etc/letsencrypt/'
+# Database
+## https://stackoverflow.com/a/29913462
+## https://stackoverflow.com/questions/45923445/pg-dumpall-missing-in-connection-string
+alias bd-prod-backup-db-dump='docker exec -i better-dating_bd-postgres.1.ukaesw81mer9120liqilrgngl pg_dumpall -c -l better-dating -U bd-user | gzip > /home/adm1n/backups/db/dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql.gz'

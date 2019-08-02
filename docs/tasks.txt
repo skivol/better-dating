@@ -56,37 +56,4 @@ Goods
 # Recurring tasks
 * [recurring] pay for email / virtual machine / domain names;
 * periodic clean up of non-verified emails ?
-* DB BACKUPS (local vs remote ?)
-* configure SSL Let's encrypt (renewal / backup) (https://www.ssllabs.com/ssltest/analyze.html?d=xn--h1aheckdj9e.xn--j1amh)
-** https://certbot.eff.org/docs/using.html#certbot-commands
-** https://www.freecodecamp.org/news/docker-nginx-letsencrypt-easy-secure-reverse-proxy-40165ba3aee2/
-** https://dev.to/domysee/setting-up-a-reverse-proxy-with-nginx-and-docker-compose-29jg
-** https://blog.ukrnames.com/administrirovanie/usilenie-ssl-dlya-veb-servera-nginx
-** https://certbot.eff.org/lets-encrypt/centosrhel7-apache.html
-* Backup SSL configs etc:
- - Congratulations! Your certificate and chain have been saved at:
-   /etc/letsencrypt/live/xn--h1aheckdj9e.xn--j1amh/fullchain.pem
-   Your key file has been saved at:
-   /etc/letsencrypt/live/xn--h1aheckdj9e.xn--j1amh/privkey.pem
-   Your cert will expire on 2019-10-19. To obtain a new or tweaked
-   version of this certificate in the future, simply run certbot
-   again. To non-interactively renew *all* of your certificates, run
-   "certbot renew"
- - Your account credentials have been saved in your Certbot
-   configuration directory at /etc/letsencrypt. You should make a
-   secure backup of this folder now. This configuration directory will
-   also contain certificates and private keys obtained by Certbot so
-   making regular backups of this folder is ideal.
- - If you like Certbot, please consider supporting our work by:
-
-   Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
-   Donating to EFF:                    https://eff.org/donate-le
-* https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf
-
-
-Docker daemon config:
-[adm1n@21 ~]$ sudo cat /etc/docker/daemon.json
-[sudo] password for adm1n:
-{
-   "storage-driver": "overlay2"
-}
+* use crontab for periodic certificates/db backups

@@ -113,8 +113,15 @@ alias bd-transfer-images-to-prod='bd-backend-transfer-image-to-prod && bd-ui-tra
 alias bd-rsync-config-to-prod='rsync /d/Downloads/projects/better-dating/docker-compose.yml adm1n@77.120.103.21:/home/adm1n/bd'
 alias bd-rsync-aliases-to-prod='rsync /d/Downloads/projects/better-dating/aliases/prod-aliases.sh adm1n@77.120.103.21:/home/adm1n/bd'
 # https://www.cyberciti.biz/faq/use-bash-aliases-ssh-based-session/
-alias bd-prod-deploy="prod-ssh '/bin/zsh -ic bd-prod-deploy'"
+alias bd-prod-deploy="prod-ssh-zsh bd-prod-deploy"
 alias bd-prod-ui-build-deploy-update='bd-ui-docker-build && bd-ui-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-frontend'
 alias bd-prod-backend-build-deploy-update='bd-backend-build && bd-backend-docker-build && bd-backend-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-backend'
 alias bd-prod-proxy-build-deploy-update='bd-proxy-docker-build && bd-proxy-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-proxy'
+
+# Backup
+# Letsencrypt
+alias bd-prod-backup-letsencrypt="prod-ssh-zsh bd-prod-backup-letsencrypt-create \
+	&& sudo rsync root@77.120.103.21:/home/adm1n/backups/bd-letsencrypt.zip /d/Downloads/projects/better-dating/backup"
+alias bd-prod-backup-db='prod-ssh-zsh bd-prod-backup-db-dump \
+	&& rsync -avz --delete adm1n@77.120.103.21:/home/adm1n/backups/db /d/Downloads/projects/better-dating/backup'
 
