@@ -32,7 +32,6 @@
 * checkout vim code completion: https://github.com/neoclide/coc.nvim
 * fix ctags regexp warnings
 * "depends_on" doesn't work in swarm mode (https://github.com/moby/moby/issues/31333)
-* fix redirect to localhost (FF) ? when it happens ??
 
 Goods
 * design print business cards (QR-code, name / description / "pass on"/spread the word instruction ;), contact email)
@@ -56,8 +55,8 @@ Goods
 
 # Recurring tasks
 * [recurring] pay for email / virtual machine / domain names;
-* DB BACKUPS (local vs remote ?)
 * periodic clean up of non-verified emails ?
+* DB BACKUPS (local vs remote ?)
 * configure SSL Let's encrypt (renewal / backup) (https://www.ssllabs.com/ssltest/analyze.html?d=xn--h1aheckdj9e.xn--j1amh)
 ** https://certbot.eff.org/docs/using.html#certbot-commands
 ** https://www.freecodecamp.org/news/docker-nginx-letsencrypt-easy-secure-reverse-proxy-40165ba3aee2/
