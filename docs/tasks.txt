@@ -1,6 +1,4 @@
-* use social media to publish info (facebook, vk, linkedin?)
-* use file/docker secret for DB/Mail passwords
-* add HEALTH CHECKS (https://docs.docker.com/engine/reference/builder/#healthcheck)
+* add HEALTH CHECKS (https://docs.docker.com/engine/reference/builder/#healthcheck) (spring-boot-actuator)
 * use forwarded host header for "baseUrl" on backend ? (used for mail content / url)
 * double-check prod build of frontend (redux tools should still work ?)
 * figure out service worker usage... (https://bit.ly/CRA-PWA)
@@ -10,7 +8,6 @@
 * limit parallel mail sending
 * optimize "is used" checks from frontend
 * use REACTIVE/ASYNC API:s
-* contacts page / technologies used / licenses.
 * fix README file.
 * integration tests using kotlin jgiven
 * use WSL 2 as dev environment (https://habr.com/ru/company/microsoft/blog/456204/)
@@ -38,6 +35,7 @@ Goods
 * T-shirts / wear with logo/name of the site
 
 # Content
+* contacts page? / technologies used / licenses.
 * add article about beauty / good qualities;
 * add description of development process;
 
@@ -57,3 +55,4 @@ Goods
 * [recurring] pay for email / virtual machine / domain names;
 * periodic clean up of non-verified emails ?
 * use crontab for periodic certificates/db backups
+* backup ssh key

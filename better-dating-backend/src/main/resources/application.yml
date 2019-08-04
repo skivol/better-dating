@@ -60,7 +60,6 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost/postgres?currentSchema=public
     username: postgres
-    password: postgres
   jpa:
     hibernate:
             #ddl-auto: create-drop

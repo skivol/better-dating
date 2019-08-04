@@ -1,0 +1,13 @@
+# https://docs.docker.com/compose/env-file/
+# Spring
+SPRING_PROFILES_ACTIVE=development
+
+# Database
+BD_DB=better-dating
+BD_DB_USER=bd-user
+BD_DB_PASSWORD_FILE=
+
+# Mail
+# Fill in the credentials for testing email integration
+BD_MAIL_USER=
+BD_MAIL_PASSWORD_FILE==

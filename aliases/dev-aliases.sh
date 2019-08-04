@@ -52,7 +52,7 @@ alias bd-backend-test='bd-db-run && bd-backend-gradle test; bd-db-stop'
 alias bd-backend-test-compile='bd-backend-gradle testClasses'
 alias bd-backend-update-deps='bd-backend-gradle useLatestVersions'
 # https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/html/#running-your-application-passing-arguments
-alias bd-backend-server='(wd proj && export $(grep -v "^#" .env-dev | xargs) && bd-backend-gradle bootRun --args="--spring.mail.username=$BD_MAIL_USER --spring.mail.password=$BD_MAIL_PASSWORD --spring.datasource.username=$BD_DB_USER --spring.datasource.password=$BD_DB_PASSWORD")'
+alias bd-backend-server='(wd proj && export $(grep -v "^#" .env-dev | xargs) && bd-backend-gradle bootRun --args="--spring.mail.username=$BD_MAIL_USER --spring.mail.passwordfile=$BD_MAIL_PASSWORD_FILE --spring.datasource.username=$BD_DB_USER --spring.datasource.passwordfile=$BD_DB_PASSWORD_FILE")'
 alias bd-backend-test-results='wslview "D:\Downloads\projects\better-dating\better-dating-backend\build\reports\tests\test\index.html"'
 alias bd-build='bd-backend-build && bd-ui-build'
 alias bd-docker-build='bd-backend-docker-build && bd-ui-docker-build && bd-proxy-docker-build'
@@ -122,6 +122,7 @@ alias bd-prod-proxy-build-deploy-update='bd-proxy-docker-build && bd-proxy-trans
 # Letsencrypt
 alias bd-prod-backup-letsencrypt="prod-ssh-zsh bd-prod-backup-letsencrypt-create \
 	&& sudo rsync root@77.120.103.21:/home/adm1n/backups/bd-letsencrypt.zip /d/Downloads/projects/better-dating/backup"
+# Or https://github.com/prodrigestivill/docker-postgres-backup-local
 alias bd-prod-backup-db='prod-ssh-zsh bd-prod-backup-db-dump \
 	&& rsync -avz --delete adm1n@77.120.103.21:/home/adm1n/backups/db /d/Downloads/projects/better-dating/backup'
-
+alias bd-prod-backup-all="bd-prod-backup-letsencrypt && bd-prod-backup-db"

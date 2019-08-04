@@ -1,5 +1,8 @@
 # Environment
-.env
+.env-dev
+
+# Backups
+backup/
 
 # Vim (https://github.com/github/gitignore/blob/master/Global/Vim.gitignore)
 ## Swap
