@@ -33,6 +33,7 @@ alias bd-prod-proxy-logs='docker service logs /better-dating_bd-reverse-proxy'
 alias bd-prod-backend-logs='docker service logs /better-dating_bd-backend'
 alias bd-prod-ui-logs='docker service logs /better-dating_bd-ui'
 alias bd-prod-db-logs='docker service logs /better-dating_bd-postgres'
+alias bd-prod-psql=' docker run --rm --name prod-psql --network better-dating_default --link better-dating_bd-postgres:better-dating_bd-postgres -it postgres:alpine psql -h better-dating_bd-postgres -U bd-user better-dating'
 
 # https://forums.docker.com/t/rolling-update-with-same-tag/19400/5
 alias bd-prod-update-frontend='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-frontend'

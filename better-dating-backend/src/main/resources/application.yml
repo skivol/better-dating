@@ -60,7 +60,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-baseUrl: https://смотрины.укр
 
 ---
 spring:
@@ -72,4 +71,3 @@ spring:
     hibernate:
             #ddl-auto: create-drop
       ddl-auto: validate
-baseUrl: http://localhost:3000

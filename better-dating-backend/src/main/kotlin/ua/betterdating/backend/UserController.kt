@@ -1,13 +1,21 @@
 package ua.betterdating.backend
 
 import freemarker.template.Configuration
+import java.lang.IllegalArgumentException
+import java.net.IDN
 import java.time.LocalDateTime
 import java.util.UUID
+import java.util.Base64
 import javax.validation.Valid
 import javax.validation.constraints.Email as ValidEmail
 import javax.validation.constraints.NotNull
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.Response
+import javax.ws.rs.core.Response.Status
+import javax.ws.rs.HeaderParam
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 // https://github.com/spring-projects/spring-data-commons/pull/299/files
 import org.springframework.data.repository.findByIdOrNull
@@ -16,11 +24,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.core.env.Environment
-import java.lang.IllegalArgumentException
-import java.util.Base64
-import javax.ws.rs.core.Response
-import javax.ws.rs.core.Response.Status
 
 
 @Component
@@ -32,6 +37,8 @@ class EmailController @Autowired constructor(
 	val environment: Environment,
 	val templateConfiguration: Configuration
 ) {
+	private val LOG: Logger = LoggerFactory.getLogger(EmailController::class.java)
+
 	@GET
 	@Path("/status")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -43,17 +50,18 @@ class EmailController @Autowired constructor(
 	@Path("/submit")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	fun submitEmail(@Valid @RequestBody submitEmailRequest: SubmitEmailRequest): SubmitEmailRequest {
+	fun submitEmail(@HeaderParam("Host") hostHeader: String, @Valid @RequestBody submitEmailRequest: SubmitEmailRequest): SubmitEmailRequest {
 		if (emailStatus(submitEmailRequest.email).used) {
 			throw EmailAlreadyPresentException()
 		}
+		LOG.info("Processing submit email request. Host: $hostHeader")
 
 		val email = Email(email = submitEmailRequest.email, verified = false)
 		emailRepository.save(email)
 
 		val verificationTokenEntity = createAndSaveVerificationToken(email)
 
-		sendVerificationEmailWithLink(verificationTokenEntity.id!!, submitEmailRequest.email)
+		sendVerificationEmailWithLink(hostHeader, verificationTokenEntity.id!!, submitEmailRequest.email)
 
 		return submitEmailRequest
 	}
@@ -83,7 +91,7 @@ class EmailController @Autowired constructor(
 	@Path("/new-verification")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	fun triggerNewVerification(@Valid previousRequest: VerifyEmailRequest): VerifyEmailRequest {
+	fun triggerNewVerification(@HeaderParam("Host") hostHeader: String, @Valid previousRequest: VerifyEmailRequest): VerifyEmailRequest {
 		val decodedToken = parseToken(previousRequest.token)
 		val email = emailRepository.findByEmail(decodedToken.email) ?: throw EmailNotFoundException()
 		// Remove existing token if any
@@ -92,7 +100,7 @@ class EmailController @Autowired constructor(
 		}
 
 		val newToken = createAndSaveVerificationToken(email)
-		sendVerificationEmailWithLink(newToken.id!!, email.email)
+		sendVerificationEmailWithLink(hostHeader, newToken.id!!, email.email)
 
 		return previousRequest
 	}
@@ -116,11 +124,11 @@ class EmailController @Autowired constructor(
 				?: throw NoSuchTokenException()
 	}
 
-	fun sendVerificationEmailWithLink(id: UUID, email: String) {
+	fun sendVerificationEmailWithLink(hostHeader: String, id: UUID, email: String) {
+		val unicodeHostHeader = IDN.toUnicode(hostHeader)
 		val from = environment.getProperty("spring.mail.username")!!
 		val publicToken = Token(id = id, email = email).base64Value()
-		val baseUrl = environment.getProperty("baseUrl")
-		val link = "$baseUrl/подтвердить-почту?токен=$publicToken"
+		val link = "https://$unicodeHostHeader/подтвердить-почту?токен=$publicToken"
 		val subject = "Подтверждение почты"
 		val template = templateConfiguration.getTemplate("ValidateEmail.ftlh");
 		val body = FreeMarkerTemplateUtils.processTemplateIntoString(template, VerifyLink(link))

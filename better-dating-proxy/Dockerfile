@@ -7,4 +7,4 @@ COPY certificates.conf /etc/nginx/certificates.conf
 COPY ssl.conf /etc/nginx/ssl.conf
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=10s \
-  CMD curl -f http://localhost/nginx_status || exit 1
+  CMD curl -kf https://localhost/nginx_status || exit 1
