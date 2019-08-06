@@ -1,7 +1,7 @@
 # https://docs.docker.com/compose/overview/
 # https://docs.docker.com/compose/compose-file/
 # https://dev.to/domysee/setting-up-a-reverse-proxy-with-nginx-and-docker-compose-29jg
-version: '3.3'
+version: '3.4'
 services:
   bd-postgres:
     image: postgres:alpine
@@ -24,7 +24,7 @@ services:
       restart_policy:
         condition: on-failure
         delay: 5s
-        max_attempts: 0
+        max_attempts: 1
         window: 120s
     shm_size: '256MB'
     secrets:
@@ -51,12 +51,14 @@ services:
           memory: 300M
       restart_policy:
         condition: on-failure
-        delay: 5s
-        max_attempts: 1
+        delay: 10s
+        max_attempts: 2
         window: 120s
     secrets:
       - db_password
       - mail_password
+    # https://docs.docker.com/compose/compose-file/#healthcheck
+    # https://stackoverflow.com/questions/47520941/healthcheck-dockerfile-vs-docker-compose-yml
   bd-frontend:
     build: ./better-dating-frontend
     image: skivol/better-dating-ui:latest
@@ -71,8 +73,8 @@ services:
           memory: 50M
       restart_policy:
         condition: on-failure
-        delay: 5s
-        max_attempts: 0
+        delay: 10s
+        max_attempts: 2
         window: 120s
   bd-reverse-proxy:
     build: ./better-dating-proxy
@@ -97,8 +99,8 @@ services:
           memory: 20M
       restart_policy:
         condition: on-failure
-        delay: 5s
-        max_attempts: 1
+        delay: 10s
+        max_attempts: 2
         window: 120s
     secrets:
       - source: ssl_certificate

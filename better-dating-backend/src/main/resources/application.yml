@@ -16,7 +16,15 @@ spring:
   main:
     banner-mode: "off"
   datasource:
+    type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.postgresql.Driver
+    hikari:
+      idle-timeout: 30000
+      connection-timeout: 30000
+      # https://stackoverflow.com/questions/26490967/how-do-i-configure-hikaricp-in-my-spring-boot-app-in-my-application-properties-f
+      # https://stackoverflow.com/questions/50553352/spring-retry-connection-until-datasource-is-available#50554515
+      # https://github.com/brettwooldridge/HikariCP#infrequently-used
+      initialization-fail-timeout: 0
   jpa:
     properties:
       hibernate:

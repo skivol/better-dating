@@ -60,6 +60,10 @@ alias bd-docker-build='bd-backend-docker-build && bd-ui-docker-build && bd-proxy
 # alias bd-stop='wd proj && docker-compose down --volume'
 alias bd-deploy='wd proj && env $(grep -v "^#" .env-dev | xargs) docker stack deploy --compose-file docker-compose.yml better-dating'
 alias bd-stop='docker service scale better-dating_bd-reverse-proxy=0 better-dating_bd-backend=0 better-dating_bd-frontend=0 better-dating_bd-postgres=0'
+alias bd-proxy-stop='docker service scale better-dating_bd-reverse-proxy=0'
+alias bd-proxy-start='docker service scale better-dating_bd-reverse-proxy=1'
+alias bd-backend-stop='docker service scale better-dating_bd-backend=0'
+alias bd-backend-start='docker service scale better-dating_bd-backend=1'
 alias bd-start='docker service scale better-dating_bd-reverse-proxy=1 better-dating_bd-backend=1 better-dating_bd-frontend=1 better-dating_bd-postgres=1'
 alias bd-rm='docker stack rm better-dating'
 # https://stackoverflow.com/questions/19331497/set-environment-variables-from-file-of-key-pair-values

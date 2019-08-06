@@ -1,4 +1,8 @@
 Doc links
+* Spring Boot: https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle
+* Spring: https://docs.spring.io/spring/docs/current/spring-framework-reference/
+* Kotlin: https://kotlinlang.org/docs/reference/
+
 * SWARM mode https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode
 Self signed certificate generation:
 * https://stackoverflow.com/a/10176685

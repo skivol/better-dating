@@ -8,5 +8,9 @@ RUN cd /app && yarn install && REACT_APP_UPDATED="$(date)" yarn run build-snap
 
 # https://hub.docker.com/_/nginx
 FROM nginx:alpine
+RUN apk add --no-cache curl
 COPY --from=builder /app/build /usr/share/nginx/html
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
+
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=10s \
+  CMD curl -f http://localhost || exit 1

@@ -1,4 +1,3 @@
-* add HEALTH CHECKS (https://docs.docker.com/engine/reference/builder/#healthcheck) (spring-boot-actuator)
 * use forwarded host header for "baseUrl" on backend ? (used for mail content / url)
 * double-check prod build of frontend (redux tools should still work ?)
 * figure out service worker usage... (https://bit.ly/CRA-PWA)
