@@ -11,6 +11,9 @@ import Root from './components/Root';
 import * as serviceWorker from './serviceWorker';
 import { configureAppStore } from './configureStore';
 import { configureTheme } from './configureTheme';
+import { SnackbarVariant } from './types';
+import { openSnackbar } from './actions';
+import * as Messages from './Messages';
 
 
 // Webpack config in react-scripts
@@ -32,4 +35,14 @@ if (rootElement.hasChildNodes()) {
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.register();
+serviceWorker.register({
+	onSuccess: (registration) => {
+		store.dispatch(openSnackbar(Messages.readyForOfflineUsage, SnackbarVariant.info));
+	},
+	onUpdate: (registration) => {
+		store.dispatch(openSnackbar(Messages.appUpdatedAndWillBeRefreshedOnNextVisit, SnackbarVariant.info));
+	},
+	onOffline: () => {
+		store.dispatch(openSnackbar(Messages.appWorksOffline, SnackbarVariant.info));
+	}
+});

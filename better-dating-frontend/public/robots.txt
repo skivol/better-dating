@@ -2,3 +2,4 @@
 # https://netpeak.net/ru/blog/chto-takoe-robots-txt-i-zachem-on-voobshche-nuzhen/
 User-agent: *
 Disallow: /api
+Allow: /index.html

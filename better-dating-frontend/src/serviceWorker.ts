@@ -23,6 +23,7 @@ const isLocalhost = Boolean(
 type Config = {
   onSuccess?: (registration: ServiceWorkerRegistration) => void;
   onUpdate?: (registration: ServiceWorkerRegistration) => void;
+  onOffline?: () => void;
 };
 
 export function register(config?: Config) {
@@ -131,6 +132,9 @@ function checkValidServiceWorker(swUrl: string, config?: Config) {
       console.log(
         'No internet connection found. App is running in offline mode.'
       );
+      if (config && config.onOffline) {
+	      config.onOffline();
+      }
     });
 }
 

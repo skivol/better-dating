@@ -6,6 +6,7 @@ export const Proposal = 'Предложение';
 export const pictureTooltip = 'Н. П. Петров. Смотрины невесты. 1861 (https://ru.wikipedia.org/wiki/Смотрины)';
 export const email = 'Почта';
 export const notifyMeWhenAvailable = 'Сообщите когда запустите!';
+export const updated = 'Обновлено';
 export const footer = 'смотрины.укр & смотрины.рус';
 
 export const Idea = 'Идея';

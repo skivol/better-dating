@@ -13,6 +13,8 @@ import ConfirmEmail from '../containers/ConfirmEmail';
 import StatusSnackbar from '../containers/StatusSnackbar';
 import Header from './Header';
 import Footer from './Footer';
+import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
 // import Navigation from './Navigation';
 import NavigationUrls from './NavigationUrls';
 
@@ -55,6 +57,11 @@ const Root = ({ store, theme }: Props) => {
 						  <Route path={NavigationUrls.confirmEmail} component={ConfirmEmail} />
 						  <Route render={redirectToProposal} />
 					  </Switch>
+	  				  <Paper style={{maxWidth: '300px', margin: 'auto', padding: '20px'}}>
+						  <Typography style={{fontSize: '0.75rem'}}>
+							{ `${Messages.updated}: ${updated}` }
+						  </Typography>
+					  </Paper>
 					  <div style={{height: '60px'}} />
 					  <Footer />
 					  <StatusSnackbar />

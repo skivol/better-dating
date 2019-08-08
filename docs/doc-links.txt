@@ -1,10 +1,19 @@
+Markdown
+* [A quick reference to the Markdown syntax](https://www.markdownguide.org/cheat-sheet)
+
 Doc links
-* Spring Boot: https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle
-* Spring: https://docs.spring.io/spring/docs/current/spring-framework-reference/
-* Kotlin: https://kotlinlang.org/docs/reference/
-* Jersey: https://jersey.github.io
+* [Spring Boot](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle)
+* [Spring](https://docs.spring.io/spring/docs/current/spring-framework-reference/)
+* [Kotlin](https://kotlinlang.org/docs/reference/)
+* [Jersey](https://jersey.github.io)
 * React
 ** React Dev Tools in production: https://medium.com/@zalmoxis/using-redux-devtools-in-production-4c5b56c5600f
+** Service workers:
+*** [Making a Progressive Web App](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+*** [Why was service worker merged into create react app?](https://github.com/facebook/create-react-app/issues/2398)
+*** [Workbox webpack Plugins](https://developers.google.com/web/tools/workbox/modules/workbox-webpack-plugin)
+*** [Inform the user when the app is ready for offline consumption](https://developers.google.com/web/fundamentals/instant-and-offline/offline-ux#inform_the_user_when_the_app_is_ready_for_offline_consumption)
+*** [Workbox](https://developers.google.com/web/tools/workbox/guides/get-started)
 
 * SEO
 ** https://medium.com/@prestonwallace/3-ways-improve-react-seo-without-isomorphic-app-a6354595e400

@@ -10,14 +10,14 @@
 
 
 bd-ui-server() {
-	wd proj-ui && REACT_APP_UPDATED="$(date)" yarn start
+	wd proj-ui && REACT_APP_UPDATED="$(date -u --iso-8601=seconds)" yarn start
 }
 alias bd-ui-test='wd proj-ui && yarn test'
 # export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser && 
 # https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#alternative-setup-setuid-sandbox
 # export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox && 
 bd-ui-build() {
-	wd proj-ui && REACT_APP_UPDATED="$(date)" yarn build
+	wd proj-ui && REACT_APP_UPDATED="$(date -u --iso-8601=seconds)" yarn build
 }
 # alias bd-ui-build-snap='wd proj-ui && yarn build-snap'
 alias bd-ui-docker-build='wd proj-ui && docker build -t skivol/better-dating-ui:latest . && docker image prune -f --filter label=stage=builder'
@@ -130,3 +130,12 @@ alias bd-prod-backup-letsencrypt="prod-ssh-zsh bd-prod-backup-letsencrypt-create
 alias bd-prod-backup-db='prod-ssh-zsh bd-prod-backup-db-dump \
 	&& rsync -avz --delete adm1n@77.120.103.21:/home/adm1n/backups/db /d/Downloads/projects/better-dating/backup'
 alias bd-prod-backup-all="bd-prod-backup-letsencrypt && bd-prod-backup-db"
+
+# Secrets
+# https://stackoverflow.com/questions/42816218/chrome-neterr-cert-common-name-invalid-errors-on-ssl-self-signed-certificate
+# https://stackoverflow.com/a/48790088
+# https://deanhume.com/testing-service-workers-locally-with-self-signed-certificates/
+alias bd-generate-cert='sudo openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -config csr_details.txt'
+alias bd-docker-rm-secrets='docker secret rm ssl_certificate ssl_certificate_key'
+alias bd-docker-add-cert-key='sudo cat /etc/ssl/private/nginx-selfsigned.key | docker secret create ssl_certificate_key -'
+alias bd-docker-add-cert='sudo cat /etc/ssl/certs/nginx-selfsigned.crt | docker secret create ssl_certificate -'

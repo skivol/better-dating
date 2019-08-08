@@ -4,7 +4,7 @@ FROM buildkite/puppeteer as builder
 LABEL stage=builder
 
 COPY . /app
-RUN cd /app && yarn install && REACT_APP_UPDATED="$(date)" yarn run build-snap
+RUN cd /app && yarn install && REACT_APP_UPDATED="$(date -u --iso-8601=seconds)" yarn run build-snap
 
 # https://hub.docker.com/_/nginx
 FROM nginx:alpine

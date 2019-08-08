@@ -1,4 +1,6 @@
-* figure out service worker usage... (https://bit.ly/CRA-PWA)
+* figure out service worker usage... (what is happening with styles of "updated date"??) Double check if it really works in prod...
+** fails to register with self-signed certificate... (serviceWorker.ts:106 Error during service worker registration: TypeError: Failed to register a ServiceWorker: ServiceWorker script evaluation failed)
+* sitemap ? (https://github.com/kuflash/react-router-sitemap#readme)
 * fix LOGGING in java
 * limit parallel mail sending
 * use REACTIVE/ASYNC API:s
