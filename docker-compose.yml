@@ -22,9 +22,9 @@ services:
           cpus: '0.25'
           memory: 120M
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 5s
-        max_attempts: 1
+        max_attempts: 2
         window: 120s
     shm_size: '256MB'
     secrets:
@@ -50,7 +50,7 @@ services:
           cpus: '0.25'
           memory: 300M
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 10s
         max_attempts: 2
         window: 120s
@@ -72,7 +72,7 @@ services:
           cpus: '0.25'
           memory: 50M
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 10s
         max_attempts: 2
         window: 120s
@@ -98,7 +98,7 @@ services:
           cpus: '0.25'
           memory: 20M
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 10s
         max_attempts: 2
         window: 120s

@@ -3,20 +3,18 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/styles';
 import { Provider } from 'react-redux';
 import { Store, AnyAction } from 'redux';
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { BetterDatingStoreState } from '../configureStore';
 import Container from '@material-ui/core/Container';
 import Meta from '../utils/Meta';
 import * as Messages from './Messages';
-import Proposal from '../containers/Proposal';
-import ConfirmEmail from '../containers/ConfirmEmail';
 import StatusSnackbar from '../containers/StatusSnackbar';
 import Header from './Header';
+import Routes from './Routes';
 import Footer from './Footer';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 // import Navigation from './Navigation';
-import NavigationUrls from './NavigationUrls';
 
 export interface Props {
 	store: Store<BetterDatingStoreState, AnyAction>;
@@ -24,10 +22,6 @@ export interface Props {
 }
 
 const updated = process.env.REACT_APP_UPDATED || 'not_available';
-
-const redirectToProposal = () => (
-	<Redirect to={NavigationUrls.proposalUrl} />
-);
 const Root = ({ store, theme }: Props) => {
   return (
 	  <Provider store={store}>
@@ -47,16 +41,7 @@ const Root = ({ store, theme }: Props) => {
 				  <Container maxWidth="md" style={{padding: '10px'}}>
 					  <Header />
 					  {/* FIXME <Navigation />*/}
-					  <Switch>
-						  <Route exact path="/" render={redirectToProposal} />
-						  {/* TODO add used technologies page */}
-						  {/* TODO add contacts/help page */}
-						  {/* TODO add questionnaire ? */}
-						  {/* TODO reference Wikipedia's article and picture: https://ru.wikipedia.org/wiki/Смотрины */}
-						  <Route path={NavigationUrls.proposalUrl} component={Proposal} />
-						  <Route path={NavigationUrls.confirmEmail} component={ConfirmEmail} />
-						  <Route render={redirectToProposal} />
-					  </Switch>
+	  				  <Routes />
 	  				  <Paper style={{maxWidth: '300px', margin: 'auto', padding: '20px'}}>
 						  <Typography style={{fontSize: '0.75rem'}}>
 							{ `${Messages.updated}: ${updated}` }

@@ -1,5 +1,9 @@
 # https://wiki.hostpro.ua/knowledgebase/robots-txt/
 # https://netpeak.net/ru/blog/chto-takoe-robots-txt-i-zachem-on-voobshche-nuzhen/
+# http://www.advancedhtml.co.uk/robots-sitemaps.htm/#sitemaps
 User-agent: *
 Disallow: /api
-Allow: /index.html
+Sitemap: https://xn--h1aheckdj9e.xn--j1amh/sitemap.xml
+
+User-agent: Yandex
+Sitemap: https://xn--h1aheckdj9e.xn--p1acf/sitemap-rus.xml

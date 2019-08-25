@@ -8,5 +8,5 @@ RUN apk add --no-cache curl
 COPY ./build/libs/backend-0.0.1-SNAPSHOT.jar /opt/backend.jar
 CMD ["sh", "-c", "java -jar /opt/backend.jar --spring.profiles.active=production --spring.mail.username=$MAIL_USER --spring.mail.passwordfile=$MAIL_PASSWORD_FILE --spring.datasource.url=$DB_URL --spring.datasource.username=$DB_USER --spring.datasource.passwordfile=$DB_PASSWORD_FILE"]
 
-HEALTHCHECK --interval=1m --timeout=10s --retries=3 --start-period=45s \
+HEALTHCHECK --interval=5m --timeout=30s --retries=3 --start-period=3m \
   CMD curl -f http://localhost:8080/actuator/health || exit 1

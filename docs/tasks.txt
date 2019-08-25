@@ -1,15 +1,15 @@
-* figure out service worker usage... (what is happening with styles of "updated date"??) Double check if it really works in prod...
-** fails to register with self-signed certificate... (serviceWorker.ts:106 Error during service worker registration: TypeError: Failed to register a ServiceWorker: ServiceWorker script evaluation failed)
-* sitemap ? (https://github.com/kuflash/react-router-sitemap#readme)
+* block some bots (https://stackoverflow.com/questions/46254721/regex-for-detecting-complex-attack-strings-on-web-sites https://github.com/mariusv/nginx-badbot-blocker/issues/157)
+* add db healthchecks ? (https://stackoverflow.com/questions/50291544/postgres10-in-docker-swarm-cluster-database-system-is-shut-down)
 * fix LOGGING in java
 * limit parallel mail sending
 * use REACTIVE/ASYNC API:s
-* fix README file.
-* integration tests using kotlin jgiven
-* use WSL 2 as dev environment (https://habr.com/ru/company/microsoft/blog/456204/)
 
 * continue developing the concept
 * [authentication] social login as addition to email powered one ?
+
+* fix README file.
+* integration tests using kotlin jgiven
+* use WSL 2 as dev environment (https://habr.com/ru/company/microsoft/blog/456204/)
 
 * LEGAL questions (trademark/non-profitable-entity, user agreement / rules ?)
 ** https://choosealicense.com
@@ -23,6 +23,10 @@
 * checkout GraalVM
 * checkout vim code completion: https://github.com/neoclide/coc.nvim
 * fix ctags regexp warnings
+
+# On leisure
+* figure out service worker usage... (what is happening with styles of "updated date"??) Double check if it really works in prod...
+** fails to register with self-signed certificate... (serviceWorker.ts:106 Error during service worker registration: TypeError: Failed to register a ServiceWorker: ServiceWorker script evaluation failed)
 
 # Goods / design
 * update site icon

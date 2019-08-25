@@ -18,6 +18,8 @@ Doc links
 * SEO
 ** https://medium.com/@prestonwallace/3-ways-improve-react-seo-without-isomorphic-app-a6354595e400
 ** https://netpeak.net/ru/blog/kak-optimizirovat-spa-sayty/
+** Sitemaps
+*** https://support.google.com/webmasters/answer/183668?hl=en
 
 * Docker
 ** SWARM mode: https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode
