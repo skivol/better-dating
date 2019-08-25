@@ -12,5 +12,5 @@ RUN apk add --no-cache curl
 COPY --from=builder /app/build /usr/share/nginx/html
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
-HEALTHCHECK --interval=5m --timeout=10s --retries=3 --start-period=10s \
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=10s \
   CMD curl -f http://localhost || exit 1

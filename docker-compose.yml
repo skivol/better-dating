@@ -1,13 +1,15 @@
 # https://docs.docker.com/compose/overview/
 # https://docs.docker.com/compose/compose-file/
 # https://dev.to/domysee/setting-up-a-reverse-proxy-with-nginx-and-docker-compose-29jg
-version: '3.4'
+version: '3.6'
 services:
   bd-postgres:
-    image: postgres:alpine
+    build: ./better-dating-database
+    image: skivol/better-dating-database:latest
     container_name: "bd-prod-postgres"
     volumes:
       - better-dating-data-volume:/pgdata
+      - better-dating-postgres-shm-volume:/dev/shm
     environment:
       POSTGRES_DB: "${BD_DB:?No BD_DB (database name) specified}"
       POSTGRES_USER: "${BD_DB_USER:?No BD_DB_USER (database user name) specified}"
@@ -26,7 +28,6 @@ services:
         delay: 5s
         max_attempts: 2
         window: 120s
-    shm_size: '256MB'
     secrets:
       - db_password
   bd-backend:
@@ -112,6 +113,11 @@ services:
         mode: 0644
 volumes:
   better-dating-data-volume:
+  better-dating-postgres-shm-volume:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: "size=256m"
           # better-dating-nginx-volume:
 secrets:
   ssl_certificate:

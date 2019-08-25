@@ -30,6 +30,7 @@ alias bd-backend-docker-run='docker run --name better-dating-backend -d -p 8080:
 alias bd-backend-docker-start='docker start better-dating-backend'
 alias bd-backend-docker-stop='docker stop better-dating-backend'
 alias bd-proxy-docker-build='wd proj-proxy && docker build -t skivol/better-dating-proxy:latest .'
+alias bd-database-docker-build='wd proj-db && docker build -t skivol/better-dating-database:latest .'
 # FIXME "backend" image gets "invalid diffid for layer 1" on load...
 # alias bd-proxy-docker-save='wd proj-images && docker image save skivol/better-dating-proxy:latest > better-dating-proxy.tar'
 # alias bd-backend-docker-save='wd proj-images && docker image save skivol/better-dating-backend:latest > better-dating-backend.tar'
@@ -113,6 +114,7 @@ alias prod-docker-load="prod-ssh 'cd /home/adm1n/bd/images && docker load --inpu
 alias bd-backend-transfer-image-to-prod="docker save skivol/better-dating-backend:latest | bzip2 | pv | prod-ssh 'bunzip2 | docker load'"
 alias bd-ui-transfer-image-to-prod="docker save skivol/better-dating-ui:latest | bzip2 | pv | prod-ssh 'bunzip2 | docker load'"
 alias bd-proxy-transfer-image-to-prod="docker save skivol/better-dating-proxy:latest | bzip2 | pv | prod-ssh 'bunzip2 | docker load'"
+alias bd-database-transfer-image-to-prod="docker save skivol/better-dating-database:latest | bzip2 | pv | prod-ssh 'bunzip2 | docker load'"
 alias bd-transfer-images-to-prod='bd-backend-transfer-image-to-prod && bd-ui-transfer-image-to-prod && bd-proxy-transfer-image-to-prod'
 alias bd-rsync-config-to-prod='rsync /d/Downloads/projects/better-dating/docker-compose.yml adm1n@77.120.103.21:/home/adm1n/bd'
 alias bd-rsync-aliases-to-prod='rsync /d/Downloads/projects/better-dating/aliases/prod-aliases.sh adm1n@77.120.103.21:/home/adm1n/bd'
@@ -123,6 +125,7 @@ alias bd-prod-ui-deploy-update='bd-ui-transfer-image-to-prod && prod-ssh-zsh bd-
 alias bd-prod-backend-build-deploy-update='bd-backend-build && bd-backend-docker-build && bd-backend-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-backend'
 alias bd-prod-proxy-build-deploy-update='bd-proxy-docker-build && bd-proxy-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-proxy'
 alias bd-prod-proxy-deploy-update='bd-proxy-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-proxy'
+alias bd-prod-database-deploy-update='bd-database-transfer-image-to-prod && prod-ssh-zsh bd-prod-update-database'
 
 # Backup
 # Letsencrypt

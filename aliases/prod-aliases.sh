@@ -39,6 +39,7 @@ alias bd-prod-psql=' docker run --rm --name prod-psql --network better-dating_de
 alias bd-prod-update-frontend='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-frontend'
 alias bd-prod-update-backend='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-backend'
 alias bd-prod-update-proxy='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-reverse-proxy'
+alias bd-prod-update-database='docker service update --env-add "UPDATE_DATE=$(date)" better-dating_bd-postgres'
 
 # Backups
 # Letsencrypt
