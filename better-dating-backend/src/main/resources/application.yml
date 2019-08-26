@@ -5,6 +5,9 @@ server:
     workerThreads: 150
     accesslog:
       enabled: true
+      prefix: better-dating_backend_access_log
+      suffix: .log
+      dir: ./logs
   compression:
     enabled: true
     mimeTypes: text/xml, text/css, text/html, application/json
@@ -48,11 +51,7 @@ spring:
             enable: true
 
 logging:
-    level:
-        org:
-            springframework: INFO
-        ua:
-            betterdating: INFO
+  file: ./logs/better-dating-java.log
 
 ---
 spring:
@@ -60,6 +59,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+server:
+  undertow:
+    accesslog:
+      dir: /logs
+logging:
+  file: /logs/better-dating_backend_java.log
 
 ---
 spring:

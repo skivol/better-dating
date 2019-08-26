@@ -42,6 +42,8 @@ services:
       MAIL_PASSWORD_FILE: "/run/secrets/mail_password"
     depends_on:
       - bd-postgres
+    volumes:
+      - better-dating-backend-logs-volume:/logs
     deploy:
       resources:
         limits:
@@ -64,6 +66,8 @@ services:
     build: ./better-dating-frontend
     image: skivol/better-dating-ui:latest
     container_name: "bd-prod-frontend"
+    volumes:
+      - better-dating-ui-logs-volume:/logs
     deploy:
       resources:
         limits:
@@ -84,9 +88,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
-#    volumes:
-#      - ./nginx/cache/:/etc/nginx/cache
-#      - ./nginx/error.log:/etc/nginx/error_log.log
+    volumes:
+      - better-dating-reverse-proxy-logs-volume:/logs
     depends_on:
       - bd-backend
       - bd-frontend
@@ -118,7 +121,9 @@ volumes:
       type: tmpfs
       device: tmpfs
       o: "size=256m"
-          # better-dating-nginx-volume:
+  better-dating-reverse-proxy-logs-volume:
+  better-dating-ui-logs-volume:
+  better-dating-backend-logs-volume:
 secrets:
   ssl_certificate:
     external: true
