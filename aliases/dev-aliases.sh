@@ -98,7 +98,7 @@ alias bd-db-stop='docker stop bd-db'
 alias psql='docker exec -it bd-db psql -d postgres -U postgres -w'
 # alias psql='docker run --rm --name psql --link bd-db:bd-db -it postgres:alpine psql -h bd-db -U bd-user better-dating'
 # https://stackoverflow.com/questions/41847656/network-not-manually-attachable-when-running-one-off-command-against-docker-sw
-alias prod-psql='docker run --rm --name prod-psql --network better-dating_default --link better-dating_bd-postgres:better-dating_bd-postgres -it postgres:alpine psql -h better-dating_bd-postgres -U bd-user better-dating'
+alias prod-psql='docker run --rm --name prod-psql --network better-dating_default --link better-dating_bd-postgres:better-dating_bd-postgres -it postgres:alpine psql -h better-dating_bd-postgres -U postgres postgres'
 
 # https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys-on-centos7
 # https://stackoverflow.com/questions/50735833/what-is-the-difference-between-chmod-go-rwx-and-chmod-700

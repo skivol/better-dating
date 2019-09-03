@@ -53,6 +53,12 @@ spring:
 logging:
   file: ./logs/better-dating-java.log
 
+# mail health check doesn't seem to work for i.ua and causes many warnings
+management:
+  health:
+    mail:
+      enabled: false
+
 ---
 spring:
   profiles: production
