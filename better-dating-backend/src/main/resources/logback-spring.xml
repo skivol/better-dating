@@ -3,4 +3,20 @@
 	<include resource="org/springframework/boot/logging/logback/base.xml"/>
 	<logger name="org.springframework.web" level="INFO"/>
 	<logger name="ua.betterdating" level="INFO"/>
+
+	<!-- Accesslog -->
+	<springProperty scope="context" name="accessLogFile" source="server.netty.accesslog" defaultValue="./logs/better-dating_backend_access_log.log"/>
+	<appender name="accessLog" class="ch.qos.logback.core.FileAppender">
+		<file>${accessLogFile}</file>
+		<encoder>
+			<pattern>%msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="async" class="ch.qos.logback.classic.AsyncAppender">
+		<appender-ref ref="accessLog" />
+	</appender>
+
+	<logger name="reactor.netty.http.server.AccessLog" level="INFO" additivity="false">
+		<appender-ref ref="async"/>
+	</logger>
 </configuration>

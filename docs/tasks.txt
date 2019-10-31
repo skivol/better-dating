@@ -1,8 +1,8 @@
-* use REACTIVE/ASYNC API:s
 * limit parallel mail sending
 
 * continue developing the concept
 * [authentication] social login as addition to email powered one ?
+* >> rebrand to a game ? (with scores visible only to you etc) <<
 
 * fix README file.
 * fix og:image https://webmaster.yandex.ru/tools/microtest/ (ОШИБКА: поле http://ogp.me/ns#image отсутствует или пусто)

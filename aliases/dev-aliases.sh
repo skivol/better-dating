@@ -53,7 +53,7 @@ alias bd-backend-test='bd-db-run && bd-backend-gradle test; bd-db-stop'
 alias bd-backend-test-compile='bd-backend-gradle testClasses'
 alias bd-backend-update-deps='bd-backend-gradle useLatestVersions'
 # https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/html/#running-your-application-passing-arguments
-alias bd-backend-server='(wd proj && export $(grep -v "^#" .env-dev | xargs) && bd-backend-gradle bootRun --args="--spring.mail.username=$BD_MAIL_USER --spring.mail.passwordfile=$BD_MAIL_PASSWORD_FILE --spring.datasource.username=$BD_DB_USER --spring.datasource.passwordfile=$BD_DB_PASSWORD_FILE")'
+alias bd-backend-server='(wd proj && export $(grep -v "^#" .env-dev | xargs) && bd-backend-gradle run --args="--spring.mail.username=$BD_MAIL_USER --passwordfiles.mail=$BD_MAIL_PASSWORD_FILE --datasource.username=$BD_DB_USER --passwordfiles.db=$BD_DB_PASSWORD_FILE")'
 alias bd-backend-test-results='wslview "D:\Downloads\projects\better-dating\better-dating-backend\build\reports\tests\test\index.html"'
 alias bd-build='bd-backend-build && bd-ui-build'
 alias bd-docker-build='bd-backend-docker-build && bd-ui-docker-build && bd-proxy-docker-build'
@@ -144,3 +144,6 @@ alias bd-generate-cert='sudo openssl req -x509 -sha256 -nodes -days 365 -newkey 
 alias bd-docker-rm-secrets='docker secret rm ssl_certificate ssl_certificate_key'
 alias bd-docker-add-cert-key='sudo cat /etc/ssl/private/nginx-selfsigned.key | docker secret create ssl_certificate_key -'
 alias bd-docker-add-cert='sudo cat /etc/ssl/certs/nginx-selfsigned.crt | docker secret create ssl_certificate -'
+
+# Spring Fu
+alias spring-fu-publish-to-local='wd spring-fu && ./gradlew -x test publishToMavenLocal'

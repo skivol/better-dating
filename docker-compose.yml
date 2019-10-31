@@ -37,7 +37,8 @@ services:
     environment:
       DB_USER: "${BD_DB_USER}"
       DB_PASSWORD_FILE: "/run/secrets/db_password"
-      DB_URL: "jdbc:postgresql://better-dating_bd-postgres/${BD_DB}?currentSchema=public"
+      DB_HOST: "better-dating_bd-postgres"
+      DB_NAME: "${BD_DB}"
       MAIL_USER: "${BD_MAIL_USER}"
       MAIL_PASSWORD_FILE: "/run/secrets/mail_password"
     depends_on:
@@ -47,7 +48,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
+          cpus: '0.75'
           memory: 250M
         reservations:
           cpus: '0.25'

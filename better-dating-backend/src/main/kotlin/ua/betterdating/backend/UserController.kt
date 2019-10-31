@@ -1,160 +1,174 @@
 package ua.betterdating.backend
 
-import freemarker.template.Configuration
-import java.lang.IllegalArgumentException
-import java.net.IDN
-import java.time.LocalDateTime
-import java.util.UUID
-import java.util.Base64
-import javax.validation.Valid
-import javax.validation.constraints.Email as ValidEmail
-import javax.validation.constraints.NotNull
-import javax.ws.rs.*
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response
-import javax.ws.rs.core.Response.Status
-import javax.ws.rs.HeaderParam
+import am.ik.yavi.builder.ValidatorBuilder
+import am.ik.yavi.builder.constraint
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-// https://github.com/spring-projects/spring-data-commons/pull/299/files
-import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Component
-import org.springframework.ui.freemarker.FreeMarkerTemplateUtils
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.core.env.Environment
+import org.springframework.data.r2dbc.connectionfactory.R2dbcTransactionManager
+import org.springframework.transaction.reactive.TransactionalOperator
+import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils
+import org.springframework.web.reactive.function.server.ServerRequest
+import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.ServerResponse.ok
+import org.springframework.web.reactive.function.server.bodyToMono
+import org.springframework.web.reactive.function.server.json
+import reactor.core.publisher.Mono
+import reactor.core.publisher.Mono.error
+import reactor.core.publisher.Mono.just
+import java.net.IDN
+import java.time.LocalDateTime
+import java.util.*
 
 
-@Component
-@Path("/user/email")
-class EmailController @Autowired constructor(
-	val emailRepository: EmailRepository,
-	val emailVerificationTokenRepository: EmailVerificationTokenRepository,
-	val smotrinyMailSender: SmotrinyMailSender,
-	val environment: Environment,
-	val templateConfiguration: Configuration
+@Suppress("UNUSED_PARAMETER")
+class EmailHandler(
+        private val emailRepository: EmailRepository,
+        private val emailVerificationTokenRepository: EmailVerificationTokenRepository,
+        private val tm: R2dbcTransactionManager,
+        private val smotrinyMailSender: SmotrinyMailSender,
+        private val environment: Environment,
+        private val templateConfigurationFactory: FreeMarkerConfigurationFactoryBean
 ) {
-	private val LOG: Logger = LoggerFactory.getLogger(EmailController::class.java)
+    private val LOG: Logger = LoggerFactory.getLogger(EmailHandler::class.java)
 
-	@GET
-	@Path("/status")
-	@Produces(MediaType.APPLICATION_JSON)
-	fun emailStatus(@Valid @NotNull @ValidEmail @QueryParam("email") email: String): EmailStatus {
-		return EmailStatus(used = (emailRepository.findByEmail(email) != null))
-	}
+    private val emailValidator = ValidatorBuilder.of<EmailValue>()
+            .constraint(EmailValue::email) {
+                notNull()
+                        .greaterThanOrEqual(5)
+                        .lessThanOrEqual(50)
+                        .email()
+            }.build()
+    private val verifyEmailRequestValidator = ValidatorBuilder.of<VerifyEmailRequest>()
+            .constraint(VerifyEmailRequest::token) { notNull() }.build()
 
-	@POST
-	@Path("/submit")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	fun submitEmail(@HeaderParam("Host") hostHeader: String, @Valid @RequestBody submitEmailRequest: SubmitEmailRequest): SubmitEmailRequest {
-		if (emailStatus(submitEmailRequest.email).used) {
-			throw EmailAlreadyPresentException()
-		}
-		LOG.info("Processing submit email request. Host: $hostHeader")
+    fun emailStatus(request: ServerRequest) =
+            withValidEmail(request, request.queryParam("email").orElse(null)) { email ->
+                emailStatus(email)
+                        .flatMap { ok().json().bodyValue(EmailStatus(used = it)) }
+            }
 
-		val email = Email(email = submitEmailRequest.email, verified = false)
-		emailRepository.save(email)
+    fun submitEmail(request: ServerRequest) =
+            request.bodyToMono<SubmitEmailRequest>()
+                    .flatMap { submitEmailRequest ->
+                        withValidEmail(request, submitEmailRequest.email) { requestEmail ->
+                            emailStatus(requestEmail).flatMap { used ->
+                                if (used) error(EmailAlreadyPresentException()) else just(used)
+                            }.flatMap {
+                                val email = Email(email = requestEmail, verified = false)
+                                val rxtx = TransactionalOperator.create(tm) // https://spring.io/blog/2019/05/16/reactive-transactions-with-spring
+                                rxtx.execute {
+                                    emailRepository.save(email).then(createAndSaveVerificationToken(email)).flatMap(sendMail(request, requestEmail))
+                                }.then(ok().json().bodyValue(submitEmailRequest))
+                            }
+                        }
+                    }
 
-		val verificationTokenEntity = createAndSaveVerificationToken(email)
+    fun verifyEmail(request: ServerRequest) = withValidVerifyEmailRequest(request) {
+        parseToken(it.token!!).flatMap { decodedToken ->
+            findTokenById(decodedToken.id).flatMap { token ->
+                if (token.expires.isBefore(LocalDateTime.now())) {
+                    error(ExpiredTokenException())
+                } else {
+                    emailRepository.findById(token.emailId)
+                            .flatMap { email ->
+                                email.verified = true
+                                val rxtx = TransactionalOperator.create(tm)
+                                rxtx.execute {
+                                    emailRepository.update(email).then(emailVerificationTokenRepository.delete(token))
+                                }.then(ok().json().bodyValue(token))
+                            }
+                }
+            }
+        }
+    }
 
-		sendVerificationEmailWithLink(hostHeader, verificationTokenEntity.id!!, submitEmailRequest.email)
+    fun triggerNewVerification(request: ServerRequest) = withValidVerifyEmailRequest(request) { previousRequest ->
+        parseToken(previousRequest.token!!).flatMap { decodedToken ->
+            emailRepository.findByEmail(decodedToken.email).flatMap { email ->
+                val rxtx = TransactionalOperator.create(tm)
+                rxtx.execute {
+                    emailVerificationTokenRepository.delete(email).then(createAndSaveVerificationToken(email)).flatMap(sendMail(request, email.email))
+                }.then(ok().json().bodyValue(previousRequest))
+            }.switchIfEmpty(error(EmailNotFoundException()))
+        }
+    }
 
-		return submitEmailRequest
-	}
+    private fun sendMail(request: ServerRequest, email: String): (EmailVerificationToken) -> Mono<Unit> {
+        return {
+            val hostHeader = hostHeader(request)
+            sendVerificationEmailWithLink(hostHeader, it.id, email)
+            Mono.empty<Unit>()
+        }
+    }
 
-	@POST
-	@Path("/verify")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	fun verifyEmail(@Valid request: VerifyEmailRequest): VerifyEmailRequest {
-		val decodedToken = parseToken(request.token)
+    fun mailTo(request: ServerRequest): Mono<ServerResponse> {
+        val mail = environment.getProperty("spring.mail.username")!!
+        val link = ContactLink(Base64.getUrlEncoder().encodeToString("mailto:$mail".toByteArray()))
+        return ok().json().bodyValue(link)
+    }
 
-		val token = findTokenById(decodedToken.id)
+    private fun withValidEmail(
+            request: ServerRequest, email: String?, processValidEmail: (String) -> Mono<ServerResponse>
+    ) = emailValidator.validateToEither(EmailValue(email))
+            .fold({ errors -> mapErrorToResponse(ValidationException(errors), request) }) { processValidEmail(it.email!!) }
 
-		if (token.expires.isBefore(LocalDateTime.now())) {
-			throw ExpiredTokenException()
-		}
+    private fun withValidVerifyEmailRequest(
+            request: ServerRequest, processValidRequest: (VerifyEmailRequest) -> Mono<ServerResponse>
+    ) = request.bodyToMono<VerifyEmailRequest>()
+            .flatMap {
+                verifyEmailRequestValidator.validateToEither(it)
+                        .fold({ errors -> mapErrorToResponse(ValidationException(errors), request) }) { validRequest -> processValidRequest(validRequest) }
+            }
 
-		val email = token.email
-		email.verified = true
-		emailRepository.save(email)
-		emailVerificationTokenRepository.delete(token)
+    private fun emailStatus(email: String) = emailRepository.findByEmail(email)
+            .map { true }
+            .switchIfEmpty(just(false))
 
-		return request
-	}
+    private fun createAndSaveVerificationToken(email: Email): Mono<EmailVerificationToken> {
+        val token = EmailVerificationToken(emailId = email.id, expires = LocalDateTime.now().plusDays(1))
+        return emailVerificationTokenRepository.save(token).thenReturn(token)
+    }
 
-	@POST
-	@Path("/new-verification")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	fun triggerNewVerification(@HeaderParam("Host") hostHeader: String, @Valid previousRequest: VerifyEmailRequest): VerifyEmailRequest {
-		val decodedToken = parseToken(previousRequest.token)
-		val email = emailRepository.findByEmail(decodedToken.email) ?: throw EmailNotFoundException()
-		// Remove existing token if any
-		emailVerificationTokenRepository.findByEmail(email)?.let {
-			emailVerificationTokenRepository.delete(it)
-		}
+    private fun hostHeader(request: ServerRequest) = request.headers().header("Host")[0]
 
-		val newToken = createAndSaveVerificationToken(email)
-		sendVerificationEmailWithLink(hostHeader, newToken.id!!, email.email)
+    private fun findTokenById(id: UUID): Mono<EmailVerificationToken> {
+        return emailVerificationTokenRepository.findById(id).switchIfEmpty(error(NoSuchTokenException()))
+    }
 
-		return previousRequest
-	}
-
-	@GET
-	@Path("/contact")
-	@Produces(MediaType.APPLICATION_JSON)
-	fun redirectToMailTo(): ContactLink {
-		val mail = environment.getProperty("spring.mail.username")!!
-		return ContactLink(Base64.getUrlEncoder().encodeToString("mailto:$mail".toByteArray()))
-	}
-
-	fun createAndSaveVerificationToken(email: Email): EmailVerificationToken {
-		val token = EmailVerificationToken(email = email, expires = LocalDateTime.now().plusDays(1))
-		emailVerificationTokenRepository.save(token)
-		return token
-	}
-
-	fun findTokenById(id: UUID): EmailVerificationToken {
-		return emailVerificationTokenRepository.findByIdOrNull(id)
-				?: throw NoSuchTokenException()
-	}
-
-	fun sendVerificationEmailWithLink(hostHeader: String, id: UUID, email: String) {
-		val unicodeHostHeader = IDN.toUnicode(hostHeader)
-		val from = environment.getProperty("spring.mail.username")!!
-		val publicToken = Token(id = id, email = email).base64Value()
-		val link = "https://$unicodeHostHeader/подтвердить-почту?токен=$publicToken"
-		val subject = "Подтверждение почты"
-		val template = templateConfiguration.getTemplate("ValidateEmail.ftlh");
-		val body = FreeMarkerTemplateUtils.processTemplateIntoString(template, VerifyLink(link))
-		smotrinyMailSender.send(from = from, to = email, subject = subject, body = body)
-	}
+    private fun sendVerificationEmailWithLink(hostHeader: String, id: UUID, email: String) {
+        val unicodeHostHeader = IDN.toUnicode(hostHeader)
+        val from = environment.getProperty("spring.mail.username")!!
+        val publicToken = Token(id = id, email = email).base64Value()
+        val link = "https://$unicodeHostHeader/подтвердить-почту?токен=$publicToken"
+        val subject = "Подтверждение почты"
+        val template = templateConfigurationFactory.createConfiguration().getTemplate("ValidateEmail.ftlh");
+        val body = FreeMarkerTemplateUtils.processTemplateIntoString(template, VerifyLink(link))
+        smotrinyMailSender.send(from = from, to = email, subject = subject, body = body)
+    }
 }
 
+data class EmailValue(val email: String?)
 data class EmailStatus(val used: Boolean)
-data class SubmitEmailRequest(@NotNull @ValidEmail val email: String)
-data class VerifyEmailRequest(@NotNull val token: String)
+data class SubmitEmailRequest(val email: String?)
+data class VerifyEmailRequest(val token: String?)
 data class ContactLink(val link: String)
 data class VerifyLink(val verifyLink: String)
 
 // https://docs.oracle.com/javase/8/docs/api/java/util/Base64.html
 class Token(val id: UUID, val email: String) {
-	fun base64Value(): String {
-		return Base64.getUrlEncoder().encodeToString("$email:$id".toByteArray())
-	}
+    fun base64Value(): String {
+        return Base64.getUrlEncoder().encodeToString("$email:$id".toByteArray())
+    }
 }
 
-fun parseToken(encodedToken: String): Token {
-	try {
-		val decodedToken = String(Base64.getUrlDecoder().decode(encodedToken))
-		val emailAndIdValues = decodedToken.split(":")
-		return Token(id = UUID.fromString(emailAndIdValues[1]), email = emailAndIdValues[0])
-	} catch (e: Exception) {
-		throw InvalidTokenException()
-	}
+fun parseToken(encodedToken: String): Mono<Token> {
+    try {
+        val decodedToken = String(Base64.getUrlDecoder().decode(encodedToken))
+        val emailAndIdValues = decodedToken.split(":")
+        return just(Token(id = UUID.fromString(emailAndIdValues[1]), email = emailAndIdValues[0]))
+    } catch (e: Exception) {
+        return error(InvalidTokenException())
+    }
 }

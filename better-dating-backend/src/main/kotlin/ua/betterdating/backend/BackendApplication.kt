@@ -1,56 +1,48 @@
 package ua.betterdating.backend
 
+import org.springframework.boot.WebApplicationType
+import org.springframework.boot.autoconfigure.data.r2dbc.PostgresqlR2dbcProperties
+import org.springframework.fu.kofu.application
+import org.springframework.fu.kofu.flyway.flyway
+import org.springframework.fu.kofu.freemarker.freeMarker
+import org.springframework.fu.kofu.mail.mail
+import org.springframework.fu.kofu.r2dbc.r2dbcPostgresql
 import java.io.File
-import org.glassfish.jersey.server.ResourceConfig
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties
-import org.springframework.boot.autoconfigure.mail.MailProperties
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.runApplication
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Primary
-import org.springframework.core.env.Environment
+import java.time.Duration
+import java.time.temporal.ChronoUnit
 
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer
+val app = application(WebApplicationType.REACTIVE) {
+	enable(dataConfig)
+	enable(webConfig)
 
-@SpringBootApplication
-class BackendApplication {
-	@Bean
-	fun jerseyConfig(): ResourceConfig {
-		return ResourceConfig()
-				.register(EmailController::class.java)
-				.register(ExceptionMapper::class.java)
+	if (profiles.contains("development") || profiles.contains("production")) {
+		val passwordfilesProperties = configurationProperties<PasswordfilesProperties>(prefix = "passwordfiles")
+		mail {
+			password = readPassword(profiles, passwordfilesProperties.mail)
+		}
+
+		val dbPassword = readPassword(profiles, passwordfilesProperties.db)
+		val postgresqlR2dbcProperties = configurationProperties<PostgresqlR2dbcProperties>(prefix = "datasource")
+		r2dbcPostgresql {
+			host = postgresqlR2dbcProperties.host
+			database = postgresqlR2dbcProperties.database
+			username = postgresqlR2dbcProperties.username
+			password = dbPassword
+			connectTimeout = Duration.of(30, ChronoUnit.SECONDS)
+		}
+
+		flyway {
+			url = "jdbc:postgresql://${postgresqlR2dbcProperties.host}/${postgresqlR2dbcProperties.database}"
+			user = postgresqlR2dbcProperties.username
+			password = dbPassword
+		}
 	}
 
-	@Bean
-	fun freemarkerConfig(): FreeMarkerConfigurer {
-		val freeMarkerConfigurer = FreeMarkerConfigurer();
-		freeMarkerConfigurer.setTemplateLoaderPath("classpath:/templates");
-		freeMarkerConfigurer.setDefaultEncoding("UTF-8");
-		return freeMarkerConfigurer
-	}
-
-	@Bean
-	@Primary
-	@ConfigurationProperties(prefix = "spring.datasource")
-	fun extendedDataSourceProperties(env: Environment): DataSourceProperties {
-		val dataSourceProperties = DataSourceProperties()
-		env.getProperty("spring.datasource.passwordfile")
-			?.let { dataSourceProperties.password = File(it).readText().trim() }
-		return dataSourceProperties
-	}
-
-	@Bean
-	@Primary
-	@ConfigurationProperties(prefix = "spring.mail")
-	fun extendedMailProperties(env: Environment): MailProperties {
-		val mailProperties = MailProperties()
-		env.getProperty("spring.mail.passwordfile")
-			?.let { mailProperties.password = File(it).readText().trim() }
-		return mailProperties
-	}
+	freeMarker()
 }
 
+private fun readPassword(profiles: Array<String>, path: String) = if (profiles.contains("test")) "" else File(path).readText().trim()
+
 fun main(args: Array<String>) {
-	runApplication<BackendApplication>(*args)
+	app.run(args = args)
 }

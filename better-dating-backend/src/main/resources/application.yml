@@ -1,38 +1,8 @@
-server:
-  port: 8080
-  undertow:
-    ioThreads: 15
-    workerThreads: 150
-    accesslog:
-      enabled: true
-      prefix: better-dating_backend_access_log
-      suffix: .log
-      dir: ./logs
-  compression:
-    enabled: true
-    mimeTypes: text/xml, text/css, text/html, application/json
-    minResponseSize: 4096
-
 spring:
-  jersey:
-    applicationPath: /api
   main:
     banner-mode: "off"
-  datasource:
-    type: com.zaxxer.hikari.HikariDataSource
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      idle-timeout: 30000
-      connection-timeout: 30000
-      # https://stackoverflow.com/questions/26490967/how-do-i-configure-hikaricp-in-my-spring-boot-app-in-my-application-properties-f
-      # https://stackoverflow.com/questions/50553352/spring-retry-connection-until-datasource-is-available#50554515
-      # https://github.com/brettwooldridge/HikariCP#infrequently-used
-      initialization-fail-timeout: 0
-  jpa:
-    properties:
-      hibernate:
-        temp:
-          use_jdbc_metadata_defaults: false
+  flyway:
+    connect-retries: 30
   mail:
     protocol: smtp
     host: smtp.i.ua
@@ -53,32 +23,26 @@ spring:
 logging:
   file: ./logs/better-dating-java.log
 
-# mail health check doesn't seem to work for i.ua and causes many warnings
-management:
-  health:
-    mail:
-      enabled: false
-
 ---
 spring:
   profiles: production
-  jpa:
-    hibernate:
-      ddl-auto: validate
 server:
-  undertow:
-    accesslog:
-      dir: /logs
+  netty:
+    accesslog: /logs/better-dating_backend_access_log.log
 logging:
   file: /logs/better-dating_backend_java.log
 
 ---
 spring:
   profiles: development | test
-  datasource:
-    url: jdbc:postgresql://localhost/postgres?currentSchema=public
-    username: postgres
-  jpa:
-    hibernate:
-            #ddl-auto: create-drop
-      ddl-auto: validate
+datasource:
+  host: localhost
+  database: postgres
+---
+spring:
+  profiles: test
+passwordfiles:
+  db: password.txt
+  mail: password.txt
+datasource:
+  username: postgres

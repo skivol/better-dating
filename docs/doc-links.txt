@@ -1,11 +1,39 @@
 Markdown
 * [A quick reference to the Markdown syntax](https://www.markdownguide.org/cheat-sheet)
 
-Doc links
+# Doc links
+
+## Backend
 * [Spring Boot](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle)
 * [Spring](https://docs.spring.io/spring/docs/current/spring-framework-reference/)
 * [Kotlin](https://kotlinlang.org/docs/reference/)
+** https://kotlinlang.org/docs/reference/server-overview.html
+* [Spring + Kotlin](https://spring.io/blog/2017/01/04/introducing-kotlin-support-in-spring-framework-5-0)
+* [Spring Fu](https://spring.io/blog/2018/10/02/the-evolution-of-spring-fu)
+* [Spring Boot + Graal](https://github.com/aclement/spring-boot-graal-feature)
+** https://stackoverflow.com/a/51154446
 * [Jersey](https://jersey.github.io)
+### Examples
+* [MiXiT](https://github.com/mixitconf/mixit)
+* [Spring Boot + Kotlin](https://spring.io/guides/tutorials/spring-boot-kotlin/)
+* [KoFu samples](https://github.com/spring-projects/spring-fu/tree/master/samples)
+Spring WebFlux - Reactor - Kotlin
+Spring Data R2DBC - Reactor - Kotlin
+Spring Java -> Spring Boot Java -> Spring Boot Kotlin -> Spring Fu
+	-> Spring Boot Kotlin DSL
+
+** https://docs.spring.io/spring-framework/docs/5.0.0.M1/spring-framework-reference/html/web-reactive.html
+** Error handling
+*** https://docs.spring.io/spring/docs/5.1.9.RELEASE/spring-framework-reference/web-reactive.html#webflux-exception-handler
+** Validation
+*** https://stackoverflow.com/questions/48031647/what-is-the-best-way-to-validate-request-in-a-spring-webflux-functional-applicat
+** Testing...
+*** https://dzone.com/articles/spring-webflux-getting-started
+>> ** R2(J)DBC...
+*** https://spring.io/projects/spring-data-r2dbc
+
+
+## Frontend
 * React
 ** React Dev Tools in production: https://medium.com/@zalmoxis/using-redux-devtools-in-production-4c5b56c5600f
 ** Service workers:

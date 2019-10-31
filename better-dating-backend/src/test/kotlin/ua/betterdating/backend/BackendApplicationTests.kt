@@ -1,124 +1,171 @@
 package ua.betterdating.backend
 
-import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.test.web.client.getForEntity
-import org.springframework.http.HttpStatus
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
+import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.data.r2dbc.connectionfactory.R2dbcTransactionManager
+import org.springframework.http.MediaType
+import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.transaction.ReactiveTransaction
+import reactor.core.publisher.Mono
+import reactor.core.publisher.Mono.just
 import java.time.LocalDateTime
 import java.util.*
 
 // https://mockk.io
-@ContextConfiguration
-@ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class BackendApplicationTests(@Autowired val restTemplate: TestRestTemplate) {
-	@MockkBean
-	private lateinit var emailRepository: EmailRepository
-	@MockkBean
-	private lateinit var emailVerificationTokenRepository: EmailVerificationTokenRepository
-	@MockkBean
-	private lateinit var smotrinyMailSender: SmotrinyMailSender
+class BackendApplicationTests {
+    private val r2dbcTransactionManager = mockk<R2dbcTransactionManager>()
+    private val emailRepository = mockk<EmailRepository>()
+    private val emailVerificationTokenRepository = mockk<EmailVerificationTokenRepository>()
+    private val smotrinyMailSender = mockk<SmotrinyMailSender>()
 
-	@BeforeAll
-	fun setup() {
-		println(">> Setup")
-	}
-  
-	@Test
-	fun `Email status check (already used)`() {
-		givenExistingEmail()
+    private lateinit var configurableApplicationContext: ConfigurableApplicationContext
+    private lateinit var client: WebTestClient
 
-		// When
-		// TODO extract call to helper fun
-		val entity = restTemplate.getForEntity<String>("/api/user/email/status?email=existing@test.com")
+    @BeforeAll
+    fun setup() {
+        app.customize {
+            beans {
+                bean(isPrimary = true) { emailRepository }
+                bean(isPrimary = true) { emailVerificationTokenRepository }
+                bean(isPrimary = true) { r2dbcTransactionManager }
+                bean(isPrimary = true) { smotrinyMailSender }
+            }
+        }
+        configurableApplicationContext = app.run(profiles = "test")
+        client = WebTestClient.bindToServer().baseUrl("http://127.0.0.1:8181").build()
 
-		// Then
-		assertThat(entity.statusCode).isEqualTo(HttpStatus.OK)
-		assertThat(entity.body).contains("\"used\":true")
-	}
+        val reactiveTransaction = mockk<ReactiveTransaction>();
+        every { r2dbcTransactionManager.getReactiveTransaction(any()) } returns just(reactiveTransaction)
+        every { r2dbcTransactionManager.commit(any()) } returns Mono.empty()
+        every { r2dbcTransactionManager.rollback(any()) } returns Mono.empty()
+    }
 
-	@Test
-	fun `Email status check (not used)`() {
-		// Given
-		every { emailRepository.findByEmail(any()) } returns null
+    @Test
+    fun `Email status check (already used)`() {
+        // Given
+        givenExistingEmail()
+        // When
+        client.get().uri("/api/user/email/status?email=existing@test.com")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                // Then
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectStatus().is2xxSuccessful
+                .expectBody<EmailStatus>()
+                .isEqualTo(EmailStatus(used = true))
+    }
 
-		// When
-		val entity = restTemplate.getForEntity<String>("/api/user/email/status?email=non_existing@test.com")
+    @Test
+    fun `Email status check (not used)`() {
+        // Given
+        every { emailRepository.findByEmail(any()) } returns Mono.empty()
 
-		// Then
-		assertThat(entity.statusCode).isEqualTo(HttpStatus.OK)
-		assertThat(entity.body).contains("\"used\":false")
-	}
+        // When
+        client.get().uri("/api/user/email/status?email=non_existing@test.com")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                // Then
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectStatus().is2xxSuccessful
+                .expectBody<EmailStatus>()
+                .isEqualTo(EmailStatus(used = false))
+    }
 
-	@Test
-	fun `Email status check (malformed param)`() {
-		// When
-		val entity = restTemplate.getForEntity<String>("/api/user/email/status?email=malformed.com")
+    @Test
+    fun `Email status check (malformed param)`() {
+        // When
+        client.get().uri("/api/user/email/status?email=malformed.com")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                // Then
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectStatus().is4xxClientError
+                .expectBody<ErrorResponseEntity>()
+                .consumeWith {
+                    val actualError = it.responseBody
+                    assertThat(actualError?.path).isEqualTo("/api/user/email/status")
+                    assertThat(actualError?.status).isEqualTo(400)
+                    assertThat(actualError?.error).isEqualTo("Bad Request")
+                    assertThat(actualError?.message).isEqualTo("Validation exception")
+                    assertThat(actualError?.details?.elementAt(0)).isEqualTo(
+                        ValidationError(
+                            args = arrayOf("email", "malformed.com"),
+                            defaultMessage = "\"email\" must be a valid email address",
+                            key = "charSequence.email"
+                        )
+                    )
+                }
+    }
 
-		// Then
-		assertThat(entity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-		// TODO return json with error description
-		assertThat(entity.body).contains("\"status\":400,\"error\":\"Bad Request\"")
-	}
+    @Test
+    fun `Email submit already existing`() {
+        givenExistingEmail()
+        // When
+        client.post().uri("/api/user/email/submit")
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(SubmitEmailRequest(email = "existing@test.com"))
+                .exchange()
+                // Then
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectStatus().is4xxClientError
+                .expectBody<ErrorResponseEntity>()
+                .consumeWith {
+                    val actualResponse = it.responseBody
+                    assertThat(actualResponse?.message).isEqualTo("Email already registered")
+                }
+    }
 
-	@Test
-	fun `Email submit already existing`() {
-		givenExistingEmail()
+    @Test
+    fun `Email verify`() {
+        val email = givenExistingEmail()
+        val actualEmailSlot = slot<Email>() // https://mockk.io/#capturing
+        every { emailRepository.update(capture(actualEmailSlot)) } returns just(1)
+        val token = UUID.randomUUID()
+        val existingToken = givenExistingToken(token, email)
+        every { emailVerificationTokenRepository.delete(any<EmailVerificationToken>()) } returns just(1)
+        // When
+        client.post().uri("/api/user/email/verify")
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(VerifyEmailRequest(Token(token, email.email).base64Value()))
+                .exchange()
+                // Then
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectStatus().is2xxSuccessful
+                .expectBody<EmailVerificationToken>()
+                .consumeWith {
+                    val actualResponse = it.responseBody
+                    assertThat(actualResponse?.emailId).isEqualTo(email.id)
+                    assertThat(actualEmailSlot.captured.verified).isTrue()
+                    verify { emailVerificationTokenRepository.delete(existingToken) }
+                    verify { emailRepository.update(email) }
+                }
+    }
 
-		// When
-		val entity = restTemplate.postForEntity<String>("/api/user/email/submit", SubmitEmailRequest(email = "existing@test.com"), String::class.java)
+    @AfterAll
+    fun tearDown() {
+        configurableApplicationContext.close()
+    }
 
-		// Then
-		assertThat(entity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-		assertThat(entity.body).contains("\"message\":\"Email already registered\"")
-		assertThat(entity.body).contains("\"statusCode\":400")
-	}
+    private fun givenExistingEmail(): Email {
+        // Given
+        val email = Email(email = "existing@test.com", verified = false)
+        every { emailRepository.findByEmail("existing@test.com") } returns just(email)
+        every { emailRepository.findById(any()) } returns just(email)
+        return email
+    }
 
-	@Test
-	fun `Email verify`() {
-		val email = givenExistingEmail()
-		mockSaveEmail(email)
-		val token = UUID.randomUUID()
-		givenExistingToken(token, email)
-
-		// When
-		val entity = restTemplate.postForEntity<String>("/api/user/email/verify", VerifyEmailRequest(Token(token, email.email).base64Value()), String::class.java)
-
-		// Then
-		assertThat(entity.statusCode).isEqualTo(HttpStatus.OK)
-		// TODO verify that email.verified was "true" in email "save" call
-		verify { emailVerificationTokenRepository.delete(any()) }
-	}
-
-	@AfterAll
-	fun tearDown() {
-		println(">> Tear down")
-	}
-
-	fun givenExistingEmail(): Email {
-		// Given
-		val email = Email(email = "existing@test.com", verified = false)
-		every { emailRepository.findByEmail("existing@test.com") } returns email
-		return email
-	}
-
-	fun givenExistingToken(id: UUID, email: Email) {
-		// Given
-		val token = EmailVerificationToken(id = id, email = email, expires = LocalDateTime.now().plusMinutes(5))
-		every { emailVerificationTokenRepository.findById(eq(id)) } returns Optional.of(token)
-	}
-
-	fun mockSaveEmail(email: Email) {
-		every { emailRepository.save(email) } answers { arg(0) }
-	}
+    private fun givenExistingToken(id: UUID, email: Email): EmailVerificationToken {
+        // Given
+        val token = EmailVerificationToken(id = id, emailId = email.id, expires = LocalDateTime.now().plusMinutes(5))
+        every { emailVerificationTokenRepository.findById(eq(id)) } returns just(token)
+        return token
+    }
 }
