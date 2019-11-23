@@ -1,6 +1,6 @@
 1. Make login work only using keys for usual (adm1n) and root users correspondingly;
 	* root ssh access: https://unix.stackexchange.com/a/92397
-2. Install Docker;
+2. Install Docker; [ensure "ftype" filesystem option is set to 1](https://docs.docker.com/storage/storagedriver/overlayfs-driver/)
 3. Configure Docker:
 	Docker daemon config:
 	[adm1n@21 ~]$ sudo cat /etc/docker/daemon.json
