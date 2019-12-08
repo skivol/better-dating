@@ -1,9 +1,6 @@
 package ua.betterdating.backend
 
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
+import io.mockk.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -66,7 +63,7 @@ class BackendApplicationTests {
     @Test
     fun `Email status check (not used)`() {
         // Given
-        every { emailRepository.findByEmail(any()) } returns Mono.empty()
+        coEvery { emailRepository.findByEmail(any()) } returns null
 
         // When
         client.get().uri("/api/user/email/status?email=non_existing@test.com")
@@ -127,10 +124,10 @@ class BackendApplicationTests {
     fun `Email verify`() {
         val email = givenExistingEmail()
         val actualEmailSlot = slot<Email>() // https://mockk.io/#capturing
-        every { emailRepository.update(capture(actualEmailSlot)) } returns just(1)
+        coEvery { emailRepository.update(capture(actualEmailSlot)) } returns 1
         val token = UUID.randomUUID()
         val existingToken = givenExistingToken(token, email)
-        every { emailVerificationTokenRepository.delete(any<EmailVerificationToken>()) } returns just(1)
+        coEvery { emailVerificationTokenRepository.delete(any<EmailVerificationToken>()) } returns 1
         // When
         client.post().uri("/api/user/email/verify")
                 .accept(MediaType.APPLICATION_JSON)
@@ -144,8 +141,8 @@ class BackendApplicationTests {
                     val actualResponse = it.responseBody
                     assertThat(actualResponse?.emailId).isEqualTo(email.id)
                     assertThat(actualEmailSlot.captured.verified).isTrue()
-                    verify { emailVerificationTokenRepository.delete(existingToken) }
-                    verify { emailRepository.update(email) }
+                    coVerify { emailVerificationTokenRepository.delete(existingToken) }
+                    coVerify { emailRepository.update(email) }
                 }
     }
 
@@ -157,15 +154,15 @@ class BackendApplicationTests {
     private fun givenExistingEmail(): Email {
         // Given
         val email = Email(email = "existing@test.com", verified = false)
-        every { emailRepository.findByEmail("existing@test.com") } returns just(email)
-        every { emailRepository.findById(any()) } returns just(email)
+        coEvery { emailRepository.findByEmail("existing@test.com") } returns email
+        coEvery { emailRepository.findById(any()) } returns email
         return email
     }
 
     private fun givenExistingToken(id: UUID, email: Email): EmailVerificationToken {
         // Given
         val token = EmailVerificationToken(id = id, emailId = email.id, expires = LocalDateTime.now().plusMinutes(5))
-        every { emailVerificationTokenRepository.findById(eq(id)) } returns just(token)
+        coEvery { emailVerificationTokenRepository.findById(eq(id)) } returns token
         return token
     }
 }

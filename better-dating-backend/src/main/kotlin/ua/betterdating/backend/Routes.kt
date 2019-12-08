@@ -1,10 +1,10 @@
 package ua.betterdating.backend
 
 import org.springframework.http.MediaType
-import org.springframework.web.reactive.function.server.router
+import org.springframework.web.reactive.function.server.coRouter
 import ua.betterdating.backend.handlers.HealthHandler
 
-fun routes(emailHandler: EmailHandler, healthHandler: HealthHandler) = router {
+fun routes(emailHandler: EmailHandler, healthHandler: HealthHandler) = coRouter {
     "/api/user/email".nest {
         GET("/status", emailHandler::emailStatus)
         POST("/submit", accept(MediaType.APPLICATION_JSON), emailHandler::submitEmail)

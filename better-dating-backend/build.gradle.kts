@@ -2,10 +2,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     application
-	id("org.springframework.boot") version "2.2.0.RC1"
+	id("org.springframework.boot") version "2.2.2.RELEASE"
 	id("io.spring.dependency-management") version "1.0.8.RELEASE"
 
-	kotlin("jvm") version "1.3.50"
+	kotlin("jvm") version "1.3.61"
+	kotlin("plugin.spring") version "1.3.61"
 
 	// Better checking of dependencies update
 	// https://github.com/patrikerdes/gradle-use-latest-versions-plugin
@@ -46,7 +47,6 @@ dependencies {
 	implementation("org.springframework.fu:spring-fu-autoconfigure-adapter:0.3.BUILD-SNAPSHOT-skivol")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("io.netty:netty-all:4.1.39.Final")
-	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("am.ik.yavi:yavi:0.2.0")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
@@ -56,6 +56,7 @@ dependencies {
 
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
 	// Test
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {

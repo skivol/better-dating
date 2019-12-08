@@ -9,13 +9,14 @@ import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.json
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 val LOG: Logger = LoggerFactory.getLogger(ErrorResponseEntity::class.java)
-fun mapErrorToResponse(e: Throwable, request: ServerRequest): Mono<ServerResponse> {
+suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResponse {
     val errorEntity = when (e) {
         is EmailAlreadyPresentException -> ErrorResponseEntity(request, BAD_REQUEST, "Email already registered")
         is EmailNotFoundException -> ErrorResponseEntity(request, BAD_REQUEST, "Email not found")
@@ -30,7 +31,7 @@ fun mapErrorToResponse(e: Throwable, request: ServerRequest): Mono<ServerRespons
             ErrorResponseEntity(request, INTERNAL_SERVER_ERROR, "Internal error")
         }
     }
-    return ServerResponse.status(errorEntity.status).json().bodyValue(errorEntity)
+    return ServerResponse.status(errorEntity.status).json().bodyValueAndAwait(errorEntity)
 }
 
 class ErrorResponseEntity(
