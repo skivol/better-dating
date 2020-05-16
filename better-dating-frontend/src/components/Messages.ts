@@ -37,9 +37,12 @@ export const Email = 'Почта для обратной связи';
 export const contactUs = 'С вопросами или предложениями обращайтесь на почту (почтовый клиент должен быть доступен)';
 export const contactUsButton = 'Написать письмо';
 
+export const requiredField = 'обязательное поле';
+export const invalidFormat = 'неправильный формат';
+export const alreadyPresentEmail = 'почта уже существует';
+
 export const emailVerification = 'Подтверждение почты';
 
-export const tokenName = 'токен';
 export const sendNewVerificationToken = 'Отправить новый токен';
 
 export const firstStageFlowAlt = 'Диаграмма схематически описывающая первый этап использования предлагаемой системы: анкета - самооценка и саморазвитие - свидания - обратная связь - если оба участника хотят продолжать отношения, то переход на следующий этап, иначе возврат на шаг 2.';

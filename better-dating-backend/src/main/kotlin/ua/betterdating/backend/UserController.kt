@@ -1,7 +1,5 @@
 package ua.betterdating.backend
 
-import am.ik.yavi.builder.ValidatorBuilder
-import am.ik.yavi.builder.constraint
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.env.Environment
@@ -16,7 +14,6 @@ import java.net.IDN
 import java.time.LocalDateTime
 import java.util.*
 
-
 @Suppress("UNUSED_PARAMETER")
 class EmailHandler(
         private val emailRepository: EmailRepository,
@@ -27,16 +24,6 @@ class EmailHandler(
         private val templateConfigurationFactory: FreeMarkerConfigurationFactoryBean
 ) {
     private val LOG: Logger = LoggerFactory.getLogger(EmailHandler::class.java)
-
-    private val emailValidator = ValidatorBuilder.of<EmailValue>()
-            .constraint(EmailValue::email) {
-                notNull()
-                        .greaterThanOrEqual(5)
-                        .lessThanOrEqual(50)
-                        .email()
-            }.build()
-    private val verifyEmailRequestValidator = ValidatorBuilder.of<VerifyEmailRequest>()
-            .constraint(VerifyEmailRequest::token) { notNull() }.build()
 
     suspend fun emailStatus(request: ServerRequest) = withValidEmail(request, request.queryParam("email").orElse(null)) { email ->
         val used = emailStatus(email)
@@ -101,29 +88,6 @@ class EmailHandler(
         return ok().json().bodyValueAndAwait(link)
     }
 
-    private suspend fun withValidEmail(
-        request: ServerRequest, email: String?, processValidEmail: suspend (String) -> ServerResponse
-    ): ServerResponse {
-        val validateResult = emailValidator.validate(EmailValue(email))
-        return if (validateResult.isValid) {
-            processValidEmail(email!!)
-        } else {
-            mapErrorToResponse(ValidationException(validateResult), request)
-        }
-    }
-
-    private suspend fun withValidVerifyEmailRequest(
-        request: ServerRequest, processValidRequest: suspend (VerifyEmailRequest) -> ServerResponse
-    ): ServerResponse {
-        val verifyEmailRequest = request.awaitBody<VerifyEmailRequest>()
-        val validateResult = verifyEmailRequestValidator.validate(verifyEmailRequest)
-        return if (validateResult.isValid) {
-            processValidRequest(verifyEmailRequest)
-        } else {
-            mapErrorToResponse(ValidationException(validateResult), request)
-        }
-    }
-
     private suspend fun emailStatus(email: String) = emailRepository.findByEmail(email)
             ?.let { true }
             ?: false
@@ -145,29 +109,5 @@ class EmailHandler(
         val template = templateConfigurationFactory.createConfiguration().getTemplate("ValidateEmail.ftlh");
         val body = FreeMarkerTemplateUtils.processTemplateIntoString(template, VerifyLink(link))
         smotrinyMailSender.send(from = from, to = email, subject = subject, body = body)
-    }
-}
-
-data class EmailValue(val email: String?)
-data class EmailStatus(val used: Boolean)
-data class SubmitEmailRequest(val email: String?)
-data class VerifyEmailRequest(val token: String?)
-data class ContactLink(val link: String)
-data class VerifyLink(val verifyLink: String)
-
-// https://docs.oracle.com/javase/8/docs/api/java/util/Base64.html
-class Token(val id: UUID, val email: String) {
-    fun base64Value(): String {
-        return Base64.getUrlEncoder().encodeToString("$email:$id".toByteArray())
-    }
-}
-
-fun parseToken(encodedToken: String): Token? {
-    try {
-        val decodedToken = String(Base64.getUrlDecoder().decode(encodedToken))
-        val emailAndIdValues = decodedToken.split(":")
-        return Token(id = UUID.fromString(emailAndIdValues[1]), email = emailAndIdValues[0])
-    } catch (e: Exception) {
-        return null
     }
 }

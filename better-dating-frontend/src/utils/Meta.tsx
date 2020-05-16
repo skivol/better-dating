@@ -1,8 +1,5 @@
-// Based on https://github.com/stereobooster/an-almost-static-stack/blob/react-snap/src/components/Seo.js
-// https://themeteorchef.com/tutorials/reusable-seo-with-react-helmet
-// https://github.com/stereobooster/react-snap/blob/master/doc/recipes.md#meta-tags
 import React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 
 const domainName = 'смотрины.укр';
 const altDomainName = 'смотрины.рус';
@@ -12,8 +9,8 @@ const seoImageURL = (file: string) => `${baseUrl}/images/${file}`;
 
 interface CommonMetaProps {
 	schema?: string;
-	title?: string;
-	description?: string;
+	title: string;
+	description: string;
 	contentType?: string;
 	published?: string;
 	updated?: string;
@@ -32,7 +29,7 @@ interface MetaTagsProps extends CommonMetaProps {
 }
 
 const getMetaTags = ({
-	title, description, url, contentType, published, updated, category, tags, twitter, image,
+	title, description, url, contentType = "website", published, updated, category, tags, twitter, image,
 }: MetaTagsProps) => {
 	const metaTags = [
 		{ itemprop: 'name', content: title },
@@ -48,12 +45,13 @@ const getMetaTags = ({
 		{ name: 'og:description', content: description },
 		{ name: 'og:site_name', content: domainName },
 		{ name: 'og:locale', content: 'ru_RU' },
+		{ name: 'language', content: 'ru_RU' },
 		{ name: 'google-site-verification', content: 'H5lx792ITP1wTfGQOHvdUgVn-hCec4NVN1_hjojG0uQ' },
 		{ name: 'yandex-verification', content: '7c939c3f5bb596a0' },
 		{ name: 'msvalidate.01', content: 'F40FD4A0E1B52B879491992CE9E2864B' },
 		// { name: 'fb:app_id', content: '<FB App ID>' },
 	];
-	
+
 	if (published) {
 		metaTags.push({ name: 'article:published_time', content: published });
 	}
@@ -74,7 +72,7 @@ const getMetaTags = ({
 	} else {
 		metaTags.push({ name: 'twitter:card', content: 'summary' });
 	}
-	
+
 	return metaTags;
 };
 
@@ -99,28 +97,28 @@ const getHtmlAttributes = ({
 }
 
 const Meta = ({
-	schema, title, description, path, contentType, published, updated, category, tags, twitter,
+	schema, title, description, path, contentType = "website", published, updated, category, tags, twitter,
 }: MetaProps) => (
-	<Helmet
-		htmlAttributes={getHtmlAttributes({
-			schema,
-		})}
-		title={ title }
-		link={[
-			{ rel: 'canonical', href: absoluteUrl(path) },
-		]}
-		meta={getMetaTags({
-			title,
-			description,
-			contentType,
-			url: absoluteUrl(path),
-			published,
-			updated,
-			category,
-			tags,
-			twitter,
-		})}
-	/>
-);
+		<Helmet
+			htmlAttributes={getHtmlAttributes({
+				schema,
+			})}
+			title={title}
+			link={[
+				{ rel: 'canonical', href: absoluteUrl(path) },
+			]}
+			meta={getMetaTags({
+				title,
+				description,
+				contentType,
+				url: absoluteUrl(path),
+				published,
+				updated,
+				category,
+				tags,
+				twitter,
+			})}
+		/>
+	);
 
 export default Meta;

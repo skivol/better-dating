@@ -49,10 +49,10 @@ services:
       resources:
         limits:
           cpus: '0.75'
-          memory: 250M
+          memory: 300M
         reservations:
           cpus: '0.25'
-          memory: 300M
+          memory: 250M
       restart_policy:
         condition: any
         delay: 10s
@@ -73,10 +73,10 @@ services:
       resources:
         limits:
           cpus: '0.50'
-          memory: 100M
+          memory: 150M
         reservations:
           cpus: '0.25'
-          memory: 50M
+          memory: 100M
       restart_policy:
         condition: any
         delay: 10s

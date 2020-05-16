@@ -10,16 +10,12 @@
 
 
 bd-ui-server() {
-	wd proj-ui && REACT_APP_UPDATED="$(date -u --iso-8601=seconds)" yarn start
+	wd proj-ui && export $(grep -v "^#" ../.env-dev | xargs) && NEXT_APP_UPDATED="$(date -u --iso-8601=seconds)" yarn dev
 }
 alias bd-ui-test='wd proj-ui && yarn test'
-# export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser && 
-# https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#alternative-setup-setuid-sandbox
-# export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox && 
 bd-ui-build() {
-	wd proj-ui && REACT_APP_UPDATED="$(date -u --iso-8601=seconds)" yarn build
+	wd proj-ui && NEXT_APP_UPDATED="$(date -u --iso-8601=seconds)" yarn build
 }
-# alias bd-ui-build-snap='wd proj-ui && yarn build-snap'
 alias bd-ui-docker-build='wd proj-ui && docker build -t skivol/better-dating-ui:latest . && docker image prune -f --filter label=stage=builder'
 alias bd-ui-docker-run='docker run --rm --name better-dating-ui -d -p 8080:80 skivol/better-dating-ui:latest'
 alias bd-ui-docker-stop='docker stop better-dating-ui'
@@ -145,5 +141,12 @@ alias bd-docker-rm-secrets='docker secret rm ssl_certificate ssl_certificate_key
 alias bd-docker-add-cert-key='sudo cat /etc/ssl/private/nginx-selfsigned.key | docker secret create ssl_certificate_key -'
 alias bd-docker-add-cert='sudo cat /etc/ssl/certs/nginx-selfsigned.crt | docker secret create ssl_certificate -'
 
+# Prod Status
+alias check-docker-status='test `prod-ssh-zsh "date -u; docker ps" | tee /dev/tty | grep "better-dating" | grep "(healthy)" | wc -l` -eq 4 || (echo "Some service seems to be down" && while :; do beep; sleep 1; done)'
+
 # Spring Fu
 alias spring-fu-publish-to-local='wd spring-fu && ./gradlew -x test publishToMavenLocal'
+
+# Npm
+alias nbom='wd proj-ui && rm -rf package-lock.json yarn.lock node_modules && npm i'
+alias ybom='wd proj-ui && rm -rf package-lock.json yarn.lock node_modules && yarn'

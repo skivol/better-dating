@@ -1,12 +1,11 @@
-* limit parallel mail sending
-
-* continue developing the concept
+* continue developing the concept (registration for 1-st stage)
 * [authentication] social login as addition to email powered one ?
 * >> rebrand to a game ? (with scores visible only to you etc) <<
+* limit parallel mail sending
 
 * fix README file.
 * fix og:image https://webmaster.yandex.ru/tools/microtest/ (ОШИБКА: поле http://ogp.me/ns#image отсутствует или пусто)
-* integration tests using kotlin jgiven
+* integration tests using kotlin jgiven / cypress
 * use WSL 2 as dev environment (https://habr.com/ru/company/microsoft/blog/456204/)
 
 * LEGAL questions (trademark/non-profitable-entity, user agreement / rules ?)
@@ -20,20 +19,23 @@
 * checkout GraalVM
 * checkout vim code completion: https://github.com/neoclide/coc.nvim
 * fix ctags regexp warnings
+* analytics/stats (https://github.com/GoogleChrome/web-vitals)
+* generate sitemap (for example, https://dev.to/embiem/auto-generate-sitemapxml-in-nextjs-2nh1)
 
 # On leisure
-* figure out service worker usage... (what is happening with styles of "updated date"??) Double check if it really works in prod...
 ** fails to register with self-signed certificate... (serviceWorker.ts:106 Error during service worker registration: TypeError: Failed to register a ServiceWorker: ServiceWorker script evaluation failed)
 
 # Goods / design
-* update site icon
+* update site icon (e.g. https://www.flaticon.com)
 * design print business cards (QR-code, name / description / "pass on"/spread the word instruction ;), contact email)
 * T-shirts / wear with logo/name of the site
 
 # Content
-* contacts page? / technologies used / licenses.
+* contacts/help page? / technologies used / licenses.
 * add article about beauty / good qualities;
 * add description of development process;
+* add questionnaire ?
+* reference Wikipedia's article and picture: https://ru.wikipedia.org/wiki/Смотрины ?
 
 # Things to consider
 * consider using `redux-starter-kit` (https://redux-starter-kit.js.org)

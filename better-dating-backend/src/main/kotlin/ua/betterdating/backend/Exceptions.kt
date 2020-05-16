@@ -23,9 +23,14 @@ suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResp
         is NoSuchTokenException -> ErrorResponseEntity(request, BAD_REQUEST, "No such token")
         is ExpiredTokenException -> ErrorResponseEntity(request, BAD_REQUEST, "Expired token")
         is InvalidTokenException -> ErrorResponseEntity(request, BAD_REQUEST, "Invalid token format")
-        is ValidationException -> ErrorResponseEntity(
-            path = request.path(), status = BAD_REQUEST.value(), error = BAD_REQUEST.reasonPhrase, message = "Validation exception", details =  e.violations.details().map { ValidationError(it) }
-        )
+        is ValidationException -> {
+            LOG.info("Validation error", e)
+            ErrorResponseEntity(
+                path = request.path(), status = BAD_REQUEST.value(),
+                error = BAD_REQUEST.reasonPhrase, message = "Validation exception",
+                details =  e.violations.details().map { ValidationError(it) }
+            )
+        }
         else -> {
             LOG.error("Internal error", e)
             ErrorResponseEntity(request, INTERNAL_SERVER_ERROR, "Internal error")

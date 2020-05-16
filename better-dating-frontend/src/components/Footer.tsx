@@ -20,7 +20,7 @@ const footerContentStyle: React.CSSProperties = {
 const Footer = () => (
 	<footer style={footerStyle}>
 		<div style={footerContentStyle}>
-			{ `${Messages.footer} 2019` }
+			{`${Messages.footer} 2019 - 2020`}
 		</div>
 	</footer>
 );

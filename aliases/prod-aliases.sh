@@ -49,3 +49,4 @@ alias bd-prod-backup-letsencrypt-create='sudo zip -r /home/adm1n/backups/bd-lets
 ## https://stackoverflow.com/questions/45923445/pg-dumpall-missing-in-connection-string
 ## https://stackoverflow.com/questions/24718706/backup-restore-a-dockerized-postgresql-database
 alias bd-prod-backup-db-dump='docker exec -i $(docker ps --filter "name=better-dating_bd-postgres" --format "{{.Names}}") pg_dumpall -c -l better-dating -U bd-user | gzip > /home/adm1n/backups/db/dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql.gz'
+# TODO backup data volumes instead: https://docs.docker.com/storage/volumes/#backup-restore-or-migrate-data-volumes

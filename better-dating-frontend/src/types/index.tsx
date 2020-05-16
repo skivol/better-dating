@@ -6,11 +6,7 @@ export enum SnackbarVariant {
 };
 
 export interface StatusSnackbarState {
-	isOpen: boolean;
-	message: string;
-	variant: SnackbarVariant;
-}
-
-export interface ExpiredTokenState {
-	hasExpiredToken: boolean;
+  isOpen: boolean;
+  message: string;
+  variant: SnackbarVariant;
 }

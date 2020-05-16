@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Tooltip from '@material-ui/core/Tooltip';
-import CardMedia from '@material-ui/core/CardMedia';
+// @ts-ignore
 import PetrovSmotrinyNevesty from './img/Петров_Смотрины-невесты_1861.jpg';
 
 const headerStyle: React.CSSProperties = {
@@ -24,7 +24,7 @@ const titleWithDescriptionColumn: React.CSSProperties = {
 const titlePaperStyle: React.CSSProperties = {
 	padding: '15px',
 	margin: '10px',
-}
+};
 
 /* TODO create a great Logo, describe the meaning of the name */
 // import Icon from '@material-ui/core/Icon';
@@ -42,9 +42,8 @@ const Header = () => (
 				disableFocusListener
 				title={ Messages.pictureTooltip }
 			>
-				<CardMedia
-					image={PetrovSmotrinyNevesty}
-					component="img"
+				<img
+					src={PetrovSmotrinyNevesty}
 					alt={Messages.pictureTooltip}
 					style={imageStyle}
 				/>

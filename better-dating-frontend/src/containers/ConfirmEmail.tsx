@@ -2,15 +2,13 @@ import { connect } from 'react-redux';
 import ConfirmEmail from '../components/ConfirmEmail';
 import { SnackbarVariant } from '../types';
 import * as actions from '../actions/';
-import * as Messages from './Messages';
-import { BetterDatingStoreState, BetterDatingThunkDispatch } from '../configureStore';
-
-export const mapStateToProps = ({ expiredToken: { hasExpiredToken }}: BetterDatingStoreState) => ({ hasExpiredToken });
+import { resolveTokenMessage, successVerifyingEmailMessage } from '../Messages';
+import { BetterDatingThunkDispatch } from '../configureStore';
 
 export const mapDispatchToProps = (dispatch: BetterDatingThunkDispatch) => ({
-	onEmailVerify: (token: string) => dispatch(actions.verifyEmail(token)),
-	onNoTokenProvided: () => dispatch(actions.openSnackbar(Messages.noTokenProvided, SnackbarVariant.error)),
-	onRequestAnotherValidationToken: (previousToken: string) => dispatch(actions.requestAnotherValidationToken(previousToken))
+	onRequestAnotherValidationToken: (previousToken: string) => dispatch(actions.requestAnotherValidationToken(previousToken)),
+	onTokenVerified: () => dispatch(actions.openSnackbar(successVerifyingEmailMessage, SnackbarVariant.success)),
+	onErrorVerifying: (errorMessage: string) => dispatch(actions.openSnackbar(resolveTokenMessage(errorMessage), SnackbarVariant.error))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ConfirmEmail);
+export default connect(null, mapDispatchToProps)(ConfirmEmail);

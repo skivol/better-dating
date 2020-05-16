@@ -1,16 +1,5 @@
-export const EMAIL_FORM_ID = 'EmailForm';
-
-export const EMAIL_SUBMITTED = 'EMAIL_SUBMITTED';
-export type EMAIL_SUBMITTED = typeof EMAIL_SUBMITTED;
-
-export const ERROR_SUBMITTING_EMAIL = 'ERROR_SUBMITTING_EMAIL';
-export type ERROR_SUBMITTING_EMAIL = typeof ERROR_SUBMITTING_EMAIL;
-
 export const OPEN_SNACKBAR = 'OPEN_SNACKBAR';
 export type OPEN_SNACKBAR = typeof OPEN_SNACKBAR;
 
 export const CLOSE_SNACKBAR = 'CLOSE_SNACKBAR';
 export type CLOSE_SNACKBAR = typeof CLOSE_SNACKBAR;
-
-export const EXPIRED_TOKEN = 'EXPIRED_TOKEN';
-export type EXPIRED_TOKEN = typeof EXPIRED_TOKEN;

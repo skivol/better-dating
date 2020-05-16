@@ -1,7 +1,6 @@
 import * as React from "react";
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import Icon from '@material-ui/core/Icon';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -9,30 +8,30 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
-
 import Dialog from '@material-ui/core/Dialog';
+import CardMedia from '@material-ui/core/CardMedia';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { getData } from '../FetchUtils';
 import EmailForm from '../containers/EmailForm';
-import FirstStageFlow from './img/Первый_этап.png';
 import * as Messages from './Messages';
+// @ts-ignore
+import FirstStageFlow from './img/Первый_этап.png';
 
-
-// <Icon>account_box</Icon> <Icon>star_rate</Icon> <Icon>supervisor_account</Icon> <Icon>star_rate</Icon>
 
 const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    heading: {
-      fontSize: theme.typography.pxToRem(15),
-      flexBasis: '90%',
-      flexShrink: 0,
-    },
-    button: {
-      margin: theme.spacing(1),
-    },
-  })
+	createStyles({
+		heading: {
+			fontSize: theme.typography.pxToRem(15),
+			flexBasis: '90%',
+			flexShrink: 0,
+		},
+		button: {
+			margin: theme.spacing(1),
+		},
+	})
 );
 
 const boxStyle: React.CSSProperties = {
@@ -54,24 +53,19 @@ const DialogWithFirstStageFlowImage = (open: boolean, handleClose: () => void) =
 		onClose={handleClose}
 		aria-labelledby="max-width-dialog-title"
 	>
-		<CardMedia
-			image={FirstStageFlow}
-			component="img"
+		<img
+			src={FirstStageFlow}
 			alt={Messages.firstStageFlowAlt}
-			style={{width: '863px', height: '304px'}}
+			style={{ width: '863px', height: '304px' }}
 		/>
 	</Dialog>
 );
-
-export interface Props {
-  onEmailSubmit: () => void;
-}
 
 const centerStyle = {
 	style: { alignItems: 'center', display: 'flex' }
 };
 
-const Proposal = ({ onEmailSubmit }: Props) => {
+const Proposal = () => {
 	const classes = useStyles();
 	const [open, setOpen] = React.useState(false);
 	const closeDialog = () => setOpen(false);
@@ -90,7 +84,7 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 						expandIcon={<ExpandMoreIcon />}
 					>
 						<Typography className={classes.heading}>
-							{Messages.Idea}	
+							{Messages.Idea}
 						</Typography>
 					</ExpansionPanelSummary>
 					<ExpansionPanelDetails>
@@ -99,12 +93,13 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 								<Typography>
 									{Messages.FirstStage}
 								</Typography>
-								<Divider style={{margin: '10px'}} />
+								<Divider style={{ margin: '10px' }} />
 							</Grid>
 							<Grid item>
 								<CardMedia
-									image={FirstStageFlow}
+									src={FirstStageFlow}
 									component="img"
+									alt={Messages.firstStageFlowAlt}
 									onClick={openDialog}
 								/>
 							</Grid>
@@ -112,15 +107,15 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 								<Typography>
 									{Messages.FirstStageFirstStep}
 								</Typography>
-								<Divider style={{margin: '10px'}} />
+								<Divider style={{ margin: '10px' }} />
 								<Typography>
 									{Messages.FirstStageSecondStep}
 								</Typography>
-								<Divider style={{margin: '10px'}} />
+								<Divider style={{ margin: '10px' }} />
 								<Typography>
 									{Messages.FirstStageThirdStep}
 								</Typography>
-								<Divider style={{margin: '10px'}} />
+								<Divider style={{ margin: '10px' }} />
 								<Typography>
 									{Messages.FirstStageFourthStep}
 								</Typography>
@@ -170,7 +165,7 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 							<Typography>
 								{Messages.YesOneOfGoalsIsDating}
 							</Typography>
-							<Divider style={{margin: '10px'}} />
+							<Divider style={{ margin: '10px' }} />
 							<Typography>
 								{Messages.ButThereAreDifferences}
 							</Typography>
@@ -180,11 +175,11 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 								<li>{Messages.feedbackSystem}</li>
 								<li>{Messages.fullFeaturedForFree}</li>
 							</ul>
-							<Divider style={{margin: '10px'}} />
+							<Divider style={{ margin: '10px' }} />
 							<Typography>
 								{Messages.AboutSmotrinyRu}
 							</Typography>
-							<Divider style={{margin: '10px'}} />
+							<Divider style={{ margin: '10px' }} />
 							<Typography>
 								{Messages.OtherAlternatives}
 							</Typography>
@@ -193,10 +188,10 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 				</ExpansionPanel>
 			</Grid>
 			<Grid item>
-				<Paper style={{maxWidth: '650px', margin: 'auto' }}>
+				<Paper style={{ maxWidth: '650px', margin: 'auto' }}>
 					<Grid container direction="row" wrap="nowrap" spacing={1} style={{ margin: '10px', padding: '10px' }}>
 						<Grid item xs={1} {...centerStyle}>
-							<Icon style={{ color: 'red' }} className="fas fa-exclamation-circle" />
+							<FontAwesomeIcon color="red" size="2x" icon={faExclamationCircle} />
 						</Grid>
 						<Grid item xs={10}>
 							<Typography>
@@ -207,13 +202,13 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 				</Paper>
 			</Grid>
 			<Grid item>
-				<EmailForm onSubmit={onEmailSubmit} />
+				<EmailForm />
 			</Grid>
 			<Grid item>
-				<Paper style={{maxWidth: '650px', margin: 'auto' }}>
+				<Paper style={{ maxWidth: '650px', margin: 'auto' }}>
 					<Grid container direction="row" spacing={1} style={{ margin: '10px', padding: '10px' }}>
 						<Grid item xs={6} {...centerStyle}>
-							<Typography style={{fontSize: '0.75rem'}}>
+							<Typography style={{ fontSize: '0.75rem' }}>
 								{Messages.contactUs}
 							</Typography>
 						</Grid>
@@ -227,7 +222,7 @@ const Proposal = ({ onEmailSubmit }: Props) => {
 					</Grid>
 				</Paper>
 			</Grid>
-		{dialog}
+			{dialog}
 		</Grid>
 	);
 };
