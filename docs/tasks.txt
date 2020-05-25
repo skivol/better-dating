@@ -1,6 +1,43 @@
-* continue developing the concept (registration for 1-st stage)
-* [authentication] social login as addition to email powered one ?
-* >> rebrand to a game ? (with scores visible only to you etc) <<
+* Добавить профиль запуска без почтовой интеграции
+* Проанализировать профиль (analyze)
+* Экспортировать данные профиля в, например, json (export)
+* Удалить профиль (delete) - вести статистику количества удаленных профилей ?
+* Возможность регистрации адресов, которые уже в базе (registration for existing emails ?)
+* Авторизация
+    ** Отправить ссылку для входа на почту OAuth 2.0 ? email login
+    ** Войти с помощью социальных сетей (Facebook / Vk ?) (social login)
+* Авторизироваться одновременно с подтверждением почты
+* Просмотреть профиль другого учасника / автора системы
+* Дополнительные поля в профиле (Ник ? наркотики ? болезни, состояние глаз/зубов?, страхи ? Комментарий к оценке ? Еда (повседневная) ? Гигиена (душ, чистка зубов) ?, (вид упражнений: силовые со своим весом / растяжка / бег / спортзал ?))
+    ** Какие поля обязательны сразу ?
+    ** (обратная связь) Причина почему не зарегистрировался/ася ?
+    ** поля необязательных комментариев к действиям ?
+* registration for 1-st stage.
+    Meta для страницы с формой регистрации ??
+    Сохранять прогресс заполнения формы регистрации в локальном хранилище ?
+* админка (количество зарегистрированных людей, количество удалений профилей)
+* график: здоровье во времени
+* в описании сайта упомянуть "эффективные" / "результативные" свидания
+* упомянуть что не знание/игнорирование/отрицание принципов и законов не освобождает от последствий/соответствующих результатов
+
+* Второй этап
+    Цель встреч (поиск второй половинки / желание поделиться семейным опытом / желание увидеть потенциальных зятей-невесток :) )
+    Имя (не обязательно?)
+    Фото (не обязательно?)
+    Город проживания (для облегчения организации свиданий) / возможность приехать в другой город для встречи
+    Родн(ой/ые) язык(и)
+    Дополнительны(й/е) языки
+    Тип внешности (love.ua: Европейская, Азиатская, Кавказская, Индийская, Темнокожая, Испанская, Ближневосточная, Американская, Смешанная;)
+    Естественный цвет волос / глаз ? (https://zen.yandex.ru/media/womanmag/sovremennoe-okrashivanie-vidy-tehniki-i-cvet-volos-5b2cabc66628cb00a8199536)
+    Естественный цвет волос / длина / борода
+    Татуировки? Пирсинг (кроме сережек)?
+    Состоял(а) ранее в серьезных отношениях (да / нет) (телегония)
+    Есть дети (?) / Семья
+    Интересы (прогулки, чтение, музыка, фильмы и т.д.)
+    ...
+
+* continue developing the concept
+* >> gamification... rebrand to a game ? (with scores visible only to you etc) <<
 * limit parallel mail sending
 
 * fix README file.
@@ -15,15 +52,16 @@
 * fix caching in Nginx etc
 * add profiles to activate Mail / Flyway on demand
 * figure out Java Modules usage...
-* command line / git - text based task management (use "taskwarrior" ?)
 * checkout GraalVM
-* checkout vim code completion: https://github.com/neoclide/coc.nvim
-* fix ctags regexp warnings
 * analytics/stats (https://github.com/GoogleChrome/web-vitals)
+* checkout @zeit/next-bundle-analyzer
 * generate sitemap (for example, https://dev.to/embiem/auto-generate-sitemapxml-in-nextjs-2nh1)
 
 # On leisure
-** fails to register with self-signed certificate... (serviceWorker.ts:106 Error during service worker registration: TypeError: Failed to register a ServiceWorker: ServiceWorker script evaluation failed)
+* fails to register with self-signed certificate... (serviceWorker.ts:106 Error during service worker registration: TypeError: Failed to register a ServiceWorker: ServiceWorker script evaluation failed)
+* investigate other ways to formulate a query: https://docs.spring.io/spring-data/r2dbc/docs/1.0.0.M2/reference/html/#reference
+* checkout ReactiveCrudRepository ? https://docs.spring.io/spring-data/r2dbc/docs/1.0.0.M2/reference/html/#r2dbc.repositories
+
 
 # Goods / design
 * update site icon (e.g. https://www.flaticon.com)
@@ -31,11 +69,13 @@
 * T-shirts / wear with logo/name of the site
 
 # Content
-* contacts/help page? / technologies used / licenses.
+* contacts/help page? / technologies used / licenses. https://github.github.com/gfm/
 * add article about beauty / good qualities;
 * add description of development process;
 * add questionnaire ?
 * reference Wikipedia's article and picture: https://ru.wikipedia.org/wiki/Смотрины ?
+* Publicity / SEO: Facebook, Wikipedia, Reddit, Youtube, Wordpress, Linkedin, Vk, Dating sites (tinder, love.ua etc)?.
+* форматировать статьи в LaTeX книгу 5/27/2020 5:19
 
 # Things to consider
 * consider using `redux-starter-kit` (https://redux-starter-kit.js.org)
@@ -43,9 +83,6 @@
 * Push notifications instead (or as an alternative?) of mail messages ?
 * consider using Docker Registry
 * consider registering Belarusian domain (.бел)
-* consider CI service:
-** https://github.com/ligurio/awesome-ci
-** https://circleci.com/pricing/
 
 # Optimise
 * optimize "is used" checks from frontend
@@ -55,3 +92,11 @@
 * periodic clean up of non-verified emails ?
 * use crontab for periodic certificates/db backups
 * backup ssh key
+
+
+# Library bugs ?
+## (React) Final Form
+* In Field type="radio" meta.value is always? undefined
+* form.getFieldState('fieldName') differs from field's own meta passed in, for example, validate callback (when, for example, initialValues changed after submit).
+* (I use this behavior atm) form reset on change of initialValues
+* dirtyAfterLastSubmit doesn't seem to take into account latest submitted values, but initialValues instead.

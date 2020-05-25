@@ -7,14 +7,16 @@
 #      proj-ui  ->  /d/Downloads/projects/better-dating/better-dating-frontend
 # proj-backend  ->  /d/Downloads/projects/better-dating/better-dating-backend
 #   proj-proxy  ->  /d/Downloads/projects/better-dating/better-dating-proxy
+#
+# Note: avoid duplicating maven / gradle / node local repositories (for example, point WSL & host to same dirs)
 
 
 bd-ui-server() {
-	wd proj-ui && export $(grep -v "^#" ../.env-dev | xargs) && NEXT_APP_UPDATED="$(date -u --iso-8601=seconds)" yarn dev
+	wd proj-ui && export $(grep -v "^#" ../.env-dev | xargs) && NEXT_APP_UPDATED="$(date -u --iso-8601=seconds)" pnpm run dev
 }
-alias bd-ui-test='wd proj-ui && yarn test'
+alias bd-ui-test='wd proj-ui && pnpm run test'
 bd-ui-build() {
-	wd proj-ui && NEXT_APP_UPDATED="$(date -u --iso-8601=seconds)" yarn build
+	wd proj-ui && NEXT_APP_UPDATED="$(date -u --iso-8601=seconds)" pnpm run build
 }
 alias bd-ui-docker-build='wd proj-ui && docker build -t skivol/better-dating-ui:latest . && docker image prune -f --filter label=stage=builder'
 alias bd-ui-docker-run='docker run --rm --name better-dating-ui -d -p 8080:80 skivol/better-dating-ui:latest'
@@ -42,14 +44,17 @@ alias bd-vim='wd proj && vim -p better-dating-backend better-dating-frontend'
 # https://www.freecodecamp.org/news/make-your-vim-smarter-using-ctrlp-and-ctags-846fc12178a4/
 alias bd-tags='wd proj && ctags -R .'
 
-alias bd-backend-gradle='wd proj-backend && ./gradlew'
-alias bd-backend-build='bd-db-stop; bd-db-run && bd-backend-gradle build; bd-db-stop'
+alias bd-backend-gradle='export GRADLE_USER_HOME=/d/Downloads/projects/.gradle && wd proj-backend && ./gradlew'
+alias bd-backend-build='bd-backend-gradle build'
 alias bd-backend-compile='bd-backend-gradle compileJava'
-alias bd-backend-test='bd-db-run && bd-backend-gradle test; bd-db-stop'
+alias bd-backend-test='bd-backend-gradle test'
 alias bd-backend-test-compile='bd-backend-gradle testClasses'
 alias bd-backend-update-deps='bd-backend-gradle useLatestVersions'
 # https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/html/#running-your-application-passing-arguments
-alias bd-backend-server='(wd proj && export $(grep -v "^#" .env-dev | xargs) && bd-backend-gradle run --args="--spring.mail.username=$BD_MAIL_USER --passwordfiles.mail=$BD_MAIL_PASSWORD_FILE --datasource.username=$BD_DB_USER --passwordfiles.db=$BD_DB_PASSWORD_FILE")'
+bd-backend-server() {
+	(wd proj && export $(grep -v "^#" .env-dev | xargs) && bd-backend-gradle run $* --args="--spring.mail.username=$BD_MAIL_USER --passwordfiles.mail=$BD_MAIL_PASSWORD_FILE --datasource.username=$BD_DB_USER --passwordfiles.db=$BD_DB_PASSWORD_FILE")
+}
+alias bd-backend-debug='bd-backend-server --debug-jvm'
 alias bd-backend-test-results='wslview "D:\Downloads\projects\better-dating\better-dating-backend\build\reports\tests\test\index.html"'
 alias bd-build='bd-backend-build && bd-ui-build'
 alias bd-docker-build='bd-backend-docker-build && bd-ui-docker-build && bd-proxy-docker-build'
@@ -145,8 +150,9 @@ alias bd-docker-add-cert='sudo cat /etc/ssl/certs/nginx-selfsigned.crt | docker 
 alias check-docker-status='test `prod-ssh-zsh "date -u; docker ps" | tee /dev/tty | grep "better-dating" | grep "(healthy)" | wc -l` -eq 4 || (echo "Some service seems to be down" && while :; do beep; sleep 1; done)'
 
 # Spring Fu
-alias spring-fu-publish-to-local='wd spring-fu && ./gradlew -x test publishToMavenLocal'
+alias spring-fu-publish-to-local='(wd spring-fu && export GRADLE_USER_HOME=/d/Downloads/projects/.gradle && ./gradlew -x test publishToMavenLocal)'
 
-# Npm
-alias nbom='wd proj-ui && rm -rf package-lock.json yarn.lock node_modules && npm i'
-alias ybom='wd proj-ui && rm -rf package-lock.json yarn.lock node_modules && yarn'
+alias pnbom='wd proj-ui && rm -rf pnpm-lock.yaml node_modules && pnpm i'
+
+# Git
+alias ggpush-fork='git push fork "$(git_current_branch)"'

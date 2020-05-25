@@ -1,5 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import { updated as updatedValue } from '../constants';
 
 const domainName = 'смотрины.укр';
 const altDomainName = 'смотрины.рус';
@@ -13,7 +14,6 @@ interface CommonMetaProps {
 	description: string;
 	contentType?: string;
 	published?: string;
-	updated?: string;
 	category?: string;
 	tags?: string;
 	twitter?: string;
@@ -26,12 +26,14 @@ export interface MetaProps extends CommonMetaProps {
 
 interface MetaTagsProps extends CommonMetaProps {
 	url: string;
+	updated: string;
 }
 
 const getMetaTags = ({
 	title, description, url, contentType = "website", published, updated, category, tags, twitter, image,
 }: MetaTagsProps) => {
 	const metaTags = [
+		{ name: 'viewport', content: 'minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no' },
 		{ itemprop: 'name', content: title },
 		{ itemprop: 'description', content: description },
 		{ name: 'description', content: description },
@@ -89,15 +91,15 @@ const getHtmlAttributes = ({
 	if (schema) {
 		result = {
 			...result,
-			itemscope: undefined,
-			itemtype: `http://schema.org/${schema}`,
+			itemScope: undefined,
+			itemType: `http://schema.org/${schema}`,
 		}
 	}
 	return result;
 }
 
 const Meta = ({
-	schema, title, description, path, contentType = "website", published, updated, category, tags, twitter,
+	schema, title, description, path, contentType = "website", published, category, tags, twitter,
 }: MetaProps) => (
 		<Helmet
 			htmlAttributes={getHtmlAttributes({
@@ -113,7 +115,7 @@ const Meta = ({
 				contentType,
 				url: absoluteUrl(path),
 				published,
-				updated,
+				updated: updatedValue,
 				category,
 				tags,
 				twitter,

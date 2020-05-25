@@ -1,6 +1,6 @@
 import { GetServerSideProps } from 'next';
 import ConfirmEmail from '../containers/ConfirmEmail';
-import { postData } from '../FetchUtils';
+import { postData } from '../utils/FetchUtils';
 import * as Messages from '../Messages';
 
 export const getServerSideProps: GetServerSideProps = async (ctx: any) => {

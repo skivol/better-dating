@@ -5,11 +5,143 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 /* https://github.com/mui-org/material-ui/issues/14427 */
 input:-webkit-autofill {
-    -webkit-transition-delay: 9999999s;
+  -webkit-transition-delay: 9999999s;
+}
+
+.u-margin-10px {
+  margin: 10px !important;
+}
+.u-color-red {
+  color: red;
+}
+.u-center-flex {
+  align-items: center;
+  display: flex;
+}
+.u-075-fontsize {
+  font-size: 0.75rem !important;
+}
+
+.c-heading {
+  flex-basis: 90%;
+  flex-shrink: 0;
+}
+
+.u-padding-10px {
+  padding: 10px;
+}
+.u-padding-15px {
+  padding: 15px;
+}
+.u-min-width-300px {
+  min-width: 300px;
+}
+
+.u-margin-bottom-10px {
+  margin-bottom: 10px !important; /* MuiButtonBase-root has margin as well */
+}
+.u-margin-top-bottom-10px {
+  margin-top: 10px !important; /* MuiGrid-item has margin as well */
+  margin-bottom: 10px !important;
+}
+.u-margin-top-bottom-15px {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+.c-first-stage-flow-image {
+  width: 863px !important;
+  height: 304px;
+}
+
+.u-max-width-150px {
+  max-width: 150px;
+}
+.u-max-width-350px {
+  max-width: 350px;
+}
+.u-max-width-400px {
+  max-width: 400px;
+}
+.u-max-width-500px {
+  max-width: 500px;
+}
+.u-max-width-650px {
+  max-width: 650px;
+}
+.u-max-width-800px {
+  max-width: 800px !important; /* MuiDialog-paperWidthSm also has it */
+}
+.u-max-width-892px {
+  max-width: 892px !important; /* MuiContainer-maxWidthLg also has it */
+}
+
+.c-updated-time-paper {
+  max-width: 275px;
+  padding: 20px;
+}
+
+/* https://stackoverflow.com/a/18915680 */
+.c-footer {
+  height: 60px;
+  background: white;
+  margin-top: 25px;
+}
+
+.u-padding-16px {
+  padding: 16px;
+}
+
+.u-text-align-center {
+  text-align: center;
+}
+
+.active span {
+  color: #1976d2;
+}
+
+.c-bottom-navigation-placeholder {
+  height: 100px;
+}
+
+.c-bottom-navigation {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  height: 100px !important;
+  z-index: 100;
+  padding: 16px;
+  margin-top: auto;
+}
+
+
+.u-center-horizontally { /* "makeStyles-button-9" has margin */
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.u-fit-content {
+  width: fit-content;
+}
+
+.u-margin-top-bottom {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.u-height-120px {
+  height: 120px;
+}
+
+.u-right-margin-10px {
+  margin-right: 10px !important; /* material ui item has margin 0 */
+}
+
+.u-bold {
+  font-weight: bold !important; /* material ui header has its own */
 }

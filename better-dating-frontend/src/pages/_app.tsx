@@ -3,28 +3,25 @@ import { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
 
 import Container from '@material-ui/core/Container';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 import { theme } from '../configureTheme';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import Footer from '../components/toplevel/Footer';
+import Navigation from '../components/navigation/Navigation';
 import StatusSnackbar from '../containers/StatusSnackbar';
 import Meta from '../utils/Meta';
 import * as Messages from '../components/Messages';
+import { configureStore } from '../configureStore';
 
 import 'typeface-roboto';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import '../index.css';
-import { configureStore } from '../configureStore';
 
 config.autoAddCss = false;
 
 const store = configureStore();
-const updated = process.env.NEXT_APP_UPDATED || 'not_available';
 
 const BetterDatingApp = ({ Component, pageProps }: AppProps) => {
   React.useEffect(() => {
@@ -46,19 +43,12 @@ const BetterDatingApp = ({ Component, pageProps }: AppProps) => {
           description={Messages.metaDescription}
           path="/"
           published="2019-07-26"
-          updated={updated}
         />
-        <Container maxWidth="md" style={{ padding: '10px' }}>
-          <Header />
-          {/* FIXME <Navigation />*/}
+        <Container className="u-padding-10px u-max-width-892px">
           <Component {...pageProps} />
-          <Paper style={{ maxWidth: '300px', margin: 'auto', padding: '20px' }}>
-            <Typography style={{ fontSize: '0.75rem' }}>
-              {`${Messages.updated}: ${updated}`}
-            </Typography>
-          </Paper>
-          <div style={{ height: '60px' }} />
           <Footer />
+          <div className="c-bottom-navigation-placeholder" />
+          <Navigation />
           <StatusSnackbar />
         </Container>
       </ThemeProvider>

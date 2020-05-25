@@ -13,8 +13,8 @@ spring:
         # debug: true
         smtp:
           connectiontimeout: 5000
-          timeout: 3000
-          writetimeout: 5000
+          timeout: 15000
+          writetimeout: 15000
           auth: true
           # https://stackoverflow.com/questions/26548059/sending-email-with-ssl-using-javax-mail
           ssl:

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.r2dbc.connectionfactory.R2dbcTransactionManager
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -13,6 +14,7 @@ import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.transaction.ReactiveTransaction
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Mono.just
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -89,26 +91,20 @@ class BackendApplicationTests {
                 .consumeWith {
                     val actualError = it.responseBody
                     assertThat(actualError?.path).isEqualTo("/api/user/email/status")
-                    assertThat(actualError?.status).isEqualTo(400)
-                    assertThat(actualError?.error).isEqualTo("Bad Request")
-                    assertThat(actualError?.message).isEqualTo("Validation exception")
-                    assertThat(actualError?.details?.elementAt(0)).isEqualTo(
-                        ValidationError(
-                            args = arrayOf("email", "malformed.com"),
-                            defaultMessage = "\"email\" must be a valid email address",
-                            key = "charSequence.email"
-                        )
-                    )
+                    assertThat(actualError?.status).isEqualTo(422)
+                    assertThat(actualError?.error).isEqualTo("Unprocessable Entity")
+                    assertThat(actualError?.message).isEqualTo("Validation error")
+                    assertThat(actualError?.details).isEqualTo(mapOf("email" to "Must be a valid email address"))
                 }
     }
 
     @Test
     fun `Email submit already existing`() {
-        givenExistingEmail()
+        givenErrorOnEmailInsert()
         // When
-        client.post().uri("/api/user/email/submit")
+        client.post().uri("/api/user/profile")
                 .accept(MediaType.APPLICATION_JSON)
-                .bodyValue(SubmitEmailRequest(email = "existing@test.com"))
+                .bodyValue(createProfileRequest("existing@test.com"))
                 .exchange()
                 // Then
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -118,6 +114,18 @@ class BackendApplicationTests {
                     val actualResponse = it.responseBody
                     assertThat(actualResponse?.message).isEqualTo("Email already registered")
                 }
+    }
+
+    private fun createProfileRequest(email: String): CreateProfileRequest {
+        return CreateProfileRequest(
+                acceptTerms = true, email = email, gender = Gender.male,
+                birthday = LocalDate.now().minusYears(21), height = 180f, weight = 70f,
+                physicalExercise = Recurrence.everyDay, smoking = Recurrence.didBeforeNotGoingInFuture,
+                alcohol = Recurrence.didBeforeNotGoingInFuture, computerGames = Recurrence.coupleTimesInYearOrMoreSeldom,
+                gambling = Recurrence.neverDid, haircut = Recurrence.coupleTimesInYear, hairColoring = Recurrence.neverDid,
+                makeup = Recurrence.neverDid, intimateRelationsOutsideOfMarriage = Recurrence.neverDid, pornographyWatching = Recurrence.didBeforeNotGoingInFuture,
+                personalHealthEvaluation = 8
+        )
     }
 
     @Test
@@ -157,6 +165,10 @@ class BackendApplicationTests {
         coEvery { emailRepository.findByEmail("existing@test.com") } returns email
         coEvery { emailRepository.findById(any()) } returns email
         return email
+    }
+
+    private fun givenErrorOnEmailInsert() {
+        coEvery { emailRepository.save(any()) } throws DataIntegrityViolationException("duplicate key value violates unique constraint \"email_uk_email\"")
     }
 
     private fun givenExistingToken(id: UUID, email: Email): EmailVerificationToken {

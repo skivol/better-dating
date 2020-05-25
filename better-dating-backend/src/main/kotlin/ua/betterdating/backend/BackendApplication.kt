@@ -1,17 +1,16 @@
 package ua.betterdating.backend
 
-import org.springframework.boot.WebApplicationType
 import org.springframework.boot.autoconfigure.data.r2dbc.PostgresqlR2dbcProperties
-import org.springframework.fu.kofu.application
 import org.springframework.fu.kofu.flyway.flyway
 import org.springframework.fu.kofu.freemarker.freeMarker
 import org.springframework.fu.kofu.mail.mail
 import org.springframework.fu.kofu.r2dbc.r2dbcPostgresql
+import org.springframework.fu.kofu.reactiveWebApplication
 import java.io.File
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
-val app = application(WebApplicationType.REACTIVE) {
+val app = reactiveWebApplication {
 	enable(dataConfig)
 	enable(webConfig)
 

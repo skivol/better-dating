@@ -18,3 +18,22 @@ export const resolveTokenMessage = (message: string) => {
             return "Неизвестная ошибка. Попробуйте еще раз позже.";
     }
 };
+
+export const requiredField = 'обязательное поле';
+export const invalidFormat = 'неправильный формат';
+export const alreadyPresentEmail = 'почта уже существует';
+export const minValue = (minValue: number) => `наименьшее допустимое значение ${minValue}`;
+export const maxValue = (maxValue: number) => `наибольшее допустимое значение ${maxValue}`;
+export const shouldBeOlderThan12 = 'нужно быть старше 12 лет';
+
+export const neverPurposefully = 'Целенаправленно не занимаюсь вообще';
+export const coupleTimesInYear = 'Несколько раз в год';
+export const coupleTimesInMonth = 'Несколько раз в месяц';
+export const coupleTimesInWeek = 'Несколько раз в неделю';
+export const everyDay = 'Каждый день';
+export const severalTimesInDay = 'Несколько раз в день';
+
+export const neverDid = 'Никогда этого не делал(а) и не собираюсь'
+export const didBeforeNotGoingInFuture = 'Делал(а) раньше, не собираюсь в будущем';
+export const coupleTimesInYearOrMoreSeldom = 'Несколько раз в год или реже';
+

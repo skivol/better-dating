@@ -74,10 +74,6 @@ export default class MyDocument extends Document<{ helmet: any; }> {
           {this.helmetHeadComponents}
           <meta charSet="utf-8" />
           <link rel="shortcut icon" href="/favicon.ico" />
-          <meta
-            name="viewport"
-            content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
-          />
           {/* PWA primary color */}
           <meta name="theme-color" content={theme.palette.primary.main} />
           {/*

@@ -4,7 +4,7 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>Подтверждение почты</title>
+  <title>Эта почта больше не подключена к профилю на сайте смотрины.укр и смотрины.рус</title>
   <style type="text/css" rel="stylesheet" media="all">
     /* Base ------------------------------ */
     *:not(br):not(tr):not(html) {
@@ -182,36 +182,11 @@
                 <!-- Body content -->
                 <tr>
                   <td class="content-cell">
-                    <h1>Подтвердите почтовый адрес</h1>
-                    <p>Спасибо за проявленный интерес к идее описанной на сайте "смотрины.укр & смотрины.рус"!</p>
-                    <!-- Action -->
-                    <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td align="center">
-                          <div>
-                            <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{action_url}}" style="height:45px;v-text-anchor:middle;width:200px;" arcsize="7%" stroke="f" fill="t">
-                            <v:fill type="tile" color="#414EF9" />
-                            <w:anchorlock/>
-                            <center style="color:#ffffff;font-family:sans-serif;font-size:15px;">Подтвердить почту</center>
-                          </v:roundrect><![endif]-->
-                            <a href="${verifyLink}" class="button button--blue">Подтвердить почту</a>
-                          </div>
-                        </td>
-                      </tr>
-                    </table>
-                    <p>Если это были не Вы, то не переходите по ссылке и проигнорируйте данное письмо.</p>
-                    <p>Отвечать на письмо не нужно, так как оно было сгенерировано автоматически.</p>
+                    <h1>Эта почта больше не подключена к профилю на сайте "смотрины.укр & смотрины.рус".</h1>
+                    <p>Вы недавно поменяли почтовый адрес в профиле на сайте "смотрины.укр & смотрины.рус".</p>
+                    <p>Если это были Вы, то можете проигнорировать это письмо.</p>
+                    <p><b>Если это были не Вы,</b> то напишите письмо <a href="mailto:${contactUs}">${contactUs}</a>.</p>
                     <p>С уважением,<br>"смотрины.укр & смотрины.рус"</p>
-                    <!-- Sub copy -->
-                    <table class="body-sub">
-                      <tr>
-                        <td>
-                          <p class="sub">Если у Вас проблемы с нажатием кнопки, то скопируйте последующую ссылку и вставьте её в адресную строку браузера.
-                          </p>
-                          <p class="sub"><a href="${verifyLink}">${verifyLink}</a></p>
-                        </td>
-                      </tr>
-                    </table>
                   </td>
                 </tr>
               </table>

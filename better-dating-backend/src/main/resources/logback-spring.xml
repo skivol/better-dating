@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 	<include resource="org/springframework/boot/logging/logback/base.xml"/>
-	<logger name="org.springframework.web" level="INFO"/>
-	<logger name="ua.betterdating" level="INFO"/>
+	<logger name="org.springframework.web" level="ERROR"/>
+	<logger name="ua.betterdating" level="ERROR"/>
+
+	<logger name="io.netty" level="ERROR"/>
+	<logger name="reactor.core" level="OFF"/>
+	<logger name="io.r2dbc.postgresql.client" level="OFF"/>
+	<logger name="reactor.netty.channel" level="OFF"/>
 
 	<!-- Accesslog -->
 	<springProperty scope="context" name="accessLogFile" source="server.netty.accesslog" defaultValue="./logs/better-dating_backend_access_log.log"/>

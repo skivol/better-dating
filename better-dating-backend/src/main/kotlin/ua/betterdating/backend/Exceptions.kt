@@ -1,35 +1,62 @@
 package ua.betterdating.backend
 
-import am.ik.yavi.core.ConstraintViolations
-import am.ik.yavi.core.ViolationDetail
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.exc.InvalidFormatException
+import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.BAD_REQUEST
-import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import org.springframework.http.HttpStatus.*
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.json
-import reactor.core.publisher.Mono
+import org.springframework.web.server.ServerWebInputException
+import org.valiktor.ConstraintViolationException
+import org.valiktor.i18n.mapToMessage
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 val LOG: Logger = LoggerFactory.getLogger(ErrorResponseEntity::class.java)
 suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResponse {
     val errorEntity = when (e) {
-        is EmailAlreadyPresentException -> ErrorResponseEntity(request, BAD_REQUEST, "Email already registered")
         is EmailNotFoundException -> ErrorResponseEntity(request, BAD_REQUEST, "Email not found")
         is NoSuchTokenException -> ErrorResponseEntity(request, BAD_REQUEST, "No such token")
         is ExpiredTokenException -> ErrorResponseEntity(request, BAD_REQUEST, "Expired token")
         is InvalidTokenException -> ErrorResponseEntity(request, BAD_REQUEST, "Invalid token format")
-        is ValidationException -> {
-            LOG.info("Validation error", e)
-            ErrorResponseEntity(
-                path = request.path(), status = BAD_REQUEST.value(),
-                error = BAD_REQUEST.reasonPhrase, message = "Validation exception",
-                details =  e.violations.details().map { ValidationError(it) }
-            )
+        is DataIntegrityViolationException -> {
+            if (e.message?.contains("duplicate key value violates unique constraint \"email_uk_email\"") == true) {
+                ErrorResponseEntity(request, BAD_REQUEST, "Email already registered")
+            } else {
+                LOG.error("Unexpected database error", e)
+                ErrorResponseEntity(request, BAD_REQUEST, "Unknown error")
+            }
+        }
+        is ConstraintViolationException -> constraintViolationToResponse(e, request) // on manual validation of, for example, email from query
+        is ServerWebInputException -> {
+            val firstCause = e.cause
+            val secondCause = firstCause?.cause
+            val thirdCause = secondCause?.cause
+
+            // DecodingException -> ValueInstantiationException -> ConstraintViolationException (on valiktor validation failure while deserializing request body)
+            if (thirdCause is ConstraintViolationException) {
+                constraintViolationToResponse(thirdCause, request)
+                // DecodingException -> InvalidFormatException (on invalid enum/int value)
+            } else if (secondCause is InvalidFormatException) {
+                LOG.info("Deserialization error", secondCause)
+                ErrorResponseEntity(request, UNPROCESSABLE_ENTITY, secondCause.message ?: e.message)
+                // DecodingException -> MissingKotlinParameterException (when non-null value wasn't defined, hence - null)
+            } else if (secondCause is MissingKotlinParameterException) {
+                LOG.info("Deserialization error", firstCause)
+                ErrorResponseEntity(request, UNPROCESSABLE_ENTITY, secondCause.message ?: e.message)
+                // DecodingException -> JsonParseException (on invalid json)
+            } else if (secondCause is JsonParseException) {
+                LOG.info("Deserialization error", firstCause)
+                ErrorResponseEntity(request, UNPROCESSABLE_ENTITY, secondCause.message ?: e.message)
+            } else {
+                ErrorResponseEntity(request, BAD_REQUEST, e.message)
+            }
         }
         else -> {
             LOG.error("Internal error", e)
@@ -39,42 +66,25 @@ suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResp
     return ServerResponse.status(errorEntity.status).json().bodyValueAndAwait(errorEntity)
 }
 
-class ErrorResponseEntity(
-        val timestamp: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
-        val path: String,
-        val status: Int, val error: String, val message: String, val details: List<ValidationError> = emptyList()
-) {
-    constructor(request: ServerRequest, status: HttpStatus, message: String) : this(
-        path = request.path(), status = status.value(), error = status.reasonPhrase, message = message
+private fun constraintViolationToResponse(thirdCause: ConstraintViolationException, request: ServerRequest): ErrorResponseEntity {
+    LOG.info("Validation error", thirdCause)
+    return ErrorResponseEntity(
+            path = request.path(), status = UNPROCESSABLE_ENTITY.value(),
+            error = UNPROCESSABLE_ENTITY.reasonPhrase, message = "Validation error",
+            details = thirdCause.constraintViolations.mapToMessage().map { it.property to it.message }.toMap()
     )
 }
 
-class ValidationError(val args: Array<Any> = emptyArray(), val defaultMessage: String = "", val key: String = "") {
-    constructor(violationDetail: ViolationDetail): this(violationDetail.args, violationDetail.defaultMessage, violationDetail.key)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as ValidationError
-
-        if (!args.contentEquals(other.args)) return false
-        if (defaultMessage != other.defaultMessage) return false
-        if (key != other.key) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = args.contentHashCode()
-        result = 31 * result + defaultMessage.hashCode()
-        result = 31 * result + key.hashCode()
-        return result
-    }
+class ErrorResponseEntity(
+        val timestamp: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
+        val path: String,
+        val status: Int, val error: String, val message: String, val details: Map<String, String> = emptyMap()
+) {
+    constructor(request: ServerRequest, status: HttpStatus, message: String) : this(
+            path = request.path(), status = status.value(), error = status.reasonPhrase, message = message
+    )
 }
 
-class ValidationException(val violations: ConstraintViolations) : RuntimeException()
-class EmailAlreadyPresentException : RuntimeException()
 class EmailNotFoundException : RuntimeException()
 class NoSuchTokenException : RuntimeException()
 class ExpiredTokenException : RuntimeException()

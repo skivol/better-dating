@@ -18,9 +18,9 @@ export async function getData(url: string, params: { [key: string]: string; } = 
 	return ensureOkAndTryParseJson(response);
 }
 
-export async function postData(url: string, data: object = {}) {
+const requestWithBody = async (method: string, url: string, data: object) => {
 	const response = await fetch(url, {
-		method: 'POST', // *GET, POST, PUT, DELETE, etc.
+		method,
 		cache: 'no-cache',
 		headers: {
 			'Content-Type': 'application/json',
@@ -29,3 +29,6 @@ export async function postData(url: string, data: object = {}) {
 	});
 	return ensureOkAndTryParseJson(response);
 }
+
+export const postData = async (url: string, data: object = {}) => requestWithBody('POST', url, data);
+export const putData = async (url: string, data: object = {}) => requestWithBody('PUT', url, data);
