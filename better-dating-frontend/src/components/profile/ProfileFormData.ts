@@ -1,7 +1,7 @@
 export default interface ProfileFormData {
     email?: string;
     gender?: string;
-    bday?: Date;
+    bday?: string;
     height?: number;
     weight?: number;
     physicalExercise?: string;

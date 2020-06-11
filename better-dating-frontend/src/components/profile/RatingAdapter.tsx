@@ -27,7 +27,7 @@ export default function RatingAdapter({ input: { value, ...inputRest }, meta, la
     const errorText = error ? ` (${meta.error})` : '';
     return (
         <Grid item>
-            <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-400px">
+            <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
                 <Typography color={error ? "error" : undefined}>{`${label} * ${errorText}`}</Typography>
                 <div className="u-center-flex u-margin-bottom-10px">
                     <Rating

@@ -22,7 +22,7 @@ import Height from './profile/Height';
 import Weight from './profile/Weight';
 import PersonalHealthEvaluation from './profile/PersonalHealthEvaluation';
 import { renderActions } from './profile/Actions';
-import CenteredSubmitButton from './profile/CenteredSubmitButton';
+import SubmitButton from './profile/SubmitButton';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -51,11 +51,11 @@ export const RegisterAccountForm = ({ onSubmit, onCouldNotCheckIfAlreadyPresentE
                     <Grid
                         container
                         direction="column"
-                        className="u-margin-top-bottom-15px u-min-width-300px u-padding-10px"
+                        className="u-margin-top-bottom-15px u-min-width-450px u-padding-10px"
                         spacing={2}
                     >
                         <Grid item>
-                            <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-400px">
+                            <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
                                 <div className="u-center-horizontally u-fit-content u-margin-bottom-10px">
                                     <Typography variant="h3" className="u-bold">
                                         {Messages.Registration}
@@ -71,7 +71,7 @@ export const RegisterAccountForm = ({ onSubmit, onCouldNotCheckIfAlreadyPresentE
                         </Grid>
 
                         <Grid item>
-                            <Paper elevation={3} className="u-max-width-400px u-padding-16px u-center-horizontally">
+                            <Paper elevation={3} className="u-max-width-450px u-padding-16px u-center-horizontally">
                                 <Field
                                     name="acceptTerms"
                                     label={Messages.acceptTermsOfUserAgreement}
@@ -88,7 +88,7 @@ export const RegisterAccountForm = ({ onSubmit, onCouldNotCheckIfAlreadyPresentE
                         {renderActions()}
                         <PersonalHealthEvaluation />
 
-                        <CenteredSubmitButton
+                        <SubmitButton
                             label={Messages.register}
                             buttonClass={classes.button}
                             pristine={pristine}

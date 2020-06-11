@@ -1,11 +1,11 @@
+import * as React from 'react';
 import clsx from 'clsx';
 import {
     Button
 } from '@material-ui/core';
-import * as Messages from '../Messages';
 import SpinnerAdornment from '../SpinnerAdornment';
 
-const CenteredSubmitButton = ({ label, buttonClass, pristine, submitting }: any) => (
+const SubmitButton = ({ label, buttonClass, pristine, submitting }: any) => (
     <Button
         className={clsx(buttonClass, "u-center-horizontally")}
         variant="contained"
@@ -17,4 +17,4 @@ const CenteredSubmitButton = ({ label, buttonClass, pristine, submitting }: any)
     </Button>
 );
 
-export default CenteredSubmitButton;
+export default SubmitButton;

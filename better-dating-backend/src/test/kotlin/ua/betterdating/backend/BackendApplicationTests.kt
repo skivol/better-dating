@@ -23,7 +23,7 @@ class BackendApplicationTests {
     private val r2dbcTransactionManager = mockk<R2dbcTransactionManager>()
     private val emailRepository = mockk<EmailRepository>()
     private val emailVerificationTokenRepository = mockk<EmailVerificationTokenRepository>()
-    private val smotrinyMailSender = mockk<SmotrinyMailSender>()
+    private val smotrinyMailSender = mockk<SmotrinyMailSenderImpl>()
 
     private lateinit var configurableApplicationContext: ConfigurableApplicationContext
     private lateinit var client: WebTestClient
@@ -122,8 +122,8 @@ class BackendApplicationTests {
                 birthday = LocalDate.now().minusYears(21), height = 180f, weight = 70f,
                 physicalExercise = Recurrence.everyDay, smoking = Recurrence.didBeforeNotGoingInFuture,
                 alcohol = Recurrence.didBeforeNotGoingInFuture, computerGames = Recurrence.coupleTimesInYearOrMoreSeldom,
-                gambling = Recurrence.neverDid, haircut = Recurrence.coupleTimesInYear, hairColoring = Recurrence.neverDid,
-                makeup = Recurrence.neverDid, intimateRelationsOutsideOfMarriage = Recurrence.neverDid, pornographyWatching = Recurrence.didBeforeNotGoingInFuture,
+                gambling = Recurrence.neverDidAndNotGoingInFuture, haircut = Recurrence.coupleTimesInYear, hairColoring = Recurrence.neverDidAndNotGoingInFuture,
+                makeup = Recurrence.neverDidAndNotGoingInFuture, intimateRelationsOutsideOfMarriage = Recurrence.neverDidAndNotGoingInFuture, pornographyWatching = Recurrence.didBeforeNotGoingInFuture,
                 personalHealthEvaluation = 8
         )
     }

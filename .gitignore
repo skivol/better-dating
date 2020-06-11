@@ -1,6 +1,8 @@
 # Environment
 .env-dev
+.env-prod
 .db-password
+.db-prod-password
 .mail-password
 
 # Backups

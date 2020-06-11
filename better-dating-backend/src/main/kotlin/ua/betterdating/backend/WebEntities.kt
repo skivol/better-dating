@@ -64,11 +64,11 @@ open class Profile(
     init {
         validate(this) {
             validate(Profile::email).isEmail().hasSize(max = 120)
-            validate(Profile::birthday).validate { // use valiktor-javatime ?
-                val youngerThan12 = LocalDate.now().minusYears(12).isBefore(it)
-                val olderThan150 = it.isBefore(LocalDate.now().minusYears(150))
-                !youngerThan12 && !olderThan150
-            }
+            validate(Profile::birthday)
+                    // younger than 150
+                    .isGreaterThanOrEqualTo(LocalDate.now().minusYears(150))
+                    // older than 12
+                    .isLessThanOrEqualTo(LocalDate.now().minusYears(12))
             validate(Profile::height).isBetween(120f, 250f)
             validate(Profile::weight).isBetween(27f, 250f)
             validate(Profile::personalHealthEvaluation).isBetween(1, 10)
@@ -91,8 +91,10 @@ enum class ActivityType {
     pornographyWatching
 }
 enum class Recurrence {
-    neverDid,
     neverPurposefully,
+    neverDidButDoNotKnowIfGoingToDoInFuture,
+    neverDidAndNotGoingInFuture,
+    didBeforeButDoNotKnowIfGoingToDoInFuture,
     didBeforeNotGoingInFuture,
     coupleTimesInYearOrMoreSeldom,
     coupleTimesInYear,

@@ -21,7 +21,11 @@ val dataConfig = configuration {
 
 val webConfig = configuration {
     beans {
-        bean<SmotrinyMailSender>()
+        if (profiles.contains("mail") || profiles.contains("production")) {
+            bean<SmotrinyMailSenderImpl>()
+        } else {
+            bean<NoOpMailSender>()
+        }
         bean<EmailHandler>()
         bean<UserProfileHandler>()
         bean<HealthHandler>()

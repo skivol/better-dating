@@ -1,15 +1,16 @@
 # Example usage in ~/.zshrc:
-# source /d/Downloads/projects/better-dating/aliases/dev-aliases.sh
-# Prerequisites: wd points
+# source /mnt/d/Downloads/projects/better-dating/aliases/dev-aliases.sh
+# Prerequisites: wd points (in, for example, WSL2)
 #  * All warp points:
-#     projects  ->  /d/Downloads/projects
-#         proj  ->  /d/Downloads/projects/better-dating
-#      proj-ui  ->  /d/Downloads/projects/better-dating/better-dating-frontend
-# proj-backend  ->  /d/Downloads/projects/better-dating/better-dating-backend
-#   proj-proxy  ->  /d/Downloads/projects/better-dating/better-dating-proxy
+#     projects  ->  /mnt/d/Downloads/projects
+#         proj  ->  /mnt/d/Downloads/projects/better-dating
+#      proj-ui  ->  /mnt/d/Downloads/projects/better-dating/better-dating-frontend
+# proj-backend  ->  /mnt/d/Downloads/projects/better-dating/better-dating-backend
+#   proj-proxy  ->  /mnt/d/Downloads/projects/better-dating/better-dating-proxy
 #
 # Note: avoid duplicating maven / gradle / node local repositories (for example, point WSL & host to same dirs)
 
+GRADLE_USER_HOME=/mnt/d/Downloads/projects/.gradle
 
 bd-ui-server() {
 	wd proj-ui && export $(grep -v "^#" ../.env-dev | xargs) && NEXT_APP_UPDATED="$(date -u --iso-8601=seconds)" pnpm run dev
@@ -41,10 +42,8 @@ alias bd-database-docker-build='wd proj-db && docker build -t skivol/better-dati
 alias bd-ui-vim='wd proj-ui && vim'
 alias bd-backend-vim='wd proj-backend && vim'
 alias bd-vim='wd proj && vim -p better-dating-backend better-dating-frontend'
-# https://www.freecodecamp.org/news/make-your-vim-smarter-using-ctrlp-and-ctags-846fc12178a4/
-alias bd-tags='wd proj && ctags -R .'
 
-alias bd-backend-gradle='export GRADLE_USER_HOME=/d/Downloads/projects/.gradle && wd proj-backend && ./gradlew'
+alias bd-backend-gradle="export GRADLE_USER_HOME=$GRADLE_USER_HOME && wd proj-backend && ./gradlew"
 alias bd-backend-build='bd-backend-gradle build'
 alias bd-backend-compile='bd-backend-gradle compileJava'
 alias bd-backend-test='bd-backend-gradle test'
@@ -54,12 +53,15 @@ alias bd-backend-update-deps='bd-backend-gradle useLatestVersions'
 bd-backend-server() {
 	(wd proj && export $(grep -v "^#" .env-dev | xargs) && bd-backend-gradle run $* --args="--spring.mail.username=$BD_MAIL_USER --passwordfiles.mail=$BD_MAIL_PASSWORD_FILE --datasource.username=$BD_DB_USER --passwordfiles.db=$BD_DB_PASSWORD_FILE")
 }
+bd-backend-server-with-mail() {
+	(wd proj && export $(grep -v "^#" .env-dev | xargs) && bd-backend-gradle run $* --args="--spring.profiles.active=development,mail --spring.mail.username=$BD_MAIL_USER --passwordfiles.mail=$BD_MAIL_PASSWORD_FILE --datasource.username=$BD_DB_USER --passwordfiles.db=$BD_DB_PASSWORD_FILE")
+}
+
 alias bd-backend-debug='bd-backend-server --debug-jvm'
+alias bd-backend-with-mail-debug='bd-backend-server-with-mail --debug-jvm'
 alias bd-backend-test-results='wslview "D:\Downloads\projects\better-dating\better-dating-backend\build\reports\tests\test\index.html"'
 alias bd-build='bd-backend-build && bd-ui-build'
 alias bd-docker-build='bd-backend-docker-build && bd-ui-docker-build && bd-proxy-docker-build'
-# alias bd-start='wd proj && docker-compose up -d'
-# alias bd-stop='wd proj && docker-compose down --volume'
 alias bd-deploy='wd proj && env $(grep -v "^#" .env-dev | xargs) docker stack deploy --compose-file docker-compose.yml better-dating'
 alias bd-stop='docker service scale better-dating_bd-reverse-proxy=0 better-dating_bd-backend=0 better-dating_bd-frontend=0 better-dating_bd-postgres=0'
 alias bd-proxy-stop='docker service scale better-dating_bd-reverse-proxy=0'
@@ -69,27 +71,16 @@ alias bd-backend-start='docker service scale better-dating_bd-backend=1'
 alias bd-start='docker service scale better-dating_bd-reverse-proxy=1 better-dating_bd-backend=1 better-dating_bd-frontend=1 better-dating_bd-postgres=1'
 alias bd-rm='docker stack rm better-dating'
 # https://stackoverflow.com/questions/19331497/set-environment-variables-from-file-of-key-pair-values
-# export $(cat .env | xargs) &&
-# env $(cat .env | xargs) docker
 alias docker-cleanup-images='docker rmi $(docker images -f "dangling=true" -q)'
 # https://docs.docker.com/engine/reference/commandline/rm/
 alias docker-cleanup-containers='docker rm $(docker ps -a -q)'
 # https://linuxize.com/post/how-to-remove-docker-images-containers-volumes-and-networks/
 alias docker-cleanup-everything='docker system prune --volumes --force'
 
-gradleIndex=~/projects/gradle-index.txt
-# https://stackoverflow.com/questions/21212060/search-or-list-java-classes-in-classpath-ncluding-jars-via-command-line
-# https://stackoverflow.com/questions/10834111/gradle-store-on-local-file-system#comment50138183_10834567
-alias gradle-index-refresh="find ~/.gradle/caches/modules-2/files-2.1 -name \"*.jar\" -exec jar -tf {} \; > $gradleIndex"
-alias gradle-index-view="vim $gradleIndex"
-gradle-index-grep() {
-	grep "/\($1\)\.class\$" $gradleIndex
-}
-
-alias idea='/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 2019.1.1/bin/idea64.exe'
+alias idea='/mnt/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 2019.1.1/bin/idea64.exe'
 
 # https://hub.docker.com/_/postgres
-alias bd-db-run='docker run --name bd-db --publish 5432:5432 -d --rm postgres:alpine'
+alias bd-db-run='docker run --name bd-db --publish 5432:5432 -e POSTGRES_PASSWORD=postgres -d --rm postgres:alpine'
 alias bd-db-stop='docker stop bd-db'
 ## Psql docs: https://www.postgresql.org/docs/current/app-psql.html
 ## https://stackoverflow.com/questions/37099564/docker-how-can-run-the-psql-command-in-the-postgres-container
@@ -118,6 +109,7 @@ alias bd-proxy-transfer-image-to-prod="docker save skivol/better-dating-proxy:la
 alias bd-database-transfer-image-to-prod="docker save skivol/better-dating-database:latest | bzip2 | pv | prod-ssh 'bunzip2 | docker load'"
 alias bd-transfer-images-to-prod='bd-backend-transfer-image-to-prod && bd-ui-transfer-image-to-prod && bd-proxy-transfer-image-to-prod'
 alias bd-rsync-config-to-prod='rsync /d/Downloads/projects/better-dating/docker-compose.yml adm1n@77.120.103.21:/home/adm1n/bd'
+alias bd-rsync-pass-to-prod='rsync /d/Downloads/projects/better-dating/.db-password adm1n@77.120.103.21:/home/adm1n/bd'
 alias bd-rsync-aliases-to-prod='rsync /d/Downloads/projects/better-dating/aliases/prod-aliases.sh adm1n@77.120.103.21:/home/adm1n/bd'
 # https://www.cyberciti.biz/faq/use-bash-aliases-ssh-based-session/
 alias bd-prod-deploy="prod-ssh-zsh bd-prod-deploy"
@@ -150,7 +142,8 @@ alias bd-docker-add-cert='sudo cat /etc/ssl/certs/nginx-selfsigned.crt | docker 
 alias check-docker-status='test `prod-ssh-zsh "date -u; docker ps" | tee /dev/tty | grep "better-dating" | grep "(healthy)" | wc -l` -eq 4 || (echo "Some service seems to be down" && while :; do beep; sleep 1; done)'
 
 # Spring Fu
-alias spring-fu-publish-to-local='(wd spring-fu && export GRADLE_USER_HOME=/d/Downloads/projects/.gradle && ./gradlew -x test publishToMavenLocal)'
+alias spring-fu-publish-to-local="(wd spring-fu && export GRADLE_USER_HOME=$GRADLE_USER_HOME && ./gradlew -x test -x javadoc build publishToMavenLocal)"
+alias spring-fu-build-samples="(wd spring-fu && cd samples && export GRADLE_USER_HOME=$GRADLE_USER_HOME && ./gradlew build)"
 
 alias pnbom='wd proj-ui && rm -rf pnpm-lock.yaml node_modules && pnpm i'
 

@@ -14,7 +14,7 @@ const genderRadioData = [
 // Пол (мужской / женский)
 const Gender = () => (
     <Grid item>
-        <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-400px">
+        <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
             <Radios
                 required
                 label={Messages.gender}

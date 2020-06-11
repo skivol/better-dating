@@ -17,7 +17,7 @@ interface Props {
 const Email = ({ configuredEmailValidation }: Props) => (
 
     <Grid item>
-        <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-400px">
+        <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
             <TextField
                 required
                 name="email"

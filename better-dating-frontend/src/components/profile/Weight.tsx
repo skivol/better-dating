@@ -11,7 +11,7 @@ import * as Messages from '../Messages';
 // Вес (кг)
 const Weight = () => (
     <Grid item>
-        <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-400px">
+        <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
             <TextField
                 required
                 name="weight"
