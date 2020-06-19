@@ -41,7 +41,13 @@ input:-webkit-autofill {
 .u-min-width-300px {
   min-width: 300px;
 }
+.u-min-width-450px {
+  width: 450px;
+}
 
+.u-margin-bottom-5px {
+  margin-bottom: 5px !important; /* MuiButtonBase-root has margin as well */
+}
 .u-margin-bottom-10px {
   margin-bottom: 10px !important; /* MuiButtonBase-root has margin as well */
 }
@@ -66,6 +72,9 @@ input:-webkit-autofill {
 }
 .u-max-width-400px {
   max-width: 400px;
+}
+.u-max-width-450px {
+  max-width: 450px;
 }
 .u-max-width-500px {
   max-width: 500px;
@@ -144,4 +153,8 @@ input:-webkit-autofill {
 
 .u-bold {
   font-weight: bold !important; /* material ui header has its own */
+}
+
+.u-color-green {
+  color: green !important; /* MuiButtonBase-root, MuiToggleButton-root have it as well */
 }

@@ -33,7 +33,9 @@ export const coupleTimesInWeek = 'Несколько раз в неделю';
 export const everyDay = 'Каждый день';
 export const severalTimesInDay = 'Несколько раз в день';
 
-export const neverDid = 'Никогда этого не делал(а) и не собираюсь'
+export const neverDidAndNotGoingInFuture = 'Никогда этого не делал(а) и не собираюсь'
+export const neverDidButDoNotKnowIfGoingToDoInFuture = 'Никогда этого не делал(а), не знаю начну ли в будущем'
+export const didBeforeButDoNotKnowIfGoingToDoInFuture = 'Делал(а) раньше, не знаю буду продолжать или нет';
 export const didBeforeNotGoingInFuture = 'Делал(а) раньше, не собираюсь в будущем';
 export const coupleTimesInYearOrMoreSeldom = 'Несколько раз в год или реже';
 

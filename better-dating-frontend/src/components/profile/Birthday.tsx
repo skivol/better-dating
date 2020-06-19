@@ -16,7 +16,7 @@ const currentDateLocale = ru;
 // Дата рождения (год-месяц-день)
 const Birthday = () => (
     <Grid item>
-        <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-400px">
+        <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
             <MuiPickersUtilsProvider locale={currentDateLocale} utils={DateFnsUtils}>
                 <KeyboardDatePicker
                     required

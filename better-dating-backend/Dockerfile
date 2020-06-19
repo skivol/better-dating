@@ -6,7 +6,8 @@ RUN apk add --no-cache curl
 
 # https://docs.docker.com/engine/reference/builder/#healthcheck
 COPY ./build/libs/backend-0.0.1-SNAPSHOT.jar /opt/backend.jar
-CMD ["sh", "-c", "java -Xmx128m -Dreactor.netty.http.server.accessLogEnabled -jar /opt/backend.jar --spring.profiles.active=production --spring.mail.username=$MAIL_USER --passwordfiles.mail=$MAIL_PASSWORD_FILE --datasource.host=$DB_HOST --datasource.database=$DB_NAME --datasource.username=$DB_USER --passwordfiles.db=$DB_PASSWORD_FILE"]
+# TODO check java options
+CMD ["sh", "-c", "java -XX:+PrintFlagsFinal -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseContainerSupport -XX:InitialRAMPercentage=50.0 -XX:MinRAMPercentage=50.0 -XX:MaxRAMPercentage=75.0 -Dreactor.netty.http.server.accessLogEnabled -jar /opt/backend.jar --spring.profiles.active=production --spring.mail.username=$MAIL_USER --passwordfiles.mail=$MAIL_PASSWORD_FILE --datasource.host=$DB_HOST --datasource.database=$DB_NAME --datasource.username=$DB_USER --passwordfiles.db=$DB_PASSWORD_FILE"]
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=15s \
   CMD curl -f http://localhost:8080/actuator/health || exit 1

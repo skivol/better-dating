@@ -29,7 +29,6 @@ export const closeSnackbar = (): CloseSnackbar => ({
 });
 
 export const toBackendProfileValues = ({ bday, ...restValues }: any) => ({ ...restValues, birthday: formatISO(bday, { representation: 'date' }) });
-export const fromBackendProfileValues = ({ birthday, ...restValues }: any) => ({ ...restValues, bday: birthday });
 
 export const createAccount = (values: any): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
