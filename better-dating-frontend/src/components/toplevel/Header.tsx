@@ -1,30 +1,27 @@
 import * as React from "react";
+import { Link as MuiLink } from '@material-ui/core';
+import Link from 'next/link';
 import * as Messages from '../Messages';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import Tooltip from '@material-ui/core/Tooltip';
 // @ts-ignore
-import PetrovSmotrinyNevesty from '../img/Петров_Смотрины-невесты_1861.jpg';
+import SmotrinyLogo from '../img/logo.svg';
 
 const headerStyle: React.CSSProperties = {
 	marginTop: '10px',
 };
 
-const imageStyle: React.CSSProperties = {
-	height: 181,
-	width: 260,
-	borderRadius: '10px',
+const logoStyle: React.CSSProperties = {
+	height: 200,
+	width: 200,
 };
 
 const titleWithDescriptionColumn: React.CSSProperties = {
-	flexBasis: '67%',
+	flexBasis: '75%',
 	marginTop: '10px',
 };
 
-/* TODO create a great Logo, describe the meaning of the name */
-// import Icon from '@material-ui/core/Icon';
-// <Icon className="far fa-eye" style={{width: '1.3em'}} />
 const Header = () => (
 	<Grid
 		container
@@ -33,23 +30,22 @@ const Header = () => (
 		alignItems="center"
 		style={headerStyle}
 	>
-		<Grid item style={{ flexBasis: '33%' }}>
-			<Tooltip
-				disableFocusListener
-				title={Messages.pictureTooltip}
-			>
-				<img
-					src={PetrovSmotrinyNevesty}
-					alt={Messages.pictureTooltip}
-					style={imageStyle}
-				/>
-			</Tooltip>
+		<Grid item style={{ flexBasis: '25%', cursor: 'pointer' }}>
+			<Link href="/">
+				<Paper>
+					<img
+						src={SmotrinyLogo}
+						alt={Messages.logoTooltip}
+						style={logoStyle}
+					/>
+				</Paper>
+			</Link>
 		</Grid>
 		<Grid
 			item
 			style={titleWithDescriptionColumn}
 		>
-			<Paper className="u-padding-15px u-margin-10px">
+			<Paper style={{ height: 204, marginLeft: 10 }} className="u-padding-15px">
 				<Grid
 					container
 					direction="column"
@@ -57,8 +53,12 @@ const Header = () => (
 					alignItems="center"
 				>
 					<Grid item>
-						<Typography variant="h2" className="u-bold">
-							{Messages.title}
+						<Typography variant="h2">
+							<Link href="/" passHref>
+								<MuiLink>
+									{Messages.title}
+								</MuiLink>
+							</Link>
 						</Typography>
 					</Grid>
 					<Grid item>

@@ -1,6 +1,6 @@
-import ProfileFormData, { defaultValues as profileDefaultValues } from '../profile/ProfileFormData';
+import { ProfileFormData, defaultValues as profileDefaultValues } from '../profile';
 
-export default interface RegistrationFormData extends ProfileFormData {
+export interface RegistrationFormData extends ProfileFormData {
     acceptTerms?: boolean;
 }
 

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useRouter } from 'next/router'
 
 import { Form } from 'react-final-form';
 
@@ -11,18 +12,9 @@ import {
 import { Alert } from '@material-ui/lab';
 import { Field } from 'react-final-form';
 
-import { validateEmail } from '../utils/ValidationUtils';
 import * as Messages from './Messages';
-import TermsOfUserAgreement from './register-account/TermsOfUserAgreement';
-import RegistrationFormData, { defaultValues as registrationDataDefaults } from './register-account/RegistrationFormData';
-import Email from './profile/Email';
-import Gender from './profile/Gender';
-import Birthday from './profile/Birthday';
-import Height from './profile/Height';
-import Weight from './profile/Weight';
-import PersonalHealthEvaluation from './profile/PersonalHealthEvaluation';
-import { renderActions } from './profile/Actions';
-import SubmitButton from './profile/SubmitButton';
+import { TermsOfUserAgreement, RegistrationFormData, defaultValues as registrationDataDefaults } from './register-account';
+import { Email, Gender, Birthday, Height, Weight, PersonalHealthEvaluation, renderActions, SubmitButton } from './profile';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -35,16 +27,20 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface IDispatchProps {
     onSubmit: (data: RegistrationFormData) => void;
-    onCouldNotCheckIfAlreadyPresentEmail: () => void;
 }
 
-export const RegisterAccountForm = ({ onSubmit, onCouldNotCheckIfAlreadyPresentEmail }: IDispatchProps) => {
+export const RegisterAccountForm = ({ onSubmit }: IDispatchProps) => {
     const classes = useStyles();
-    const configuredEmailValidation = validateEmail(onCouldNotCheckIfAlreadyPresentEmail);
+    const router = useRouter();
+    const email = Array.isArray(router.query.email) ? router.query.email[0] : router.query.email;
+    const initialValues = {
+        ...registrationDataDefaults,
+        email
+    };
 
     return (
         <Form
-            initialValues={registrationDataDefaults}
+            initialValues={initialValues}
             onSubmit={onSubmit}
             render={({ handleSubmit, pristine, submitting }) => (
                 <form onSubmit={handleSubmit}>
@@ -80,12 +76,12 @@ export const RegisterAccountForm = ({ onSubmit, onCouldNotCheckIfAlreadyPresentE
                             </Paper>
                         </Grid>
 
-                        <Email configuredEmailValidation={configuredEmailValidation} />
+                        <Email />
                         <Gender />
                         <Birthday />
                         <Height />
                         <Weight />
-                        {renderActions()}
+                        {renderActions(null, false)}
                         <PersonalHealthEvaluation />
 
                         <SubmitButton

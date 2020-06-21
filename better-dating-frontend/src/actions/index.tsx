@@ -30,12 +30,34 @@ export const closeSnackbar = (): CloseSnackbar => ({
 
 export const toBackendProfileValues = ({ bday, ...restValues }: any) => ({ ...restValues, birthday: formatISO(bday, { representation: 'date' }) });
 
+const alreadyRegisteredEmail = (error: { message: string; }) => error.message === 'Email already registered';
 export const createAccount = (values: any): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
 		await postData('/api/user/profile', toBackendProfileValues(values));
 		dispatch(openSnackbar(Messages.successSubmittingProfileMessage, SnackbarVariant.success));
 	} catch (error) {
+		if (alreadyRegisteredEmail(error)) {
+			return dispatch(openSnackbar(Messages.alreadyPresentEmail, SnackbarVariant.error));
+		}
 		dispatch(openSnackbar(Messages.errorSubmittingProfileMessage, SnackbarVariant.error));
+	}
+};
+
+export const requestLogin = (email: string): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+	try {
+		await postData('/api/auth/login-link', { email });
+		dispatch(openSnackbar(Messages.loginLinkWasSent, SnackbarVariant.info));
+	} catch (error) {
+		dispatch(openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error));
+	}
+};
+
+export const performLogin = (token: string): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+	try {
+		await postData('/api/auth/login', { token });
+	} catch (error) {
+		dispatch(openSnackbar(resolveTokenMessage(error), SnackbarVariant.error));
+		throw error;
 	}
 };
 
@@ -46,6 +68,9 @@ export const updateAccount = (values: any, emailChanged: boolean | undefined, do
 		dispatch(openSnackbar(successMessage, SnackbarVariant.success));
 		doAfter();
 	} catch (error) {
+		if (alreadyRegisteredEmail(error)) {
+			return dispatch(openSnackbar(Messages.alreadyPresentEmail, SnackbarVariant.error));
+		}
 		dispatch(openSnackbar(Messages.errorUpdatingProfileMessage, SnackbarVariant.error));
 	}
 };
@@ -58,3 +83,12 @@ export const requestAnotherValidationToken = (previousToken: string): ThunkResul
 		dispatch(openSnackbar(resolveTokenMessage(error.message), SnackbarVariant.error));
 	}
 }
+
+export const logout = (): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+	try {
+		await postData('/api/auth/logout');
+		dispatch(openSnackbar(Messages.successLogout, SnackbarVariant.success));
+	} catch (error) {
+		dispatch(openSnackbar(Messages.errorLogout, SnackbarVariant.error));
+	}
+};

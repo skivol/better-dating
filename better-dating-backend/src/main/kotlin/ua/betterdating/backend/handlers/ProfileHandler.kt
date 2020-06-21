@@ -1,18 +1,14 @@
 package ua.betterdating.backend.handlers
 
 import kotlinx.coroutines.reactive.awaitFirst
-import org.springframework.data.r2dbc.connectionfactory.R2dbcTransactionManager
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import org.springframework.web.reactive.function.server.*
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
-import java.lang.RuntimeException
-import java.time.LocalDateTime
 import java.util.*
 
 class UserProfileHandler(
-        private val emailHandler: EmailHandler,
         private val emailRepository: EmailRepository,
         private val acceptedTermsRepository: AcceptedTermsRepository,
         private val profileInfoRepository: ProfileInfoRepository,
@@ -20,14 +16,15 @@ class UserProfileHandler(
         private val weightRepository: WeightRepository,
         private val activityRepository: ActivityRepository,
         private val profileEvaluationRepository: ProfileEvaluationRepository,
-        private val tm: R2dbcTransactionManager
+        private val transactionalOperator: TransactionalOperator,
+        private val freemarkerMailSender: FreemarkerMailSender
 ) {
     suspend fun createProfile(request: ServerRequest): ServerResponse {
         val validCreateProfileRequest = request.awaitBody<CreateProfileRequest>()
         val email = Email(email = validCreateProfileRequest.email, verified = false)
         val profileId = email.id
         validCreateProfileRequest.id = profileId
-        val now = LocalDateTime.now()
+        val now = now()
         val acceptedTerms = AcceptedTerms(profileId = profileId, lastDateAccepted = now)
         val profileInfo = ProfileInfo(
                 profileId = profileId, gender = validCreateProfileRequest.gender,
@@ -59,7 +56,7 @@ class UserProfileHandler(
                 sourceProfileId = profileId, targetProfileId = profileId, date = now,
                 evaluation = validCreateProfileRequest.personalHealthEvaluation, comment = null
         )
-        TransactionalOperator.create(tm).executeAndAwait { // https://spring.io/blog/2019/05/16/reactive-transactions-with-spring
+        transactionalOperator.executeAndAwait {
             emailRepository.save(email)
             acceptedTermsRepository.save(acceptedTerms)
             profileInfoRepository.save(profileInfo)
@@ -67,20 +64,19 @@ class UserProfileHandler(
             weightRepository.save(weight)
             activities.forEach { activityRepository.save(it) }
             profileEvaluationRepository.save(profileEvaluation)
-            val emailVerificationToken = emailHandler.removeExistingAndCreateAndSaveNewVerificationToken(email)
-            emailHandler.sendVerificationEmailWithLink(request, validCreateProfileRequest.email, emailVerificationToken)
+            freemarkerMailSender.sendWelcomeAndVerifyEmailMessage(email.id, email.email, request)
         }
         return ServerResponse.ok().json().bodyValueAndAwait(validCreateProfileRequest)
     }
 
     suspend fun profile(request: ServerRequest): ServerResponse {
-        val profile = existingProfileById(request)
+        val profile = currentUserProfile(request)
         return ServerResponse.ok().json().bodyValueAndAwait(profile)
     }
 
     suspend fun updateProfile(request: ServerRequest): ServerResponse {
         val profile = request.awaitBody<Profile>()
-        val existingProfile = existingProfileById(request)
+        val existingProfile = currentUserProfile(request)
         val changedEmail = changedEmail(existingProfile, profile)
         val changedProfileInfo = changedProfileInfo(existingProfile, profile)
         val changedHeight = changedHeight(existingProfile, profile)
@@ -88,14 +84,21 @@ class UserProfileHandler(
         val changedActivities = changedActivities(existingProfile, profile)
         val changedHealthEvaluation = changedHealthEvaluation(existingProfile, profile)
 
-        TransactionalOperator.create(tm).executeAndAwait {
+        transactionalOperator.executeAndAwait {
             changedEmail?.let {
                 emailRepository.update(it)
-                val emailVerificationToken = emailHandler.removeExistingAndCreateAndSaveNewVerificationToken(it)
-                emailHandler.sendChangeMailNotificationToOldAddress(existingProfile.email)
-                emailHandler.sendVerificationEmailWithLink(
-                    request, it.email, emailVerificationToken, "Подтверждение новой почты", "ChangeEmailVerification.ftlh"
-                )
+                freemarkerMailSender.sendChangeMailNotificationToOldAddress(existingProfile.email)
+                val subject = "Подтверждение новой почты"
+                freemarkerMailSender.generateAndSendEmailVerificationToken(
+                        it.id, "ChangeEmailVerification.ftlh",
+                        it.email, subject, request
+                ) { link ->
+                    object {
+                        val title = subject
+                        val actionLabel = "Подтвердить почту"
+                        val actionUrl = link
+                    }
+                }
             }
 
             changedProfileInfo?.let { profileInfoRepository.update(it) }
@@ -109,14 +112,14 @@ class UserProfileHandler(
     }
 
     private fun changedHealthEvaluation(existingProfile: Profile, profile: Profile) = if (existingProfile.personalHealthEvaluation != profile.personalHealthEvaluation) {
-        ProfileEvaluation(existingProfile.id!!, existingProfile.id!!, LocalDateTime.now(), profile.personalHealthEvaluation, null)
+        ProfileEvaluation(existingProfile.id!!, existingProfile.id!!, now(), profile.personalHealthEvaluation, null)
     } else {
         null
     }
 
     private fun changedActivities(existingProfile: Profile, profile: Profile): List<Activity> {
         val changedActivities = mutableListOf<Activity>()
-        val now = LocalDateTime.now()
+        val now = now()
         if (existingProfile.physicalExercise != profile.physicalExercise) {
             changedActivities.add(Activity(existingProfile.id!!, physicalExercise.name, now, profile.physicalExercise))
         }
@@ -151,21 +154,21 @@ class UserProfileHandler(
     }
 
     private fun changedWeight(existingProfile: Profile, profile: Profile) = if (existingProfile.weight != profile.weight) {
-        Weight(existingProfile.id!!, LocalDateTime.now(), profile.weight)
+        Weight(existingProfile.id!!, now(), profile.weight)
     } else {
         null
     }
 
     private fun changedHeight(existingProfile: Profile, profile: Profile) = if (existingProfile.height != profile.height) {
-        Height(existingProfile.id!!, LocalDateTime.now(), profile.height)
+        Height(existingProfile.id!!, now(), profile.height)
     } else {
         null
     }
 
     private fun changedProfileInfo(existingProfile: Profile, profile: Profile) = if (
-        existingProfile.gender != profile.gender || existingProfile.birthday != profile.birthday
+            existingProfile.gender != profile.gender || existingProfile.birthday != profile.birthday
     ) {
-        ProfileInfo(existingProfile.id!!, profile.gender, profile.birthday, null, LocalDateTime.now())
+        ProfileInfo(existingProfile.id!!, profile.gender, profile.birthday, null, now())
     } else {
         null
     }
@@ -176,13 +179,16 @@ class UserProfileHandler(
         null
     }
 
-    private suspend fun existingProfileById(request: ServerRequest): Profile {
-        val profileIdPathVariable = request.pathVariable("profileId")
-        val profileId = UUID.fromString(profileIdPathVariable)
-        val email = emailRepository.findById(profileId) // FIXME handle profile not found error properly
-        val profileInfo = profileInfoRepository.findByProfileId(profileId)
-        val height = heightRepository.findLatestByProfileId(profileId)
-        val weight = weightRepository.findLatestByProfileId(profileId)
+    private suspend fun currentUserProfile(request: ServerRequest): Profile {
+        val principal = request.principal().awaitFirst()
+        return existingProfileById(UUID.fromString(principal.name))
+    }
+
+    private suspend fun existingProfileById(profileId: UUID): Profile {
+        val email = emailRepository.findById(profileId) ?: throw EmailNotFoundException()
+        val profileInfo = profileInfoRepository.findByProfileId(profileId)!!
+        val height = heightRepository.findLatestByProfileId(profileId)!!
+        val weight = weightRepository.findLatestByProfileId(profileId)!!
         val activityNames = listOf(
                 physicalExercise.name, smoking.name, alcohol.name,
                 computerGames.name, gambling.name, haircut.name,
@@ -190,9 +196,8 @@ class UserProfileHandler(
                 pornographyWatching.name
         )
         val activities = activityRepository.findLatestByProfileId(profileId, activityNames).collectMap { it.name }.awaitFirst()
-        val personalHealthEvaluation = profileEvaluationRepository.findLatestHealthEvaluationByProfileId(profileId)
-        val profile = toWebEntity(email, profileInfo, height, weight, activities, personalHealthEvaluation)
-        return profile
+        val personalHealthEvaluation = profileEvaluationRepository.findLatestHealthEvaluationByProfileId(profileId)!!
+        return toWebEntity(email, profileInfo, height, weight, activities, personalHealthEvaluation)
     }
 
     private fun toWebEntity(email: Email, profileInfo: ProfileInfo, height: Height, weight: Weight, activities: Map<String, Activity>, personalHealthEvaluation: ProfileEvaluation): Profile {

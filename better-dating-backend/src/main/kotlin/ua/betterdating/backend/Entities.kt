@@ -10,11 +10,17 @@ class Email(
         var id: UUID = UUID.randomUUID()
 )
 
-class EmailVerificationToken(
-        var emailId: UUID,
+class ExpiringToken(
+        var profileId: UUID,
         var expires: LocalDateTime,
-        var id: UUID = UUID.randomUUID()
+        var type: TokenType,
+        var encodedValue: String
 )
+
+enum class TokenType {
+    EMAIL_VERIFICATION,
+    ONE_TIME_PASSWORD
+}
 
 class AcceptedTerms(
         val profileId: UUID,

@@ -9,7 +9,7 @@ import { validateWeight } from '../../utils/ValidationUtils';
 import * as Messages from '../Messages';
 
 // Вес (кг)
-const Weight = () => (
+export const Weight = () => (
     <Grid item>
         <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
             <TextField
@@ -33,5 +33,3 @@ const Weight = () => (
         </Paper>
     </Grid>
 );
-
-export default Weight;

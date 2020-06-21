@@ -14,11 +14,11 @@ import {
     hairColoringOptions,
     makeupOptions,
     intimateRelationsOutsideOfMarriageOptions,
-    pornographyWatchingOptions
-} from '../../utils/RecurrenceUtils';
-import { required } from '../../utils/ValidationUtils';
+    pornographyWatchingOptions,
+    required
+} from '../../utils';
 import * as Messages from '../Messages';
-import AnalyzedSection from './AnalyzedSection';
+import { AnalyzedSection } from '.';
 
 
 const actions = [{ /* Физкультура / физические упражнения */

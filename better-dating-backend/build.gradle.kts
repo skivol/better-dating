@@ -19,13 +19,14 @@ plugins {
 
 group = "ua.betterdating"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_11
+java.sourceCompatibility = JavaVersion.VERSION_12
 
 repositories {
 	mavenLocal()
 	mavenCentral()
 	maven(url = uri("https://repo.spring.io/milestone"))
 	maven(url = uri("https://repo.spring.io/snapshot"))
+    maven(url = uri("https://repo.spring.io/libs-milestone"))
 }
 
 dependencyManagement {
@@ -33,7 +34,7 @@ dependencyManagement {
 		mavenBom("io.projectreactor:reactor-bom:Bismuth-RELEASE") // https://projectreactor.io/docs/core/release/reference/#getting
 		mavenBom("io.netty:netty-bom:4.1.50.Final")
 		mavenBom("io.r2dbc:r2dbc-bom:Arabba-RELEASE") // https://github.com/r2dbc/r2dbc-bom (configures "r2dbc-postgresql")
-		mavenBom("org.springframework.boot:spring-boot-dependencies:2.3.0.RELEASE")
+		mavenBom("org.springframework.boot:spring-boot-dependencies:2.4.0-SNAPSHOT")
 	}
 }
 
@@ -41,11 +42,11 @@ dependencies {
 	// DB
     // # Migration
 	implementation("org.springframework.boot:spring-boot-starter-jdbc")
-	implementation("org.flywaydb:flyway-core") // https://github.com/flyway/flyway
+	implementation("org.flywaydb:flyway-core")
 
     // # Reactive client
-	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
-	implementation("io.r2dbc:r2dbc-postgresql") // https://github.com/r2dbc/r2dbc-postgresql
+	implementation("org.springframework:spring-r2dbc")
+	implementation("io.r2dbc:r2dbc-postgresql")
 	implementation("org.postgresql:postgresql")
 
 	// Web
@@ -53,6 +54,12 @@ dependencies {
 	implementation("org.springframework.fu:spring-fu-autoconfigure-adapter:skivol-SNAPSHOT")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("io.netty:netty-all")
+	// # security
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.security.dsl:spring-security-kotlin-dsl:0.0.1.BUILD-SNAPSHOT")
+	implementation("org.springframework.session:spring-session-data-redis")
+	implementation("io.lettuce:lettuce-core")
+
 	// # validation
 	implementation("org.valiktor:valiktor-core:0.11.0")
 	// # json
@@ -80,7 +87,7 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
-		jvmTarget = "1.8"
+		jvmTarget = "12"
 		freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=enable")
 	}
 }

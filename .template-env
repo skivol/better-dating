@@ -11,3 +11,6 @@ BD_DB_PASSWORD_FILE=
 # Fill in the credentials for testing email integration
 BD_MAIL_USER=
 BD_MAIL_PASSWORD_FILE==
+
+# used by frontend server
+BACKEND_HOST=http://localhost:8080

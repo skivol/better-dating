@@ -19,6 +19,13 @@ spring:
           # https://stackoverflow.com/questions/26548059/sending-email-with-ssl-using-javax-mail
           ssl:
             enable: true
+  session:
+    # 30 days
+    timeout: 2592000
+    store-type: redis
+#    redis:
+#      namespace: "spring:session"
+# TODO remove redis config because of "not binded" exception ??
 
 logging:
   file: ./logs/better-dating-java.log
@@ -36,12 +43,11 @@ logging:
 spring:
   profiles: development | test
 datasource:
-  host: localhost
-  database: postgres
+  url: r2dbc:postgresql://localhost/postgres
 ---
 spring:
   profiles: test
-passwordfiles:
+password-files:
   db: password.txt
   mail: password.txt
 datasource:

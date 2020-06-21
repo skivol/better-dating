@@ -1,2 +1,2 @@
-import Proposal from '../components/Proposal';
+import Proposal from '../containers/Proposal';
 export default Proposal;

@@ -1,6 +1,7 @@
 import * as React from "react";
+import { useRouter } from 'next/router';
 import { parseISO } from 'date-fns';
-import { FormApi, FieldState, FieldValidator } from 'final-form';
+import { FormApi } from 'final-form';
 import { Form } from 'react-final-form';
 import {
     Grid,
@@ -13,23 +14,15 @@ import ToggleButton from '@material-ui/lab/ToggleButton';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faUserCheck } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faUserCheck, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
-import { validateEmail } from '../utils/ValidationUtils';
-import { emailHasChanged } from '../utils/FormUtils';
 import * as Messages from './Messages';
-import ProfileFormData from './profile/ProfileFormData';
-import Email from './profile/Email';
-import Gender from './profile/Gender';
-import Birthday from './profile/Birthday';
-import Height from './profile/Height';
-import Weight from './profile/Weight';
-import AnalyzedSection from './profile/AnalyzedSection';
+import {
+    ProfileFormData, Email, Gender, Birthday, Height,
+    Weight, AnalyzedSection, PersonalHealthEvaluation, renderActions
+} from './profile';
 
-import PersonalHealthEvaluation from './profile/PersonalHealthEvaluation';
-
-import { renderActions } from './profile/Actions';
-import SpinnerAdornment from './SpinnerAdornment';
+import { SpinnerAdornment } from './common';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -41,7 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface IDispatchProps {
     onSubmit: (data: any, form: FormApi<any>, doAfter: () => void) => void;
-    onCouldNotCheckIfAlreadyPresentEmail: () => void;
+    onLogout: () => any;
 }
 
 export interface Props extends IDispatchProps {
@@ -52,16 +45,16 @@ const fromBackendProfileValues = ({ birthday, ...restValues }: any) => ({
     ...restValues, bday: parseISO(birthday)
 });
 
-export const Profile = ({ profileData, onSubmit, onCouldNotCheckIfAlreadyPresentEmail }: Props) => {
+export const Profile = ({ profileData, onSubmit, onLogout }: Props) => {
     const classes = useStyles();
-    const emailValidation = validateEmail(onCouldNotCheckIfAlreadyPresentEmail);
     const profileDataWithDate = fromBackendProfileValues(profileData);
     const [initialValues, setInitialValues] = React.useState(profileDataWithDate);
     const [showAnalysis, setShowAnalysis] = React.useState(false);
+    const router = useRouter();
 
     React.useEffect(() => {
         if (showAnalysis) {
-            document.getElementById('height-weight-analyze')?.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => document.getElementById('height-weight-analyze')?.scrollIntoView({ behavior: 'smooth' }), 1000);
         }
     }, [showAnalysis]);
 
@@ -71,13 +64,7 @@ export const Profile = ({ profileData, onSubmit, onCouldNotCheckIfAlreadyPresent
             onSubmit={(values, form) => {
                 onSubmit(values, form, () => setInitialValues(values));
             }}
-            render={({ handleSubmit, form, values, pristine, submitting }) => {
-                const emailValidator: FieldValidator<string> = (value: string, allValues: object, meta?: FieldState<string>) => {
-                    if (!emailHasChanged(form)) { // no need to check availability in this case
-                        return undefined;
-                    }
-                    return emailValidation(value);
-                };
+            render={({ handleSubmit, values, pristine, submitting }) => {
                 return (
                     <form onSubmit={handleSubmit}>
                         <Grid
@@ -95,7 +82,7 @@ export const Profile = ({ profileData, onSubmit, onCouldNotCheckIfAlreadyPresent
                                     </div>
                                 </Paper>
                             </Grid>
-                            <Email configuredEmailValidation={emailValidator} />
+                            <Email />
                             <Gender />
                             <Birthday />
 
@@ -131,6 +118,10 @@ export const Profile = ({ profileData, onSubmit, onCouldNotCheckIfAlreadyPresent
                                     <FontAwesomeIcon className="MuiButton-startIcon" icon={faUserCheck} />
                                     {showAnalysis ? Messages.hideAnalysis : Messages.analyze}
                                 </ToggleButton>
+                                <Button onClick={() => onLogout().then(() => router.push("/"))}>
+                                    <FontAwesomeIcon className="MuiButton-startIcon" icon={faSignOutAlt} />
+                                    {Messages.logout}
+                                </Button>
                             </ButtonGroup>
                         </Grid>
                     </form>

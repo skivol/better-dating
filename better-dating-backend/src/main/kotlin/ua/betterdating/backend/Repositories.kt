@@ -1,100 +1,218 @@
 package ua.betterdating.backend
 
-import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import org.springframework.data.r2dbc.core.*
-import org.springframework.data.relational.core.query.Criteria.where
-import org.springframework.data.relational.core.query.Update.from
-import org.springframework.data.relational.core.sql.SqlIdentifier.quoted
+import org.springframework.r2dbc.core.DatabaseClient
+import org.springframework.r2dbc.core.awaitOneOrNull
+import org.springframework.r2dbc.core.awaitRowsUpdated
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
-class EmailRepository(private val client: DatabaseClient) {
-    suspend fun findByEmail(email: String) = client.execute("SELECT * FROM email WHERE email = :email")
-            .bind("email", email).asType<Email>().fetch().awaitOneOrNull()
-
-    suspend fun save(email: Email) = client.insert().into<Email>().table("email").using(email).await()
-
-    suspend fun findById(id: UUID) = client.execute("SELECT * FROM email WHERE id = :id")
-            .bind("id", id).asType<Email>().fetch().awaitOne()
-
-    suspend fun update(email: Email) =
-            client.update().table("email").using(
-                    from(mapOf(
-                            quoted("email") to email.email, quoted("verified") to email.verified
-                    ))
-            ).matching(where("id").`is`(email.id)).fetch().awaitRowsUpdated()
+// String extensions
+// https://stackoverflow.com/a/60010299
+val camelRegex = "(?<=[a-zA-Z])[A-Z]".toRegex()
+fun String.camelToSnakeCase(): String {
+    return camelRegex.replace(this) {
+        "_${it.value}"
+    }.toLowerCase()
 }
 
-class EmailVerificationTokenRepository(private val client: DatabaseClient) {
-    suspend fun save(token: EmailVerificationToken) = client.insert().into<EmailVerificationToken>()
-            .table("email_verification_token").using(token).await()
+fun String.toTokenType(): TokenType = TokenType.valueOf(this)
+fun String.toGender(): Gender = Gender.valueOf(this)
+fun String.toRecurrence(): Recurrence = Recurrence.valueOf(this)
 
-    suspend fun findById(id: UUID) =
-            client.execute("SELECT * FROM email_verification_token AS evt WHERE evt.id = :id")
-                    .bind("id", id).asType<EmailVerificationToken>().fetch().awaitOneOrNull()
+suspend fun DatabaseClient.insert(tableName: String, fields: List<Pair<String, Any>>): Int {
+    val columns = fields.joinToString(separator = ", ") { it.first.camelToSnakeCase() }
+    val values = fields.joinToString(separator = ", ") { ":${it.first}" }
+    return fields.fold (
+        sql("INSERT INTO $tableName($columns) VALUES($values)"),
+        { acc, curr -> acc.bind(curr.first, curr.second)}
+    ).fetch().awaitRowsUpdated()
+}
 
-    suspend fun delete(token: EmailVerificationToken) =
-            client.delete().from("email_verification_token").matching(where("id").`is`(token.id)).fetch().rowsUpdated().awaitFirst()
+fun assignmentsOf(values: List<Pair<String, Any>>, s: String) = values.joinToString(separator = s) {
+    "${it.first.camelToSnakeCase()} = :${it.first}"
+}
 
-    suspend fun deleteByProfileIdIfAny(email: Email) =
-            client.delete().from("email_verification_token").matching(where("email_id").`is`(email.id)).fetch().rowsUpdated().awaitFirstOrNull()
+suspend fun DatabaseClient.update(tableName: String, fields: List<Pair<String, Any>>, where: List<Pair<String, Any>>): Int {
+    val columns = assignmentsOf(fields, ", ")
+    val whereClause = assignmentsOf(where, " AND ")
+    return (fields + where).fold (
+            sql("UPDATE $tableName SET $columns WHERE $whereClause"),
+            { acc, curr -> acc.bind(curr.first, curr.second)}
+    ).fetch().awaitRowsUpdated()
+}
+
+suspend fun DatabaseClient.delete(tableName: String, where: List<Pair<String, Any>>): Int {
+    val whereClause = assignmentsOf(where, " AND ")
+    return where.fold (
+            sql("DELETE FROM $tableName WHERE $whereClause"),
+            { acc, curr -> acc.bind(curr.first, curr.second)}
+    ).fetch().awaitRowsUpdated()
+}
+
+// TODO use spring-data again when available
+// TODO figure out why cast works in one and not in other places ??
+class EmailRepository(private val client: DatabaseClient) {
+    private val selectFromEmail = "SELECT * FROM email"
+
+    suspend fun findByEmail(email: String) = client.sql("$selectFromEmail WHERE email = :email")
+            .bind("email", email).fetch().one().cast(Email::class.java).awaitFirstOrNull()
+
+    suspend fun save(email: Email) = client.insert("email", listOf(
+        "id" to email.id, "email" to email.email, "verified" to email.verified
+    ))
+
+    suspend fun findById(id: UUID) = client.sql("$selectFromEmail WHERE id = :id")
+            .bind("id", id)
+            .map { row, _ -> Email(row["email"] as String, row["verified"] as Boolean, row["id"] as UUID) }
+            .awaitOneOrNull()
+
+    suspend fun update(email: Email) = client.update(
+        "email", listOf("email" to email.email, "verified" to email.verified), listOf("id" to email.id)
+    )
+}
+
+class ExpiringTokenRepository(private val client: DatabaseClient) {
+    suspend fun save(token: ExpiringToken) =
+            client.insert("expiring_token", listOf(
+                    "profileId" to token.profileId, "type" to token.type.toString(),
+                    "encodedValue" to token.encodedValue, "expires" to token.expires
+            ))
+
+    suspend fun findByProfileIdAndType(profileId: UUID, type: TokenType) =
+            client.sql("""SELECT type, profile_id, expires, encoded_value
+                          FROM expiring_token AS et
+                          WHERE et.profile_id = :profileId AND et.type = :type""".trimIndent())
+                    .bind("profileId", profileId).bind("type", type.toString())
+                    .map { row, _ ->
+                        ExpiringToken(
+                                row["profile_id"] as UUID,
+                                row["expires"] as LocalDateTime,
+                                row["type"].toString().toTokenType(),
+                                row["encoded_value"] as String
+                        )
+                    }.awaitOneOrNull()
+
+    suspend fun delete(token: ExpiringToken) = deleteByProfileIdAndTypeIfAny(token.profileId, token.type)
+
+    suspend fun deleteByProfileIdAndTypeIfAny(profileId: UUID, type: TokenType) =
+            client.delete("expiring_token", listOf("profileId" to profileId, "type" to type.toString()))
 }
 
 class AcceptedTermsRepository(private val client: DatabaseClient) {
-    suspend fun save(acceptedTerms: AcceptedTerms) = client.insert().into<AcceptedTerms>()
-            .table("accepted_terms").using(acceptedTerms).await()
+    suspend fun save(acceptedTerms: AcceptedTerms) = client.insert("accepted_terms", listOf(
+            "profileId" to acceptedTerms.profileId,
+            "lastDateAccepted" to acceptedTerms.lastDateAccepted
+    ))
 }
 
 class ProfileInfoRepository(private val client: DatabaseClient) {
-    suspend fun save(profileInfo: ProfileInfo) = client.insert().into<ProfileInfo>()
-            .table("profile_info").using(profileInfo).await()
+    suspend fun save(profileInfo: ProfileInfo) = client.insert("profile_info", listOf(
+            "profileId" to profileInfo.profileId,
+            "birthday" to profileInfo.birthday,
+            "gender" to profileInfo.gender.toString(),
+            "createdAt" to profileInfo.createdAt!!
+    ) + (profileInfo.updatedAt?.let { listOf("updated_at" to it) } ?: emptyList()))
 
-    suspend fun findByProfileId(profileId: UUID) = client.execute(
-            "SELECT * FROM profile_info WHERE profile_id = :profileId"
-    ).bind("profileId", profileId).asType<ProfileInfo>().fetch().awaitOne()
+    suspend fun findByProfileId(profileId: UUID) = client.sql(
+            "SELECT profile_id, gender, birthday, created_at, updated_at FROM profile_info WHERE profile_id = :profileId"
+    ).bind("profileId", profileId).map { row, _ ->
+        ProfileInfo(
+                row["profile_id"] as UUID,
+                row["gender"].toString().toGender(),
+                row["birthday"] as LocalDate,
+                row["created_at"] as LocalDateTime,
+                row["updated_at"] as LocalDateTime?
+        )
+    }.awaitOneOrNull()
 
     suspend fun update(profileInfo: ProfileInfo) =
-            client.update().table("profile_info").using(from(mapOf(
-                    quoted("gender") to profileInfo.gender, quoted("birthday") to profileInfo.birthday,
-                    quoted("updated_at") to profileInfo.updatedAt))
-            ).matching(where("profile_id").`is`(profileInfo.profileId)).fetch().awaitRowsUpdated()
+            client.update("profile_info", listOf(
+                    "gender" to profileInfo.gender.toString(), "birthday" to profileInfo.birthday,
+                    "updated_at" to profileInfo.updatedAt!!
+            ), listOf("profile_id" to profileInfo.profileId))
 }
 
 class HeightRepository(private val client: DatabaseClient) {
-    suspend fun save(height: Height) = client.insert().into<Height>()
-            .table("height").using(height).await()
+    suspend fun save(height: Height) = client.insert("height", listOf(
+            "profileId" to height.profileId, "date" to height.date, "height" to height.height
+    ))
 
-    suspend fun findLatestByProfileId(profileId: UUID) = client.execute(
-            "SELECT * FROM height WHERE profile_id = :profileId ORDER BY date DESC LIMIT 1"
-    ).bind("profileId", profileId).asType<Height>().fetch().awaitOne()
+    suspend fun findLatestByProfileId(profileId: UUID) = client.sql(
+            "SELECT profile_id, date, height FROM height WHERE profile_id = :profileId ORDER BY date DESC LIMIT 1"
+    ).bind("profileId", profileId).map { row, _ ->
+        Height(
+                row["profile_id"] as UUID,
+                row["date"] as LocalDateTime,
+                (row["height"] as BigDecimal).toFloat()
+        )
+    }.awaitOneOrNull()
 }
 
 class WeightRepository(private val client: DatabaseClient) {
-    suspend fun save(weight: Weight) = client.insert().into<Weight>()
-            .table("weight").using(weight).await()
+    suspend fun save(weight: Weight) = client.insert("weight", listOf(
+            "profileId" to weight.profileId, "date" to weight.date, "weight" to weight.weight
+    ))
 
-    suspend fun findLatestByProfileId(profileId: UUID) = client.execute(
-            "SELECT * FROM weight WHERE profile_id = :profileId ORDER BY date DESC LIMIT 1"
-    ).bind("profileId", profileId).asType<Weight>().fetch().awaitOne()
+    suspend fun findLatestByProfileId(profileId: UUID) = client.sql(
+            "SELECT profile_id, date, weight FROM weight WHERE profile_id = :profileId ORDER BY date DESC LIMIT 1"
+    ).bind("profileId", profileId).map { row, _ ->
+        Weight(
+                row["profile_id"] as UUID,
+                row["date"] as LocalDateTime,
+                (row["weight"] as BigDecimal).toFloat()
+        )
+    }.awaitOneOrNull()
 }
 
 class ActivityRepository(private val client: DatabaseClient) {
-    suspend fun save(activity: Activity) = client.insert().into<Activity>()
-            .table("activity").using(activity).await()
+    suspend fun save(activity: Activity) = client.insert("activity", listOf(
+            "profileId" to activity.profileId,
+            "date" to activity.date,
+            "name" to activity.name,
+            "recurrence" to activity.recurrence.toString()
+    ))
 
-    suspend fun findLatestByProfileId(profileId: UUID, activityNames: List<String>) = client.execute(
-            "SELECT * FROM activity AS a1 " +
+    fun findLatestByProfileId(profileId: UUID, activityNames: List<String>) = client.sql(
+            "SELECT profile_id, name, date, recurrence FROM activity AS a1 " +
                     "WHERE a1.profile_id = :profileId AND a1.name IN (:activityNames) AND a1.date = (" +
                     "SELECT MAX(a2.date) FROM activity AS a2 WHERE a1.profile_id = a2.profile_id AND a1.name = a2.name" +
                     ") LIMIT :limit"
-    ).bind("profileId", profileId).bind("activityNames", activityNames).bind("limit", activityNames.size).asType<Activity>().fetch().all()
+    ).bind("profileId", profileId)
+            .bind("activityNames", activityNames)
+            .bind("limit", activityNames.size)
+            .map { row, _ ->
+                Activity(
+                        row["profile_id"] as UUID,
+                        row["name"] as String,
+                        row["date"] as LocalDateTime,
+                        row["recurrence"].toString().toRecurrence()
+                )
+            }.all()
 }
 
 class ProfileEvaluationRepository(private val client: DatabaseClient) {
-    suspend fun save(profileEvaluation: ProfileEvaluation) = client.insert().into<ProfileEvaluation>()
-            .table("profile_evaluation").using(profileEvaluation).await()
+    suspend fun save(profileEvaluation: ProfileEvaluation) = client.insert("profile_evaluation", listOf(
+            "sourceProfileId" to profileEvaluation.sourceProfileId,
+            "targetProfileId" to profileEvaluation.targetProfileId,
+            "date" to profileEvaluation.date,
+            "evaluation" to profileEvaluation.evaluation
+    ) + (profileEvaluation.comment?.let { listOf("comment" to it) } ?: emptyList()))
 
-    suspend fun findLatestHealthEvaluationByProfileId(profileId: UUID) = client.execute(
-            "SELECT * FROM profile_evaluation WHERE source_profile_id = :profileId AND target_profile_id = :profileId ORDER BY date DESC LIMIT 1"
-    ).bind("profileId", profileId).asType<ProfileEvaluation>().fetch().awaitOne()
+    suspend fun findLatestHealthEvaluationByProfileId(profileId: UUID) = client.sql(
+            "SELECT source_profile_id, target_profile_id, date, evaluation, comment " +
+                     "FROM profile_evaluation " +
+                     "WHERE source_profile_id = :profileId AND target_profile_id = :profileId  " +
+                     "ORDER BY date DESC LIMIT 1"
+    ).bind("profileId", profileId).map { row, _ ->
+        ProfileEvaluation(
+                row["source_profile_id"] as UUID,
+                row["target_profile_id"] as UUID,
+                row["date"] as LocalDateTime,
+                (row["evaluation"] as BigDecimal).toInt(),
+                row["comment"] as String?
+        )
+    }.awaitOneOrNull()
 }

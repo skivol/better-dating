@@ -36,7 +36,7 @@ module.exports = withPlugins([
         }
       });
       config.module.rules.push({
-        test: /\.md$/,
+        test: /\.md|\.txt$/,
         use: 'raw-loader',
       });
       HACK_removeMinimizeOptionFromCssLoaders(config);
@@ -57,7 +57,11 @@ module.exports = withPlugins([
         { source: encodeURI('/предложение'), destination: '/proposal' },
         { source: encodeURI('/подтвердить-почту'), destination: '/confirm-email' },
         { source: encodeURI('/регистрация'), destination: '/register-account' },
-        { source: encodeURI('/профиль/:id'), destination: '/profile/:id' }
+        { source: encodeURI('/вход'), destination: '/login' },
+        { source: encodeURI('/профиль'), destination: '/profile' },
+        { source: encodeURI('/благодарности'), destination: '/acknowledgements' },
+        { source: encodeURI('/политика-конфиденциальности'), destination: '/privacy-policy' },
+        { source: encodeURI('/пользовательское-соглашение'), destination: '/user-agreement' },
       ]
     }
   }

@@ -2,13 +2,11 @@ import React from 'react';
 import { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
 
-import Container from '@material-ui/core/Container';
 import { ThemeProvider } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import { Container, CssBaseline } from '@material-ui/core';
 
 import { theme } from '../configureTheme';
 import Footer from '../components/toplevel/Footer';
-import Navigation from '../components/navigation/Navigation';
 import StatusSnackbar from '../containers/StatusSnackbar';
 import Meta from '../utils/Meta';
 import * as Messages from '../components/Messages';
@@ -47,8 +45,6 @@ const BetterDatingApp = ({ Component, pageProps }: AppProps) => {
         <Container className="u-padding-10px u-max-width-892px">
           <Component {...pageProps} />
           <Footer />
-          <div className="c-bottom-navigation-placeholder" />
-          <Navigation />
           <StatusSnackbar />
         </Container>
       </ThemeProvider>

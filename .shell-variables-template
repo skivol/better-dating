@@ -1,0 +1,17 @@
+# Copy this file to .shell-variables
+# fill in the values
+# and use it in ~/.zshrc like:
+#
+# source ~/projects/better-dating/.shell-variables
+
+# Path to folder with projects, under which better-dating repository resides
+export PROJECTS=
+
+# Production server user name
+export PROD_USER=
+
+# Production server IP address
+export PROD=
+
+# Path to local backup folder
+export BACKUP=

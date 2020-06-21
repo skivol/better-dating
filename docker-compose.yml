@@ -2,7 +2,29 @@
 # https://docs.docker.com/compose/compose-file/
 # https://dev.to/domysee/setting-up-a-reverse-proxy-with-nginx-and-docker-compose-29jg
 version: '3.6'
+
 services:
+
+  bd-redis:
+    build: ./better-dating-cache
+    image: skivol/better-dating-cache:latest
+    container_name: "bd-prod-redis"
+    volumes:
+      - better-dating-cache-volume:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 100M
+        reservations:
+          cpus: '0.10'
+          memory: 50M
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 2
+        window: 120s
+
   bd-postgres:
     build: ./better-dating-database
     image: skivol/better-dating-database:latest
@@ -30,6 +52,7 @@ services:
         window: 120s
     secrets:
       - db_password
+
   bd-backend:
     build: ./better-dating-backend
     image: skivol/better-dating-backend:latest
@@ -63,12 +86,11 @@ services:
       - mail_password
     # https://docs.docker.com/compose/compose-file/#healthcheck
     # https://stackoverflow.com/questions/47520941/healthcheck-dockerfile-vs-docker-compose-yml
+
   bd-frontend:
     build: ./better-dating-frontend
     image: skivol/better-dating-ui:latest
     container_name: "bd-prod-frontend"
-    volumes:
-      - better-dating-ui-logs-volume:/logs
     deploy:
       resources:
         limits:
@@ -82,6 +104,7 @@ services:
         delay: 10s
         max_attempts: 2
         window: 120s
+
   bd-reverse-proxy:
     build: ./better-dating-proxy
     image: skivol/better-dating-proxy:latest
@@ -100,7 +123,7 @@ services:
           cpus: '0.50'
           memory: 50M
         reservations:
-          cpus: '0.25'
+          cpus: '0.15'
           memory: 20M
       restart_policy:
         condition: any
@@ -115,7 +138,9 @@ services:
         mode: 0600
       - source: dhparam
         mode: 0644
+
 volumes:
+  better-dating-cache-volume:
   better-dating-data-volume:
   better-dating-postgres-shm-volume:
     driver_opts:
@@ -123,8 +148,8 @@ volumes:
       device: tmpfs
       o: "size=256m"
   better-dating-reverse-proxy-logs-volume:
-  better-dating-ui-logs-volume:
   better-dating-backend-logs-volume:
+
 secrets:
   ssl_certificate:
     external: true

@@ -1,3 +1,5 @@
+-- First stage profile information tables
+
 CREATE TABLE accepted_terms (
 	profile_id uuid NOT NULL,
 	last_date_accepted timestamp NOT NULL,
@@ -58,6 +60,8 @@ COMMENT ON COLUMN profile_evaluation.target_profile_id IS 'Profile which is eval
 COMMENT ON COLUMN profile_evaluation."date" IS 'Date of evaluation';
 COMMENT ON COLUMN profile_evaluation.evaluation IS '1 to 10 evaluation mark';
 
+-- Track email changes in profiles for possible (possession issues) troubleshooting
+
 CREATE TABLE email_change_history (
 	id SERIAL PRIMARY KEY,
 	profile_id uuid NOT NULL,
@@ -66,18 +70,32 @@ CREATE TABLE email_change_history (
 );
 
 CREATE FUNCTION save_email_change_history()
-    RETURNS trigger
+	RETURNS TRIGGER
 AS $$
 BEGIN
-    IF NEW.email <> OLD.email THEN
-        INSERT INTO email_change_history (profile_id, email, changed_on) VALUES (OLD.id, OLD.email, now());
-    END IF;
-    RETURN NULL;
+	IF NEW.email <> OLD.email THEN
+		INSERT INTO email_change_history (profile_id, email, changed_on) VALUES (OLD.id, OLD.email, now());
+	END IF;
+	RETURN NULL;
 END;
 $$ LANGUAGE PLPGSQL;
 
 CREATE TRIGGER save_email_change_history_trigger
-    AFTER UPDATE OF email
-    ON email FOR EACH ROW
-    EXECUTE PROCEDURE save_email_change_history();
+	AFTER UPDATE of email
+	ON email FOR EACH ROW
+	EXECUTE PROCEDURE save_email_change_history();
 
+-- Email verification + one time passwords tokens support
+CREATE TABLE expiring_token (
+	profile_id uuid NOT NULL,
+	encoded_value varchar(255) NOT NULL,
+	expires timestamp without time zone NOT NULL,
+	type varchar(30) NOT NULL,
+	CONSTRAINT expiring_token_pk PRIMARY KEY (profile_id, type),
+	CONSTRAINT expiring_token_fk FOREIGN KEY (profile_id) REFERENCES email(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Use more secure email verification token (see expiring_token)
+DROP TABLE email_verification_token;
+
+-- TODO Introduce user roles

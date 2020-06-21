@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.*
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.core.AuthenticationException
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
@@ -21,7 +23,7 @@ import java.time.ZoneOffset
 val LOG: Logger = LoggerFactory.getLogger(ErrorResponseEntity::class.java)
 suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResponse {
     val errorEntity = when (e) {
-        is EmailNotFoundException -> ErrorResponseEntity(request, BAD_REQUEST, "Email not found")
+        is EmailNotFoundException -> ErrorResponseEntity(request, NOT_FOUND, "No such email")
         is NoSuchTokenException -> ErrorResponseEntity(request, BAD_REQUEST, "No such token")
         is ExpiredTokenException -> ErrorResponseEntity(request, BAD_REQUEST, "Expired token")
         is InvalidTokenException -> ErrorResponseEntity(request, BAD_REQUEST, "Invalid token format")
@@ -58,6 +60,7 @@ suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResp
                 ErrorResponseEntity(request, BAD_REQUEST, e.message)
             }
         }
+        is AuthenticationException -> ErrorResponseEntity(request, UNAUTHORIZED, UNAUTHORIZED.reasonPhrase)
         else -> {
             LOG.error("Internal error", e)
             ErrorResponseEntity(request, INTERNAL_SERVER_ERROR, "Internal error")
@@ -76,7 +79,7 @@ private fun constraintViolationToResponse(thirdCause: ConstraintViolationExcepti
 }
 
 class ErrorResponseEntity(
-        val timestamp: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC),
+        val timestamp: LocalDateTime = now(),
         val path: String,
         val status: Int, val error: String, val message: String, val details: Map<String, String> = emptyMap()
 ) {

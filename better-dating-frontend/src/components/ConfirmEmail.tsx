@@ -1,29 +1,50 @@
 import * as React from "react";
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { Form } from 'react-final-form';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
+import { Typography, Button, CircularProgress } from '@material-ui/core';
+import { postData, firstValueIfArray } from '../utils';
+import { CenteredSpinner } from './common';
+import { profile } from '../components/navigation/NavigationUrls';
 import * as Messages from './Messages';
-import { expiredTokenMessage } from '../Messages';
-import SpinnerAdornment from './SpinnerAdornment';
+import { expiredTokenMessage, tokenName } from '../Messages';
+import { SpinnerAdornment } from './common';
 
 type Props = {
-	token: string;
-	verified: boolean;
 	onTokenVerified: () => void;
-	errorVerifying?: string;
 	onErrorVerifying: (error: string) => void;
 	onRequestAnotherValidationToken: (prevToken: string) => any;
 }
 
-const ConfirmEmail = ({ token, onTokenVerified, verified, errorVerifying, onErrorVerifying, onRequestAnotherValidationToken }: Props) => {
-	if (verified) {
-		onTokenVerified();
-	} else if (errorVerifying) {
-		onErrorVerifying(errorVerifying);
+const ConfirmEmail = ({ onTokenVerified, onErrorVerifying, onRequestAnotherValidationToken }: Props) => {
+	const router = useRouter();
+	const token = firstValueIfArray(router.query[tokenName]);
+	const [hasExpiredToken, setHasExpiredToken] = React.useState<boolean | null>(null);
+
+	React.useEffect(() => {
+		const verifyEmail = async (token: string) => {
+			try {
+				await postData(`/api/user/email/verify`, { token });
+				return { verified: true };
+			} catch (error) {
+				return { verified: false, errorVerifying: error.message };
+			}
+		};
+
+		verifyEmail(token).then(({ verified, errorVerifying }) => {
+			if (verified) {
+				onTokenVerified();
+				setTimeout(() => router.push(profile), 5000);
+			} else if (errorVerifying) {
+				onErrorVerifying(errorVerifying);
+				setHasExpiredToken(errorVerifying === expiredTokenMessage);
+			}
+		});
+	}, [router]);
+
+	if (hasExpiredToken === null) {
+		return <CenteredSpinner />;
 	}
 
-	const hasExpiredToken = errorVerifying === expiredTokenMessage;
 	const requestAnotherValidationTokenButton = hasExpiredToken ? (
 		<Form
 			onSubmit={() => onRequestAnotherValidationToken(token)}
@@ -36,18 +57,12 @@ const ConfirmEmail = ({ token, onTokenVerified, verified, errorVerifying, onErro
 			)}
 		/>
 	) : null;
-	const backToMain = (
-		<Link href="/">
-			<Button variant="contained" color="primary">
-				{Messages.backToMain}
-			</Button>
-		</Link>
-	);
+
 	return (
 		<div style={{ height: '120px', textAlign: 'center', marginTop: '15px' }}>
 			<Typography variant="h3">{Messages.emailVerification}</Typography>
 			<div style={{ margin: '10px' }} />
-			{requestAnotherValidationTokenButton || backToMain}
+			{requestAnotherValidationTokenButton}
 		</div>
 	);
 }

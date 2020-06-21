@@ -14,7 +14,7 @@ import * as Messages from '../Messages';
 const currentDateLocale = ru;
 
 // Дата рождения (год-месяц-день)
-const Birthday = () => (
+export const Birthday = () => (
     <Grid item>
         <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
             <MuiPickersUtilsProvider locale={currentDateLocale} utils={DateFnsUtils}>
@@ -36,5 +36,3 @@ const Birthday = () => (
         </Paper>
     </Grid>
 );
-
-export default Birthday;

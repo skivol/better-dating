@@ -5,7 +5,7 @@ import * as Messages from '../Messages';
 import RatingAdapter from './RatingAdapter';
 
 // Личная оценка состояния физического и психического здоровья (1 - 10)
-const PersonalHealthEvaluation = () => (
+export const PersonalHealthEvaluation = () => (
     <Field
         name="personalHealthEvaluation"
         label={Messages.personalHealthEvaluation}
@@ -13,5 +13,3 @@ const PersonalHealthEvaluation = () => (
         validate={validatePersonalHealthEvaluation}
     />
 );
-
-export default PersonalHealthEvaluation;

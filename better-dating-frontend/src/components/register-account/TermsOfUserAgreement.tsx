@@ -12,7 +12,7 @@ import { faBookOpen } from '@fortawesome/free-solid-svg-icons';
 import * as Messages from '../Messages';
 import TermsOfUsageDialog from './TermsOfUsageDialog';
 
-export default function TermsOfUserAgreement({ input: { onChange, value }, label, ...rest }: any) {
+export function TermsOfUserAgreement({ input: { onChange, value }, label, ...rest }: any) {
     const [termsOfUsageDialogIsOpen, setTermsOfUsageDialogIsOpen] = React.useState(false);
     const openUsageTermsDialog = () => setTermsOfUsageDialogIsOpen(true);
     const handleClose = () => setTermsOfUsageDialogIsOpen(false);

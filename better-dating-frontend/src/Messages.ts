@@ -8,8 +8,6 @@ export const expiredTokenMessage = "Expired token";
 export const tokenName = 'токен';
 export const resolveTokenMessage = (message: string) => {
     switch (message) {
-        case "Invalid token format":
-            return "Неправильный формат токена проверки.";
         case "No such token":
             return "Токен не найден.";
         case expiredTokenMessage:
@@ -21,7 +19,6 @@ export const resolveTokenMessage = (message: string) => {
 
 export const requiredField = 'обязательное поле';
 export const invalidFormat = 'неправильный формат';
-export const alreadyPresentEmail = 'почта уже существует';
 export const minValue = (minValue: number) => `наименьшее допустимое значение ${minValue}`;
 export const maxValue = (maxValue: number) => `наибольшее допустимое значение ${maxValue}`;
 export const shouldBeOlderThan12 = 'нужно быть старше 12 лет';
@@ -39,3 +36,4 @@ export const didBeforeButDoNotKnowIfGoingToDoInFuture = 'Делал(а) рань
 export const didBeforeNotGoingInFuture = 'Делал(а) раньше, не собираюсь в будущем';
 export const coupleTimesInYearOrMoreSeldom = 'Несколько раз в год или реже';
 
+export const errorLogin = 'Ошибка при попытке входа';

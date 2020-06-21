@@ -1,3 +1,3 @@
 package ua.betterdating.backend
 
-class PasswordfilesProperties(val mail: String, val db: String)
+class PasswordFiles(val mail: String, val db: String)

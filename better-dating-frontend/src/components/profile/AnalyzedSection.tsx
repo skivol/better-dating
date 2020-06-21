@@ -3,11 +3,7 @@ import {
     Grid,
     Paper,
 } from '@material-ui/core';
-import { analyze } from './Analysis';
-
-enum AnalysisType { // use enum ?
-    bmi
-}
+import { analyze } from '.';
 
 interface AnalyzedSectionProps {
     id?: string;
@@ -17,7 +13,7 @@ interface AnalyzedSectionProps {
     children: React.ReactNode | Array<React.ReactNode>;
 }
 
-const AnalyzedSection = ({ children, values, id, visible, type }: AnalyzedSectionProps) => {
+export const AnalyzedSection = ({ children, values, id, visible, type }: AnalyzedSectionProps) => {
     if (!visible) {
         return (
             <>
@@ -37,5 +33,3 @@ const AnalyzedSection = ({ children, values, id, visible, type }: AnalyzedSectio
         </Grid>
     )
 };
-
-export default AnalyzedSection;

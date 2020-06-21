@@ -1,4 +1,4 @@
-export default interface ProfileFormData {
+export interface ProfileFormData {
     email?: string;
     gender?: string;
     bday?: string;

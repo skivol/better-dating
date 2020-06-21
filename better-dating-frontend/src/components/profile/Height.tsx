@@ -9,7 +9,7 @@ import { validateHeight } from '../../utils/ValidationUtils';
 import * as Messages from '../Messages';
 
 // Рост (см)
-const Height = () => (
+export const Height = () => (
     <Grid item>
         <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
             <TextField
@@ -33,5 +33,3 @@ const Height = () => (
         </Paper>
     </Grid>
 );
-
-export default Height;

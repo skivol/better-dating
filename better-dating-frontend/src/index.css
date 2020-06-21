@@ -89,6 +89,17 @@ input:-webkit-autofill {
   max-width: 892px !important; /* MuiContainer-maxWidthLg also has it */
 }
 
+.u-max-height {
+  max-height: 500px;
+}
+
+.u-overflow-y-auto {
+  overflow-y: auto;
+}
+.u-overflow-x-hidden {
+  overflow-x: hidden;
+}
+
 .c-updated-time-paper {
   max-width: 275px;
   padding: 20px;
@@ -157,4 +168,8 @@ input:-webkit-autofill {
 
 .u-color-green {
   color: green !important; /* MuiButtonBase-root, MuiToggleButton-root have it as well */
+}
+
+.MuiAlert-message p {
+  margin-block-start: 0;
 }

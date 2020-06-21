@@ -2,8 +2,8 @@
 .env-dev
 .env-prod
 .db-password
-.db-prod-password
 .mail-password
+.shell-variables
 
 # Backups
 backup/

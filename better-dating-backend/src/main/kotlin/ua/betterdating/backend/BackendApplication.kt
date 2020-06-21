@@ -1,10 +1,12 @@
 package ua.betterdating.backend
 
-import org.springframework.boot.autoconfigure.data.r2dbc.PostgresqlR2dbcProperties
+import io.r2dbc.spi.ConnectionFactoryOptions
+import org.springframework.boot.autoconfigure.r2dbc.ConnectionFactoryOptionsBuilderCustomizer
+import org.springframework.boot.autoconfigure.r2dbc.R2dbcProperties
 import org.springframework.fu.kofu.flyway.flyway
 import org.springframework.fu.kofu.freemarker.freeMarker
 import org.springframework.fu.kofu.mail.mail
-import org.springframework.fu.kofu.r2dbc.r2dbcPostgresql
+import org.springframework.fu.kofu.r2dbc.r2dbc
 import org.springframework.fu.kofu.reactiveWebApplication
 import java.io.File
 import java.time.Duration
@@ -15,24 +17,26 @@ val app = reactiveWebApplication {
 	enable(webConfig)
 
 	if (profiles.contains("development") || profiles.contains("production")) {
-		val passwordfilesProperties = configurationProperties<PasswordfilesProperties>(prefix = "passwordfiles")
+		val passwordFiles = configurationProperties<PasswordFiles>(prefix = "password-files")
 		mail {
-			password = readPassword(profiles, passwordfilesProperties.mail)
+			password = readPassword(profiles, passwordFiles.mail)
 		}
 
-		val dbPassword = readPassword(profiles, passwordfilesProperties.db)
-		val postgresqlR2dbcProperties = configurationProperties<PostgresqlR2dbcProperties>(prefix = "datasource")
-		r2dbcPostgresql {
-			host = postgresqlR2dbcProperties.host
-			database = postgresqlR2dbcProperties.database
-			username = postgresqlR2dbcProperties.username
+		val dbPassword = readPassword(profiles, passwordFiles.db)
+		val r2dbcProperties = configurationProperties<R2dbcProperties>(prefix = "datasource")
+		r2dbc {
+			url = r2dbcProperties.url
+			username = r2dbcProperties.username
 			password = dbPassword
-			connectTimeout = Duration.of(30, ChronoUnit.SECONDS)
+            optionsCustomizer = listOf(ConnectionFactoryOptionsBuilderCustomizer {
+				it.option(ConnectionFactoryOptions.CONNECT_TIMEOUT, Duration.of(30, ChronoUnit.SECONDS))
+			})
+			transactional = true
 		}
 
 		flyway {
-			url = "jdbc:postgresql://${postgresqlR2dbcProperties.host}/${postgresqlR2dbcProperties.database}"
-			user = postgresqlR2dbcProperties.username
+			url = r2dbcProperties.url.replace("r2dbc:", "jdbc:")
+			user = r2dbcProperties.username
 			password = dbPassword
 		}
 	}

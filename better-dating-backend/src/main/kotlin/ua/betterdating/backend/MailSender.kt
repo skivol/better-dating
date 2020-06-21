@@ -33,5 +33,5 @@ class SmotrinyMailSenderImpl(
 }
 
 object NoOpMailSender: SmotrinyMailSender {
-	override fun send(to: String, subject: String, body: String) { /* no-op */ }
+	override fun send(to: String, subject: String, body: String) { /* no-op */ println(body) }
 }

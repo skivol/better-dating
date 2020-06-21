@@ -5,7 +5,7 @@ export interface SpinnerAdornmentProps {
     classes: any;
     theme: Theme;
 }
-const SpinnerAdornment = withTheme(withStyles({
+export const SpinnerAdornment = withTheme(withStyles({
     root: {
         marginLeft: 5
     }
@@ -16,5 +16,3 @@ const SpinnerAdornment = withTheme(withStyles({
         size={20}
     />
 )));
-
-export default SpinnerAdornment;

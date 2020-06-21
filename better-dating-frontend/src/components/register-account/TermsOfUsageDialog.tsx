@@ -10,10 +10,9 @@ import {
 } from '@material-ui/core';
 
 import * as Messages from '../Messages';
-import ReactMarkdown from 'react-markdown';
+import { ReactMarkdownMaterialUi } from '../../utils';
 // @ts-ignore
-import fullTextOfUserAgreement from './UserAgreement.md';
-// TODO investigate whether react-markdown could be left out of the client bundle
+import fullTextOfUserAgreement from '../user-agreement/UserAgreement.md';
 
 export interface Props {
     handleClose: () => void;
@@ -42,14 +41,13 @@ const TermsOfUsageDialog = ({ handleClose, handleConfirm, handleDecline, open }:
             aria-describedby="scroll-dialog-description"
             PaperProps={{ className: "u-max-width-800px" }}
         >
-            <DialogTitle id="scroll-dialog-title">{Messages.userAgreement}</DialogTitle>
             <DialogContent dividers={false}>
                 <DialogContentText
                     id="scroll-dialog-description"
                     ref={descriptionElementRef}
                     tabIndex={-1}
                 />
-                <ReactMarkdown source={fullTextOfUserAgreement} />
+                <ReactMarkdownMaterialUi source={fullTextOfUserAgreement} />
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleDecline} variant="contained">

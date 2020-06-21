@@ -5,17 +5,14 @@ import org.valiktor.validate
 import java.time.LocalDate
 import java.util.*
 
-fun validEmail(email: String?): String {
-    EmailValue(email)
-    return email!!;
-}
-data class EmailValue(val email: String?) {
+class EmailValue(val email: String) {
     init {
         validate(this) {
-            validate(EmailValue::email).isNotNull().isEmail()
+            validate(EmailValue::email).isEmail()
         }
     }
 }
+
 data class EmailStatus(val used: Boolean)
 class CreateProfileRequest(
         val acceptTerms: Boolean,
@@ -35,13 +32,14 @@ class CreateProfileRequest(
         intimateRelationsOutsideOfMarriage: Recurrence?,
         pornographyWatching: Recurrence?,
         personalHealthEvaluation: Int
-): Profile(null, email, gender, birthday, height, weight, physicalExercise, smoking, alcohol, computerGames, gambling, haircut, hairColoring, makeup, intimateRelationsOutsideOfMarriage, pornographyWatching, personalHealthEvaluation) {
+) : Profile(null, email, gender, birthday, height, weight, physicalExercise, smoking, alcohol, computerGames, gambling, haircut, hairColoring, makeup, intimateRelationsOutsideOfMarriage, pornographyWatching, personalHealthEvaluation) {
     init {
         validate(this) {
             validate(CreateProfileRequest::acceptTerms).isTrue()
         }
     }
 }
+
 open class Profile(
         var id: UUID?,
         val email: String,
@@ -75,9 +73,11 @@ open class Profile(
         }
     }
 }
+
 enum class Gender {
     female, male
 }
+
 enum class ActivityType {
     physicalExercise,
     smoking,
@@ -90,6 +90,7 @@ enum class ActivityType {
     intimateRelationsOutsideOfMarriage,
     pornographyWatching
 }
+
 enum class Recurrence {
     neverPurposefully,
     neverDidButDoNotKnowIfGoingToDoInFuture,
@@ -102,22 +103,4 @@ enum class Recurrence {
     coupleTimesInWeek,
     everyDay,
     severalTimesInDay
-}
-
-data class VerifyEmailRequest(val token: String)
-
-// https://docs.oracle.com/javase/8/docs/api/java/util/Base64.html
-class Token(val id: UUID) {
-    fun base64Value(): String {
-        return Base64.getUrlEncoder().encodeToString("$id".toByteArray())
-    }
-}
-
-fun parseToken(encodedToken: String): Token {
-    try {
-        val decodedToken = String(Base64.getUrlDecoder().decode(encodedToken))
-        return Token(id = UUID.fromString(decodedToken))
-    } catch (e: Exception) {
-        throw InvalidTokenException()
-    }
 }
