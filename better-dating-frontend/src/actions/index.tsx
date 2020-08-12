@@ -63,7 +63,7 @@ export const performLogin = (token: string): ThunkResult<void> => async (dispatc
 
 export const updateAccount = (values: any, emailChanged: boolean | undefined, doAfter: () => void): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
-		await putData(`/api/user/profile/${values.id}`, toBackendProfileValues(values));
+		await putData(`/api/user/profile`, toBackendProfileValues(values));
 		const successMessage = emailChanged ? Messages.successUpdatingProfileAndChangingEmailMessage : Messages.successUpdatingProfileMessage;
 		dispatch(openSnackbar(successMessage, SnackbarVariant.success));
 		doAfter();

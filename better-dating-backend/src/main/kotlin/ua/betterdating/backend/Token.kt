@@ -32,7 +32,7 @@ fun generateUrlSafeToken(): String {
     return base64(bytes)
 }
 
-suspend fun randomDelay() = delay(500L + lazyRandom.nextInt(1_000))
+suspend fun randomDelay(min: Long, maxExtra: Int) = delay(min + lazyRandom.nextInt(maxExtra))
 
 fun now(): LocalDateTime = LocalDateTime.now(ZoneOffset.UTC)
 fun expiresValue(): LocalDateTime = now().plusDays(1)

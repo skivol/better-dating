@@ -19,7 +19,6 @@ const logoStyle: React.CSSProperties = {
 
 const titleWithDescriptionColumn: React.CSSProperties = {
 	flexBasis: '75%',
-	marginTop: '10px',
 };
 
 const Header = () => (

@@ -1,0 +1,42 @@
+package ua.betterdating.backend.configuration
+
+import io.r2dbc.spi.ConnectionFactoryOptions
+import org.springframework.boot.autoconfigure.r2dbc.ConnectionFactoryOptionsBuilderCustomizer
+import org.springframework.boot.autoconfigure.r2dbc.R2dbcProperties
+import org.springframework.fu.kofu.configuration
+import org.springframework.fu.kofu.flyway.flyway
+import org.springframework.fu.kofu.r2dbc.r2dbc
+import ua.betterdating.backend.*
+import java.time.Duration
+import java.time.temporal.ChronoUnit
+
+fun dataConfig(emailRepository: EmailRepository, dbPasswordFile: String) = configuration {
+    val dbPassword = readPassword(profiles, dbPasswordFile)
+    val r2dbcProperties = configurationProperties<R2dbcProperties>(prefix = "datasource")
+    r2dbc {
+        url = r2dbcProperties.url
+        username = r2dbcProperties.username
+        password = dbPassword
+        optionsCustomizer = listOf(ConnectionFactoryOptionsBuilderCustomizer {
+            it.option(ConnectionFactoryOptions.CONNECT_TIMEOUT, Duration.of(30, ChronoUnit.SECONDS))
+        })
+        transactional = true
+    }
+
+    flyway {
+        url = r2dbcProperties.url.replace("r2dbc:", "jdbc:")
+        user = r2dbcProperties.username
+        password = dbPassword
+    }
+
+    beans {
+        bean { emailRepository }
+        bean<ExpiringTokenRepository>()
+        bean<AcceptedTermsRepository>()
+        bean<ProfileInfoRepository>()
+        bean<HeightRepository>()
+        bean<WeightRepository>()
+        bean<ActivityRepository>()
+        bean<ProfileEvaluationRepository>()
+    }
+}

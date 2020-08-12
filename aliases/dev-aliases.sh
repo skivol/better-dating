@@ -23,8 +23,8 @@ bd-ui-build() {
 alias bd-ui-docker-build='wd proj-ui && docker build -t skivol/better-dating-ui:latest . && docker image prune -f --filter label=stage=builder'
 alias bd-ui-docker-run='docker run --rm --name better-dating-ui -d -p 8080:80 skivol/better-dating-ui:latest'
 alias bd-ui-docker-stop='docker stop better-dating-ui'
-alias bd-ui-view='wslview http://localhost:3000/предложение'
-alias bd-prod-view='wslview https://смотрины.укр'
+alias bd-ui-view='firefox http://localhost:3000/предложение'
+alias bd-prod-view='firefox https://смотрины.укр'
 alias bd-backend-docker-build='wd proj-backend && docker build -t skivol/better-dating-backend:latest .'
 alias bd-backend-docker-run='docker run --name better-dating-backend -d -p 8080:8080 skivol/better-dating-backend:latest'
 alias bd-backend-docker-start='docker start better-dating-backend'
@@ -50,6 +50,10 @@ bd-backend-server-impl() {
 		wd proj
 		export $(grep -v "^#" .env-dev | xargs)
 		programArgs=$(echo "--spring.profiles.active=$1 --spring.mail.username=$BD_MAIL_USER \
+							--spring.security.oauth2.client.registration.facebook.client-id=$FACEBOOK_CLIENT_ID \
+							--spring.security.oauth2.client.registration.facebook.client-secret=$FACEBOOK_CLIENT_SECRET \
+							--spring.security.oauth2.client.registration.vk.client-id=$VK_CLIENT_ID \
+							--spring.security.oauth2.client.registration.vk.client-secret=$VK_CLIENT_SECRET \
 							--password-files.mail=$BD_MAIL_PASSWORD_FILE \
 							--datasource.username=$BD_DB_USER \
 							--password-files.db=$BD_DB_PASSWORD_FILE" | tr -d '\t'); # tabs really mess up spring args

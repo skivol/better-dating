@@ -31,7 +31,7 @@ class AuthHandler(
         val validEmail = request.awaitBody<EmailValue>()
         val profile = emailRepository.findByEmail(validEmail.email)
         if (profile == null || !profile.verified) {
-            randomDelay() // let's not reveal that email doesn't exist in the system so easily
+            randomDelay(500, 4_000) // let's not reveal that email doesn't exist in the system so easily
             return okEmptyJsonObject()
         }
 
@@ -51,7 +51,7 @@ class AuthHandler(
         return okEmptyJsonObject()
     }
 
-    suspend fun login(request: ServerRequest): ServerResponse { // consider filter or hacking into form login
+    suspend fun login(request: ServerRequest): ServerResponse {
         val decodedToken = request.awaitBody<Token>().decode()
         val dbPassword = expiringTokenRepository.findByProfileIdAndType(decodedToken.profileId, ONE_TIME_PASSWORD)
                 ?: throwBadCredentials()
@@ -75,14 +75,22 @@ class AuthHandler(
         return okEmptyJsonObject()
     }
 
+    /**
+     * see also AuthenticationWebFilter::onAuthenticationSuccess
+     */
     suspend fun authenticate(decodedToken: DecodedToken, request: ServerRequest) {
-        val userDetails = User(decodedToken.profileId.toString(), decodedToken.tokenValue, listOf(SimpleGrantedAuthority("ROLE_USER")))
-        val auth = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
+        val auth = createAuth(decodedToken.profileId.toString())
         SecurityContextHolder.getContext().authentication = auth
         serverSecurityContextRepository.save(request.exchange(), SecurityContextHolder.getContext()).awaitFirstOrNull()
     }
 
-    private fun throwBadCredentials(): Nothing {
+    private suspend fun throwBadCredentials(): Nothing {
+        randomDelay(500, 4_000)
         throw BadCredentialsException("1000")
     }
+}
+
+fun createAuth(profileId: String): UsernamePasswordAuthenticationToken {
+    val userDetails = User(profileId, "", listOf(SimpleGrantedAuthority("ROLE_USER")))
+    return UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
 }

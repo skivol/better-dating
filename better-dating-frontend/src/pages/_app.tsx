@@ -42,7 +42,7 @@ const BetterDatingApp = ({ Component, pageProps }: AppProps) => {
           path="/"
           published="2019-07-26"
         />
-        <Container className="u-padding-10px u-max-width-892px">
+        <Container className="u-padding-10px u-max-width-892px" style={{ background: 'white', borderRadius: '10px' }}>
           <Component {...pageProps} />
           <Footer />
           <StatusSnackbar />

@@ -14,3 +14,12 @@ BD_MAIL_PASSWORD_FILE==
 
 # used by frontend server
 BACKEND_HOST=http://localhost:8080
+
+# OAuth2 credentials
+## Facebook
+FACEBOOK_CLIENT_ID=
+FACEBOOK_CLIENT_SECRET=
+
+## Vk
+VK_CLIENT_ID=
+VK_CLIENT_SECRET=

@@ -23,16 +23,34 @@ spring:
     # 30 days
     timeout: 2592000
     store-type: redis
-#    redis:
-#      namespace: "spring:session"
-# TODO remove redis config because of "not binded" exception ??
+  session-redis:
+    namespace: "spring:session"
+  security:
+    oauth2:
+      client:
+        provider:
+          vk:
+            authorization-uri: https://oauth.vk.com/authorize
+            token-uri: https://oauth.vk.com/access_token
+        registration:
+          facebook:
+            redirect-uri: "{baseUrl}/api/auth/login/oauth2/code/{registrationId}"
+            scope: email
+          vk:
+            redirect-uri: "{baseUrl}/api/auth/login/oauth2/code/{registrationId}"
+            scope: email
+            authorization-grant-type: authorization_code
+            client-authentication-method: basic
+            client-name: vk
 
 logging:
   file: ./logs/better-dating-java.log
 
 ---
 spring:
-  profiles: production
+  config:
+    activate:
+      on-profile: production
 server:
   netty:
     accesslog: /logs/better-dating_backend_access_log.log
@@ -41,12 +59,16 @@ logging:
 
 ---
 spring:
-  profiles: development | test
+  config:
+    activate:
+      on-profile: development | test
 datasource:
   url: r2dbc:postgresql://localhost/postgres
 ---
 spring:
-  profiles: test
+  config:
+    activate:
+      on-profile: test
 password-files:
   db: password.txt
   mail: password.txt

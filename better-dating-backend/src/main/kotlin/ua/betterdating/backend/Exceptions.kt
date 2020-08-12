@@ -92,3 +92,6 @@ class EmailNotFoundException : RuntimeException()
 class NoSuchTokenException : RuntimeException()
 class ExpiredTokenException : RuntimeException()
 class InvalidTokenException : RuntimeException()
+
+class EmailWasNotProvidedException : AuthenticationException("Email was not provided from user info endpoint")
+class EmailNotRegisteredException(val email: String? = null) : AuthenticationException("Profile with this email is not registered")

@@ -50,7 +50,9 @@ export const firstStageFlowAlt = 'Диаграмма схематически о
 
 export const register = 'Зарегистрироваться';
 export const mail = 'Почта';
-export const enter = 'Войти';
+export const enterUsingEmail = 'Вход через Почту';
+export const enterUsingFacebook = 'Вход через Facebook';
+export const enterUsingVk = 'Вход через ВКонтакте';
 export const willBeHardButFun = 'Будет, вероятно, трудно, но интересно, полезно и по делу =) (15 обязательных и 2 добровольных на первом этапе поля). !!Чем раньше на это обратить внимание, тем легче улучшить ситуацию!!';
 
 export const userAgreement = 'Пользовательское соглашение';

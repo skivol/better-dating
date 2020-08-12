@@ -1,5 +1,4 @@
 import * as React from "react";
-import Link from 'next/link';
 import clsx from 'clsx';
 import {
 	Grid,
@@ -13,19 +12,16 @@ import {
 	Dialog,
 	CardMedia,
 } from '@material-ui/core';
-import { Form } from 'react-final-form';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationCircle, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
-import { toPage, registerAccount } from './navigation/NavigationUrls';
 import Header from './toplevel/Header';
 import { getData } from '../utils';
 import { updated } from '../constants';
-import { Email } from './profile';
-import { SpinnerAdornment } from './common';
 import * as Messages from './Messages';
+import { LoginBox } from './LoginBox';
 // @ts-ignore
 import FirstStageFlow from './img/Первый_этап.png';
 
@@ -60,11 +56,7 @@ const DialogWithFirstStageFlowImage = (handleClose: () => void) => (
 	</Dialog>
 );
 
-export type IDispatchProps = {
-	onLoginLink: (email: string) => any;
-};
-
-export const Proposal = ({ onLoginLink }: IDispatchProps) => {
+export const Proposal = () => {
 	const classes = useStyles();
 	const [dialog, setDialog] = React.useState<any>(null);
 	const closeDialog = () => setDialog(null);
@@ -201,46 +193,9 @@ export const Proposal = ({ onLoginLink }: IDispatchProps) => {
 						</Grid>
 					</Paper>
 				</Grid>
-				<Grid item>
-					<Form
-						onSubmit={(values) => onLoginLink(values.email)}
-						render={({ handleSubmit, submitting, values }) => {
-							return (
-								<form onSubmit={handleSubmit}>
-									<Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
-										<Email label={Messages.mail} />
-										<Grid container justify="center" alignItems="center" className="u-height-120px">
-											<Button
-												className={classes.button}
-												variant="contained"
-												color="primary"
-												type="submit"
-												disabled={submitting}
-												startIcon={submitting ? (<SpinnerAdornment />) : (<FontAwesomeIcon icon={faSignInAlt} />)}
-											>
-												<Typography>
-													{Messages.enter}
-												</Typography>
-											</Button>
-											<Link href={{ pathname: toPage(registerAccount), query: { email: values.email } }} as={registerAccount}>
-												<Button
-													className={classes.button}
-													variant="text"
-													color="secondary"
-													startIcon={<FontAwesomeIcon icon={faUserPlus} />}
-												>
-													<Typography>
-														{Messages.register}
-													</Typography>
-												</Button>
-											</Link>
-										</Grid>
-									</Paper>
-								</form>
-							);
-						}}
-					/>
-				</Grid>
+
+				<LoginBox />
+
 				<Grid item>
 					<Paper className="u-max-width-650px u-center-horizontally">
 						<Grid container direction="row" className="u-padding-10px u-margin-10px">

@@ -1,9 +1,13 @@
 package ua.betterdating.backend
 
+import io.r2dbc.spi.Row
+import io.r2dbc.spi.RowMetadata
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitOneOrNull
 import org.springframework.r2dbc.core.awaitRowsUpdated
+import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -25,53 +29,61 @@ fun String.toRecurrence(): Recurrence = Recurrence.valueOf(this)
 suspend fun DatabaseClient.insert(tableName: String, fields: List<Pair<String, Any>>): Int {
     val columns = fields.joinToString(separator = ", ") { it.first.camelToSnakeCase() }
     val values = fields.joinToString(separator = ", ") { ":${it.first}" }
-    return fields.fold (
-        sql("INSERT INTO $tableName($columns) VALUES($values)"),
-        { acc, curr -> acc.bind(curr.first, curr.second)}
-    ).fetch().awaitRowsUpdated()
+    return fields.fold(
+            sql("INSERT INTO $tableName($columns) VALUES($values)"),
+            { acc, curr -> acc.bind(curr.first, curr.second) }
+    ).fetch().rowsUpdated().awaitSingle()
 }
 
 fun assignmentsOf(values: List<Pair<String, Any>>, s: String) = values.joinToString(separator = s) {
     "${it.first.camelToSnakeCase()} = :${it.first}"
 }
 
-suspend fun DatabaseClient.update(tableName: String, fields: List<Pair<String, Any>>, where: List<Pair<String, Any>>): Int {
+fun DatabaseClient.updateMono(tableName: String, fields: List<Pair<String, Any>>, where: List<Pair<String, Any>>): Mono<Int> {
     val columns = assignmentsOf(fields, ", ")
     val whereClause = assignmentsOf(where, " AND ")
-    return (fields + where).fold (
+    return (fields + where).fold(
             sql("UPDATE $tableName SET $columns WHERE $whereClause"),
-            { acc, curr -> acc.bind(curr.first, curr.second)}
-    ).fetch().awaitRowsUpdated()
+            { acc, curr -> acc.bind(curr.first, curr.second) }
+    ).fetch().rowsUpdated()
 }
+
+suspend fun DatabaseClient.update(tableName: String, fields: List<Pair<String, Any>>, where: List<Pair<String, Any>>): Int = updateMono(tableName, fields, where).awaitSingle()
 
 suspend fun DatabaseClient.delete(tableName: String, where: List<Pair<String, Any>>): Int {
     val whereClause = assignmentsOf(where, " AND ")
-    return where.fold (
+    return where.fold(
             sql("DELETE FROM $tableName WHERE $whereClause"),
-            { acc, curr -> acc.bind(curr.first, curr.second)}
+            { acc, curr -> acc.bind(curr.first, curr.second) }
     ).fetch().awaitRowsUpdated()
 }
 
 // TODO use spring-data again when available
-// TODO figure out why cast works in one and not in other places ??
-class EmailRepository(private val client: DatabaseClient) {
+val emailMapper: (Row, RowMetadata) -> Email = { row, _ -> Email(row["email"] as String, row["verified"] as Boolean, row["id"] as UUID) }
+
+class EmailRepository(clientSupplier: Lazy<DatabaseClient>) {
+    private val client by clientSupplier
     private val selectFromEmail = "SELECT * FROM email"
 
-    suspend fun findByEmail(email: String) = client.sql("$selectFromEmail WHERE email = :email")
-            .bind("email", email).fetch().one().cast(Email::class.java).awaitFirstOrNull()
+    fun findByEmailMono(email: String) = client.sql("$selectFromEmail WHERE email = :email")
+            .bind("email", email).map(emailMapper).one()
+
+    suspend fun findByEmail(email: String) = findByEmailMono(email).awaitFirstOrNull()
 
     suspend fun save(email: Email) = client.insert("email", listOf(
-        "id" to email.id, "email" to email.email, "verified" to email.verified
+            "id" to email.id, "email" to email.email, "verified" to email.verified
     ))
 
-    suspend fun findById(id: UUID) = client.sql("$selectFromEmail WHERE id = :id")
+    suspend fun findById(id: UUID): Email? = client.sql("$selectFromEmail WHERE id = :id")
             .bind("id", id)
-            .map { row, _ -> Email(row["email"] as String, row["verified"] as Boolean, row["id"] as UUID) }
+            .map(emailMapper)
             .awaitOneOrNull()
 
-    suspend fun update(email: Email) = client.update(
-        "email", listOf("email" to email.email, "verified" to email.verified), listOf("id" to email.id)
+    fun updateMono(email: Email) = client.updateMono(
+            "email", listOf("email" to email.email, "verified" to email.verified), listOf("id" to email.id)
     )
+
+    suspend fun update(email: Email) = updateMono(email).awaitFirstOrNull()
 }
 
 class ExpiringTokenRepository(private val client: DatabaseClient) {
@@ -203,9 +215,9 @@ class ProfileEvaluationRepository(private val client: DatabaseClient) {
 
     suspend fun findLatestHealthEvaluationByProfileId(profileId: UUID) = client.sql(
             "SELECT source_profile_id, target_profile_id, date, evaluation, comment " +
-                     "FROM profile_evaluation " +
-                     "WHERE source_profile_id = :profileId AND target_profile_id = :profileId  " +
-                     "ORDER BY date DESC LIMIT 1"
+                    "FROM profile_evaluation " +
+                    "WHERE source_profile_id = :profileId AND target_profile_id = :profileId  " +
+                    "ORDER BY date DESC LIMIT 1"
     ).bind("profileId", profileId).map { row, _ ->
         ProfileEvaluation(
                 row["source_profile_id"] as UUID,

@@ -8,6 +8,9 @@ const devProxy = {
     target: 'http://localhost:8080/api/',
     pathRewrite: { '^/api': '/' },
     changeOrigin: true,
+    onProxyReq: (proxyReq, req, res) => {
+      proxyReq.setHeader('Forwarded', 'host=localhost:3000;proto=http');
+    }
   },
 };
 

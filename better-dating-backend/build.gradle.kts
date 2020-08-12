@@ -59,6 +59,8 @@ dependencies {
 	implementation("org.springframework.security.dsl:spring-security-kotlin-dsl:0.0.1.BUILD-SNAPSHOT")
 	implementation("org.springframework.session:spring-session-data-redis")
 	implementation("io.lettuce:lettuce-core")
+	// ## OAuth 2.0
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
 	// # validation
 	implementation("org.valiktor:valiktor-core:0.11.0")
