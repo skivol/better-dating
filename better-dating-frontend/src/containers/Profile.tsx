@@ -7,7 +7,6 @@ import { emailHasChanged } from '../utils';
 
 export const mapDispatchToProps = (dispatch: BetterDatingThunkDispatch): IDispatchProps => ({
     onSubmit: (values, form, doAfter) => dispatch(actions.updateAccount(values, emailHasChanged(form), doAfter)),
-    onLogout: () => dispatch(actions.logout()),
 });
 
 export default connect(null, mapDispatchToProps)(Profile);

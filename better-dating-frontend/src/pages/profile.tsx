@@ -1,5 +1,5 @@
 import { GetServerSideProps } from 'next';
-import { getData } from '../utils/FetchUtils';
+import { getData, unauthorized } from '../utils/FetchUtils';
 import Profile from '../containers/Profile';
 
 export default Profile;
@@ -16,7 +16,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }: any) 
         const profileData = await getData(`${process.env.BACKEND_HOST}/api/user/profile`, undefined, headers);
         return { props: { profileData } };
     } catch (error) {
-        if (error.status === 401) {
+        if (unauthorized(error)) {
             if (res) {
                 res.writeHead(301, { Location: '/' });
                 res.end();

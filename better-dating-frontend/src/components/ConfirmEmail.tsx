@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useRouter } from 'next/router';
 import { Form } from 'react-final-form';
-import { Typography, Button, CircularProgress } from '@material-ui/core';
+import { Typography, Button } from '@material-ui/core';
 import { postData, firstValueIfArray } from '../utils';
 import { CenteredSpinner } from './common';
 import { profile } from '../components/navigation/NavigationUrls';

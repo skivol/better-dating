@@ -150,8 +150,8 @@ input:-webkit-autofill {
 }
 
 .u-margin-top-bottom {
-  margin-top: 15px;
-  margin-bottom: 15px;
+  margin-top: 15px !important;
+  margin-bottom: 15px !important;
 }
 
 .u-height-120px {

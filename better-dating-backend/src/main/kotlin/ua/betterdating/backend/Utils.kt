@@ -8,8 +8,8 @@ import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.json
 import java.net.IDN
 
-fun hostHeader(request: ServerRequest): String = request.headers().header("Host")[0]
-fun unicodeHostHeader(request: ServerRequest): String = IDN.toUnicode(hostHeader(request))
+fun host(request: ServerRequest): String = request.uri().host
+fun unicodeHostHeader(request: ServerRequest): String = IDN.toUnicode(host(request))
 fun renderTemplate(
         templateConfigurationFactory: FreeMarkerConfigurationFactoryBean, templateName: String, param: Any
 ): String {

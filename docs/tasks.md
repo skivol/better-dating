@@ -1,30 +1,13 @@
-* Авторизация
-    ** проверить что письма хорошо форматируются
-    https://www.nginx.com/resources/wiki/start/topics/examples/forwarded/#
-    https://docs.spring.io/spring/docs/5.2.8.RELEASE/spring-framework-reference/web-reactive.html#webflux-filters
-
-* "Обработка персональных данных" - https://tilda.cc/ru/privacy-generator/
-    ** Упомянуть печеньки
-    ** https://www.mozilla.org/ru/privacy/
+* Удалить профиль (подтверждение через почту) - вести статистику количества удаленных профилей ?
 * Просмотреть профиль другого учасника / автора системы
 * Сохранять прогресс заполнения формы регистрации в локальном хранилище ? (только с оповещением об этом пользователя, с возможностью очистить)
 * админка (количество зарегистрированных людей, количество удалений профилей, возможность отправить тестовое письмо?)
-* Удалить профиль (подтверждение через почту) - вести статистику количества удаленных профилей ?
-* Уточнения
-    ** --> Естественность, осмысленность, целесообразность, целеустремленность ; трудная, но полноценная и осмысленная жизнь
-    ** в описании сайта упомянуть "эффективные" / "результативные" свидания
-    ** упомянуть что не знание/игнорирование/отрицание принципов и законов не освобождает от последствий/соответствующих результатов
-    ** график: здоровье во времени (приближение)
 * Обновить файлы sitemap
-* Fail2Ban
-    ** https://unix.stackexchange.com/questions/88744/what-is-the-centos-equivalent-of-var-log-syslog-on-ubuntu
-    ** https://www.digitalocean.com/community/tutorials/how-fail2ban-works-to-protect-services-on-a-linux-server#the-basic-concept
-    ** https://www.digitalocean.com/community/tutorials/how-to-protect-an-nginx-server-with-fail2ban-on-ubuntu-14-04
-    ** https://github.com/fail2ban/fail2ban/issues/1593
-* иконки для выбора пола, слайдеры для веса/роста
+
+* Обновить сайт и и сообщить об этом в соц. сетях
 
 * Второй этап
-    Цель встреч (поиск второй половинки / желание поделиться семейным опытом / желание увидеть потенциальных зятей-невесток :) )
+    Цель встреч (поиск второй половинки)
     Имя (не обязательно?)
     Фото (не обязательно?)
     Город проживания (для облегчения организации свиданий) / возможность приехать в другой город для встречи
@@ -37,18 +20,40 @@
     Состоял(а) ранее в серьезных отношениях (да / нет) (телегония)
     Есть дети (?) / Семья
     Интересы (прогулки, чтение, музыка, фильмы и т.д.)
-    Что нравится в себе и в окружающих людях
+    Что нравится в себе и/или в окружающих людях
+    Что не нравится в себе и/или в окружающих людях
     Духи / одеколон
     Корсет / бюстгалтер / корректирующее белье (утягивающее бельё)
     Пластическая хирургия
     ...
+
+* Уточнения
+    ** --> Естественность, осмысленность, целесообразность, целеустремленность ; трудная, но полноценная и осмысленная жизнь
+    ** в описании сайта упомянуть "эффективные" / "результативные" свидания
+    ** упомянуть что не знание/игнорирование/отрицание принципов и законов не освобождает от последствий/соответствующих результатов
+    ** график: здоровье во времени (приближение)
 * Экспортировать данные профиля в, например, json (export)
-* Дополнительные способы входа  (GitHub / Google?) (social login) / Viber / Telegram ?
+* иконки для выбора пола, слайдеры для веса/роста
+* добавить детей к иконке символизирующей семью
+* добавить иконки CentOS, Docker, React, Fort Awesome, GitHub в благодарности ?
+* Дополнительные способы входа  (Google? / Ok.ru?) (social login) / Viber / Telegram ?
+* Возможность голосовать за темы новых постов ?
 * Дополнительные поля в профиле
     ** Псевдоним (ник) ? наркотики ? болезни, состояние глаз/зубов?, страхи ? Комментарий к оценке ? Еда (повседневная, конфеты/сахар, ГМО?, кофе?...) ? Гигиена (душ, чистка зубов) ?, сон, психологический/эмоциональный стресс ? (вид упражнений: силовые со своим весом / растяжка / бег / спортзал ?)
     ** Какие поля обязательны сразу ?
     ** (обратная связь) Причина почему не зарегистрировался/ася ?
     ** поля необязательных комментариев к действиям ?
+* Улучшить внешний вид
+* Форматирование кнопки в почте для Outlook
+    ** https://stackoverflow.com/questions/5861714/formatting-html-email-for-outlook
+    ** https://stackoverflow.com/questions/7405493/rounded-corners-in-outlook-without-images
+    ** https://www.campaignmonitor.com/css/
+* дополнительные цели встреч ( желание поделиться семейным опытом / желание увидеть потенциальных зятей-невесток :) )
+* Fail2Ban
+    ** https://unix.stackexchange.com/questions/88744/what-is-the-centos-equivalent-of-var-log-syslog-on-ubuntu
+    ** https://www.digitalocean.com/community/tutorials/how-fail2ban-works-to-protect-services-on-a-linux-server#the-basic-concept
+    ** https://www.digitalocean.com/community/tutorials/how-to-protect-an-nginx-server-with-fail2ban-on-ubuntu-14-04
+    ** https://github.com/fail2ban/fail2ban/issues/1593
 
 * continue developing the concept
 * >> gamification... rebrand to a game ? (with scores visible only to you etc) <<
@@ -70,6 +75,7 @@
 * generate sitemap (for example, https://dev.to/embiem/auto-generate-sitemapxml-in-nextjs-2nh1)
 
 # On leisure
+* древний/прописной шрифт для названия сайта
 * investigate other ways to formulate a query: https://docs.spring.io/spring-data/r2dbc/docs/1.0.0.M2/reference/html/#reference
 * checkout ReactiveCrudRepository ? https://docs.spring.io/spring-data/r2dbc/docs/1.0.0.M2/reference/html/#r2dbc.repositories
 * checkout reverse proxy written in rust: https://github.com/sozu-proxy/sozu

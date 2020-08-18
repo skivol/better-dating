@@ -20,18 +20,18 @@ alias bd-ui-test='wd proj-ui && pnpm run test'
 bd-ui-build() {
 	wd proj-ui && NEXT_APP_UPDATED="$(date -u --iso-8601=seconds)" pnpm run build
 }
-alias bd-ui-docker-build='wd proj-ui && docker build -t skivol/better-dating-ui:latest . && docker image prune -f --filter label=stage=builder'
+alias bd-ui-docker-build='wd proj-ui && DOCKER_BUILDKIT=1 docker build -t skivol/better-dating-ui:latest . && docker image prune -f --filter label=stage=builder'
 alias bd-ui-docker-run='docker run --rm --name better-dating-ui -d -p 8080:80 skivol/better-dating-ui:latest'
 alias bd-ui-docker-stop='docker stop better-dating-ui'
 alias bd-ui-view='firefox http://localhost:3000/предложение'
 alias bd-prod-view='firefox https://смотрины.укр'
-alias bd-backend-docker-build='wd proj-backend && docker build -t skivol/better-dating-backend:latest .'
+alias bd-backend-docker-build='wd proj-backend && DOCKER_BUILDKIT=1 docker build -t skivol/better-dating-backend:latest .'
 alias bd-backend-docker-run='docker run --name better-dating-backend -d -p 8080:8080 skivol/better-dating-backend:latest'
 alias bd-backend-docker-start='docker start better-dating-backend'
 alias bd-backend-docker-stop='docker stop better-dating-backend'
-alias bd-proxy-docker-build='wd proj-proxy && docker build -t skivol/better-dating-proxy:latest .'
-alias bd-database-docker-build='wd proj-db && docker build -t skivol/better-dating-database:latest .'
-alias bd-cache-docker-build='wd proj-cache && docker build -t skivol/better-dating-cache:latest .'
+alias bd-proxy-docker-build='wd proj-proxy && DOCKER_BUILDKIT=1 docker build -t skivol/better-dating-proxy:latest .'
+alias bd-database-docker-build='wd proj-db && DOCKER_BUILDKIT=1 docker build -t skivol/better-dating-database:latest .'
+alias bd-cache-docker-build='wd proj-cache && DOCKER_BUILDKIT=1 docker build -t skivol/better-dating-cache:latest .'
 
 # Vim
 alias bd-ui-vim='wd proj-ui && vim'
@@ -150,10 +150,14 @@ alias bd-prod-backup-all="bd-prod-backup-letsencrypt && bd-prod-backup-db"
 # https://stackoverflow.com/questions/42816218/chrome-neterr-cert-common-name-invalid-errors-on-ssl-self-signed-certificate
 # https://stackoverflow.com/a/48790088
 # https://deanhume.com/testing-service-workers-locally-with-self-signed-certificates/
-alias bd-generate-cert='sudo openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -config csr_details.txt'
-alias bd-docker-rm-secrets='docker secret rm ssl_certificate ssl_certificate_key'
+alias bd-docker-rm-secrets='docker secret rm ssl_certificate ssl_certificate_key dhparam'
+alias bd-generate-cert='wd proj && sudo openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -config csr_details.txt'
 alias bd-docker-add-cert-key='sudo cat /etc/ssl/private/nginx-selfsigned.key | docker secret create ssl_certificate_key -'
 alias bd-docker-add-cert='sudo cat /etc/ssl/certs/nginx-selfsigned.crt | docker secret create ssl_certificate -'
+alias bd-generate-dhparam='sudo openssl dhparam -out /etc/nginx/ssl/dhparam-2048.pem 2048'
+alias bd-docker-add-dhparam='sudo cat /etc/nginx/ssl/dhparam-2048.pem | docker secret create dhparam -'
+alias bd-docker-add-db-password='wd proj && cat .db-password | docker secret create db_password -'
+alias bd-docker-add-mail-password='wd proj && cat .mail-password | docker secret create mail_password -'
 
 # Prod Status
 alias check-docker-status='test `prod-ssh-zsh "date -u; docker ps" | tee /dev/tty | grep "better-dating" | grep "(healthy)" | wc -l` -eq 4 || (echo "Some service seems to be down" && while :; do beep; sleep 1; done)'

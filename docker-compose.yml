@@ -64,6 +64,10 @@ services:
       DB_NAME: "${BD_DB}"
       MAIL_USER: "${BD_MAIL_USER}"
       MAIL_PASSWORD_FILE: "/run/secrets/mail_password"
+      FACEBOOK_CLIENT_ID: "${FACEBOOK_CLIENT_ID}"
+      FACEBOOK_CLIENT_SECRET: "${FACEBOOK_CLIENT_SECRET}"
+      VK_CLIENT_ID: "${VK_CLIENT_ID}"
+      VK_CLIENT_SECRET: "${VK_CLIENT_SECRET}"
     depends_on:
       - bd-postgres
     volumes:

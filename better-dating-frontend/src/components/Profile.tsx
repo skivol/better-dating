@@ -14,7 +14,7 @@ import ToggleButton from '@material-ui/lab/ToggleButton';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faUserCheck, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faUserCheck } from '@fortawesome/free-solid-svg-icons';
 
 import * as Messages from './Messages';
 import {
@@ -34,7 +34,6 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface IDispatchProps {
     onSubmit: (data: any, form: FormApi<any>, doAfter: () => void) => void;
-    onLogout: () => any;
 }
 
 export interface Props extends IDispatchProps {
@@ -45,7 +44,7 @@ const fromBackendProfileValues = ({ birthday, ...restValues }: any) => ({
     ...restValues, bday: parseISO(birthday)
 });
 
-export const Profile = ({ profileData, onSubmit, onLogout }: Props) => {
+export const Profile = ({ profileData, onSubmit }: Props) => {
     const classes = useStyles();
     const profileDataWithDate = fromBackendProfileValues(profileData);
     const [initialValues, setInitialValues] = React.useState(profileDataWithDate);
@@ -118,10 +117,6 @@ export const Profile = ({ profileData, onSubmit, onLogout }: Props) => {
                                     <FontAwesomeIcon className="MuiButton-startIcon" icon={faUserCheck} />
                                     {showAnalysis ? Messages.hideAnalysis : Messages.analyze}
                                 </ToggleButton>
-                                <Button onClick={() => onLogout().then(() => router.push("/"))}>
-                                    <FontAwesomeIcon className="MuiButton-startIcon" icon={faSignOutAlt} />
-                                    {Messages.logout}
-                                </Button>
                             </ButtonGroup>
                         </Grid>
                     </form>

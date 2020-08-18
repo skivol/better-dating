@@ -8,6 +8,7 @@ import org.springframework.fu.kofu.session.reactiveRedis
 import org.springframework.fu.kofu.session.session
 import org.springframework.fu.kofu.webflux.security
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.core.Authentication
@@ -42,14 +43,17 @@ import org.springframework.security.web.server.authentication.logout.DelegatingS
 import org.springframework.security.web.server.authentication.logout.HeaderWriterServerLogoutHandler
 import org.springframework.security.web.server.authentication.logout.HttpStatusReturningServerLogoutSuccessHandler
 import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler
+import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository
 import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository
 import org.springframework.security.web.server.header.ClearSiteDataServerHttpHeadersWriter
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.server.ServerWebExchange
+import org.springframework.web.server.WebFilter
+import org.springframework.web.server.WebFilterChain
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer
 import reactor.core.publisher.Mono
 import ua.betterdating.backend.EmailNotRegisteredException
@@ -103,13 +107,14 @@ fun securityConfig(emailRepository: EmailRepository) = configuration {
         securityCustomizer = {
             it.securityContextRepository(securityContextRepository)
 
-            val simpleLoginWebFilter = simpleLoginWebFilter(
+            val simpleLoginWebFilter = simpleOAuth2LoginWebFilter(
                     authenticationManager,
                     authenticationConverter(clientRegistrationRepository, authorizationRequestRepository),
                     securityContextRepository
             )
 
             it.addFilterBefore(simpleLoginWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+            it.addFilterAfter(AccessDeniedFilter(), SecurityWebFiltersOrder.EXCEPTION_TRANSLATION)
         }
         http = {
             csrf {
@@ -128,17 +133,15 @@ fun securityConfig(emailRepository: EmailRepository) = configuration {
             }
 
             authorizeExchange {
-                // Idea
-                authorize("/", permitAll)
-
                 // Registration & Email verification / triggering new verification / contact
-                authorize(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/api/user/profile"), permitAll)
+                authorize(pathMatchers(HttpMethod.POST, "/api/user/profile"), permitAll)
                 authorize("/api/user/email/**", permitAll)
 
                 // Login
-                authorize(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/api/auth/login-link"), permitAll) // consider having web client credentials
-                authorize(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/api/auth/login"), permitAll)
+                authorize(pathMatchers(HttpMethod.POST, "/api/auth/login-link"), permitAll) // consider having web client credentials
+                authorize(pathMatchers(HttpMethod.POST, "/api/auth/login"), permitAll)
                 authorize("/api/support/csrf", permitAll)
+                authorize("/api/auth/me", hasAuthority("ROLE_USER"))
 
                 // Profile
                 authorize("/api/user/profile/**", hasAuthority("ROLE_USER"))
@@ -154,7 +157,7 @@ fun securityConfig(emailRepository: EmailRepository) = configuration {
     }
 }
 
-fun simpleLoginWebFilter(authenticationManager: ReactiveAuthenticationManager, authenticationConverter: ServerAuthenticationConverter, securityContextRepository: ServerSecurityContextRepository): OAuth2SimpleLoginWebFilter {
+fun simpleOAuth2LoginWebFilter(authenticationManager: ReactiveAuthenticationManager, authenticationConverter: ServerAuthenticationConverter, securityContextRepository: ServerSecurityContextRepository): OAuth2SimpleLoginWebFilter {
     // superseding OAuth2LoginAuthenticationWebFilter which does too much (for example, saves AuthorizedClients)
     val oAuthWebFilter = OAuth2SimpleLoginWebFilter(authenticationManager)
     // Redirect uri that will receive code from the OAuth 2.0 provider
@@ -190,8 +193,8 @@ private fun authenticationConverter(clientRegistrationRepository: ReactiveClient
     val delegate = ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository)
     delegate.setAuthorizationRequestRepository(authorizationRequestRepository)
     return ServerAuthenticationConverter { exchange: ServerWebExchange? ->
-        delegate.convert(exchange).onErrorMap(OAuth2AuthorizationException::class.java) {
-            e -> OAuth2AuthenticationException(e.error, e.error.toString())
+        delegate.convert(exchange).onErrorMap(OAuth2AuthorizationException::class.java) { e ->
+            OAuth2AuthenticationException(e.error, e.error.toString())
         }
     }
 }
@@ -277,4 +280,18 @@ fun logoutHandler(): DelegatingServerLogoutHandler {
     val writer = ClearSiteDataServerHttpHeadersWriter(ClearSiteDataServerHttpHeadersWriter.Directive.CACHE, ClearSiteDataServerHttpHeadersWriter.Directive.COOKIES)
     val clearSiteData = HeaderWriterServerLogoutHandler(writer)
     return DelegatingServerLogoutHandler(securityContext, clearSiteData)
+}
+
+// see also ExceptionTranslationWebFilter
+// the difference here is that we don't try to redirect to login page
+// inspired by https://stackoverflow.com/a/46515905/13751488
+class AccessDeniedFilter : WebFilter {
+    private val accessDeniedHandler = HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN)
+
+    override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
+        return chain.filter(exchange)
+                .onErrorResume(org.springframework.security.access.AccessDeniedException::class.java) {
+                    accessDeniedHandler.handle(exchange, it)
+                }
+    }
 }

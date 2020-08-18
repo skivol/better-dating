@@ -6,6 +6,7 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import { Container, CssBaseline } from '@material-ui/core';
 
 import { theme } from '../configureTheme';
+import Header from '../components/toplevel/Header';
 import Footer from '../components/toplevel/Footer';
 import StatusSnackbar from '../containers/StatusSnackbar';
 import Meta from '../utils/Meta';
@@ -42,7 +43,8 @@ const BetterDatingApp = ({ Component, pageProps }: AppProps) => {
           path="/"
           published="2019-07-26"
         />
-        <Container className="u-padding-10px u-max-width-892px" style={{ background: 'white', borderRadius: '10px' }}>
+        <Header />
+        <Container className="u-padding-10px u-max-width-892px" style={{ background: 'white', borderRadius: '10px', marginTop: 65 }}>
           <Component {...pageProps} />
           <Footer />
           <StatusSnackbar />

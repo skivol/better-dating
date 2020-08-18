@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration scan="false">
+<configuration>
 	<include resource="org/springframework/boot/logging/logback/base.xml"/>
 	<logger name="org.springframework.web" level="ERROR"/>
 	<logger name="ua.betterdating" level="ERROR"/>

@@ -29,6 +29,7 @@ fun routes(
     "/api/auth".nest {
         POST("/login-link", accept(APPLICATION_JSON), authHandler::sendLoginLink)
         POST("/login", accept(APPLICATION_JSON), authHandler::login)
+        GET("/me", authHandler::currentUser)
     }
 
     GET("/actuator/health", healthHandler::healthStatus)

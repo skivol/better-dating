@@ -2,6 +2,7 @@ import * as Messages from '../Messages';
 
 export const proposal = `/${Messages.proposal}`;
 export const registerAccount = '/регистрация';
+export const login = '/вход';
 export const profile = '/профиль';
 export const acknowledgements = '/благодарности';
 export const privacyPolicy = '/политика-конфиденциальности';
@@ -11,6 +12,7 @@ export const fromPage = (actualPagePath: string) => {
 	const mapping: { [index: string]: string } = {
 		["/"]: proposal,
 		["/proposal"]: proposal,
+		["/login"]: login,
 		["/register-account"]: registerAccount,
 		["/profile"]: profile,
 		["/acknowledgements"]: acknowledgements,
@@ -24,6 +26,7 @@ export const toPage = (userVisiblePath: string) => {
 	const mapping: { [index: string]: string } = {
 		["/"]: "/proposal",
 		[proposal]: "/proposal",
+		[login]: "/login",
 		[registerAccount]: "/register-account",
 		[profile]: "/profile",
 		[acknowledgements]: "/acknowledgements",

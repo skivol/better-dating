@@ -50,7 +50,7 @@ const AcknowledgementEntry = ({ name, url, license, copyright }: Acknowledgement
         <li>
             <Link href={url}>{name}</Link>
             {licenses && ', '}
-            {licenses && licenses.map(l => l.url ? l : { url: `#${licenseId(l)}`, name: l }).map(l => (
+            {licenses && licenses.map((l: any) => l.url ? l : { url: `#${licenseId(l)}`, name: l }).map((l: any) => (
                 <Link className="u-right-margin-10px" key={l.name} href={l.url}>{l.name}</Link>
             ))}
             {copyrights && copyrights.map((c: any) => <Typography>{c}</Typography>)}

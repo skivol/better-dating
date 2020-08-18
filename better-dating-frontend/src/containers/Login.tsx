@@ -8,6 +8,7 @@ import { profile } from '../components/navigation/NavigationUrls';
 import { BetterDatingThunkDispatch } from '../configureStore';
 import * as Messages from '../Messages';
 import { SnackbarVariant } from '../types';
+import { LoginBox } from '../components/LoginBox';
 
 type Props = {
     performLogin: (token: string) => any;
@@ -26,11 +27,9 @@ const Login = ({ performLogin, onErrorLogin }: Props) => {
                 router.push("/");
             });
         }
-
-        router.push("/");
     }, [performLogin]);
 
-    return <CenteredSpinner />;
+    return token ? <CenteredSpinner /> : <LoginBox />;
 };
 
 export const mapDispatchToProps = (dispatch: BetterDatingThunkDispatch) => ({
@@ -39,4 +38,3 @@ export const mapDispatchToProps = (dispatch: BetterDatingThunkDispatch) => ({
 });
 
 export default connect(null, mapDispatchToProps)(Login);
-

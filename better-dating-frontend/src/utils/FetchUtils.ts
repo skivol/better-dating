@@ -1,8 +1,10 @@
 // https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Promise
 // https://developer.mozilla.org/ru/docs/Web/API/Fetch_API/Using_Fetch
 
+export const unauthorized = (response: any) => [401, 403].includes(response.status);
+
 const ensureOkAndTryParseJson = async (response: Response) => {
-	if (response.status === 401) { // not logged in
+	if (unauthorized(response)) { // not logged in
 		throw response;
 	}
 

@@ -83,7 +83,8 @@ const actions = [{ /* Физкультура / физические упражн
     analysisType: "intimateRelationsOutsideOfMarriage",
     name: "intimateRelationsOutsideOfMarriage",
     label: Messages.intimateRelationsOutsideOfMarriage,
-    data: intimateRelationsOutsideOfMarriageOptions
+    data: intimateRelationsOutsideOfMarriageOptions,
+    helperText: Messages.intimateRelationsInfo
 }, { /* Просмотр порнографии */
     analysisType: "pornographyWatching",
     name: "pornographyWatching",

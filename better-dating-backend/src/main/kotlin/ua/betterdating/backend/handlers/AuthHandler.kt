@@ -1,5 +1,6 @@
 package ua.betterdating.backend.handlers
 
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.DisabledException
@@ -13,7 +14,9 @@ import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.ServerResponse.ok
 import org.springframework.web.reactive.function.server.awaitBody
+import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import ua.betterdating.backend.*
 import ua.betterdating.backend.TokenType.ONE_TIME_PASSWORD
 
@@ -75,6 +78,11 @@ class AuthHandler(
         return okEmptyJsonObject()
     }
 
+    suspend fun currentUser(request: ServerRequest): ServerResponse {
+        val principal = request.principal().awaitFirst() as UsernamePasswordAuthenticationToken
+        return ok().bodyValueAndAwait(User(principal.name, principal.authorities.map { it.authority }))
+    }
+
     /**
      * see also AuthenticationWebFilter::onAuthenticationSuccess
      */
@@ -94,3 +102,5 @@ fun createAuth(profileId: String): UsernamePasswordAuthenticationToken {
     val userDetails = User(profileId, "", listOf(SimpleGrantedAuthority("ROLE_USER")))
     return UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
 }
+
+class User(val id: String, val roles: List<String>)
