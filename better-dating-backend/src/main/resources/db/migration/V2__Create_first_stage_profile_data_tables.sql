@@ -85,7 +85,7 @@ CREATE TRIGGER save_email_change_history_trigger
 	ON email FOR EACH ROW
 	EXECUTE PROCEDURE save_email_change_history();
 
--- Email verification + one time passwords tokens support
+-- Email verification + one time passwords / account removal etc tokens support
 CREATE TABLE expiring_token (
 	profile_id uuid NOT NULL,
 	encoded_value varchar(255) NOT NULL,
@@ -97,5 +97,12 @@ CREATE TABLE expiring_token (
 
 -- Use more secure email verification token (see expiring_token)
 DROP TABLE email_verification_token;
+
+-- Feedback when removing account
+CREATE TABLE profile_deletion_feedback (
+	profile_id uuid NOT NULL,
+	reason varchar(30) NOT NULL,
+	explanation_comment varchar(255) NOT NULL
+);
 
 -- TODO Introduce user roles

@@ -62,6 +62,7 @@ module.exports = withPlugins([
         { source: encodeURI('/благодарности'), destination: '/acknowledgements' },
         { source: encodeURI('/политика-конфиденциальности'), destination: '/privacy-policy' },
         { source: encodeURI('/пользовательское-соглашение'), destination: '/user-agreement' },
+        { source: encodeURI('/удаление-профиля'), destination: '/remove-profile' },
       ]
     }
   }

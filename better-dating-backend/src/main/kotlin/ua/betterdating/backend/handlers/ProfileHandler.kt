@@ -1,9 +1,17 @@
 package ua.betterdating.backend.handlers
 
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.web.server.WebFilterExchange
+import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import org.springframework.web.reactive.function.server.*
+import org.springframework.web.server.WebFilterChain
+import reactor.core.publisher.Mono
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
 import java.util.*
@@ -16,6 +24,11 @@ class UserProfileHandler(
         private val weightRepository: WeightRepository,
         private val activityRepository: ActivityRepository,
         private val profileEvaluationRepository: ProfileEvaluationRepository,
+        private val expiringTokenRepository: ExpiringTokenRepository,
+        private val emailChangeHistoryRepository: EmailChangeHistoryRepository,
+        private val profileDeletionFeedbackRepository: ProfileDeletionFeedbackRepository,
+        private val logoutHandler: DelegatingServerLogoutHandler,
+        private val passwordEncoder: PasswordEncoder,
         private val transactionalOperator: TransactionalOperator,
         private val freemarkerMailSender: FreemarkerMailSender
 ) {
@@ -111,6 +124,64 @@ class UserProfileHandler(
         return ServerResponse.ok().json().bodyValueAndAwait(profile)
     }
 
+    suspend fun requestRemoval(request: ServerRequest): ServerResponse {
+        val profile = emailRepository.findById(UUID.fromString(request.awaitPrincipal()!!.name))
+                ?: throw EmailNotFoundException()
+        val subject = "Запрос на удаление профиля на сайте смотрины.укр & смотрины.рус"
+        transactionalOperator.executeAndAwait {
+            freemarkerMailSender.generateAndSendLinkWithToken(
+                    profile.id, TokenType.ACCOUNT_REMOVAL, "LinkToRemoveAccount.ftlh",
+                    profile.email, subject, request, "удаление-профиля"
+            ) { link ->
+                object {
+                    val title = subject
+                    val actionLabel = "Удаление профиля"
+                    val actionUrl = link
+                    val message = "Обратите внимание! Это действие нельзя будет отменить!"
+                }
+            }
+        }
+        return okEmptyJsonObject()
+    }
+
+    suspend fun removeProfile(request: ServerRequest): ServerResponse {
+        val payload = request.awaitBody<DeleteProfileData>()
+        val principal = request.awaitPrincipal()
+
+        // verify token
+        val profileId = UUID.fromString(principal!!.name)
+        val dbToken = expiringTokenRepository.findByProfileIdAndType(profileId, TokenType.ACCOUNT_REMOVAL ) ?: throwNoSuchTokenException()
+        val decodedToken = Token(payload.token).decode()
+        if (!passwordEncoder.matches(decodedToken.tokenValue, dbToken.encodedValue)) {
+            throwNoSuchTokenException()
+        }
+
+        transactionalOperator.executeAndAwait {
+            // remove profile data
+            profileEvaluationRepository.delete(profileId)
+            activityRepository.delete(profileId)
+            weightRepository.delete(profileId)
+            heightRepository.delete(profileId)
+            profileInfoRepository.delete(profileId)
+            acceptedTermsRepository.delete(profileId)
+            expiringTokenRepository.deleteByProfileId(profileId)
+            emailRepository.delete(profileId)
+            emailChangeHistoryRepository.delete(profileId)
+
+            // + save feedback
+            profileDeletionFeedbackRepository.save(ProfileDeletionFeedback(profileId, payload.reason, payload.explanationComment))
+        }
+        // perform logout
+        logoutHandler.logout(WebFilterExchange(request.exchange()) { Mono.empty() }, principal as Authentication).awaitFirstOrNull()
+
+        return okEmptyJsonObject()
+    }
+
+    private suspend fun throwNoSuchTokenException(): Nothing {
+        randomDelay(500, 4_000) // let's not reveal that token doesn't exist in the system so quickly
+        throw NoSuchTokenException()
+    }
+
     private fun changedHealthEvaluation(existingProfile: Profile, profile: Profile) = if (existingProfile.personalHealthEvaluation != profile.personalHealthEvaluation) {
         ProfileEvaluation(existingProfile.id!!, existingProfile.id!!, now(), profile.personalHealthEvaluation, null)
     } else {
@@ -187,8 +258,8 @@ class UserProfileHandler(
     private suspend fun existingProfileById(profileId: UUID): Profile {
         val email = emailRepository.findById(profileId) ?: throw EmailNotFoundException()
         val profileInfo = profileInfoRepository.findByProfileId(profileId)!!
-        val height = heightRepository.findLatestByProfileId(profileId)!!
-        val weight = weightRepository.findLatestByProfileId(profileId)!!
+        val height = heightRepository.findLatestByProfileId(profileId)
+        val weight = weightRepository.findLatestByProfileId(profileId)
         val activityNames = listOf(
                 physicalExercise.name, smoking.name, alcohol.name,
                 computerGames.name, gambling.name, haircut.name,
@@ -196,7 +267,7 @@ class UserProfileHandler(
                 pornographyWatching.name
         )
         val activities = activityRepository.findLatestByProfileId(profileId, activityNames).collectMap { it.name }.awaitFirst()
-        val personalHealthEvaluation = profileEvaluationRepository.findLatestHealthEvaluationByProfileId(profileId)!!
+        val personalHealthEvaluation = profileEvaluationRepository.findLatestHealthEvaluationByProfileId(profileId)
         return toWebEntity(email, profileInfo, height, weight, activities, personalHealthEvaluation)
     }
 

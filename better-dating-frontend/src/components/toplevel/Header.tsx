@@ -1,25 +1,23 @@
-import * as React from "react";
-import { useDispatch } from "react-redux";
+import React from "react";
 import { useRouter } from 'next/router';
 import {
 	AppBar, Toolbar, IconButton,
 	Button, Typography, Slide, SwipeableDrawer,
 	useScrollTrigger,
 	List, ListItem, ListItemProps, ListItemIcon, ListItemText,
-	Menu, MenuItem, MenuItemProps
 } from '@material-ui/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLightbulb, faUserPlus, faUserCircle, faBars, faIdCard, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faLightbulb, faUserPlus, faBars } from '@fortawesome/free-solid-svg-icons';
 import { makeStyles } from '@material-ui/core/styles';
 import Link from 'next/link';
 
-import * as actions from '../../actions';
 import { SpinnerAdornment as Spinner } from '../common';
 import * as Messages from '../Messages';
-import { fromPage, proposal, registerAccount, profile, login } from '../navigation/NavigationUrls';
+import { fromPage, proposal, registerAccount, login } from '../navigation/NavigationUrls';
 // @ts-ignore
 import SmotrinyLogo from '../img/logo.svg';
 import { useUser } from '../../utils';
+import { LoggedInUserMenu } from './LoggedInUserMenu';
 
 const logoStyle: React.CSSProperties = {
 	height: 50,
@@ -57,10 +55,6 @@ const ListItemLink = React.forwardRef((props: ListItemProps<'a', { button?: true
 	return <ListItem button component="a" {...props} />;
 });
 
-const MenuItemLink = React.forwardRef((props: MenuItemProps<'a', { button?: true }>) => {
-	return <MenuItem button component="a" {...props} />;
-});
-
 const Header = () => {
 	const classes = useStyles();
 
@@ -69,60 +63,12 @@ const Header = () => {
 	const router = useRouter();
 	const userVisiblePath = fromPage(router.pathname);
 
-	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-	const open = Boolean(anchorEl);
-	const handleMenu = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
-	const handleClose = () => setAnchorEl(null);
-
 	const user = useUser();
-	const dispatch = useDispatch();
 	let loadingOrLoginButtonOrUserMenu;
 	if (user.loading) {
 		loadingOrLoginButtonOrUserMenu = <Spinner />;
 	} else if (!user.loading && user.id) {
-		const onLogoutClick = () => {
-			handleClose();
-			dispatch(actions.logout()).then(() => router.push("/"));
-		};
-		loadingOrLoginButtonOrUserMenu = (
-			<div>
-				<IconButton
-					aria-label="account of current user"
-					aria-controls="menu-appbar"
-					aria-haspopup="true"
-					onClick={handleMenu}
-					color="inherit"
-				>
-					<FontAwesomeIcon icon={faUserCircle} />
-				</IconButton>
-				<Menu
-					id="menu-appbar"
-					anchorEl={anchorEl}
-					anchorOrigin={{
-						vertical: 'top',
-						horizontal: 'right',
-					}}
-					keepMounted
-					transformOrigin={{
-						vertical: 'top',
-						horizontal: 'right',
-					}}
-					open={open}
-					onClose={handleClose}
-				>
-					<Link href={profile} passHref>
-						<MenuItemLink onClick={handleClose}>
-							<ListItemIcon><FontAwesomeIcon icon={faIdCard} /></ListItemIcon>
-							<ListItemText>{Messages.Profile}</ListItemText>
-						</MenuItemLink>
-					</Link>
-					<MenuItem onClick={onLogoutClick}>
-						<ListItemIcon><FontAwesomeIcon icon={faSignOutAlt} /></ListItemIcon>
-						<ListItemText>{Messages.logout}</ListItemText>
-					</MenuItem>
-				</Menu>
-			</div>
-		);
+		loadingOrLoginButtonOrUserMenu = <LoggedInUserMenu />;
 	} else {
 		loadingOrLoginButtonOrUserMenu = (
 			<Link href={login}>

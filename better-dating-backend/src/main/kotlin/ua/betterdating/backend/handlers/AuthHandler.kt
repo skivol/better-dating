@@ -48,6 +48,7 @@ class AuthHandler(
                     val title = subject
                     val actionLabel = "Войти"
                     val actionUrl = link
+                    val message = "Внимание! Ссылка будет действенна только в течение суток."
                 }
             }
         }

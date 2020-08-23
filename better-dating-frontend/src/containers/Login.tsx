@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { useRouter } from 'next/router';
-import { firstValueIfArray } from '../utils';
-import * as actions from '../actions/';
+import { useToken } from '../utils';
+import * as actions from '../actions';
 import { CenteredSpinner } from '../components/common';
 import { profile } from '../components/navigation/NavigationUrls';
 import { BetterDatingThunkDispatch } from '../configureStore';
@@ -16,7 +16,7 @@ type Props = {
 };
 const Login = ({ performLogin, onErrorLogin }: Props) => {
     const router = useRouter();
-    const token = firstValueIfArray(router.query[Messages.tokenName]);
+    const token = useToken();
 
     React.useEffect(() => {
         if (token) {

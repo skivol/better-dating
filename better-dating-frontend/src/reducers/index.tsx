@@ -1,8 +1,10 @@
-import { BetterDatingAction } from '../actions';
-import { StatusSnackbarState, SnackbarVariant } from '../types';
+import { BetterDatingAction, UserAction } from '../actions';
+import { StatusSnackbarState, SnackbarVariant, UserState } from '../types';
 import {
 	OPEN_SNACKBAR,
-	CLOSE_SNACKBAR
+	CLOSE_SNACKBAR,
+	USER,
+	emptyUser,
 } from '../constants';
 
 const initialSnackbarState: StatusSnackbarState = {
@@ -15,6 +17,16 @@ export const snackbarReducer = (state = initialSnackbarState, action: BetterDati
 			return { ...state, isOpen: true, message, variant };
 		case CLOSE_SNACKBAR:
 			return { ...state, isOpen: false };
+		default:
+			return state;
+	}
+};
+
+const initialUserState: UserState = emptyUser;
+export const userReducer = (state = initialUserState, action: UserAction) => {
+	switch (action.type) {
+		case USER:
+			return { ...action.user };
 		default:
 			return state;
 	}

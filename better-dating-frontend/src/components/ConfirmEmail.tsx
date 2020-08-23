@@ -2,11 +2,11 @@ import * as React from "react";
 import { useRouter } from 'next/router';
 import { Form } from 'react-final-form';
 import { Typography, Button } from '@material-ui/core';
-import { postData, firstValueIfArray } from '../utils';
+import { postData, useToken } from '../utils';
 import { CenteredSpinner } from './common';
 import { profile } from '../components/navigation/NavigationUrls';
 import * as Messages from './Messages';
-import { expiredTokenMessage, tokenName } from '../Messages';
+import { expiredTokenMessage } from '../Messages';
 import { SpinnerAdornment } from './common';
 
 type Props = {
@@ -16,8 +16,8 @@ type Props = {
 }
 
 const ConfirmEmail = ({ onTokenVerified, onErrorVerifying, onRequestAnotherValidationToken }: Props) => {
+	const token = useToken();
 	const router = useRouter();
-	const token = firstValueIfArray(router.query[tokenName]);
 	const [hasExpiredToken, setHasExpiredToken] = React.useState<boolean | null>(null);
 
 	React.useEffect(() => {

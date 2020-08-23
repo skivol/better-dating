@@ -11,7 +11,7 @@ export const resolveTokenMessage = (message: string) => {
         case "No such token":
             return "Токен не найден.";
         case expiredTokenMessage:
-            return "Токен просрочен. Запросите еще один и проверьте его в течение 1 дня.";
+            return "Токен просрочен. Запросите еще один и используйте его в течение 1 дня.";
         default:
             return "Неизвестная ошибка. Попробуйте еще раз позже.";
     }
@@ -21,6 +21,7 @@ export const requiredField = 'обязательное поле';
 export const invalidFormat = 'неправильный формат';
 export const minValue = (minValue: number) => `наименьшее допустимое значение ${minValue}`;
 export const maxValue = (maxValue: number) => `наибольшее допустимое значение ${maxValue}`;
+export const maxLength = (maxLength: number) => `наибольшая допустимая длина ${maxLength}`;
 export const shouldBeOlderThan12 = 'нужно быть старше 12 лет';
 
 export const neverPurposefully = 'Целенаправленно не занимаюсь вообще';

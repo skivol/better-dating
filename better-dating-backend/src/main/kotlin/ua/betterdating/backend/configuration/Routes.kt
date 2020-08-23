@@ -1,4 +1,4 @@
-package ua.betterdating.backend
+package ua.betterdating.backend.configuration
 
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.server.coRouter
@@ -6,6 +6,7 @@ import ua.betterdating.backend.handlers.EmailHandler
 import ua.betterdating.backend.handlers.HealthHandler
 import ua.betterdating.backend.handlers.AuthHandler
 import ua.betterdating.backend.handlers.UserProfileHandler
+import ua.betterdating.backend.mapErrorToResponse
 
 fun routes(
         emailHandler: EmailHandler,
@@ -23,6 +24,8 @@ fun routes(
         POST("/", accept(APPLICATION_JSON), userProfileHandler::createProfile)
         GET("/", userProfileHandler::profile)
         PUT("/", accept(APPLICATION_JSON), userProfileHandler::updateProfile)
+        POST("/request-removal", accept(APPLICATION_JSON), userProfileHandler::requestRemoval)
+        DELETE("/", accept(APPLICATION_JSON), userProfileHandler::removeProfile)
     }
 
     GET("/api/support/csrf", authHandler::csrf)

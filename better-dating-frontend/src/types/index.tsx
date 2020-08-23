@@ -10,3 +10,10 @@ export interface StatusSnackbarState {
   message: string;
   variant: SnackbarVariant;
 }
+
+export interface UserState {
+  loading: boolean;
+  loadError: any;
+  id: string | null;
+  roles: any;
+}

@@ -17,7 +17,7 @@ fun dataConfig(emailRepository: EmailRepository, dbPasswordFile: String) = confi
         url = r2dbcProperties.url
         username = r2dbcProperties.username
         password = dbPassword
-        optionsCustomizer = listOf(ConnectionFactoryOptionsBuilderCustomizer {
+        optionsCustomizers = listOf(ConnectionFactoryOptionsBuilderCustomizer {
             it.option(ConnectionFactoryOptions.CONNECT_TIMEOUT, Duration.of(30, ChronoUnit.SECONDS))
         })
         transactional = true
@@ -38,5 +38,7 @@ fun dataConfig(emailRepository: EmailRepository, dbPasswordFile: String) = confi
         bean<WeightRepository>()
         bean<ActivityRepository>()
         bean<ProfileEvaluationRepository>()
+        bean<EmailChangeHistoryRepository>()
+        bean<ProfileDeletionFeedbackRepository>()
     }
 }

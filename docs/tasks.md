@@ -1,10 +1,15 @@
-* Удалить профиль (подтверждение через почту) - вести статистику количества удаленных профилей ?
 * Просмотреть профиль другого учасника / автора системы
 * Сохранять прогресс заполнения формы регистрации в локальном хранилище ? (только с оповещением об этом пользователя, с возможностью очистить)
 * админка (количество зарегистрированных людей, количество удалений профилей, возможность отправить тестовое письмо?)
-* Обновить файлы sitemap
+* Обновить файлы sitemap ?
+* Encryption (BitLocker, CentOS encryption - https://wiki.centos.org/HowTos/EncryptedFilesystem)
 
-* Обновить сайт и и сообщить об этом в соц. сетях
+[проверить настройки Redis]
+[проверить отсутствие токенов]
+[проверить политику конфиденциальности в связи с последними функциями]
+* Обновить сайт
+* Обновить настройки приложения в Facebook & Vk
+* сообщить об этом в соц. сетях (создать страницы для приложения ?)
 
 * Второй этап
     Цель встреч (поиск второй половинки)
@@ -34,7 +39,6 @@
     ** график: здоровье во времени (приближение)
 * Экспортировать данные профиля в, например, json (export)
 * иконки для выбора пола, слайдеры для веса/роста
-* добавить детей к иконке символизирующей семью
 * добавить иконки CentOS, Docker, React, Fort Awesome, GitHub в благодарности ?
 * Дополнительные способы входа  (Google? / Ok.ru?) (social login) / Viber / Telegram ?
 * Возможность голосовать за темы новых постов ?
@@ -58,13 +62,15 @@
 * continue developing the concept
 * >> gamification... rebrand to a game ? (with scores visible only to you etc) <<
 * limit parallel mail sending
+* добавить уровни сложности ? (более простой режим использования мог бы для начала упускать некоторую информацию/данные?)
+* добавить детей к иконке символизирующей семью ?
+* "submitting" флаг не всегда работает (например, RemoveProfile), компонент не обновляется?
 
 * fix README file.
 * fix og:image https://webmaster.yandex.ru/tools/microtest/ (ОШИБКА: поле http://ogp.me/ns#image отсутствует или пусто)
 * integration tests using cypress
 
 * LEGAL questions (trademark/non-profitable-entity, user agreement / rules / GDPR ?)
-* Encryption (BitLocker, CentOS encryption)
 
 * protect from DDOS attacks: https://javapipe.com/blog/iptables-ddos-protection/
 * fix caching in Nginx etc
@@ -116,3 +122,5 @@
 * form.getFieldState('fieldName') differs from field's own meta passed in, for example, validate callback (when, for example, initialValues changed after submit).
 * (I use this behavior atm) form reset on change of initialValues
 * dirtyAfterLastSubmit doesn't seem to take into account latest submitted values, but initialValues instead.
+## spring-data-r2dbc
+* one vs first

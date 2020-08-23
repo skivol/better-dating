@@ -13,7 +13,6 @@ class EmailValue(val email: String) {
     }
 }
 
-data class EmailStatus(val used: Boolean)
 class CreateProfileRequest(
         val acceptTerms: Boolean,
         email: String,
@@ -103,4 +102,16 @@ enum class Recurrence {
     coupleTimesInWeek,
     everyDay,
     severalTimesInDay
+}
+
+enum class DeleteReason {
+    expectedSomethingElse, tooComplicated, other
+}
+
+data class DeleteProfileData(val token: String, val reason: DeleteReason, val explanationComment: String) {
+    init {
+        validate(this) {
+            validate(DeleteProfileData::explanationComment).hasSize(max = 255)
+        }
+    }
 }

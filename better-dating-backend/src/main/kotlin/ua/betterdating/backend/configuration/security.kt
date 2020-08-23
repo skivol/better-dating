@@ -66,6 +66,7 @@ import java.nio.charset.Charset.defaultCharset
 
 fun securityConfig(emailRepository: EmailRepository) = configuration {
     val securityContextRepository = WebSessionServerSecurityContextRepository()
+    val delegatingLogoutHandler = logoutHandler()
     beans {
         bean<PasswordEncoder> {
             val idForEncode = "bcrypt"
@@ -73,6 +74,7 @@ fun securityConfig(emailRepository: EmailRepository) = configuration {
         }
         bean<ServerSecurityContextRepository> { securityContextRepository }
         bean<ForwardedHeaderTransformer>("forwardedHeaderTransformer")
+        bean { delegatingLogoutHandler }
     }
 
     reactiveRedis {
@@ -123,7 +125,7 @@ fun securityConfig(emailRepository: EmailRepository) = configuration {
             formLogin { disable() }
             logout {
                 logoutUrl = "/api/auth/logout"
-                logoutHandler = logoutHandler()
+                logoutHandler = delegatingLogoutHandler
                 logoutSuccessHandler = HttpStatusReturningServerLogoutSuccessHandler()
             }
             oauth2Login {

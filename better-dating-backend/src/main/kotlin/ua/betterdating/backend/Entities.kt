@@ -1,5 +1,6 @@
 package ua.betterdating.backend
 
+import org.springframework.data.annotation.Id
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -7,28 +8,29 @@ import java.util.*
 class Email(
         var email: String,
         var verified: Boolean,
-        var id: UUID = UUID.randomUUID()
+        @Id var id: UUID = UUID.randomUUID()
 )
 
 class ExpiringToken(
-        var profileId: UUID,
-        var expires: LocalDateTime,
-        var type: TokenType,
-        var encodedValue: String
+        @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
+        val type: TokenType,
+        val expires: LocalDateTime,
+        val encodedValue: String
 )
 
 enum class TokenType {
     EMAIL_VERIFICATION,
-    ONE_TIME_PASSWORD
+    ONE_TIME_PASSWORD,
+    ACCOUNT_REMOVAL
 }
 
 class AcceptedTerms(
-        val profileId: UUID,
+        @Id val profileId: UUID,
         val lastDateAccepted: LocalDateTime
 )
 
 class ProfileInfo(
-        val profileId: UUID,
+        @Id val profileId: UUID,
         val gender: Gender,
         val birthday: LocalDate,
         val createdAt: LocalDateTime?,
@@ -36,28 +38,41 @@ class ProfileInfo(
 )
 
 class Height(
-        val profileId: UUID,
+        @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
         val date: LocalDateTime,
         val height: Float
 )
 
 class Weight(
-        val profileId: UUID,
+        @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
         val date: LocalDateTime,
         val weight: Float
 )
 
 class Activity(
-        val profileId: UUID,
+        @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
         val name: String,
         val date: LocalDateTime,
         val recurrence: Recurrence
 )
 
 class ProfileEvaluation(
-        val sourceProfileId: UUID,
+        @Id val sourceProfileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
         val targetProfileId: UUID,
         val date: LocalDateTime,
         val evaluation: Int,
         val comment: String?
+)
+
+class EmailChangeHistory(
+        @Id val id: Long,
+        val profileId: UUID,
+        val email: String,
+        val changeOn: LocalDateTime
+)
+
+class ProfileDeletionFeedback(
+        @Id val profileId: UUID,
+        val reason: DeleteReason,
+        val explanationComment: String
 )

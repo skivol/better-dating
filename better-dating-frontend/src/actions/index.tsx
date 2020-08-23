@@ -1,10 +1,10 @@
 import { Action } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
 import { formatISO } from 'date-fns';
-import { SnackbarVariant } from '../types';
+import { SnackbarVariant, UserState } from '../types';
 import { ThunkResult } from '../configureStore';
 import * as constants from '../constants';
-import { postData, putData } from '../utils/FetchUtils';
+import { browser, getData, postData, putData, deleteData } from '../utils';
 import * as Messages from './Messages';
 import { resolveTokenMessage } from '../Messages';
 
@@ -18,7 +18,12 @@ export interface CloseSnackbar {
 	type: constants.CLOSE_SNACKBAR;
 }
 
-export type BetterDatingAction = OpenSnackbar | CloseSnackbar;
+export interface UserAction {
+	type: constants.USER;
+	user: UserState;
+}
+
+export type BetterDatingAction = OpenSnackbar | CloseSnackbar | UserAction;
 
 export const openSnackbar = (message: string, variant: SnackbarVariant): OpenSnackbar => ({
 	type: constants.OPEN_SNACKBAR,
@@ -75,6 +80,25 @@ export const updateAccount = (values: any, emailChanged: boolean | undefined, do
 	}
 };
 
+export const requestAccountRemoval = (): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+	try {
+		await postData('/api/user/profile/request-removal');
+		dispatch(openSnackbar(Messages.linkForRemovingProfileWasSent, SnackbarVariant.info));
+	} catch (error) {
+		dispatch(openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error));
+	}
+};
+
+export const removeAccount = (token: string, reason: string, explanationComment: string): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+	try {
+		await deleteData('/api/user/profile', { token, reason, explanationComment });
+		dispatch(openSnackbar(Messages.profileWasRemoved, SnackbarVariant.info));
+		dispatch(user(constants.emptyUser));
+	} catch (error) {
+		dispatch(openSnackbar(resolveTokenMessage(error), SnackbarVariant.error));
+	}
+};
+
 export const requestAnotherValidationToken = (previousToken: string): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
 		await postData('/api/user/email/new-verification', { token: previousToken });
@@ -84,10 +108,28 @@ export const requestAnotherValidationToken = (previousToken: string): ThunkResul
 	}
 }
 
+export const fetchUser = (): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+	if (browser()) {
+		dispatch(user({ ...constants.emptyUser, loading: true }));
+		try {
+			const response = await getData('/api/auth/me');
+			dispatch(user({ ...constants.emptyUser, ...response }));
+		} catch (e) {
+			dispatch(user({ ...constants.emptyUser, loadError: e }));
+		}
+	}
+}
+
+export const user = (user: any) => ({
+	type: constants.USER,
+	user
+});
+
 export const logout = (): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
 		await postData('/api/auth/logout');
 		dispatch(openSnackbar(Messages.successLogout, SnackbarVariant.success));
+		dispatch(user(constants.emptyUser));
 	} catch (error) {
 		dispatch(openSnackbar(Messages.errorLogout, SnackbarVariant.error));
 	}

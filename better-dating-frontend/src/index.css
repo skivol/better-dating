@@ -38,6 +38,9 @@ input:-webkit-autofill {
 .u-padding-15px {
   padding: 15px;
 }
+.u-min-width-30px {
+  min-width: 30px !important; /* .MuiListItemIcon-root has it as well */
+}
 .u-min-width-300px {
   min-width: 300px;
 }
@@ -170,6 +173,22 @@ input:-webkit-autofill {
   color: green !important; /* MuiButtonBase-root, MuiToggleButton-root have it as well */
 }
 
+.u-color-red {
+  color: red !important; /* MuiButtonBase-root, MuiToggleButton-root have it as well */
+}
+
+.u-color-black {
+  color: black !important; /* MuiButtonBase-root, MuiToggleButton-root have it as well */
+}
+
 .MuiAlert-message p {
   margin-block-start: 0;
+}
+
+.u-display-flex {
+  display: flex;
+}
+
+.u-align-self-end {
+  align-self: end;
 }

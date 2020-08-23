@@ -6,6 +6,8 @@ export const successTriggeringNewVerificationMessage = 'Новое письмо 
 export const successUpdatingProfileMessage = 'Обновление данных профиля успешно!';
 export const successUpdatingProfileAndChangingEmailMessage = 'Обновление данных профиля успешно! На указанный новый адрес было выслано письмо для проверки.';
 export const errorUpdatingProfileMessage = oopsSomethingWentWrong;
+export const linkForRemovingProfileWasSent = 'Ссылка для удаления профиля была выслана на почту.';
+export const profileWasRemoved = 'Профиль был успешно удален! Надеемся на скорое возвращение :)';
 
 export const alreadyPresentEmail = 'Такая почта уже существует';
 

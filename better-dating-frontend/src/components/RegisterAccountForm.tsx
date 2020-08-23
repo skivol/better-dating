@@ -12,6 +12,9 @@ import {
 import { Alert } from '@material-ui/lab';
 import { Field } from 'react-final-form';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
+
 import * as Messages from './Messages';
 import { TermsOfUserAgreement, RegistrationFormData, defaultValues as registrationDataDefaults } from './register-account';
 import { Email, Gender, Birthday, Height, Weight, PersonalHealthEvaluation, renderActions, SubmitButton } from './profile';
@@ -53,7 +56,8 @@ export const RegisterAccountForm = ({ onSubmit }: IDispatchProps) => {
                         <Grid item>
                             <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
                                 <div className="u-center-horizontally u-fit-content u-margin-bottom-10px">
-                                    <Typography variant="h3" className="u-bold">
+                                    <Typography variant="h3" className="u-bold u-text-align-center">
+                                        <FontAwesomeIcon icon={faUserPlus} className="u-right-margin-10px" />
                                         {Messages.Registration}
                                     </Typography>
                                 </div>

@@ -12,7 +12,6 @@ import ua.betterdating.backend.handlers.AuthHandler
 import ua.betterdating.backend.handlers.EmailHandler
 import ua.betterdating.backend.handlers.HealthHandler
 import ua.betterdating.backend.handlers.UserProfileHandler
-import ua.betterdating.backend.routes
 
 fun webConfig(emailRepository: EmailRepository) = configuration {
     beans {

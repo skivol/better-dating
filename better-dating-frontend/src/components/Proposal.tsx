@@ -88,8 +88,7 @@ export const Proposal = () => {
 					</Grid>
 					<Grid container justify="center">
 						<Grid item style={{ border: '1px solid gray', borderRadius: '10px', padding: '0 10px 10px 0', marginTop: '10px' }}>
-							<ReactMarkdownMaterialUi source={Messages.flowDescription} />
-							<div className="u-max-width-400px u-center-horizontally">{Messages.logoQuestion}</div>
+							<ReactMarkdownMaterialUi className="u-max-width-400px" source={Messages.flowDescription} />
 						</Grid>
 					</Grid>
 				</Paper>

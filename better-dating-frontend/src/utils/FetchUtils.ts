@@ -59,5 +59,6 @@ const requestWithBody = async (method: string, url: string, data: object) => {
 
 export const postData = async (url: string, data: object = {}) => requestWithBody('POST', url, data);
 export const putData = async (url: string, data: object = {}) => requestWithBody('PUT', url, data);
+export const deleteData = async (url: string, data: object = {}) => requestWithBody('DELETE', url, data);
 
 export const firstValueIfArray = (target: string[] | string) => (target instanceof Array ? target[0] : target);

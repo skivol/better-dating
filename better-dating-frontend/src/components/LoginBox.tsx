@@ -5,6 +5,7 @@ import {
     Paper,
     Typography,
     Button,
+    Divider
 } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -58,6 +59,21 @@ const LoginBoxComponent = ({ onLoginLink }: IDispatchProps) => {
                                                 {Messages.enterUsingEmail}
                                             </Typography>
                                         </Button>
+                                        <Link href={{ pathname: toPage(registerAccount), query: { email: values.email } }} as={registerAccount}>
+                                            <Button
+                                                className={classes.button}
+                                                variant="text"
+                                                color="secondary"
+                                                startIcon={<FontAwesomeIcon icon={faUserPlus} />}
+                                            >
+                                                <Typography>
+                                                    {Messages.register}
+                                                </Typography>
+                                            </Button>
+                                        </Link>
+                                    </Grid>
+                                    <Divider className="u-margin-top-bottom-10px" />
+                                    <Grid container justify="center" alignItems="center">
                                         <Button
                                             className={classes.button}
                                             href="/api/auth/login/oauth2/authorization/facebook"
@@ -80,18 +96,6 @@ const LoginBoxComponent = ({ onLoginLink }: IDispatchProps) => {
                                                 {Messages.enterUsingVk}
                                             </Typography>
                                         </Button>
-                                        <Link href={{ pathname: toPage(registerAccount), query: { email: values.email } }} as={registerAccount}>
-                                            <Button
-                                                className={classes.button}
-                                                variant="text"
-                                                color="secondary"
-                                                startIcon={<FontAwesomeIcon icon={faUserPlus} />}
-                                            >
-                                                <Typography>
-                                                    {Messages.register}
-                                                </Typography>
-                                            </Button>
-                                        </Link>
                                     </Grid>
                                 </Paper>
                             </form>

@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     application
-	id("org.springframework.boot") version "2.3.0.RELEASE"
+	id("org.springframework.boot") version "2.4.0-M2"
 	id("io.spring.dependency-management") version "1.0.9.RELEASE"
 
 	kotlin("jvm") version "1.4.0"
@@ -33,7 +33,6 @@ dependencyManagement {
 	imports {
 		mavenBom("io.projectreactor:reactor-bom:Bismuth-RELEASE") // https://projectreactor.io/docs/core/release/reference/#getting
 		mavenBom("io.netty:netty-bom:4.1.50.Final")
-		mavenBom("io.r2dbc:r2dbc-bom:Arabba-RELEASE") // https://github.com/r2dbc/r2dbc-bom (configures "r2dbc-postgresql")
 		mavenBom("org.springframework.boot:spring-boot-dependencies:2.4.0-SNAPSHOT")
 	}
 }
@@ -45,7 +44,7 @@ dependencies {
 	implementation("org.flywaydb:flyway-core")
 
     // # Reactive client
-	implementation("org.springframework:spring-r2dbc")
+	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
 	implementation("io.r2dbc:r2dbc-postgresql")
 	implementation("org.postgresql:postgresql")
 

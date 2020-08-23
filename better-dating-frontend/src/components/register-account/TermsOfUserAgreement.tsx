@@ -9,20 +9,19 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBookOpen } from '@fortawesome/free-solid-svg-icons';
 
+import { useDialog } from '../../utils';
 import * as Messages from '../Messages';
 import TermsOfUsageDialog from './TermsOfUsageDialog';
 
 export function TermsOfUserAgreement({ input: { onChange, value }, label, ...rest }: any) {
-    const [termsOfUsageDialogIsOpen, setTermsOfUsageDialogIsOpen] = React.useState(false);
-    const openUsageTermsDialog = () => setTermsOfUsageDialogIsOpen(true);
-    const handleClose = () => setTermsOfUsageDialogIsOpen(false);
+    const { dialogIsOpen, openDialog, closeDialog } = useDialog();
     const handleConfirm = () => {
         onChange(true);
-        handleClose();
+        closeDialog();
     };
     const handleDecline = () => {
         onChange(false);
-        handleClose();
+        closeDialog();
     };
 
     return (
@@ -31,7 +30,7 @@ export function TermsOfUserAgreement({ input: { onChange, value }, label, ...res
                 <Button
                     variant="contained"
                     color="primary"
-                    onClick={openUsageTermsDialog}
+                    onClick={openDialog}
                     endIcon={<FontAwesomeIcon icon={faBookOpen} />}
                 >
                     {Messages.userAgreement}
@@ -41,17 +40,17 @@ export function TermsOfUserAgreement({ input: { onChange, value }, label, ...res
                 <FormControlLabel
                     value="start"
                     control={
-                        <Checkbox required onClick={openUsageTermsDialog} checked={value} color="primary" {...rest} />
+                        <Checkbox required onClick={openDialog} checked={value} color="primary" {...rest} />
                     }
                     label={label}
                     labelPlacement="start"
                 />
             </Grid>
             <TermsOfUsageDialog
-                handleClose={handleClose}
+                handleClose={closeDialog}
                 handleConfirm={handleConfirm}
                 handleDecline={handleDecline}
-                open={termsOfUsageDialogIsOpen}
+                open={dialogIsOpen}
             />
         </Grid>
     );

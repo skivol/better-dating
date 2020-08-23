@@ -14,11 +14,12 @@ import * as Messages from '../Messages';
 const currentDateLocale = ru;
 
 // Дата рождения (год-месяц-день)
-export const Birthday = () => (
+export const Birthday = ({ id = "birthday" }: { id?: string; }) => (
     <Grid item>
         <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
             <MuiPickersUtilsProvider locale={currentDateLocale} utils={DateFnsUtils}>
                 <KeyboardDatePicker
+                    id={id}
                     required
                     disableToolbar
                     disableFuture

@@ -1,11 +1,12 @@
 import { createStore, combineReducers, applyMiddleware, Action } from 'redux';
-import logger from 'redux-logger';
+import { createLogger } from 'redux-logger';
 import thunk, { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import { snackbarReducer } from './reducers';
+import { snackbarReducer, userReducer } from './reducers';
 
 const rootReducer = combineReducers({
 	snackbar: snackbarReducer,
+	user: userReducer,
 });
 
 // https://redux.js.org/recipes/usage-with-typescript
@@ -16,8 +17,9 @@ export type BetterDatingThunkDispatch = ThunkDispatch<BetterDatingStoreState, un
 
 const dev = process.env.NODE_ENV !== 'production';
 
+const predicate = (getState: any, action: any) => 'function' !== typeof action;
 export const configureStore = (preloadedState?: BetterDatingStoreState) => {
-	const composedEnhancers = composeWithDevTools(applyMiddleware(...[...(dev ? [logger] : []), thunk]));
+	const composedEnhancers = composeWithDevTools(applyMiddleware(...[...(dev ? [createLogger({ predicate })] : []), thunk]));
 	const store = createStore(rootReducer, preloadedState, composedEnhancers);
 
 	if (dev && module.hot) {
