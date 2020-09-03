@@ -4,15 +4,16 @@ import { withStyles, Theme, withTheme } from '@material-ui/core/styles';
 export interface SpinnerAdornmentProps {
     classes: any;
     theme: Theme;
+    color?: string;
 }
 export const SpinnerAdornment = withTheme(withStyles({
     root: {
         marginLeft: 5
     }
-})(({ classes, theme }: SpinnerAdornmentProps) => (
+})(({ classes, theme, color = theme.palette.primary.contrastText }: SpinnerAdornmentProps) => (
     <CircularProgress
         className={classes.spinner}
-        style={{ color: theme.palette.primary.contrastText }}
+        style={{ color }}
         size={20}
     />
 )));

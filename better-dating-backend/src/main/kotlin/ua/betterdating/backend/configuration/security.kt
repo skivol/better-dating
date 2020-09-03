@@ -56,15 +56,12 @@ import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer
 import reactor.core.publisher.Mono
-import ua.betterdating.backend.EmailNotRegisteredException
-import ua.betterdating.backend.EmailRepository
-import ua.betterdating.backend.EmailWasNotProvidedException
-import ua.betterdating.backend.generateUrlSafeToken
+import ua.betterdating.backend.*
 import ua.betterdating.backend.handlers.createAuth
 import java.net.URLEncoder.encode
 import java.nio.charset.Charset.defaultCharset
 
-fun securityConfig(emailRepository: EmailRepository) = configuration {
+fun securityConfig(emailRepository: EmailRepository, roleRepository: UserRoleRepository) = configuration {
     val securityContextRepository = WebSessionServerSecurityContextRepository()
     val delegatingLogoutHandler = logoutHandler()
     beans {
@@ -89,7 +86,7 @@ fun securityConfig(emailRepository: EmailRepository) = configuration {
     val authenticationManager = OAuth2SimpleAuthenticationManager(
             WebClientReactiveAuthorizationCodeTokenResponseClient(),
             DefaultReactiveOAuth2UserService(),
-            emailRepository
+            emailRepository, roleRepository
     )
     val authorizationRequestRepository = WebSessionOAuth2ServerAuthorizationRequestRepository()
     val authorizationRequestResolver = DefaultServerOAuth2AuthorizationRequestResolver(
@@ -206,7 +203,8 @@ class OAuth2SimpleLoginWebFilter(authenticationManager: ReactiveAuthenticationMa
 class OAuth2SimpleAuthenticationManager(
         client: ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
         userService: ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User>,
-        private val emailRepository: EmailRepository
+        private val emailRepository: EmailRepository,
+        private val roleRepository: UserRoleRepository
 ) : OAuth2LoginReactiveAuthenticationManager(client, userService) {
     override fun authenticate(authentication: Authentication?): Mono<Authentication> {
         val token = authentication as OAuth2AuthorizationCodeAuthenticationToken
@@ -231,7 +229,9 @@ class OAuth2SimpleAuthenticationManager(
                             emailRepository.updateMono(profile)
                         } else {
                             Mono.empty()
-                        }.then(Mono.just(createAuth(profile.id.toString())))
+                        }.then(roleRepository.findAllMono(profile.id).map {
+                            roles -> createAuth(profile.id.toString(), roles)
+                        })
                     }.switchIfEmpty(Mono.error(EmailNotRegisteredException(email)))
         }
     }

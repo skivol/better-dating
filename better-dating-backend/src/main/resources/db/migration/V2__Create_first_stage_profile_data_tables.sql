@@ -85,18 +85,36 @@ CREATE TRIGGER save_email_change_history_trigger
 	ON email FOR EACH ROW
 	EXECUTE PROCEDURE save_email_change_history();
 
--- Email verification + one time passwords / account removal etc tokens support
+-- Email verification + one time passwords / account removal / view other user profile etc tokens support
 CREATE TABLE expiring_token (
+	id uuid NOT NULL,
 	profile_id uuid NOT NULL,
 	encoded_value varchar(255) NOT NULL,
 	expires timestamp without time zone NOT NULL,
 	type varchar(30) NOT NULL,
-	CONSTRAINT expiring_token_pk PRIMARY KEY (profile_id, type),
+	CONSTRAINT expiring_token_pk PRIMARY KEY (id),
 	CONSTRAINT expiring_token_fk FOREIGN KEY (profile_id) REFERENCES email(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Use more secure email verification token (see expiring_token)
 DROP TABLE email_verification_token;
+
+-- View other user extra token data
+CREATE TABLE view_other_user_profile_token_data (
+	token_id uuid NOT NULL,
+	target_profile_id uuid NOT NULL,
+	CONSTRAINT view_other_user_profile_token_data_pk PRIMARY KEY (token_id),
+	CONSTRAINT view_other_user_profile_token_data__token_id_fk FOREIGN KEY (token_id) REFERENCES expiring_token(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT view_other_user_profile_token_data__target_profile_id_fk FOREIGN KEY (target_profile_id) REFERENCES email(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Track who and when viewed whose profile
+CREATE TABLE profile_view_history (
+	viewer_profile_id uuid NOT NULL,
+	target_profile_id uuid NOT NULL,
+	date timestamp without time zone NOT NULL,
+	CONSTRAINT profile_view_history_pk PRIMARY KEY (viewer_profile_id, target_profile_id, date)
+);
 
 -- Feedback when removing account
 CREATE TABLE profile_deletion_feedback (
@@ -105,4 +123,10 @@ CREATE TABLE profile_deletion_feedback (
 	explanation_comment varchar(255) NOT NULL
 );
 
--- TODO Introduce user roles
+-- Introduce user roles
+CREATE TABLE user_role (
+	profile_id uuid NOT NULL,
+	role varchar(30) NOT NULL,
+	CONSTRAINT user_role_pk PRIMARY KEY (profile_id, role),
+	CONSTRAINT user_role_fk FOREIGN KEY (profile_id) REFERENCES email(id) ON DELETE CASCADE ON UPDATE CASCADE
+);

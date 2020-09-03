@@ -53,7 +53,7 @@ export const RemoveProfile = () => {
                     explanationComment: null
                 }}
                 onSubmit={onProfileRemove}
-                render={({ handleSubmit, submitting }) => {
+                render={({ handleSubmit }) => {
                     return (
                         <form onSubmit={handleSubmit}>
                             <Grid container direction="column" spacing={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
@@ -81,8 +81,8 @@ export const RemoveProfile = () => {
                                         type="submit"
                                         variant="outlined"
                                         className="u-color-red"
-                                        disabled={submitting}
-                                        startIcon={submitting ? <SpinnerAdornment /> : <FontAwesomeIcon icon={faUserMinus} />}
+                                        disabled={performingAccountRemoval}
+                                        startIcon={performingAccountRemoval ? <SpinnerAdornment color="red" /> : <FontAwesomeIcon icon={faUserMinus} />}
                                     >
                                         {Messages.removeProfile}
                                     </Button>

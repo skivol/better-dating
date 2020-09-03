@@ -23,8 +23,8 @@ spring:
     # 30 days
     timeout: 2592000
     store-type: redis
-  session-redis:
-    namespace: "spring:session"
+    redis:
+      namespace: "spring:session"
   security:
     oauth2:
       client:

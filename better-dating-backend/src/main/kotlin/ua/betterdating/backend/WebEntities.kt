@@ -41,7 +41,7 @@ class CreateProfileRequest(
 
 open class Profile(
         var id: UUID?,
-        val email: String,
+        var email: String,
         val gender: Gender,
         val birthday: LocalDate,
         val height: Float,

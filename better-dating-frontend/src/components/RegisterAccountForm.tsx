@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router'
 
 import { Form } from 'react-final-form';
@@ -15,6 +16,7 @@ import { Field } from 'react-final-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
+import * as actions from '../actions';
 import * as Messages from './Messages';
 import { TermsOfUserAgreement, RegistrationFormData, defaultValues as registrationDataDefaults } from './register-account';
 import { Email, Gender, Birthday, Height, Weight, PersonalHealthEvaluation, renderActions, SubmitButton } from './profile';
@@ -28,11 +30,7 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 );
 
-export interface IDispatchProps {
-    onSubmit: (data: RegistrationFormData) => void;
-}
-
-export const RegisterAccountForm = ({ onSubmit }: IDispatchProps) => {
+export const RegisterAccountForm = () => {
     const classes = useStyles();
     const router = useRouter();
     const email = Array.isArray(router.query.email) ? router.query.email[0] : router.query.email;
@@ -40,6 +38,8 @@ export const RegisterAccountForm = ({ onSubmit }: IDispatchProps) => {
         ...registrationDataDefaults,
         email
     };
+    const dispatch = useDispatch();
+    const onSubmit = (values: RegistrationFormData) => dispatch(actions.createAccount(values));
 
     return (
         <Form
@@ -85,7 +85,7 @@ export const RegisterAccountForm = ({ onSubmit }: IDispatchProps) => {
                         <Birthday />
                         <Height />
                         <Weight />
-                        {renderActions(null, false)}
+                        {renderActions(null, false, false)}
                         <PersonalHealthEvaluation />
 
                         <SubmitButton

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useDispatch } from "react-redux";
 import { parseISO } from 'date-fns';
 import { FormApi } from 'final-form';
 import { Form } from 'react-final-form';
@@ -9,19 +10,20 @@ import {
     Button,
     ButtonGroup,
     Menu, MenuItem, ListItemIcon, ListItemText,
-    Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
 } from '@material-ui/core';
-import { ToggleButton, Alert } from '@material-ui/lab';
+import { ToggleButton } from '@material-ui/lab';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faUserCheck, faUserMinus, faEllipsisV, faIdCard } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faUserCheck, faUserMinus, faEllipsisV, faIdCard, faBinoculars } from '@fortawesome/free-solid-svg-icons';
 
-import { useMenu, useDialog } from '../utils';
+import * as actions from '../actions';
+import { emailHasChanged, useMenu, useDialog } from '../utils';
 import * as Messages from './Messages';
 import {
     ProfileFormData, Email, Gender, Birthday, Height,
-    Weight, AnalyzedSection, PersonalHealthEvaluation, renderActions
+    Weight, AnalyzedSection, PersonalHealthEvaluation, renderActions,
+    AccountRemovalConfirm, ViewOtherUserProfileConfirm
 } from './profile';
 
 import { SpinnerAdornment } from './common';
@@ -34,20 +36,42 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 );
 
-export interface IDispatchProps {
-    onSubmit: (data: any, form: FormApi<any>, doAfter: () => void) => void;
-    requestProfileRemoval: () => void;
-}
-
-export interface Props extends IDispatchProps {
+type Props = {
     profileData: ProfileFormData;
-}
+    readonly: boolean;
+};
 
 const fromBackendProfileValues = ({ birthday, ...restValues }: any) => ({
     ...restValues, bday: parseISO(birthday)
 });
 
-export const Profile = ({ profileData, onSubmit, requestProfileRemoval }: Props) => {
+export const Profile = ({ profileData, readonly = false }: Props) => {
+    const dispatch = useDispatch();
+    const [loading, setLoading] = React.useState(false);
+    const [saving, setSaving] = React.useState(false);
+
+    const onSubmit = (values: any, form: FormApi<any>) => {
+        setSaving(true);
+        dispatch(actions.updateAccount(values, emailHasChanged(form), () => setInitialValues(values)))
+            .finally(() => setSaving(false));
+    };
+    const onProfileRemove = () => {
+        setLoading(true);
+        dispatch(actions.requestAccountRemoval()).then(() => {
+            setLoading(false);
+            closeDialog();
+            setConfirmType(null);
+        });
+    };
+    const onRequestViewAuthorsProfile = () => {
+        setLoading(true);
+        dispatch(actions.viewAuthorsProfile()).then(() => {
+            setLoading(false);
+            closeDialog();
+            setConfirmType(null);
+        });
+    };
+
     const classes = useStyles();
     const profileDataWithDate = fromBackendProfileValues(profileData);
     const [initialValues, setInitialValues] = React.useState(profileDataWithDate);
@@ -61,47 +85,40 @@ export const Profile = ({ profileData, onSubmit, requestProfileRemoval }: Props)
 
     const { anchorEl, menuIsOpen, openMenu, closeMenu } = useMenu();
     const { dialogIsOpen, openDialog, closeDialog } = useDialog();
+    const [confirmType, setConfirmType] = React.useState<string | null>(null);
 
-    const showConfirm = () => {
+    const showConfirm = (type: string) => {
         closeMenu();
         openDialog();
+        setConfirmType(type);
     };
-    const onProfileRemove = () => {
-        closeDialog();
-        requestProfileRemoval();
-    };
-    const confirmDialog = (
-        <Dialog
-            open={dialogIsOpen}
-            onClose={closeDialog}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-        >
-            <DialogTitle id="alert-dialog-title">{Messages.areYouSureThatWantToRemoveProfile}</DialogTitle>
-            <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                    <Alert severity="error">{Messages.thisActionIsIrreversible}</Alert>
-                </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={closeDialog} color="secondary">
-                    {Messages.cancel}
-                </Button>
-                <Button onClick={onProfileRemove} className="u-color-red" autoFocus>
-                    {Messages.yesContinue}
-                </Button>
-            </DialogActions>
-        </Dialog>
-    );
+    let confirmDialog = null;
+    if (confirmType === 'accountRemoval') {
+        confirmDialog = (
+            <AccountRemovalConfirm
+                loading={loading}
+                dialogIsOpen={dialogIsOpen}
+                closeDialog={closeDialog}
+                onProfileRemove={onProfileRemove}
+            />
+        );
+    } else if (confirmType === 'viewAuthorsProfile') {
+        confirmDialog = (
+            <ViewOtherUserProfileConfirm
+                loading={loading}
+                dialogIsOpen={dialogIsOpen}
+                closeDialog={closeDialog}
+                onRequestViewAuthorsProfile={onRequestViewAuthorsProfile}
+            />
+        );
+    }
 
     return (
         <>
             <Form
                 initialValues={initialValues}
-                onSubmit={(values, form) => {
-                    onSubmit(values, form, () => setInitialValues(values));
-                }}
-                render={({ handleSubmit, values, pristine, submitting }) => {
+                onSubmit={onSubmit}
+                render={({ handleSubmit, values, pristine }) => {
                     return (
                         <form onSubmit={handleSubmit}>
                             <Grid
@@ -119,18 +136,18 @@ export const Profile = ({ profileData, onSubmit, requestProfileRemoval }: Props)
                                         </div>
                                     </Paper>
                                 </Grid>
-                                <Email />
-                                <Gender />
-                                <Birthday id="birthday" />
+                                {!readonly && <Email />}
+                                <Gender readonly={readonly} />
+                                <Birthday id="birthday" readonly={readonly} />
 
                                 <AnalyzedSection id="height-weight-analyze" type="height-weight" values={values} visible={showAnalysis}>
-                                    <Height />
-                                    <Weight />
+                                    <Height readonly={readonly} />
+                                    <Weight readonly={readonly} />
                                 </AnalyzedSection>
 
-                                {renderActions(values, showAnalysis)}
+                                {renderActions(values, showAnalysis, readonly)}
                                 <AnalyzedSection type="summary" values={values} visible={showAnalysis}>
-                                    <PersonalHealthEvaluation />
+                                    <PersonalHealthEvaluation readonly={readonly} />
                                 </AnalyzedSection>
 
                                 <ButtonGroup
@@ -138,14 +155,14 @@ export const Profile = ({ profileData, onSubmit, requestProfileRemoval }: Props)
                                     size="large"
                                     className={`${classes.button} u-center-horizontally`}
                                 >
-                                    <Button
+                                    {!readonly && (<Button
                                         color="primary"
                                         type="submit"
-                                        disabled={pristine || submitting}
-                                        startIcon={submitting ? <SpinnerAdornment /> : <FontAwesomeIcon icon={faSave} />}
+                                        disabled={pristine || saving}
+                                        startIcon={saving ? <SpinnerAdornment /> : <FontAwesomeIcon icon={faSave} />}
                                     >
                                         {Messages.save}
-                                    </Button>
+                                    </Button>)}
                                     <ToggleButton
                                         className="u-color-green"
                                         selected={showAnalysis}
@@ -155,14 +172,14 @@ export const Profile = ({ profileData, onSubmit, requestProfileRemoval }: Props)
                                         <FontAwesomeIcon className="MuiButton-startIcon" icon={faUserCheck} />
                                         {showAnalysis ? Messages.hideAnalysis : Messages.analyze}
                                     </ToggleButton>
-                                    <Button
+                                    {!readonly && (<Button
                                         className="u-color-black"
                                         onClick={openMenu}
                                     >
                                         <FontAwesomeIcon className="MuiButton-startIcon" icon={faEllipsisV} size="lg" />
-                                    </Button>
+                                    </Button>)}
                                 </ButtonGroup>
-                                <Menu
+                                {!readonly && (<Menu
                                     id="menu-profile-extra"
                                     anchorEl={anchorEl}
                                     anchorOrigin={{
@@ -177,11 +194,15 @@ export const Profile = ({ profileData, onSubmit, requestProfileRemoval }: Props)
                                     open={menuIsOpen}
                                     onClose={closeMenu}
                                 >
-                                    <MenuItem onClick={showConfirm}>
+                                    <MenuItem onClick={() => showConfirm('accountRemoval')}>
                                         <ListItemIcon className="u-color-red u-min-width-30px"><FontAwesomeIcon className="MuiButton-startIcon" icon={faUserMinus} /></ListItemIcon>
                                         <ListItemText className="u-color-red">{Messages.removeProfile}</ListItemText>
                                     </MenuItem>
-                                </Menu>
+                                    <MenuItem onClick={() => showConfirm('viewAuthorsProfile')}>
+                                        <ListItemIcon className="u-min-width-30px"><FontAwesomeIcon className="MuiButton-startIcon" icon={faBinoculars} /></ListItemIcon>
+                                        <ListItemText>{Messages.viewAuthorsProfile}</ListItemText>
+                                    </MenuItem>
+                                </Menu>)}
                             </Grid>
                         </form>
                     );

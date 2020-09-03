@@ -1,2 +1,2 @@
-import RegisterAccountForm from '../containers/RegisterAccountForm';
+import RegisterAccountForm from '../components/RegisterAccountForm';
 export default RegisterAccountForm;

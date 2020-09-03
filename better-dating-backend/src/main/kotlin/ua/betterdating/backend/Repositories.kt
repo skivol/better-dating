@@ -1,5 +1,6 @@
 package ua.betterdating.backend
 
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.data.domain.Sort.Direction.DESC
@@ -9,6 +10,8 @@ import org.springframework.data.relational.core.query.Criteria.where
 import org.springframework.data.relational.core.query.Query.query
 import org.springframework.data.relational.core.query.Update.update
 import org.springframework.r2dbc.core.DatabaseClient
+import org.springframework.r2dbc.core.awaitOneOrNull
+import org.springframework.r2dbc.core.awaitRowsUpdated
 import java.time.LocalDateTime
 import java.util.*
 
@@ -40,7 +43,24 @@ class EmailRepository(templateSupplier: Lazy<R2dbcEntityTemplate>) {
     ).allAndAwait()
 }
 
-class ExpiringTokenRepository(private val template: R2dbcEntityTemplate) {
+class UserRoleRepository(templateSupplier: Lazy<R2dbcEntityTemplate>) {
+    private val template by templateSupplier
+
+    suspend fun save(userRole: UserRole): UserRole = template.insert<UserRole>().usingAndAwait(userRole)
+
+    suspend fun findAll(profileId: UUID): List<UserRole> = findAllMono(profileId).awaitFirst()
+
+    fun findAllMono(profileId: UUID) =
+            template.select<UserRole>().matching(query(where("profile_id").`is`(profileId))).all().collectList()
+
+    suspend fun delete(profileId: UUID) =
+            template.delete<UserRole>().matching(query(where("profile_id").`is`(profileId))).allAndAwait()
+
+    suspend fun findAdmin(): UserRole? =
+            template.select<UserRole>().matching(query(where("role").`is`(Role.ROLE_ADMIN))).awaitFirstOrNull()
+}
+
+class ExpiringTokenRepository(private val template: R2dbcEntityTemplate, private val client: DatabaseClient) {
     suspend fun save(token: ExpiringToken): ExpiringToken =
             template.insert<ExpiringToken>().usingAndAwait(token)
 
@@ -49,6 +69,12 @@ class ExpiringTokenRepository(private val template: R2dbcEntityTemplate) {
                     .matching(query(
                             where("profile_id").`is`(profileId).and("type").`is`(type)
                     )).awaitOneOrNull()
+
+    suspend fun findEmailByTokenId(id: UUID): Email? = client.sql(
+            "SELECT id, email, verified FROM email e JOIN expiring_token et ON e.id = et.profile_id WHERE et.id = :tokenId"
+    ).bind("tokenId", id).map { row, _ ->
+        Email(email = row["email"] as String, verified = row["verified"] as Boolean, id = row["id"] as UUID)
+    }.awaitOneOrNull()
 
     suspend fun delete(token: ExpiringToken) = deleteByProfileIdAndTypeIfAny(token.profileId, token.type)
 
@@ -60,6 +86,9 @@ class ExpiringTokenRepository(private val template: R2dbcEntityTemplate) {
 
     suspend fun deleteByProfileId(profileId: UUID) =
             template.delete<ExpiringToken>().matching(query(where("profile_id").`is`(profileId))).allAndAwait()
+
+    suspend fun findById(id: UUID): ExpiringToken? =
+            template.select<ExpiringToken>().matching(query(where("id").`is`(id))).awaitOneOrNull()
 }
 
 class AcceptedTermsRepository(private val template: R2dbcEntityTemplate) {
@@ -150,11 +179,36 @@ class ProfileEvaluationRepository(private val template: R2dbcEntityTemplate) {
 }
 
 class EmailChangeHistoryRepository(private val template: R2dbcEntityTemplate) {
-    suspend fun delete(profileId: UUID) = template.delete<EmailChangeHistory>().matching(
-            query(where("profile_id").`is`(profileId))
-    ).allAndAwait()
+    suspend fun delete(profileId: UUID) =
+            template.delete<EmailChangeHistory>().matching(query(where("profile_id").`is`(profileId))).allAndAwait()
 }
 
 class ProfileDeletionFeedbackRepository(private val template: R2dbcEntityTemplate) {
     suspend fun save(feedback: ProfileDeletionFeedback): ProfileDeletionFeedback = template.insert<ProfileDeletionFeedback>().usingAndAwait(feedback)
+}
+
+class ViewOtherUserProfileTokenDataRepository(private val template: R2dbcEntityTemplate) {
+    suspend fun save(tokenData: ViewOtherUserProfileTokenData): ViewOtherUserProfileTokenData =
+            template.insert<ViewOtherUserProfileTokenData>().usingAndAwait(tokenData)
+
+    suspend fun find(tokenId: UUID): ViewOtherUserProfileTokenData =
+            template.select<ViewOtherUserProfileTokenData>().matching(query(where("token_id").`is`(tokenId))).awaitFirst()
+}
+
+class ProfileViewHistoryRepository(private val template: R2dbcEntityTemplate, private val client: DatabaseClient) {
+    suspend fun save(viewHistory: ProfileViewHistory): ProfileViewHistory =
+            template.insert<ProfileViewHistory>().usingAndAwait(viewHistory)
+
+    suspend fun delete(profileId: UUID) =
+            client.sql("DELETE FROM profile_view_history pvh WHERE " +
+                    // deleting view history where current user viewed already removed profile
+                    "(pvh.viewer_profile_id = :profileId AND NOT EXISTS (" +
+                    "  SELECT id FROM email e WHERE e.id = pvh.target_profile_id" +
+                    ")) " +
+                    // or current user was viewed by the user whose profile was already removed
+                    "OR (pvh.target_profile_id = :profileId AND NOT EXISTS (" +
+                    "  SELECT id FROM email e WHERE e.id = pvh.viewer_profile_id" +
+                    "))")
+                    .bind("profileId", profileId)
+                    .fetch().awaitRowsUpdated()
 }

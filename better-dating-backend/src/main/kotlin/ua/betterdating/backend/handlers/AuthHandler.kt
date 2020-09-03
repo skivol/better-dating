@@ -19,11 +19,13 @@ import org.springframework.web.reactive.function.server.awaitBody
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import ua.betterdating.backend.*
 import ua.betterdating.backend.TokenType.ONE_TIME_PASSWORD
+import java.util.*
 
 class AuthHandler(
         private val emailRepository: EmailRepository,
         private val freemarkerMailSender: FreemarkerMailSender,
         private val expiringTokenRepository: ExpiringTokenRepository,
+        private val roleRepository: UserRoleRepository,
         private val passwordEncoder: PasswordEncoder,
         private val transactionalOperator: TransactionalOperator,
         private val serverSecurityContextRepository: ServerSecurityContextRepository
@@ -57,23 +59,16 @@ class AuthHandler(
 
     suspend fun login(request: ServerRequest): ServerResponse {
         val decodedToken = request.awaitBody<Token>().decode()
-        val dbPassword = expiringTokenRepository.findByProfileIdAndType(decodedToken.profileId, ONE_TIME_PASSWORD)
-                ?: throwBadCredentials()
-        val profile = emailRepository.findById(decodedToken.profileId) ?: throwBadCredentials()
-
-        if (dbPassword.expired()) {
-            throw ExpiredTokenException()
-        }
-        if (!passwordEncoder.matches(decodedToken.tokenValue, dbPassword.encodedValue)) {
-            throwBadCredentials()
-        }
-        if (!profile.verified) {
-            throw DisabledException("1001")
-        }
+        expiringTokenRepository.findById(decodedToken.id)?.also { dbPassword ->
+            dbPassword.verify(decodedToken, ONE_TIME_PASSWORD, passwordEncoder)
+        } ?: throwBadCredentials()
+        val profile = expiringTokenRepository.findEmailByTokenId(decodedToken.id)?.also { profile ->
+            if (!profile.verified) throw DisabledException("1001")
+        } ?: throwBadCredentials()
 
         transactionalOperator.executeAndAwait {
-            authenticate(decodedToken, request)
-            expiringTokenRepository.deleteByProfileIdAndTypeIfAny(decodedToken.profileId, ONE_TIME_PASSWORD)
+            authenticate(profile.id, request)
+            expiringTokenRepository.deleteByProfileIdAndTypeIfAny(profile.id, ONE_TIME_PASSWORD)
         }
 
         return okEmptyJsonObject()
@@ -87,20 +82,15 @@ class AuthHandler(
     /**
      * see also AuthenticationWebFilter::onAuthenticationSuccess
      */
-    suspend fun authenticate(decodedToken: DecodedToken, request: ServerRequest) {
-        val auth = createAuth(decodedToken.profileId.toString())
+    suspend fun authenticate(profileId: UUID, request: ServerRequest) {
+        val auth = createAuth(profileId.toString(), roleRepository.findAll(profileId))
         SecurityContextHolder.getContext().authentication = auth
         serverSecurityContextRepository.save(request.exchange(), SecurityContextHolder.getContext()).awaitFirstOrNull()
     }
-
-    private suspend fun throwBadCredentials(): Nothing {
-        randomDelay(500, 4_000)
-        throw BadCredentialsException("1000")
-    }
 }
 
-fun createAuth(profileId: String): UsernamePasswordAuthenticationToken {
-    val userDetails = User(profileId, "", listOf(SimpleGrantedAuthority("ROLE_USER")))
+fun createAuth(profileId: String, roles: List<UserRole>): UsernamePasswordAuthenticationToken {
+    val userDetails = User(profileId, "", roles.map { SimpleGrantedAuthority(it.role.toString()) })
     return UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
 }
 

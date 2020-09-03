@@ -23,21 +23,17 @@ class EmailHandler(
 
     suspend fun verifyEmail(request: ServerRequest): ServerResponse {
         val decodedToken = request.awaitBody<Token>().decode()
-        val token = expiringTokenRepository.findByProfileIdAndType(decodedToken.profileId, EMAIL_VERIFICATION)
-                ?: throw NoSuchTokenException()
-        if (token.expired()) {
-            throw ExpiredTokenException()
-        }
-        if (!passwordEncoder.matches(decodedToken.tokenValue, token.encodedValue)) {
-            throw NoSuchTokenException()
-        }
+        val token = (expiringTokenRepository.findById(decodedToken.id) ?: throwNoSuchToken())
+                .also { dbToken ->
+                    dbToken.verify(decodedToken, EMAIL_VERIFICATION, passwordEncoder)
+                }
         val email = emailRepository.findById(token.profileId)!!
         email.verified = true
         transactionalOperator.executeAndAwait {
             emailRepository.update(email)
             expiringTokenRepository.delete(token)
             if (request.awaitPrincipal() == null) { // authenticate only if not already authenticated
-                authHandler.authenticate(decodedToken, request)
+                authHandler.authenticate(email.id, request)
             }
         }
         return okEmptyJsonObject()
@@ -45,8 +41,10 @@ class EmailHandler(
 
     suspend fun triggerNewVerification(request: ServerRequest): ServerResponse {
         val decodedToken = request.awaitBody<Token>().decode()
-        val token = expiringTokenRepository.findByProfileIdAndType(decodedToken.profileId, EMAIL_VERIFICATION)
-                ?: return mapErrorToResponse(NoSuchTokenException(), request)
+        val token = expiringTokenRepository.findById(decodedToken.id)
+                ?.also { dbToken ->
+                    if (dbToken.type !== EMAIL_VERIFICATION) throwNoSuchToken()
+                } ?: throwNoSuchToken()
         val email = emailRepository.findById(token.profileId)!!
 
         transactionalOperator.executeAndAwait {

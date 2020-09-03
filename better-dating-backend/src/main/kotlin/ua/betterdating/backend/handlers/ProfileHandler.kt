@@ -3,17 +3,17 @@ package ua.betterdating.backend.handlers
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.server.WebFilterExchange
 import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import org.springframework.web.reactive.function.server.*
-import org.springframework.web.server.WebFilterChain
+import org.springframework.web.reactive.function.server.ServerResponse.ok
 import reactor.core.publisher.Mono
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
+import ua.betterdating.backend.TokenType.VIEW_OTHER_USER_PROFILE
 import java.util.*
 
 class UserProfileHandler(
@@ -27,6 +27,9 @@ class UserProfileHandler(
         private val expiringTokenRepository: ExpiringTokenRepository,
         private val emailChangeHistoryRepository: EmailChangeHistoryRepository,
         private val profileDeletionFeedbackRepository: ProfileDeletionFeedbackRepository,
+        private val userRoleRepository: UserRoleRepository,
+        private val tokenDataRepository: ViewOtherUserProfileTokenDataRepository,
+        private val profileViewHistoryRepository: ProfileViewHistoryRepository,
         private val logoutHandler: DelegatingServerLogoutHandler,
         private val passwordEncoder: PasswordEncoder,
         private val transactionalOperator: TransactionalOperator,
@@ -77,14 +80,15 @@ class UserProfileHandler(
             weightRepository.save(weight)
             activities.forEach { activityRepository.save(it) }
             profileEvaluationRepository.save(profileEvaluation)
+            userRoleRepository.save(UserRole(profileId, Role.ROLE_USER))
             freemarkerMailSender.sendWelcomeAndVerifyEmailMessage(email.id, email.email, request)
         }
-        return ServerResponse.ok().json().bodyValueAndAwait(validCreateProfileRequest)
+        return ok().json().bodyValueAndAwait(validCreateProfileRequest)
     }
 
     suspend fun profile(request: ServerRequest): ServerResponse {
         val profile = currentUserProfile(request)
-        return ServerResponse.ok().json().bodyValueAndAwait(profile)
+        return ok().json().bodyValueAndAwait(profile)
     }
 
     suspend fun updateProfile(request: ServerRequest): ServerResponse {
@@ -121,12 +125,11 @@ class UserProfileHandler(
             changedHealthEvaluation?.let { profileEvaluationRepository.save(it) }
         }
 
-        return ServerResponse.ok().json().bodyValueAndAwait(profile)
+        return ok().json().bodyValueAndAwait(profile)
     }
 
     suspend fun requestRemoval(request: ServerRequest): ServerResponse {
-        val profile = emailRepository.findById(UUID.fromString(request.awaitPrincipal()!!.name))
-                ?: throw EmailNotFoundException()
+        val profile = currentUserEmail(request)
         val subject = "Запрос на удаление профиля на сайте смотрины.укр & смотрины.рус"
         transactionalOperator.executeAndAwait {
             freemarkerMailSender.generateAndSendLinkWithToken(
@@ -144,32 +147,39 @@ class UserProfileHandler(
         return okEmptyJsonObject()
     }
 
+    private suspend fun currentUserEmail(request: ServerRequest): Email {
+        return emailRepository.findById(UUID.fromString(request.awaitPrincipal()!!.name))
+                ?: throw EmailNotFoundException()
+    }
+
     suspend fun removeProfile(request: ServerRequest): ServerResponse {
-        val payload = request.awaitBody<DeleteProfileData>()
+        val deleteProfileData = request.awaitBody<DeleteProfileData>()
         val principal = request.awaitPrincipal()
 
         // verify token
-        val profileId = UUID.fromString(principal!!.name)
-        val dbToken = expiringTokenRepository.findByProfileIdAndType(profileId, TokenType.ACCOUNT_REMOVAL ) ?: throwNoSuchTokenException()
-        val decodedToken = Token(payload.token).decode()
-        if (!passwordEncoder.matches(decodedToken.tokenValue, dbToken.encodedValue)) {
-            throwNoSuchTokenException()
+        val currentUserProfileId = UUID.fromString(principal!!.name)
+        val webToken = Token(deleteProfileData.token).decode()
+        val dbToken = (expiringTokenRepository.findById(webToken.id) ?: throwNoSuchToken()).also {
+            if (it.profileId != currentUserProfileId) throwNoSuchToken() // only own profile removal is allowed
         }
+        dbToken.verify(webToken, TokenType.ACCOUNT_REMOVAL, passwordEncoder)
 
         transactionalOperator.executeAndAwait {
             // remove profile data
-            profileEvaluationRepository.delete(profileId)
-            activityRepository.delete(profileId)
-            weightRepository.delete(profileId)
-            heightRepository.delete(profileId)
-            profileInfoRepository.delete(profileId)
-            acceptedTermsRepository.delete(profileId)
-            expiringTokenRepository.deleteByProfileId(profileId)
-            emailRepository.delete(profileId)
-            emailChangeHistoryRepository.delete(profileId)
+            profileEvaluationRepository.delete(currentUserProfileId)
+            activityRepository.delete(currentUserProfileId)
+            weightRepository.delete(currentUserProfileId)
+            heightRepository.delete(currentUserProfileId)
+            profileInfoRepository.delete(currentUserProfileId)
+            acceptedTermsRepository.delete(currentUserProfileId)
+            expiringTokenRepository.deleteByProfileId(currentUserProfileId)
+            userRoleRepository.delete(currentUserProfileId)
+            profileViewHistoryRepository.delete(currentUserProfileId)
+            emailRepository.delete(currentUserProfileId)
+            emailChangeHistoryRepository.delete(currentUserProfileId)
 
             // + save feedback
-            profileDeletionFeedbackRepository.save(ProfileDeletionFeedback(profileId, payload.reason, payload.explanationComment))
+            profileDeletionFeedbackRepository.save(ProfileDeletionFeedback(currentUserProfileId, deleteProfileData.reason, deleteProfileData.explanationComment))
         }
         // perform logout
         logoutHandler.logout(WebFilterExchange(request.exchange()) { Mono.empty() }, principal as Authentication).awaitFirstOrNull()
@@ -177,9 +187,50 @@ class UserProfileHandler(
         return okEmptyJsonObject()
     }
 
-    private suspend fun throwNoSuchTokenException(): Nothing {
-        randomDelay(500, 4_000) // let's not reveal that token doesn't exist in the system so quickly
-        throw NoSuchTokenException()
+    suspend fun requestViewOfAuthorsProfile(request: ServerRequest): ServerResponse {
+        // find out who is admin
+        val adminProfileId = (userRoleRepository.findAdmin() ?: throw AuthorNotFoundException()).profileId
+        val currentUserEmail = currentUserEmail(request)
+
+        // send token
+        val subject = "Ссылка для просмотра профиля автора сайта смотрины.укр & смотрины.рус"
+        transactionalOperator.executeAndAwait {
+            freemarkerMailSender.generateAndSendLinkWithToken(
+                    currentUserEmail.id, VIEW_OTHER_USER_PROFILE, "LinkToViewOtherUserProfile.ftlh",
+                    currentUserEmail.email, subject, request, "просмотр-профиля",
+                    // while saving additional token payload
+                    { token -> tokenDataRepository.save(ViewOtherUserProfileTokenData(token.id, adminProfileId)) }
+            ) { link ->
+                object {
+                    val title = subject
+                    val actionLabel = "Просмотр профиля"
+                    val actionUrl = link
+                }
+            }
+        }
+        return okEmptyJsonObject()
+    }
+
+    suspend fun viewOtherUserProfile(request: ServerRequest): ServerResponse {
+        val webToken = request.queryParam("token").map { Token(it).decode() }
+                .orElseThrow { throw NoSuchTokenException() }
+        val dbToken = expiringTokenRepository.findById(webToken.id) ?: throwNoSuchToken()
+        dbToken.verify(webToken, VIEW_OTHER_USER_PROFILE, passwordEncoder)
+
+        // prepare profile data view (without email)
+        val tokenData = tokenDataRepository.find(dbToken.id)
+        val targetProfileData = existingProfileById(tokenData.targetProfileId).also {
+            it.email = "" // we're not revealing target user email here
+        }
+
+        transactionalOperator.executeAndAwait {
+            // track who viewed whose profile
+            profileViewHistoryRepository.save(ProfileViewHistory(dbToken.profileId, tokenData.targetProfileId, now()))
+            // remove token (as it is one time only)
+            expiringTokenRepository.delete(dbToken)
+        }
+
+        return ok().json().bodyValueAndAwait(targetProfileData)
     }
 
     private fun changedHealthEvaluation(existingProfile: Profile, profile: Profile) = if (existingProfile.personalHealthEvaluation != profile.personalHealthEvaluation) {

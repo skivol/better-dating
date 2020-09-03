@@ -62,3 +62,23 @@ export const putData = async (url: string, data: object = {}) => requestWithBody
 export const deleteData = async (url: string, data: object = {}) => requestWithBody('DELETE', url, data);
 
 export const firstValueIfArray = (target: string[] | string) => (target instanceof Array ? target[0] : target);
+
+export const headers = (req: any) => req.rawHeaders.reduce((acc: { [key: string]: string }, curr: string, index: number, arr: string[]) => {
+	if (index % 2 == 0) {
+		acc[arr[index]] = arr[index + 1];
+	}
+	return acc;
+}, {});
+
+export const handleUnauthorized = (error: any, res: any) => {
+	if (unauthorized(error)) {
+		if (res) {
+			res.writeHead(301, { Location: '/' });
+			res.end();
+		}
+
+		return { props: {} };
+	}
+	return null;
+}
+

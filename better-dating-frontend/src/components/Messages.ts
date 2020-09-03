@@ -105,9 +105,12 @@ export const save = 'Сохранить';
 export const analyze = 'Проанализировать';
 export const hideAnalysis = 'Скрыть анализ';
 export const removeProfile = 'Удалить профиль';
-export const areYouSureThatWantToRemoveProfile = 'Вы уверены, что хотите удалить свой профиль ?'
+export const viewAuthorsProfile = 'Профиль автора';
+export const areYouSureThatWantToRemoveProfile = 'Вы уверены, что хотите удалить свой профиль?'
 export const thisActionIsIrreversible = 'Это действие нельзя будет отменить!';
 export const yesContinue = 'Да, продолжить';
+export const areYouSureThatWantToSeeAuthorsProfile = 'Выслать ссылку для просмотра профиля автора системы?'
+export const whenYouLookAtOtherUserProfileThenOwnerWillKnowAboutThis = 'Так как система стремится быть прозрачной, владелец профиля будет знать об этом.';
 export const logout = 'Выйти';
 
 export const profileRemoval = 'Удаление профиля';

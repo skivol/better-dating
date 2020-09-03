@@ -1,29 +1,18 @@
 import { GetServerSideProps } from 'next';
-import { getData, unauthorized } from '../utils/FetchUtils';
-import Profile from '../containers/Profile';
+import { getData, handleUnauthorized, headers } from '../utils';
+import { Profile } from '../components/Profile';
 
 export default Profile;
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }: any) => {
-    const headers = req.rawHeaders.reduce((acc: { [key: string]: string }, curr: string, index: number, arr: string[]) => {
-        if (index % 2 == 0) {
-            acc[arr[index]] = arr[index + 1];
-        }
-        return acc;
-    }, {});
-
     try {
-        const profileData = await getData(`${process.env.BACKEND_HOST}/api/user/profile`, undefined, headers);
+        const profileData = await getData(`${process.env.BACKEND_HOST}/api/user/profile`, undefined, headers(req));
         return { props: { profileData } };
     } catch (error) {
-        if (unauthorized(error)) {
-            if (res) {
-                res.writeHead(301, { Location: '/' });
-                res.end();
-            }
-
-            return { props: {} };
+        const result = handleUnauthorized(error, res);
+        if (!result) {
+            throw error;
         }
-        throw error;
+        return result;
     }
 };

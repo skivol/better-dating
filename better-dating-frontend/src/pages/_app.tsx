@@ -8,7 +8,7 @@ import { Container, CssBaseline } from '@material-ui/core';
 import { theme } from '../configureTheme';
 import Header from '../components/toplevel/Header';
 import Footer from '../components/toplevel/Footer';
-import StatusSnackbar from '../containers/StatusSnackbar';
+import StatusSnackbar from '../components/StatusSnackbar';
 import Meta from '../utils/Meta';
 import * as Messages from '../components/Messages';
 import { configureStore } from '../configureStore';

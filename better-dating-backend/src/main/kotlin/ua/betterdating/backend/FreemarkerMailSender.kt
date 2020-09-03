@@ -19,7 +19,15 @@ class FreemarkerMailSender(
     suspend fun generateAndSendLinkWithToken(
             profileId: UUID, type: TokenType, templateName: String,
             to: String, subject: String,
-            request: ServerRequest, urlPath: String, templateParams: (link: String) -> Any
+            request: ServerRequest, urlPath: String,
+            templateParams: (link: String) -> Any
+    ) = generateAndSendLinkWithToken(profileId, type, templateName, to, subject, request, urlPath, {}, templateParams)
+
+    suspend fun generateAndSendLinkWithToken(
+            profileId: UUID, type: TokenType, templateName: String,
+            to: String, subject: String,
+            request: ServerRequest, urlPath: String, saveExtraTokenData: suspend (token: ExpiringToken) -> Any,
+            templateParams: (link: String) -> Any
     ) {
         val token = generateUrlSafeToken()
         val expiringToken = ExpiringToken(
@@ -28,9 +36,10 @@ class FreemarkerMailSender(
         )
         expiringTokenRepository.deleteByProfileIdAndTypeIfAny(profileId, type)
         expiringTokenRepository.save(expiringToken)
+        saveExtraTokenData.invoke(expiringToken)
 
         val unicodeHostHeader = unicodeHostHeader(request)
-        val link = "https://$unicodeHostHeader/$urlPath?токен=${encodeToken(profileId, token)}"
+        val link = "https://$unicodeHostHeader/$urlPath?токен=${encodeToken(expiringToken.id, token)}"
         val body = renderTemplate(templateConfigurationFactory, templateName, templateParams.invoke(link))
 
         smotrinyMailSender.send(to = to, subject = subject, body = body)

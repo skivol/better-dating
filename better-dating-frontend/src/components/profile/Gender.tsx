@@ -12,11 +12,12 @@ const genderRadioData = [
 ];
 
 // Пол (мужской / женский)
-export const Gender = () => (
+export const Gender = ({ readonly }: any) => (
     <Grid item>
         <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
             <Radios
                 required
+                disabled={readonly}
                 label={Messages.gender}
                 name="gender"
                 data={genderRadioData}

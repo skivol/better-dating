@@ -9,11 +9,12 @@ import { validateHeight } from '../../utils/ValidationUtils';
 import * as Messages from '../Messages';
 
 // Рост (см)
-export const Height = () => (
+export const Height = ({ readonly }: any) => (
     <Grid item>
         <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
             <TextField
                 required
+                disabled={readonly}
                 name="height"
                 label={Messages.height}
                 variant="outlined"

@@ -8,6 +8,7 @@ export const successUpdatingProfileAndChangingEmailMessage = 'Обновлени
 export const errorUpdatingProfileMessage = oopsSomethingWentWrong;
 export const linkForRemovingProfileWasSent = 'Ссылка для удаления профиля была выслана на почту.';
 export const profileWasRemoved = 'Профиль был успешно удален! Надеемся на скорое возвращение :)';
+export const linkForViewingAuthorsProfileWasSent = 'Ссылка для просмотра профиля автора была выслана на почту.';
 
 export const alreadyPresentEmail = 'Такая почта уже существует';
 

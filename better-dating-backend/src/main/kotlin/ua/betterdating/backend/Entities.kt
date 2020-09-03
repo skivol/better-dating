@@ -12,7 +12,8 @@ class Email(
 )
 
 class ExpiringToken(
-        @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
+        @Id val id: UUID = UUID.randomUUID(),
+        val profileId: UUID,
         val type: TokenType,
         val expires: LocalDateTime,
         val encodedValue: String
@@ -21,7 +22,8 @@ class ExpiringToken(
 enum class TokenType {
     EMAIL_VERIFICATION,
     ONE_TIME_PASSWORD,
-    ACCOUNT_REMOVAL
+    ACCOUNT_REMOVAL,
+    VIEW_OTHER_USER_PROFILE
 }
 
 class AcceptedTerms(
@@ -75,4 +77,24 @@ class ProfileDeletionFeedback(
         @Id val profileId: UUID,
         val reason: DeleteReason,
         val explanationComment: String
+)
+
+enum class Role {
+    ROLE_USER,
+    ROLE_ADMIN
+}
+class UserRole(
+        @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
+        val role: Role,
+)
+
+class ViewOtherUserProfileTokenData(
+        @Id val tokenId: UUID,
+        val targetProfileId: UUID
+)
+
+class ProfileViewHistory(
+        @Id val viewerProfileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
+        val targetProfileId: UUID,
+        val date: LocalDateTime
 )

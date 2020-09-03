@@ -1,7 +1,11 @@
 import * as React from "react";
+import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import { Form } from 'react-final-form';
 import { Typography, Button } from '@material-ui/core';
+import { SnackbarVariant } from '../types';
+import * as actions from '../actions';
+import { resolveTokenMessage, successVerifyingEmailMessage } from '../Messages';
 import { postData, useToken } from '../utils';
 import { CenteredSpinner } from './common';
 import { profile } from '../components/navigation/NavigationUrls';
@@ -9,16 +13,15 @@ import * as Messages from './Messages';
 import { expiredTokenMessage } from '../Messages';
 import { SpinnerAdornment } from './common';
 
-type Props = {
-	onTokenVerified: () => void;
-	onErrorVerifying: (error: string) => void;
-	onRequestAnotherValidationToken: (prevToken: string) => any;
-}
-
-const ConfirmEmail = ({ onTokenVerified, onErrorVerifying, onRequestAnotherValidationToken }: Props) => {
+const ConfirmEmail = () => {
 	const token = useToken();
 	const router = useRouter();
+	const dispatch = useDispatch();
 	const [hasExpiredToken, setHasExpiredToken] = React.useState<boolean | null>(null);
+
+	const onRequestAnotherValidationToken = (previousToken: string) => dispatch(actions.requestAnotherValidationToken(previousToken));
+	const onTokenVerified = () => dispatch(actions.openSnackbar(successVerifyingEmailMessage, SnackbarVariant.success));
+	const onErrorVerifying = (errorMessage: string) => dispatch(actions.openSnackbar(resolveTokenMessage(errorMessage), SnackbarVariant.error));
 
 	React.useEffect(() => {
 		const verifyEmail = async (token: string) => {
@@ -65,6 +68,6 @@ const ConfirmEmail = ({ onTokenVerified, onErrorVerifying, onRequestAnotherValid
 			{requestAnotherValidationTokenButton}
 		</div>
 	);
-}
+};
 
 export default ConfirmEmail;

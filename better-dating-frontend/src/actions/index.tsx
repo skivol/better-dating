@@ -66,7 +66,7 @@ export const performLogin = (token: string): ThunkResult<void> => async (dispatc
 	}
 };
 
-export const updateAccount = (values: any, emailChanged: boolean | undefined, doAfter: () => void): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+export const updateAccount = (values: any, emailChanged: boolean | undefined, doAfter: () => void): any => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
 		await putData(`/api/user/profile`, toBackendProfileValues(values));
 		const successMessage = emailChanged ? Messages.successUpdatingProfileAndChangingEmailMessage : Messages.successUpdatingProfileMessage;
@@ -80,7 +80,7 @@ export const updateAccount = (values: any, emailChanged: boolean | undefined, do
 	}
 };
 
-export const requestAccountRemoval = (): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+export const requestAccountRemoval = (): any => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
 		await postData('/api/user/profile/request-removal');
 		dispatch(openSnackbar(Messages.linkForRemovingProfileWasSent, SnackbarVariant.info));
@@ -89,13 +89,22 @@ export const requestAccountRemoval = (): ThunkResult<void> => async (dispatch: T
 	}
 };
 
-export const removeAccount = (token: string, reason: string, explanationComment: string): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+export const removeAccount = (token: string, reason: string, explanationComment: string): any => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
 		await deleteData('/api/user/profile', { token, reason, explanationComment });
 		dispatch(openSnackbar(Messages.profileWasRemoved, SnackbarVariant.info));
 		dispatch(user(constants.emptyUser));
 	} catch (error) {
 		dispatch(openSnackbar(resolveTokenMessage(error), SnackbarVariant.error));
+	}
+};
+
+export const viewAuthorsProfile = (): any => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+	try {
+		await postData('/api/user/profile/authors-profile');
+		dispatch(openSnackbar(Messages.linkForViewingAuthorsProfileWasSent, SnackbarVariant.info));
+	} catch (error) {
+		dispatch(openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error));
 	}
 };
 
@@ -125,7 +134,7 @@ export const user = (user: any) => ({
 	user
 });
 
-export const logout = (): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+export const logout = (): any => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
 		await postData('/api/auth/logout');
 		dispatch(openSnackbar(Messages.successLogout, SnackbarVariant.success));

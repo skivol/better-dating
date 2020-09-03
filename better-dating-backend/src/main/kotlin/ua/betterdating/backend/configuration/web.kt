@@ -8,12 +8,13 @@ import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 import ua.betterdating.backend.EmailRepository
+import ua.betterdating.backend.UserRoleRepository
 import ua.betterdating.backend.handlers.AuthHandler
 import ua.betterdating.backend.handlers.EmailHandler
 import ua.betterdating.backend.handlers.HealthHandler
 import ua.betterdating.backend.handlers.UserProfileHandler
 
-fun webConfig(emailRepository: EmailRepository) = configuration {
+fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleRepository) = configuration {
     beans {
         bean<EmailHandler>()
         bean<UserProfileHandler>()
@@ -22,7 +23,7 @@ fun webConfig(emailRepository: EmailRepository) = configuration {
         bean(::routes)
     }
 
-    enable(securityConfig(emailRepository))
+    enable(securityConfig(emailRepository, roleRepository))
 
     webFlux {
         port = if (profiles.contains("test")) 8181 else 8080

@@ -92,11 +92,12 @@ const actions = [{ /* Физкультура / физические упражн
     data: pornographyWatchingOptions
 }];
 
-const actionSelect = (values: any, showAnalysis = false) => ({ analysisType, validate, required, name, label, data, helperText }: any) => (
+const actionSelect = (values: any, showAnalysis = false, readonly = false) => ({ analysisType, validate, required, name, label, data, helperText }: any) => (
     <AnalyzedSection values={values} visible={showAnalysis} type={analysisType}>
         <Grid item key={name}>
             <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
                 <Select
+                    disabled={readonly}
                     required={required}
                     fieldProps={{ validate }}
                     name={name}
@@ -109,4 +110,4 @@ const actionSelect = (values: any, showAnalysis = false) => ({ analysisType, val
     </AnalyzedSection>
 );
 
-export const renderActions = (values: any, showAnalysis: boolean) => actions.map(actionSelect(values, showAnalysis));
+export const renderActions = (values: any, showAnalysis: boolean, readonly: boolean) => actions.map(actionSelect(values, showAnalysis, readonly));

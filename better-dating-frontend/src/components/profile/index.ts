@@ -9,3 +9,5 @@ export * from './PersonalHealthEvaluation';
 export * from './ProfileFormData';
 export * from './SubmitButton';
 export * from './Weight';
+export * from './AccountRemovalConfirm';
+export * from './ViewOtherUserProfileConfirm';

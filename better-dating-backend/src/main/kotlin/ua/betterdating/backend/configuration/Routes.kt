@@ -21,11 +21,13 @@ fun routes(
     }
 
     "/api/user/profile".nest {
-        POST("/", accept(APPLICATION_JSON), userProfileHandler::createProfile)
-        GET("/", userProfileHandler::profile)
-        PUT("/", accept(APPLICATION_JSON), userProfileHandler::updateProfile)
+        POST("", accept(APPLICATION_JSON), userProfileHandler::createProfile)
+        GET("", userProfileHandler::profile)
+        PUT("", accept(APPLICATION_JSON), userProfileHandler::updateProfile)
         POST("/request-removal", accept(APPLICATION_JSON), userProfileHandler::requestRemoval)
-        DELETE("/", accept(APPLICATION_JSON), userProfileHandler::removeProfile)
+        DELETE("", accept(APPLICATION_JSON), userProfileHandler::removeProfile)
+        POST("/authors-profile", accept(APPLICATION_JSON), userProfileHandler::requestViewOfAuthorsProfile)
+        GET("/view", userProfileHandler::viewOtherUserProfile)
     }
 
     GET("/api/support/csrf", authHandler::csrf)
