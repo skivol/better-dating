@@ -13,6 +13,7 @@ export const linkForViewingAuthorsProfileWasSent = 'Ссылка для прос
 export const alreadyPresentEmail = 'Такая почта уже существует';
 
 export const loginLinkWasSent = 'Ссылка для входа была отправлена на почту.';
+export const errorLogin = 'Ошибка при попытке входа';
 
 export const successLogout = 'Выход успешен!'
 export const errorLogout = oopsSomethingWentWrong;

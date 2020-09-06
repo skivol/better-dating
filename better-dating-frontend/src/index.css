@@ -127,19 +127,11 @@ input:-webkit-autofill {
   color: #1976d2;
 }
 
-.c-bottom-navigation-placeholder {
-  height: 100px;
-}
-
-.c-bottom-navigation {
+.c-clear-button {
   position: fixed;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  height: 100px !important;
-  z-index: 100;
-  padding: 16px;
-  margin-top: auto;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1; /* to avoid placeholders showing up on top of the button */
 }
 
 

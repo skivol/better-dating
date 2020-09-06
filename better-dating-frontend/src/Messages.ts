@@ -36,5 +36,3 @@ export const neverDidButDoNotKnowIfGoingToDoInFuture = 'Никогда этог�
 export const didBeforeButDoNotKnowIfGoingToDoInFuture = 'Делал(а) раньше, не знаю буду продолжать или нет';
 export const didBeforeNotGoingInFuture = 'Делал(а) раньше, не собираюсь в будущем';
 export const coupleTimesInYearOrMoreSeldom = 'Несколько раз в год или реже';
-
-export const errorLogin = 'Ошибка при попытке входа';

@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useDispatch } from "react-redux";
-import { parseISO } from 'date-fns';
 import { FormApi } from 'final-form';
 import { Form } from 'react-final-form';
 import {
@@ -18,7 +17,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faUserCheck, faUserMinus, faEllipsisV, faIdCard, faBinoculars } from '@fortawesome/free-solid-svg-icons';
 
 import * as actions from '../actions';
-import { emailHasChanged, useMenu, useDialog } from '../utils';
+import { emailHasChanged, useMenu, useDialog, fromBackendProfileValues } from '../utils';
 import * as Messages from './Messages';
 import {
     ProfileFormData, Email, Gender, Birthday, Height,
@@ -32,6 +31,9 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         button: {
             margin: theme.spacing(1),
+        },
+        icon: {
+            marginRight: theme.spacing(1),
         }
     })
 );
@@ -41,10 +43,6 @@ type Props = {
     readonly: boolean;
 };
 
-const fromBackendProfileValues = ({ birthday, ...restValues }: any) => ({
-    ...restValues, bday: parseISO(birthday)
-});
-
 export const Profile = ({ profileData, readonly = false }: Props) => {
     const dispatch = useDispatch();
     const [loading, setLoading] = React.useState(false);
@@ -52,24 +50,23 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
 
     const onSubmit = (values: any, form: FormApi<any>) => {
         setSaving(true);
-        dispatch(actions.updateAccount(values, emailHasChanged(form), () => setInitialValues(values)))
+        dispatch(actions.updateAccount(values, emailHasChanged(form)))
+            .then(() => setInitialValues(values))
             .finally(() => setSaving(false));
     };
     const onProfileRemove = () => {
         setLoading(true);
         dispatch(actions.requestAccountRemoval()).then(() => {
-            setLoading(false);
             closeDialog();
             setConfirmType(null);
-        });
+        }).finally(() => setLoading(false));
     };
     const onRequestViewAuthorsProfile = () => {
         setLoading(true);
         dispatch(actions.viewAuthorsProfile()).then(() => {
-            setLoading(false);
             closeDialog();
             setConfirmType(null);
-        });
+        }).finally(() => setLoading(false));
     };
 
     const classes = useStyles();
@@ -169,7 +166,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
                                         value="analyze"
                                         onChange={() => setShowAnalysis(!showAnalysis)}
                                     >
-                                        <FontAwesomeIcon className="MuiButton-startIcon" icon={faUserCheck} />
+                                        <FontAwesomeIcon className={`${classes.icon} MuiButton-startIcon`} icon={faUserCheck} />
                                         {showAnalysis ? Messages.hideAnalysis : Messages.analyze}
                                     </ToggleButton>
                                     {!readonly && (<Button

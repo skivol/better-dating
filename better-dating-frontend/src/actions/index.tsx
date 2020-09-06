@@ -1,10 +1,9 @@
 import { Action } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { formatISO } from 'date-fns';
 import { SnackbarVariant, UserState } from '../types';
 import { ThunkResult } from '../configureStore';
 import * as constants from '../constants';
-import { browser, getData, postData, putData, deleteData } from '../utils';
+import { browser, getData, postData, putData, deleteData, toBackendProfileValues } from '../utils';
 import * as Messages from './Messages';
 import { resolveTokenMessage } from '../Messages';
 
@@ -33,18 +32,15 @@ export const closeSnackbar = (): CloseSnackbar => ({
 	type: constants.CLOSE_SNACKBAR
 });
 
-export const toBackendProfileValues = ({ bday, ...restValues }: any) => ({ ...restValues, birthday: formatISO(bday, { representation: 'date' }) });
-
 const alreadyRegisteredEmail = (error: { message: string; }) => error.message === 'Email already registered';
-export const createAccount = (values: any): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+export const createAccount = (values: any): any => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
 		await postData('/api/user/profile', toBackendProfileValues(values));
 		dispatch(openSnackbar(Messages.successSubmittingProfileMessage, SnackbarVariant.success));
 	} catch (error) {
-		if (alreadyRegisteredEmail(error)) {
-			return dispatch(openSnackbar(Messages.alreadyPresentEmail, SnackbarVariant.error));
-		}
-		dispatch(openSnackbar(Messages.errorSubmittingProfileMessage, SnackbarVariant.error));
+		const message = alreadyRegisteredEmail(error) ? Messages.alreadyPresentEmail : Messages.errorSubmittingProfileMessage;
+		dispatch(openSnackbar(message, SnackbarVariant.error));
+		throw error;
 	}
 };
 
@@ -57,26 +53,24 @@ export const requestLogin = (email: string): ThunkResult<void> => async (dispatc
 	}
 };
 
-export const performLogin = (token: string): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+export const performLogin = (token: string): any => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
 		await postData('/api/auth/login', { token });
 	} catch (error) {
-		dispatch(openSnackbar(resolveTokenMessage(error), SnackbarVariant.error));
+		dispatch(openSnackbar(`${Messages.errorLogin}: ${resolveTokenMessage(error)}`, SnackbarVariant.error));
 		throw error;
 	}
 };
 
-export const updateAccount = (values: any, emailChanged: boolean | undefined, doAfter: () => void): any => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+export const updateAccount = (values: any, emailChanged: boolean | undefined): any => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
 		await putData(`/api/user/profile`, toBackendProfileValues(values));
 		const successMessage = emailChanged ? Messages.successUpdatingProfileAndChangingEmailMessage : Messages.successUpdatingProfileMessage;
 		dispatch(openSnackbar(successMessage, SnackbarVariant.success));
-		doAfter();
 	} catch (error) {
-		if (alreadyRegisteredEmail(error)) {
-			return dispatch(openSnackbar(Messages.alreadyPresentEmail, SnackbarVariant.error));
-		}
-		dispatch(openSnackbar(Messages.errorUpdatingProfileMessage, SnackbarVariant.error));
+		const message = alreadyRegisteredEmail(error) ? Messages.alreadyPresentEmail : Messages.errorUpdatingProfileMessage;
+		dispatch(openSnackbar(message, SnackbarVariant.error));
+		throw error;
 	}
 };
 
@@ -86,6 +80,7 @@ export const requestAccountRemoval = (): any => async (dispatch: ThunkDispatch<{
 		dispatch(openSnackbar(Messages.linkForRemovingProfileWasSent, SnackbarVariant.info));
 	} catch (error) {
 		dispatch(openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error));
+		throw error;
 	}
 };
 
@@ -105,6 +100,7 @@ export const viewAuthorsProfile = (): any => async (dispatch: ThunkDispatch<{}, 
 		dispatch(openSnackbar(Messages.linkForViewingAuthorsProfileWasSent, SnackbarVariant.info));
 	} catch (error) {
 		dispatch(openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error));
+		throw error;
 	}
 };
 

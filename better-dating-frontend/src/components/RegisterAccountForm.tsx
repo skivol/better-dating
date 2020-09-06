@@ -2,20 +2,23 @@ import * as React from "react";
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router'
 
-import { Form } from 'react-final-form';
+import { FormApi } from 'final-form';
+import { Form, FormSpy } from 'react-final-form';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Grid,
     Typography,
     Paper,
+    Fab
 } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { Field } from 'react-final-form';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faUserPlus, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 
+import { storageCreator, ensureBdayIsDate } from '../utils';
 import * as actions from '../actions';
 import * as Messages from './Messages';
 import { TermsOfUserAgreement, RegistrationFormData, defaultValues as registrationDataDefaults } from './register-account';
@@ -26,9 +29,14 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         button: {
             margin: theme.spacing(1),
-        }
+        },
+        icon: {
+            marginRight: theme.spacing(1),
+        },
     })
 );
+
+const storage = storageCreator("registration-data");
 
 export const RegisterAccountForm = () => {
     const classes = useStyles();
@@ -36,67 +44,98 @@ export const RegisterAccountForm = () => {
     const email = Array.isArray(router.query.email) ? router.query.email[0] : router.query.email;
     const initialValues = {
         ...registrationDataDefaults,
-        email
+        email,
+        ...ensureBdayIsDate(storage.load())
     };
     const dispatch = useDispatch();
-    const onSubmit = (values: RegistrationFormData) => dispatch(actions.createAccount(values));
+    const [submitting, setSubmitting] = React.useState(false);
+    const reset = (form: FormApi<RegistrationFormData>) => {
+        storage.clear();
+        form.reset(registrationDataDefaults);
+    };
+    const onSubmit = (values: RegistrationFormData, form: FormApi<RegistrationFormData>) => {
+        setSubmitting(true);
+        dispatch(actions.createAccount(values))
+            .then(() => reset(form))
+            .finally(() => setSubmitting(false));
+    };
 
-    return (
+    return ( // validateOnBlur doesn't seem to properly work (for example, email field)...
         <Form
             initialValues={initialValues}
             onSubmit={onSubmit}
-            render={({ handleSubmit, pristine, submitting }) => (
-                <form onSubmit={handleSubmit}>
-                    <Grid
-                        container
-                        direction="column"
-                        className="u-margin-top-bottom-15px u-min-width-450px u-padding-10px"
-                        spacing={2}
-                    >
-                        <Grid item>
-                            <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
-                                <div className="u-center-horizontally u-fit-content u-margin-bottom-10px">
-                                    <Typography variant="h3" className="u-bold u-text-align-center">
-                                        <FontAwesomeIcon icon={faUserPlus} className="u-right-margin-10px" />
-                                        {Messages.Registration}
-                                    </Typography>
-                                </div>
-                                <Alert
-                                    className="u-max-width-500px u-center-horizontally"
-                                    severity="info"
-                                >
-                                    <Typography>{Messages.willBeHardButFun}</Typography>
-                                </Alert>
-                            </Paper>
-                        </Grid>
+            render={({ form, values, handleSubmit }) => {
+                const storedData = storage.load();
+                const hasData = storedData.acceptTerms || storedData.personalHealthEvaluation !== -1 || Object.keys(storedData).length > 2;
 
-                        <Grid item>
-                            <Paper elevation={3} className="u-max-width-450px u-padding-16px u-center-horizontally">
-                                <Field
-                                    name="acceptTerms"
-                                    label={Messages.acceptTermsOfUserAgreement}
-                                    component={TermsOfUserAgreement}
-                                />
-                            </Paper>
-                        </Grid>
-
-                        <Email />
-                        <Gender />
-                        <Birthday />
-                        <Height />
-                        <Weight />
-                        {renderActions(null, false, false)}
-                        <PersonalHealthEvaluation />
-
-                        <SubmitButton
-                            label={Messages.register}
-                            buttonClass={classes.button}
-                            pristine={pristine}
-                            submitting={submitting}
+                return (
+                    <form onSubmit={handleSubmit}>
+                        <FormSpy
+                            subscription={{ values: true }}
+                            onChange={props => {
+                                // save the progress
+                                storage.save(props.values);
+                            }}
                         />
-                    </Grid>
-                </form>
-            )} />
+                        <Grid
+                            container
+                            direction="column"
+                            className="u-margin-top-bottom-15px u-min-width-450px u-padding-10px"
+                            spacing={2}
+                        >
+                            <Grid item>
+                                <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
+                                    <div className="u-center-horizontally u-fit-content u-margin-bottom-10px">
+                                        <Typography variant="h3" className="u-bold u-text-align-center">
+                                            <FontAwesomeIcon icon={faUserPlus} className="u-right-margin-10px" />
+                                            {Messages.Registration}
+                                        </Typography>
+                                    </div>
+                                    <Alert
+                                        className="u-max-width-500px u-center-horizontally u-margin-bottom-10px"
+                                        severity="info"
+                                    >
+                                        <Typography>{Messages.willBeHardButFun}</Typography>
+                                    </Alert>
+                                    <Alert severity="success">
+                                        <Typography>{Messages.progressIsSaved}</Typography>
+                                    </Alert>
+                                </Paper>
+                            </Grid>
+
+                            <Grid item>
+                                <Paper elevation={3} className="u-max-width-450px u-padding-16px u-center-horizontally">
+                                    <Field
+                                        name="acceptTerms"
+                                        label={Messages.acceptTermsOfUserAgreement}
+                                        component={TermsOfUserAgreement}
+                                    />
+                                </Paper>
+                            </Grid>
+
+                            <Email />
+                            <Gender />
+                            <Birthday />
+                            <Height />
+                            <Weight />
+                            {renderActions(null, false, false)}
+                            <PersonalHealthEvaluation />
+
+                            <SubmitButton
+                                label={Messages.register}
+                                buttonClass={classes.button}
+                                submitting={submitting}
+                            />
+                            {hasData && (<div className="c-clear-button">
+                                <Fab variant="extended" onClick={() => reset(form)}>
+                                    <FontAwesomeIcon className={classes.icon} icon={faTrashAlt} />
+                                    {Messages.clear}
+                                </Fab>
+                            </div>)}
+                        </Grid>
+                    </form>
+                );
+            }} />
     );
 }
 

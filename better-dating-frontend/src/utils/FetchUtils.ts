@@ -8,18 +8,20 @@ const ensureOkAndTryParseJson = async (response: Response) => {
 		throw response;
 	}
 
+	let responseJson = null;
 	try {
-		const responseJson = await response.json();
-		if (!response.ok) { // non ok, but with json error description
-			throw responseJson;
-		}
-		return responseJson; // ok, json
+		responseJson = await response.json();
 	} catch (error) {
 		if (response.ok) { // non json, but ok response
 			return response;
 		}
 		throw response;
 	}
+
+	if (!response.ok) { // non ok, but with json error description
+		throw responseJson;
+	}
+	return responseJson; // ok, json
 }
 
 export const getData = async (url: string, params: { [key: string]: string; } = {}, headers: any = {}) => {

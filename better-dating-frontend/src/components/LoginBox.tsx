@@ -1,5 +1,6 @@
 import * as React from "react";
 import Link from 'next/link';
+import { useDispatch } from 'react-redux';
 import {
     Grid,
     Paper,
@@ -17,13 +18,8 @@ import { SpinnerAdornment } from './common';
 import * as Messages from './Messages';
 import { toPage, registerAccount } from './navigation/NavigationUrls';
 
-import { connect } from 'react-redux';
 import { BetterDatingThunkDispatch } from '../configureStore';
 import * as actions from '../actions';
-
-type IDispatchProps = {
-    onLoginLink: (email: string) => any;
-};
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -34,8 +30,10 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 );
 
-const LoginBoxComponent = ({ onLoginLink }: IDispatchProps) => {
+export const LoginBox = () => {
     const classes = useStyles();
+    const dispatch = useDispatch();
+    const onLoginLink = (email: string) => dispatch(actions.requestLogin(email));
     return (
         <Grid container>
             <Grid item style={{ flexGrow: 1 }}>
@@ -105,10 +103,4 @@ const LoginBoxComponent = ({ onLoginLink }: IDispatchProps) => {
             </Grid>
         </Grid>
     )
-}
-
-const mapDispatchToProps = (dispatch: BetterDatingThunkDispatch): IDispatchProps => ({
-    onLoginLink: (email: string) => dispatch(actions.requestLogin(email)),
-});
-
-export const LoginBox = connect(null, mapDispatchToProps)(LoginBoxComponent);
+};
