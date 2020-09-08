@@ -145,6 +145,9 @@ fun securityConfig(emailRepository: EmailRepository, roleRepository: UserRoleRep
                 // Profile
                 authorize("/api/user/profile/**", hasAuthority("ROLE_USER"))
 
+                // Administration
+                authorize("/api/admin/**", hasAuthority("ROLE_ADMIN"))
+
                 // Deny rest
                 authorize(anyExchange, denyAll)
             }

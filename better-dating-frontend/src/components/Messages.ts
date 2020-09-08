@@ -17,6 +17,7 @@ export const proposal = 'предложение';
 export const Proposal = 'Предложение';
 export const Registration = 'Регистрация';
 export const Profile = 'Профиль';
+export const Administration = 'Администрирование';
 export const Technologies = 'Технологии';
 export const logoTooltip = 'Смотрины.укр & Смотрины.рус логотип';
 export const email = 'Почта';
@@ -123,3 +124,9 @@ export const expectedSomethingElse = 'Я ожидал(а) от сайта неч
 export const tooComplicated = 'Слишком сложно';
 export const other = 'Другая';
 export const shouldBeLoggedIn = 'Нужно сначала войти в систему';
+
+export const registeredNumber = (number: any) => `Количество зарегистрированных людей: ${number}`;
+export const removedNumber = (number: any) => `Количество удалений профилей: ${number}`;
+export const unauthorized = 'Не достаточно прав для просмотра этой страницы';
+export const testEmail = 'Тестовое письмо';
+export const testEmailWasSent = 'Тестовое письмо было отправлено';

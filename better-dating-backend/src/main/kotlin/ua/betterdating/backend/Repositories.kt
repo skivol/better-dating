@@ -6,6 +6,7 @@ import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.data.domain.Sort.Direction.DESC
 import org.springframework.data.domain.Sort.by
 import org.springframework.data.r2dbc.core.*
+import org.springframework.data.relational.core.query.Criteria.empty
 import org.springframework.data.relational.core.query.Criteria.where
 import org.springframework.data.relational.core.query.Query.query
 import org.springframework.data.relational.core.query.Update.update
@@ -71,7 +72,7 @@ class ExpiringTokenRepository(private val template: R2dbcEntityTemplate, private
                     )).awaitOneOrNull()
 
     suspend fun findEmailByTokenId(id: UUID): Email? = client.sql(
-            "SELECT id, email, verified FROM email e JOIN expiring_token et ON e.id = et.profile_id WHERE et.id = :tokenId"
+            "SELECT e.id, email, verified FROM email e JOIN expiring_token et ON e.id = et.profile_id WHERE et.id = :tokenId"
     ).bind("tokenId", id).map { row, _ ->
         Email(email = row["email"] as String, verified = row["verified"] as Boolean, id = row["id"] as UUID)
     }.awaitOneOrNull()
@@ -211,4 +212,9 @@ class ProfileViewHistoryRepository(private val template: R2dbcEntityTemplate, pr
                     "))")
                     .bind("profileId", profileId)
                     .fetch().awaitRowsUpdated()
+}
+
+class StatisticsRepository(private val template: R2dbcEntityTemplate) {
+    suspend fun registered(): Long = template.count(query(empty()), Email::class.java).awaitFirst()
+    suspend fun removed(): Long = template.count(query(empty()), ProfileDeletionFeedback::class.java).awaitFirst()
 }

@@ -98,3 +98,8 @@ class ProfileViewHistory(
         val targetProfileId: UUID,
         val date: LocalDateTime
 )
+
+class UsageStats(
+        val registered: Long,
+        val removed: Long
+)

@@ -4,6 +4,7 @@ export const proposal = `/${Messages.proposal}`;
 export const registerAccount = '/регистрация';
 export const login = '/вход';
 export const profile = '/профиль';
+export const administration = '/администрирование';
 export const acknowledgements = '/благодарности';
 export const privacyPolicy = '/политика-конфиденциальности';
 export const userAgreement = '/пользовательское-соглашение';
@@ -18,6 +19,7 @@ export const fromPage = (actualPagePath: string) => {
 		["/acknowledgements"]: acknowledgements,
 		["/privacy-policy"]: privacyPolicy,
 		["/user-agreement"]: userAgreement,
+		["/administration"]: administration,
 	};
 	return mapping[actualPagePath];
 };
@@ -32,6 +34,7 @@ export const toPage = (userVisiblePath: string) => {
 		[acknowledgements]: "/acknowledgements",
 		[privacyPolicy]: "/privacy-policy",
 		[userAgreement]: "/user-agreement",
+		[administration]: "/administration",
 	};
 	return mapping[userVisiblePath];
 };

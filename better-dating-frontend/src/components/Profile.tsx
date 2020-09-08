@@ -126,7 +126,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
                             >
                                 <Grid item>
                                     <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px u-min-width-450px">
-                                        <div className="u-center-horizontally u-fit-content u-margin-bottom-10px">
+                                        <div className="u-center-horizontally u-margin-bottom-10px">
                                             <Typography variant="h3" className="u-bold u-text-align-center">
                                                 <FontAwesomeIcon icon={faIdCard} /> {Messages.Profile}
                                             </Typography>

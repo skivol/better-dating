@@ -68,7 +68,7 @@ const Header = () => {
 	if (user.loading) {
 		loadingOrLoginButtonOrUserMenu = <Spinner />;
 	} else if (!user.loading && user.id) {
-		loadingOrLoginButtonOrUserMenu = <LoggedInUserMenu />;
+		loadingOrLoginButtonOrUserMenu = <LoggedInUserMenu user={user} />;
 	} else {
 		loadingOrLoginButtonOrUserMenu = (
 			<Link href={login}>

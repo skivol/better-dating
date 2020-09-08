@@ -140,8 +140,8 @@ input:-webkit-autofill {
   margin-right: auto !important;
 }
 
-.u-fit-content {
-  width: fit-content;
+.u-max-content {
+  width: max-content;
 }
 
 .u-margin-top-bottom {

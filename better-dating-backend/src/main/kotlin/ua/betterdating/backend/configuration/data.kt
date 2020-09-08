@@ -43,5 +43,6 @@ fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleReposi
         bean<ProfileDeletionFeedbackRepository>()
         bean<ViewOtherUserProfileTokenDataRepository>()
         bean<ProfileViewHistoryRepository>()
+        bean<StatisticsRepository>()
     }
 }

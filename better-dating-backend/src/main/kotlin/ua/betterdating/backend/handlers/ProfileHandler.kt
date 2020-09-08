@@ -129,7 +129,7 @@ class UserProfileHandler(
     }
 
     suspend fun requestRemoval(request: ServerRequest): ServerResponse {
-        val profile = currentUserEmail(request)
+        val profile = currentUserEmail(emailRepository, request)
         val subject = "Запрос на удаление профиля на сайте смотрины.укр & смотрины.рус"
         transactionalOperator.executeAndAwait {
             freemarkerMailSender.generateAndSendLinkWithToken(
@@ -145,11 +145,6 @@ class UserProfileHandler(
             }
         }
         return okEmptyJsonObject()
-    }
-
-    private suspend fun currentUserEmail(request: ServerRequest): Email {
-        return emailRepository.findById(UUID.fromString(request.awaitPrincipal()!!.name))
-                ?: throw EmailNotFoundException()
     }
 
     suspend fun removeProfile(request: ServerRequest): ServerResponse {
@@ -190,7 +185,7 @@ class UserProfileHandler(
     suspend fun requestViewOfAuthorsProfile(request: ServerRequest): ServerResponse {
         // find out who is admin
         val adminProfileId = (userRoleRepository.findAdmin() ?: throw AuthorNotFoundException()).profileId
-        val currentUserEmail = currentUserEmail(request)
+        val currentUserEmail = currentUserEmail(emailRepository, request)
 
         // send token
         val subject = "Ссылка для просмотра профиля автора сайта смотрины.укр & смотрины.рус"
@@ -333,4 +328,9 @@ class UserProfileHandler(
                 personalHealthEvaluation.evaluation
         )
     }
+}
+
+suspend fun currentUserEmail(emailRepository: EmailRepository, request: ServerRequest): Email {
+    return emailRepository.findById(UUID.fromString(request.awaitPrincipal()!!.name))
+            ?: throw EmailNotFoundException()
 }

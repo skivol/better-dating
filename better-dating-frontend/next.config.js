@@ -64,6 +64,7 @@ module.exports = withPlugins([
         { source: encodeURI('/пользовательское-соглашение'), destination: '/user-agreement' },
         { source: encodeURI('/удаление-профиля'), destination: '/remove-profile' },
         { source: encodeURI('/просмотр-профиля'), destination: '/view-profile' },
+        { source: encodeURI('/администрирование'), destination: '/administration' },
       ]
     }
   }

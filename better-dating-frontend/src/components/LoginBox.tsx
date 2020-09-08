@@ -18,7 +18,6 @@ import { SpinnerAdornment } from './common';
 import * as Messages from './Messages';
 import { toPage, registerAccount } from './navigation/NavigationUrls';
 
-import { BetterDatingThunkDispatch } from '../configureStore';
 import * as actions from '../actions';
 
 const useStyles = makeStyles((theme: Theme) =>

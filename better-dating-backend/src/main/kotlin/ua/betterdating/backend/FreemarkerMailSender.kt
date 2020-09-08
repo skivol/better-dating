@@ -78,5 +78,10 @@ class FreemarkerMailSender(
         smotrinyMailSender.send(to = oldEmailAddress, subject = subject, body = body)
     }
 
+    fun sendTestMail(to: String) {
+        val subject = "Тестовое письмо"
+        smotrinyMailSender.send(to = to, subject = subject, body = subject)
+    }
+
     fun smotrinySender() = environment.getProperty("spring.mail.username")!!
 }

@@ -9,15 +9,13 @@ import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 import ua.betterdating.backend.EmailRepository
 import ua.betterdating.backend.UserRoleRepository
-import ua.betterdating.backend.handlers.AuthHandler
-import ua.betterdating.backend.handlers.EmailHandler
-import ua.betterdating.backend.handlers.HealthHandler
-import ua.betterdating.backend.handlers.UserProfileHandler
+import ua.betterdating.backend.handlers.*
 
 fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleRepository) = configuration {
     beans {
         bean<EmailHandler>()
         bean<UserProfileHandler>()
+        bean<AdminHandler>()
         bean<AuthHandler>()
         bean<HealthHandler>()
         bean(::routes)

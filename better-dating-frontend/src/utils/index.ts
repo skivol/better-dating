@@ -7,3 +7,4 @@ export * from './HooksUtils';
 export * from './BrowserUtils';
 export * from './StorageUtils';
 export * from './ConversionUtils';
+export * from './SnackbarUtils';

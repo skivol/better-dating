@@ -14,7 +14,7 @@ const Login = () => {
 
     React.useEffect(() => {
         if (token) {
-            return dispatch(actions.performLogin(token)).then(
+            dispatch(actions.performLogin(token)).then(
                 () => router.push(profile)
             ).catch(() => router.push("/"));
         }

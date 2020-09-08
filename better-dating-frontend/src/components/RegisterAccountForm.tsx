@@ -64,7 +64,7 @@ export const RegisterAccountForm = () => {
         <Form
             initialValues={initialValues}
             onSubmit={onSubmit}
-            render={({ form, values, handleSubmit }) => {
+            render={({ form, handleSubmit }) => {
                 const storedData = storage.load();
                 const hasData = storedData.acceptTerms || storedData.personalHealthEvaluation !== -1 || Object.keys(storedData).length > 2;
 
@@ -85,7 +85,7 @@ export const RegisterAccountForm = () => {
                         >
                             <Grid item>
                                 <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
-                                    <div className="u-center-horizontally u-fit-content u-margin-bottom-10px">
+                                    <div className="u-center-horizontally u-margin-bottom-10px">
                                         <Typography variant="h3" className="u-bold u-text-align-center">
                                             <FontAwesomeIcon icon={faUserPlus} className="u-right-margin-10px" />
                                             {Messages.Registration}
