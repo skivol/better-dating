@@ -1,6 +1,6 @@
 # Example usage in ~/.zshrc:
 #
-# source ~/projects/better-dating/aliases/dev-aliases.sh
+# source ~/projects/better-dating/scripts/dev-aliases.sh
 # Prerequisites: wd points (in, for example, WSL2)
 #  * All warp points:
 #     projects  ->  ~/projects
@@ -122,11 +122,11 @@ rsync-to-bd() {
 	rsync $PROJECTS/better-dating/$1 $PROD_USER@$PROD:/home/$PROD_USER/bd/
 }
 alias bd-rsync-config-to-prod="rsync-to-bd docker-compose.yml"
-alias bd-rsync-aliases-to-prod="rsync-to-bd aliases/prod-aliases.sh"
-alias bd-rsync-troubleshooting-to-prod="rsync-to-bd aliases/troubleshooting.sh"
-alias bd-rsync-status-check-to-prod="rsync-to-bd aliases/status-check.sh"
+alias bd-rsync-aliases-to-prod="rsync-to-bd scripts/prod-aliases.sh"
+alias bd-rsync-troubleshooting-to-prod="rsync-to-bd scripts/troubleshooting.sh"
+alias bd-rsync-status-check-to-prod="rsync-to-bd scripts/status-check.sh"
 alias bd-rsync-env-to-prod="rsync-to-bd .env-prod"
-alias bd-rsync-cert-update-to-prod="rsync-to-bd aliases/certificate-update.sh"
+alias bd-rsync-cert-update-to-prod="rsync-to-bd scripts/certificate-update.sh"
 
 # https://www.cyberciti.biz/faq/use-bash-aliases-ssh-based-session/
 alias bd-prod-deploy="prod-ssh-zsh bd-prod-deploy"

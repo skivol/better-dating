@@ -63,13 +63,3 @@ Spring Java -> Spring Boot Java -> Spring Boot Kotlin -> Spring Fu
 **** https://docs.docker.com/storage/storagedriver/overlayfs-driver/
 **** https://docs.docker.com/engine/reference/commandline/dockerd/
 *** Warnings: https://gist.github.com/TheBeachMaster/bf4348722032f2c8223b71ea06d2b07b
-
-* vSphere Client 4.1 on Windows 10:
-** https://www.neontribe.co.uk/blog/windows-10-installing-vmware-vsphere-client-5-1 (Microsoft .NET Framework 3.5, Microsoft Visual J# 2.0 x64)
-** https://yellowonline.tweakblogs.net/blog/16139/installing-the-vmware-vsphere-client-41-on-windows-10 (compatibility mode)
-** https://kb.vmware.com/s/article/2069264
-** http://sparrowangelstechnology.blogspot.com/2012/07/boot-virtual-machine-from-iso-tips-on.html
-* Live CD network
-** https://wiki.centos.org/FAQ/CentOS7#ethernet
-** https://askubuntu.com/questions/1062390/activation-of-network-connection-failed-for-ethernet-connection
-** https://www.cyberciti.biz/faq/rhel-centos-linux-7-restart-networking-command-line/

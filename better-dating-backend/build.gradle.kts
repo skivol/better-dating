@@ -33,7 +33,7 @@ dependencyManagement {
 	imports {
 		mavenBom("io.projectreactor:reactor-bom:Bismuth-RELEASE") // https://projectreactor.io/docs/core/release/reference/#getting
 		mavenBom("io.netty:netty-bom:4.1.50.Final")
-		mavenBom("org.springframework.boot:spring-boot-dependencies:2.4.0-SNAPSHOT")
+		mavenBom("org.springframework.boot:spring-boot-dependencies:2.4.0-M2")
 	}
 }
 

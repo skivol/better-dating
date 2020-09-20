@@ -1,6 +1,3 @@
-* Обновить файлы sitemap ?
-* Encryption (BitLocker, CentOS encryption - https://wiki.centos.org/HowTos/EncryptedFilesystem)
-* написать README
 * псевдоним / имя ?
 * иконки для выбора пола
 * Форматирование кнопки в почте для Outlook
@@ -9,7 +6,7 @@
     ** https://www.campaignmonitor.com/css/
 
 [проверить настройки Redis]
-[проверить политику конфиденциальности в связи с последними функциями] - сохранение в браузере прогресса регистрации; обобщенная статистика; - обязательный отзыв при удалении профиля;
+[проверить политику конфиденциальности в связи с последними функциями] - сохранение в браузере прогресса регистрации; обобщенная статистика; - обязательный отзыв при удалении профиля; - шифрование данных; - доступ к данным ограниченным количеством людей принявших политику конфиденциальности;
 [сделать репозиторий публичным]
 [проверить отсутствие токенов]
 * Обновить сайт
@@ -83,6 +80,7 @@
 
 * LEGAL questions (trademark/non-profitable-entity, user agreement / rules / GDPR ?)
 
+* SEO (checkout https://mangools.com/)
 * protect from DDOS attacks: https://javapipe.com/blog/iptables-ddos-protection/
 * fix caching in Nginx etc
 * figure out Java Modules usage...
@@ -94,7 +92,6 @@
 
 # On leisure
 * древний/прописной шрифт для названия сайта
-* investigate other ways to formulate a query: https://docs.spring.io/spring-data/r2dbc/docs/1.0.0.M2/reference/html/#reference
 * checkout ReactiveCrudRepository ? https://docs.spring.io/spring-data/r2dbc/docs/1.0.0.M2/reference/html/#r2dbc.repositories
 * checkout reverse proxy written in rust: https://github.com/sozu-proxy/sozu
 
@@ -118,6 +115,7 @@
 * Push notifications instead (or as an alternative?) of mail messages ? / Viber ?
 * consider using Docker Registry
 * consider registering Belarusian domain (.бел)
+* mail delivery service ? (e.g. https://pepipost.com/)
 
 # Optimise
 
