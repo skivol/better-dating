@@ -33,6 +33,7 @@ class AcceptedTerms(
 
 class ProfileInfo(
         @Id val profileId: UUID,
+        val nickname: String,
         val gender: Gender,
         val birthday: LocalDate,
         val createdAt: LocalDateTime?,

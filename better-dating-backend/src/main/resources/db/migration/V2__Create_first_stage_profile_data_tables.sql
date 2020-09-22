@@ -9,6 +9,7 @@ CREATE TABLE accepted_terms (
 
 CREATE TABLE profile_info (
 	profile_id uuid NOT NULL,
+	nickname varchar(120) NOT NULL UNIQUE,
 	gender varchar(6) NOT NULL,
 	birthday date NOT NULL,
 	created_at timestamp NOT NULL,

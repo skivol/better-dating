@@ -80,6 +80,7 @@ a {
 }
 .content-cell {
   padding: 35px;
+  width: 400px;
 }
 .align-right {
   text-align: right;

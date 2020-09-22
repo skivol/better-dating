@@ -4,11 +4,13 @@ import {
     Paper
 } from '@material-ui/core';
 import { Radios } from 'mui-rff';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMale, faFemale } from '@fortawesome/free-solid-svg-icons';
 import * as Messages from '../Messages';
 
 const genderRadioData = [
-    { label: Messages.female, value: 'female' },
-    { label: Messages.male, value: 'male' },
+    { label: <><FontAwesomeIcon style={{ marginRight: '15px' }} icon={faFemale} size="lg" />{Messages.female}</>, value: 'female' },
+    { label: <><FontAwesomeIcon style={{ marginRight: '15px' }} icon={faMale} size="lg" />{Messages.male}</>, value: 'male' },
 ];
 
 // Пол (мужской / женский)

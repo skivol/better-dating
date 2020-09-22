@@ -20,7 +20,7 @@ import * as actions from '../actions';
 import { emailHasChanged, useMenu, useDialog, fromBackendProfileValues } from '../utils';
 import * as Messages from './Messages';
 import {
-    ProfileFormData, Email, Gender, Birthday, Height,
+    ProfileFormData, Email, Nickname, Gender, Birthday, Height,
     Weight, AnalyzedSection, PersonalHealthEvaluation, renderActions,
     AccountRemovalConfirm, ViewOtherUserProfileConfirm
 } from './profile';
@@ -134,6 +134,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
                                     </Paper>
                                 </Grid>
                                 {!readonly && <Email />}
+                                <Nickname readonly={readonly} />
                                 <Gender readonly={readonly} />
                                 <Birthday id="birthday" readonly={readonly} />
 

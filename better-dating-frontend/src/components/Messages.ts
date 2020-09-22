@@ -67,13 +67,15 @@ export const login = 'Вход';
 export const enterUsingEmail = 'Вход через Почту';
 export const enterUsingFacebook = 'Вход через Facebook';
 export const enterUsingVk = 'Вход через ВКонтакте';
-export const willBeHardButFun = 'Будет, вероятно, трудно, но интересно, полезно и по делу =) (15 обязательных и 2 добровольных на первом этапе поля). !!Чем раньше на это обратить внимание, тем легче улучшить ситуацию!!';
+export const willBeHardButFun = 'Будет, вероятно, трудно, но интересно, полезно и по делу =) (16 обязательных и 2 добровольных на первом этапе поля). !!Чем раньше на это обратить внимание, тем легче улучшить ситуацию!!';
 export const progressIsSaved = 'Прогресс заполнения формы регистрации сохраняется в браузере. Используйте кнопку "Очистить" для удаления введенных данных.';
 
 export const userAgreement = 'Пользовательское соглашение';
+export const status = 'Статус';
 export const acceptTermsOfUserAgreement = 'Я прочёл/прочла и принимаю условия изложенные в "Пользовательском соглашении"';
 export const decline = 'Отказываюсь';
 export const agreeToTerms = 'Принимаю';
+export const nickname = 'Имя/псевдоним';
 export const gender = 'Пол';
 export const female = 'Женский';
 export const male = 'Мужской';

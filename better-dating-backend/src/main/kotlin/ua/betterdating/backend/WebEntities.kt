@@ -16,6 +16,7 @@ class EmailValue(val email: String) {
 class CreateProfileRequest(
         val acceptTerms: Boolean,
         email: String,
+        nickname: String,
         gender: Gender,
         birthday: LocalDate,
         height: Float,
@@ -31,7 +32,7 @@ class CreateProfileRequest(
         intimateRelationsOutsideOfMarriage: Recurrence?,
         pornographyWatching: Recurrence?,
         personalHealthEvaluation: Int
-) : Profile(null, email, gender, birthday, height, weight, physicalExercise, smoking, alcohol, computerGames, gambling, haircut, hairColoring, makeup, intimateRelationsOutsideOfMarriage, pornographyWatching, personalHealthEvaluation) {
+) : Profile(null, email, nickname, gender, birthday, height, weight, physicalExercise, smoking, alcohol, computerGames, gambling, haircut, hairColoring, makeup, intimateRelationsOutsideOfMarriage, pornographyWatching, personalHealthEvaluation) {
     init {
         validate(this) {
             validate(CreateProfileRequest::acceptTerms).isTrue()
@@ -42,6 +43,7 @@ class CreateProfileRequest(
 open class Profile(
         var id: UUID?,
         var email: String,
+        var nickname: String,
         val gender: Gender,
         val birthday: LocalDate,
         val height: Float,
@@ -61,6 +63,7 @@ open class Profile(
     init {
         validate(this) {
             validate(Profile::email).isEmail().hasSize(max = 120)
+            validate(Profile::nickname).isNotBlank().hasSize(max = 120)
             validate(Profile::birthday)
                     // younger than 150
                     .isGreaterThanOrEqualTo(LocalDate.now().minusYears(150))

@@ -28,11 +28,17 @@ suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResp
         is ExpiredTokenException -> ErrorResponseEntity(request, BAD_REQUEST, "Expired token")
         is InvalidTokenException -> ErrorResponseEntity(request, BAD_REQUEST, "Invalid token format")
         is DataIntegrityViolationException -> {
-            if (e.message?.contains("duplicate key value violates unique constraint \"email_uk_email\"") == true) {
-                ErrorResponseEntity(request, BAD_REQUEST, "Email already registered")
-            } else {
-                LOG.error("Unexpected database error", e)
-                ErrorResponseEntity(request, BAD_REQUEST, "Unknown error")
+            when {
+                e.message?.contains("duplicate key value violates unique constraint \"email_uk_email\"") == true -> {
+                    ErrorResponseEntity(request, BAD_REQUEST, "Email already registered")
+                }
+                e.message?.contains("duplicate key value violates unique constraint \"profile_info_nickname_key\"") == true -> {
+                    ErrorResponseEntity(request, BAD_REQUEST, "Nickname already registered")
+                }
+                else -> {
+                    LOG.error("Unexpected database error", e)
+                    ErrorResponseEntity(request, BAD_REQUEST, "Unknown error")
+                }
             }
         }
         is ConstraintViolationException -> constraintViolationToResponse(e, request) // on manual validation of, for example, email from query

@@ -11,6 +11,7 @@ export const profileWasRemoved = 'Профиль был успешно удал�
 export const linkForViewingAuthorsProfileWasSent = 'Ссылка для просмотра профиля автора была выслана на почту.';
 
 export const alreadyPresentEmail = 'Такая почта уже существует';
+export const alreadyPresentNickname = 'Такое имя/псевдоним уже существует';
 
 export const loginLinkWasSent = 'Ссылка для входа была отправлена на почту.';
 export const errorLogin = 'Ошибка при попытке входа';

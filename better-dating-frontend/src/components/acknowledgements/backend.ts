@@ -109,4 +109,14 @@ export const infrastructure = [{
     url: 'https://www.centos.org/',
     license: { name: 'CentOS Legal', url: 'https://www.centos.org/legal/' },
     copyright: null
+}, {
+    name: 'Дата-центр ВОЛЯ',
+    url: 'https://dc.volia.com/ru',
+    license: null,
+    copyright: null
+}, {
+    name: 'UptimeRobot',
+    url: 'https://uptimerobot.com/',
+    license: null,
+    copyright: null
 }];

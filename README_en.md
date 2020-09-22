@@ -1,6 +1,7 @@
 [Русский README](https://github.com/skivol/better-dating/blob/master/README.md)
 
 # Code repository for sites [смотрины.укр](https://смотрины.укр) and [смотрины.рус](https://смотрины.рус)
+Self-Development, Dating/Relationships, Family
 
 ## Description of current functions of site "Смотрины"
 (next plans can be found in [tasks.md](https://github.com/skivol/better-dating/blob/master/docs/tasks.md))

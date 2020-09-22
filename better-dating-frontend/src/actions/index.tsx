@@ -32,13 +32,18 @@ export const closeSnackbar = (): CloseSnackbar => ({
 	type: constants.CLOSE_SNACKBAR
 });
 
-const alreadyRegisteredEmail = (error: { message: string; }) => error.message === 'Email already registered';
+type ErrorResponse = { message: string; };
+const alreadyRegisteredNickname = (error: ErrorResponse) => error.message === 'Nickname already registered' && Messages.alreadyPresentNickname;
+const alreadyRegisteredEmail = (error: ErrorResponse) => error.message === 'Email already registered' && Messages.alreadyPresentEmail;
+const resolveProfileError = (error: ErrorResponse, genericErrorMessage: string) => (
+	alreadyRegisteredEmail(error) || alreadyRegisteredNickname(error) || genericErrorMessage
+);
 export const createAccount = (values: any): any => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
 	try {
 		await postData('/api/user/profile', toBackendProfileValues(values));
 		dispatch(openSnackbar(Messages.successSubmittingProfileMessage, SnackbarVariant.success));
 	} catch (error) {
-		const message = alreadyRegisteredEmail(error) ? Messages.alreadyPresentEmail : Messages.errorSubmittingProfileMessage;
+		const message = resolveProfileError(error, Messages.errorSubmittingProfileMessage);
 		dispatch(openSnackbar(message, SnackbarVariant.error));
 		throw error;
 	}
@@ -68,7 +73,7 @@ export const updateAccount = (values: any, emailChanged: boolean | undefined): a
 		const successMessage = emailChanged ? Messages.successUpdatingProfileAndChangingEmailMessage : Messages.successUpdatingProfileMessage;
 		dispatch(openSnackbar(successMessage, SnackbarVariant.success));
 	} catch (error) {
-		const message = alreadyRegisteredEmail(error) ? Messages.alreadyPresentEmail : Messages.errorUpdatingProfileMessage;
+		const message = resolveProfileError(error, Messages.errorUpdatingProfileMessage);
 		dispatch(openSnackbar(message, SnackbarVariant.error));
 		throw error;
 	}

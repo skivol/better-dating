@@ -3,6 +3,7 @@ export * from './Analysis';
 export * from './AnalyzedSection';
 export * from './Birthday';
 export * from './Email';
+export * from './Nickname';
 export * from './Gender';
 export * from './Height';
 export * from './PersonalHealthEvaluation';

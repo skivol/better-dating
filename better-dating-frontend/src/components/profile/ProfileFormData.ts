@@ -1,5 +1,6 @@
 export interface ProfileFormData {
     email?: string;
+    nickname?: string;
     gender?: string;
     bday?: string;
     height?: number;
@@ -19,6 +20,7 @@ export interface ProfileFormData {
 
 export const defaultValues = {
     email: undefined,
+    nickname: undefined,
     gender: undefined,
     bday: undefined,
     height: undefined,

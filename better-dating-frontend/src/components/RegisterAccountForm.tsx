@@ -22,7 +22,7 @@ import { storageCreator, ensureBdayIsDate } from '../utils';
 import * as actions from '../actions';
 import * as Messages from './Messages';
 import { TermsOfUserAgreement, RegistrationFormData, defaultValues as registrationDataDefaults } from './register-account';
-import { Email, Gender, Birthday, Height, Weight, PersonalHealthEvaluation, renderActions, SubmitButton } from './profile';
+import { Email, Nickname, Gender, Birthday, Height, Weight, PersonalHealthEvaluation, renderActions, SubmitButton } from './profile';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -51,7 +51,7 @@ export const RegisterAccountForm = () => {
     const [submitting, setSubmitting] = React.useState(false);
     const reset = (form: FormApi<RegistrationFormData>) => {
         storage.clear();
-        form.reset(registrationDataDefaults);
+        form.reset();
     };
     const onSubmit = (values: RegistrationFormData, form: FormApi<RegistrationFormData>) => {
         setSubmitting(true);
@@ -114,6 +114,7 @@ export const RegisterAccountForm = () => {
                             </Grid>
 
                             <Email />
+                            <Nickname />
                             <Gender />
                             <Birthday />
                             <Height />

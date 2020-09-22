@@ -5,7 +5,8 @@ import {
     InputAdornment
 } from '@material-ui/core';
 import { TextField } from 'mui-rff';
-import EmailIcon from '@material-ui/icons/Email';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import * as Messages from '../Messages';
 import { validateEmail } from '../../utils';
 
@@ -27,7 +28,7 @@ export const Email = ({ label = Messages.Email, elevation = 3 }: Props) => (
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
-                            <EmailIcon />
+                            <FontAwesomeIcon icon={faEnvelope} size="lg" />
                         </InputAdornment>
                     ),
                 }}

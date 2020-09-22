@@ -24,6 +24,8 @@ const Footer = () => (
 			<Link href={toPage(userAgreement)} as={userAgreement} passHref>
 				<MuiLink>{Messages.userAgreement}</MuiLink>
 			</Link>
+			{', '}
+			<MuiLink href="https://stats.uptimerobot.com/g6Z9WSl8B1">{Messages.status}</MuiLink>
 		</div>
 	</footer>
 );

@@ -43,7 +43,8 @@ class UserProfileHandler(
         val now = now()
         val acceptedTerms = AcceptedTerms(profileId = profileId, lastDateAccepted = now)
         val profileInfo = ProfileInfo(
-                profileId = profileId, gender = validCreateProfileRequest.gender,
+                profileId = profileId, nickname = validCreateProfileRequest.nickname,
+                gender = validCreateProfileRequest.gender,
                 birthday = validCreateProfileRequest.birthday, createdAt = now, updatedAt = null
         )
         val height = Height(profileId = profileId, date = now, height = validCreateProfileRequest.height)
@@ -283,9 +284,11 @@ class UserProfileHandler(
     }
 
     private fun changedProfileInfo(existingProfile: Profile, profile: Profile) = if (
-            existingProfile.gender != profile.gender || existingProfile.birthday != profile.birthday
+        existingProfile.nickname != profile.nickname
+        || existingProfile.gender != profile.gender
+        || existingProfile.birthday != profile.birthday
     ) {
-        ProfileInfo(existingProfile.id!!, profile.gender, profile.birthday, null, now())
+        ProfileInfo(existingProfile.id!!, profile.nickname, profile.gender, profile.birthday, null, now())
     } else {
         null
     }
@@ -319,7 +322,7 @@ class UserProfileHandler(
 
     private fun toWebEntity(email: Email, profileInfo: ProfileInfo, height: Height, weight: Weight, activities: Map<String, Activity>, personalHealthEvaluation: ProfileEvaluation): Profile {
         return Profile(
-                email.id, email.email, profileInfo.gender, profileInfo.birthday, height.height, weight.weight,
+                email.id, email.email, profileInfo.nickname, profileInfo.gender, profileInfo.birthday, height.height, weight.weight,
                 activities[physicalExercise.name]!!.recurrence, activities[smoking.name]!!.recurrence,
                 activities[alcohol.name]!!.recurrence, activities[computerGames.name]!!.recurrence,
                 activities[gambling.name]!!.recurrence, activities[haircut.name]!!.recurrence,

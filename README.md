@@ -1,6 +1,7 @@
 [English README](https://github.com/skivol/better-dating/blob/master/README_en.md)
 
 # Хранилище кода для сайтов [смотрины.укр](https://смотрины.укр) и [смотрины.рус](https://смотрины.рус)
+Саморазвитие, Свидания/Отношения, создание Семьи
 
 ## Описание текущих функций сайта "Смотрины"
 (дальнейшие планы разработки изложены в [tasks.md](https://github.com/skivol/better-dating/blob/master/docs/tasks.md))
