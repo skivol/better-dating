@@ -2,7 +2,6 @@ import * as React from "react";
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router'
 
-import { FormApi } from 'final-form';
 import { Form, FormSpy } from 'react-final-form';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -38,6 +37,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const storage = storageCreator("registration-data");
 
+const currentTime = () => new Date().getTime();
 export const RegisterAccountForm = () => {
     const classes = useStyles();
     const router = useRouter();
@@ -49,22 +49,24 @@ export const RegisterAccountForm = () => {
     };
     const dispatch = useDispatch();
     const [submitting, setSubmitting] = React.useState(false);
-    const reset = (form: FormApi<RegistrationFormData>) => {
+    const [formKey, setFormKey] = React.useState(currentTime());
+    const reset = () => {
         storage.clear();
-        form.reset();
+        setFormKey(currentTime()); // re-create form completely to avoid validation errors after reset
     };
-    const onSubmit = (values: RegistrationFormData, form: FormApi<RegistrationFormData>) => {
+    const onSubmit = (values: RegistrationFormData) => {
         setSubmitting(true);
         dispatch(actions.createAccount(values))
-            .then(() => reset(form))
+            .then(() => reset())
             .finally(() => setSubmitting(false));
     };
 
     return ( // validateOnBlur doesn't seem to properly work (for example, email field)...
         <Form
+            key={formKey}
             initialValues={initialValues}
             onSubmit={onSubmit}
-            render={({ form, handleSubmit }) => {
+            render={({ handleSubmit }) => {
                 const storedData = storage.load();
                 const hasData = storedData.acceptTerms || storedData.personalHealthEvaluation !== -1 || Object.keys(storedData).length > 2;
 
@@ -128,7 +130,7 @@ export const RegisterAccountForm = () => {
                                 submitting={submitting}
                             />
                             {hasData && (<div className="c-clear-button">
-                                <Fab variant="extended" onClick={() => reset(form)}>
+                                <Fab variant="extended" onClick={() => reset()}>
                                     <FontAwesomeIcon className={classes.icon} icon={faTrashAlt} />
                                     {Messages.clear}
                                 </Fab>

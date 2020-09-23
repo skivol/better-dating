@@ -65,7 +65,7 @@ class BackendApplicationTests {
 
     private fun createProfileRequest(email: String): CreateProfileRequest {
         return CreateProfileRequest(
-                acceptTerms = true, email = email, gender = Gender.male,
+                acceptTerms = true, email = email, gender = Gender.male, nickname = "skivol",
                 birthday = LocalDate.now().minusYears(21), height = 180f, weight = 70f,
                 physicalExercise = Recurrence.everyDay, smoking = Recurrence.didBeforeNotGoingInFuture,
                 alcohol = Recurrence.didBeforeNotGoingInFuture, computerGames = Recurrence.coupleTimesInYearOrMoreSeldom,

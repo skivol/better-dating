@@ -132,6 +132,9 @@ fun securityConfig(emailRepository: EmailRepository, roleRepository: UserRoleRep
             }
 
             authorizeExchange {
+                // [internal] Health
+                authorize("/actuator/health", permitAll)
+
                 // Registration & Email verification / triggering new verification / contact
                 authorize(pathMatchers(HttpMethod.POST, "/api/user/profile"), permitAll)
                 authorize("/api/user/email/**", permitAll)
