@@ -2,7 +2,6 @@ package ua.betterdating.backend
 
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.fu.kofu.reactiveWebApplication
-import org.springframework.r2dbc.core.DatabaseClient
 import ua.betterdating.backend.configuration.dataConfig
 import ua.betterdating.backend.configuration.mailConfig
 import ua.betterdating.backend.configuration.webConfig

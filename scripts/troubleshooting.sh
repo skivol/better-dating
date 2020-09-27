@@ -13,7 +13,7 @@
 # check number of healthy services
 healthyServices=$(docker ps --filter "health=healthy" --format "{{.ID}}" | wc -l)
 
-if [ $healthyServices -eq 4 ]; then
+if [ $healthyServices -eq 5 ]; then
     echo "Looks good!"
 else
     logFile=~/troubleshooting.log

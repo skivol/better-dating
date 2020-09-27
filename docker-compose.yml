@@ -6,7 +6,7 @@ version: '3.6'
 services:
 
   bd-redis:
-    build: ./better-dating-cache
+    build: ./better-dating-caching
     image: skivol/better-dating-cache:latest
     container_name: "bd-prod-redis"
     volumes:
@@ -14,7 +14,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: '0.75'
           memory: 200M
         reservations:
           cpus: '0.10'
@@ -40,11 +40,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
+          cpus: '0.75'
           memory: 256M
         reservations:
           cpus: '0.25'
-          memory: 120M
+          memory: 128M
       restart_policy:
         condition: any
         delay: 5s
@@ -68,6 +68,7 @@ services:
       FACEBOOK_CLIENT_SECRET: "${FACEBOOK_CLIENT_SECRET}"
       VK_CLIENT_ID: "${VK_CLIENT_ID}"
       VK_CLIENT_SECRET: "${VK_CLIENT_SECRET}"
+    dns: 8.8.8.8
     depends_on:
       - bd-postgres
     volumes:
@@ -98,7 +99,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
+          cpus: '0.75'
           memory: 250M
         reservations:
           cpus: '0.25'
@@ -124,10 +125,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
+          cpus: '0.75'
           memory: 50M
         reservations:
-          cpus: '0.15'
+          cpus: '0.10'
           memory: 20M
       restart_policy:
         condition: any

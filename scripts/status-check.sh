@@ -5,7 +5,7 @@
 
 healthyServices=$(docker ps --filter "health=healthy" --format "{{.ID}}" | wc -l)
 
-if [ $healthyServices -ne 4 ]; then
+if [ $healthyServices -ne 5 ]; then
     function now {
         echo $(date -u)
     }

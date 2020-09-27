@@ -110,13 +110,13 @@ prod-ssh-zsh() {
 }
 # https://stackoverflow.com/a/26226261
 transfer-image() {
-	docker save skivol/better-dating-$1:latest | bzip2 | pv | prod-ssh 'bunzip2 | docker load'
+	docker save "skivol/better-dating-${1}:latest" | bzip2 | pv | prod-ssh 'bunzip2 | docker load'
 }
 alias bd-backend-transfer-image-to-prod="transfer-image backend"
 alias bd-ui-transfer-image-to-prod="transfer-image ui"
 alias bd-proxy-transfer-image-to-prod="transfer-image proxy"
 alias bd-database-transfer-image-to-prod="transfer-image database"
-alias bd-transfer-images-to-prod='bd-backend-transfer-image-to-prod && bd-ui-transfer-image-to-prod && bd-proxy-transfer-image-to-prod'
+alias bd-cache-transfer-image-to-prod="transfer-image cache"
 
 rsync-to-bd() {
 	rsync $PROJECTS/better-dating/$1 $PROD_USER@$PROD:/home/$PROD_USER/bd/

@@ -19,7 +19,7 @@ plugins {
 
 group = "ua.betterdating"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_12
+java.sourceCompatibility = JavaVersion.VERSION_14
 
 repositories {
 	mavenLocal()
@@ -88,7 +88,7 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
-		jvmTarget = "12"
+		jvmTarget = "14"
 		freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=enable")
 	}
 }

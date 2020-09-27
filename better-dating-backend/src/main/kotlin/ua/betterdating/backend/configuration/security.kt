@@ -235,8 +235,8 @@ class OAuth2SimpleAuthenticationManager(
                             emailRepository.updateMono(profile)
                         } else {
                             Mono.empty()
-                        }.then(roleRepository.findAllMono(profile.id).map {
-                            roles -> createAuth(profile.id.toString(), roles)
+                        }.then(roleRepository.findAllMono(profile.id).map { roles ->
+                            createAuth(profile.id.toString(), roles)
                         })
                     }.switchIfEmpty(Mono.error(EmailNotRegisteredException(email)))
         }
