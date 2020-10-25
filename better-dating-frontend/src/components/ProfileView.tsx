@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { SnackbarVariant } from '../types';
 import * as actions from '../actions';
@@ -11,9 +11,9 @@ import { ProfileFormData } from './profile';
 const ProfileView = () => {
     const token = useToken();
     const dispatch = useDispatch();
-    const [profileData, setProfileData] = React.useState<null | ProfileFormData>(null);
+    const [profileData, setProfileData] = useState<null | ProfileFormData>(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
         getData('/api/user/profile/view', { token })
             .then(setProfileData)
             .catch((errorMessage) => dispatch(actions.openSnackbar(resolveTokenMessage(errorMessage), SnackbarVariant.error)));

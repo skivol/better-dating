@@ -1,4 +1,3 @@
-import * as React from 'react';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
 import { Link as MuiLink } from '@material-ui/core';

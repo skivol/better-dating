@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import { Form } from 'react-final-form';
@@ -17,13 +17,13 @@ const ConfirmEmail = () => {
 	const token = useToken();
 	const router = useRouter();
 	const dispatch = useDispatch();
-	const [hasExpiredToken, setHasExpiredToken] = React.useState<boolean | null>(null);
+	const [hasExpiredToken, setHasExpiredToken] = useState<boolean | null>(null);
 
 	const onRequestAnotherValidationToken = (previousToken: string) => dispatch(actions.requestAnotherValidationToken(previousToken));
 	const onTokenVerified = () => dispatch(actions.openSnackbar(successVerifyingEmailMessage, SnackbarVariant.success));
 	const onErrorVerifying = (errorMessage: string) => dispatch(actions.openSnackbar(resolveTokenMessage(errorMessage), SnackbarVariant.error));
 
-	React.useEffect(() => {
+	useEffect(() => {
 		const verifyEmail = async (token: string) => {
 			try {
 				await postData(`/api/user/email/verify`, { token });

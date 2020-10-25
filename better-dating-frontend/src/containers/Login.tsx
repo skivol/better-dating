@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import { useToken } from '../utils';
@@ -12,7 +12,7 @@ const Login = () => {
     const token = useToken();
     const dispatch = useDispatch();
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (token) {
             dispatch(actions.performLogin(token)).then(
                 () => router.push(profile)

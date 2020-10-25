@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { FormApi } from 'final-form';
 import { Form } from 'react-final-form';
@@ -45,8 +45,8 @@ type Props = {
 
 export const Profile = ({ profileData, readonly = false }: Props) => {
     const dispatch = useDispatch();
-    const [loading, setLoading] = React.useState(false);
-    const [saving, setSaving] = React.useState(false);
+    const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
 
     const onSubmit = (values: any, form: FormApi<any>) => {
         setSaving(true);
@@ -71,10 +71,10 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
 
     const classes = useStyles();
     const profileDataWithDate = fromBackendProfileValues(profileData);
-    const [initialValues, setInitialValues] = React.useState(profileDataWithDate);
-    const [showAnalysis, setShowAnalysis] = React.useState(false);
+    const [initialValues, setInitialValues] = useState(profileDataWithDate);
+    const [showAnalysis, setShowAnalysis] = useState(false);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (showAnalysis) {
             setTimeout(() => document.getElementById('birthday')?.scrollIntoView({ behavior: 'smooth' }), 1000);
         }
@@ -82,7 +82,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
 
     const { anchorEl, menuIsOpen, openMenu, closeMenu } = useMenu();
     const { dialogIsOpen, openDialog, closeDialog } = useDialog();
-    const [confirmType, setConfirmType] = React.useState<string | null>(null);
+    const [confirmType, setConfirmType] = useState<string | null>(null);
 
     const showConfirm = (type: string) => {
         closeMenu();

@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
 
@@ -23,7 +23,7 @@ config.autoAddCss = false;
 const store = configureStore();
 
 const BetterDatingApp = ({ Component, pageProps }: AppProps) => {
-  React.useEffect(() => {
+  useEffect(() => {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector('#jss-server-side');
     if (jssStyles) {

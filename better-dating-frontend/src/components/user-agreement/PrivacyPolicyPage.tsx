@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Paper } from '@material-ui/core';
 import Header from '../toplevel/Header';
 // @ts-ignore

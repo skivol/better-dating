@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import {
     Grid,
     Typography,
@@ -22,7 +22,7 @@ const personalHealthEvaluationLabels: { [index: string]: string } = {
 };
 
 export default function RatingAdapter({ input: { value, ...inputRest }, meta, label, ...rest }: any) {
-    const [hoverValue, setHover] = React.useState(-1);
+    const [hoverValue, setHover] = useState(-1);
     const error = meta.touched && meta.error;
     const errorText = error ? ` (${meta.error})` : '';
     return (

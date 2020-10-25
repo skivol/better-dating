@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Field } from 'react-final-form';
 import { validatePersonalHealthEvaluation } from '../../utils/ValidationUtils';
 import * as Messages from '../Messages';

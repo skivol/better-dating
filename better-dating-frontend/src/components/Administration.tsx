@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from 'next/router';
 import { useDispatch } from "react-redux";
 import { Button, Typography } from '@material-ui/core';
@@ -10,12 +10,12 @@ import * as Messages from './Messages';
 import { CenteredSpinner, SpinnerAdornment } from "./common";
 
 const Administration = () => {
-    const [usageStats, setUsageStats] = React.useState<any>(null);
-    const [sending, setSending] = React.useState(false);
+    const [usageStats, setUsageStats] = useState<any>(null);
+    const [sending, setSending] = useState(false);
 
     const dispatch = useDispatch();
     const router = useRouter();
-    React.useEffect(() => {
+    useEffect(() => {
         getData('/api/admin/usage-stats')
             .then(setUsageStats)
             .catch((e) => {

@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useRef, useEffect } from "react";
 
 import {
     Dialog,
@@ -22,8 +22,8 @@ export interface Props {
 }
 
 const TermsOfUsageDialog = ({ handleClose, handleConfirm, handleDecline, open }: Props) => {
-    const descriptionElementRef = React.useRef<HTMLElement>(null);
-    React.useEffect(() => {
+    const descriptionElementRef = useRef<HTMLElement>(null);
+    useEffect(() => {
         if (open) {
             const { current: descriptionElement } = descriptionElementRef;
             if (descriptionElement !== null) {

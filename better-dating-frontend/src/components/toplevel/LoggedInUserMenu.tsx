@@ -1,4 +1,4 @@
-import React from "react";
+import { forwardRef } from "react";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDispatch } from "react-redux";
@@ -15,7 +15,7 @@ import * as actions from '../../actions';
 import * as Messages from '../Messages';
 
 type MenuItemLinkProps = MenuItemProps<'a', { button?: true }> & { href: string; };
-const MenuItemLink = React.forwardRef(({ href, onClick, ...rest }: MenuItemLinkProps, ref) => {
+const MenuItemLink = forwardRef(({ href, onClick, ...rest }: MenuItemLinkProps, ref) => {
     return (
         <Link href={href} passHref>
             <MenuItem button component="a" onClick={onClick} {...rest} />

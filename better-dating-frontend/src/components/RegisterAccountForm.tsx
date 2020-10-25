@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router'
 
@@ -48,8 +48,8 @@ export const RegisterAccountForm = () => {
         ...ensureBdayIsDate(storage.load())
     };
     const dispatch = useDispatch();
-    const [submitting, setSubmitting] = React.useState(false);
-    const [formKey, setFormKey] = React.useState(currentTime());
+    const [submitting, setSubmitting] = useState(false);
+    const [formKey, setFormKey] = useState(currentTime());
     const reset = () => {
         storage.clear();
         setFormKey(currentTime()); // re-create form completely to avoid validation errors after reset

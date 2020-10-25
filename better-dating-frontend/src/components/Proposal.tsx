@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import clsx from 'clsx';
 import {
 	Grid,
@@ -62,7 +62,7 @@ const DialogWithFirstStageFlowImage = (handleClose: () => void) => (
 
 export const Proposal = () => {
 	const classes = useStyles();
-	const [dialog, setDialog] = React.useState<any>(null);
+	const [dialog, setDialog] = useState<any>(null);
 	const closeDialog = () => setDialog(null);
 	const openDialog = () => setDialog(DialogWithFirstStageFlowImage(closeDialog));
 

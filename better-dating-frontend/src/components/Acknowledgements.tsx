@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Grid, Paper, Typography, Divider, Link } from '@material-ui/core';
 import Header from './toplevel/Header';
 import { libraries as frontendLibraries, tools as frontendTools } from './acknowledgements/frontend';

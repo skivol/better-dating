@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { subYears, isAfter } from 'date-fns';
 import {
     Grid,
