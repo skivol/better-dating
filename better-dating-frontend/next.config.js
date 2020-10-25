@@ -51,21 +51,19 @@ module.exports = withPlugins([
     NEXT_APP_UPDATED: process.env.NEXT_APP_UPDATED
   },
   compress: false,
-  experimental: {
-    async rewrites() {
-      return [
-        { source: encodeURI('/предложение'), destination: '/proposal' },
-        { source: encodeURI('/подтвердить-почту'), destination: '/confirm-email' },
-        { source: encodeURI('/регистрация'), destination: '/register-account' },
-        { source: encodeURI('/вход'), destination: '/login' },
-        { source: encodeURI('/профиль'), destination: '/profile' },
-        { source: encodeURI('/благодарности'), destination: '/acknowledgements' },
-        { source: encodeURI('/политика-конфиденциальности'), destination: '/privacy-policy' },
-        { source: encodeURI('/пользовательское-соглашение'), destination: '/user-agreement' },
-        { source: encodeURI('/удаление-профиля'), destination: '/remove-profile' },
-        { source: encodeURI('/просмотр-профиля'), destination: '/view-profile' },
-        { source: encodeURI('/администрирование'), destination: '/administration' },
-      ]
-    }
+  async rewrites() {
+    return [
+      { source: encodeURI('/предложение'), destination: '/proposal' },
+      { source: encodeURI('/подтвердить-почту'), destination: '/confirm-email' },
+      { source: encodeURI('/регистрация'), destination: '/register-account' },
+      { source: encodeURI('/вход'), destination: '/login' },
+      { source: encodeURI('/профиль'), destination: '/profile' },
+      { source: encodeURI('/благодарности'), destination: '/acknowledgements' },
+      { source: encodeURI('/политика-конфиденциальности'), destination: '/privacy-policy' },
+      { source: encodeURI('/пользовательское-соглашение'), destination: '/user-agreement' },
+      { source: encodeURI('/удаление-профиля'), destination: '/remove-profile' },
+      { source: encodeURI('/просмотр-профиля'), destination: '/view-profile' },
+      { source: encodeURI('/администрирование'), destination: '/administration' },
+    ]
   }
 });

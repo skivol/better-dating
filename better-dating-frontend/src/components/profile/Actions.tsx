@@ -93,7 +93,7 @@ const actions = [{ /* Физкультура / физические упражн
 }];
 
 const actionSelect = (values: any, showAnalysis = false, readonly = false) => ({ analysisType, validate, required, name, label, data, helperText }: any) => (
-    <AnalyzedSection values={values} visible={showAnalysis} type={analysisType}>
+    <AnalyzedSection key={name} values={values} visible={showAnalysis} type={analysisType}>
         <Grid item key={name}>
             <Paper elevation={3} className="u-padding-16px u-center-horizontally u-max-width-450px">
                 <Select

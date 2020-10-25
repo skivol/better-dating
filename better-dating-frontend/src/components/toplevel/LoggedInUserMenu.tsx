@@ -14,9 +14,13 @@ import { UserState } from '../../types';
 import * as actions from '../../actions';
 import * as Messages from '../Messages';
 
-
-const MenuItemLink = React.forwardRef((props: MenuItemProps<'a', { button?: true }>) => {
-    return <MenuItem button component="a" {...props} />;
+type MenuItemLinkProps = MenuItemProps<'a', { button?: true }> & { href: string; };
+const MenuItemLink = React.forwardRef(({ href, onClick, ...rest }: MenuItemLinkProps, ref) => {
+    return (
+        <Link href={href} passHref>
+            <MenuItem button component="a" onClick={onClick} {...rest} />
+        </Link>
+    );
 });
 
 type Props = {
@@ -58,18 +62,16 @@ export const LoggedInUserMenu = ({ user }: Props) => {
                 open={menuIsOpen}
                 onClose={closeMenu}
             >
-                <Link href={profile} passHref>
-                    <MenuItemLink onClick={closeMenu}>
-                        <ListItemIcon className="u-min-width-30px"><FontAwesomeIcon icon={faIdCard} /></ListItemIcon>
-                        <ListItemText>{Messages.Profile}</ListItemText>
-                    </MenuItemLink>
-                </Link>
-                {isAdmin && (<Link href={administration} passHref>
-                    <MenuItemLink onClick={closeMenu}>
+                <MenuItemLink onClick={closeMenu} href={profile}>
+                    <ListItemIcon className="u-min-width-30px"><FontAwesomeIcon icon={faIdCard} /></ListItemIcon>
+                    <ListItemText>{Messages.Profile}</ListItemText>
+                </MenuItemLink>
+                {isAdmin && (
+                    <MenuItemLink onClick={closeMenu} href={administration}>
                         <ListItemIcon className="u-min-width-30px"><FontAwesomeIcon icon={faTools} /></ListItemIcon>
                         <ListItemText>{Messages.Administration}</ListItemText>
                     </MenuItemLink>
-                </Link>)}
+                )}
                 <MenuItem onClick={onLogoutClick}>
                     <ListItemIcon className="u-min-width-30px"><FontAwesomeIcon icon={faSignOutAlt} /></ListItemIcon>
                     <ListItemText>{Messages.logout}</ListItemText>

@@ -1,5 +1,5 @@
 import React from 'react';
-import Document, { Head, Main, NextScript } from 'next/document';
+import Document, { Html, Head, Main, NextScript } from 'next/document';
 import { ServerStyleSheets } from '@material-ui/core/styles';
 import { Helmet } from 'react-helmet';
 import { theme } from '../configureTheme';
@@ -69,7 +69,7 @@ export default class MyDocument extends Document<{ helmet: any; }> {
 
   render() {
     return (
-      <html {...this.helmetHtmlAttrComponents}>
+      <Html {...this.helmetHtmlAttrComponents}>
         <Head>
           {this.helmetHeadComponents}
           <meta charSet="utf-8" />
@@ -113,7 +113,7 @@ export default class MyDocument extends Document<{ helmet: any; }> {
           <Main />
           <NextScript />
         </body>
-      </html>
+      </Html>
     );
   }
 }

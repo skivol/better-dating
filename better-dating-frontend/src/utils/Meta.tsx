@@ -67,9 +67,9 @@ const getMetaTags = ({
 		metaTags.push({ name: 'article:tag', content: tags });
 	}
 	if (image) {
-		metaTags.push({ itemprop: 'image', content: seoImageURL(image) });
-		metaTags.push({ name: 'twitter:image:src', content: seoImageURL(image) });
-		metaTags.push({ name: 'og:image', content: seoImageURL(image) });
+		metaTags.push({ itemprop: 'image', content: image });
+		metaTags.push({ name: 'twitter:image:src', content: image });
+		metaTags.push({ name: 'og:image', content: image });
 		metaTags.push({ name: 'twitter:card', content: 'summary_large_image' });
 	} else {
 		metaTags.push({ name: 'twitter:card', content: 'summary' });
@@ -114,6 +114,7 @@ const Meta = ({
 				description,
 				contentType,
 				url: absoluteUrl(path),
+				image: absoluteUrl("/favicon-192.png"),
 				published,
 				updated: updatedValue,
 				category,

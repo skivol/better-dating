@@ -3,9 +3,9 @@ import clsx from 'clsx';
 import {
 	Grid,
 	Paper,
-	ExpansionPanel,
-	ExpansionPanelSummary,
-	ExpansionPanelDetails,
+	Accordion,
+	AccordionDetails,
+	AccordionSummary,
 	Typography,
 	Divider,
 	Button,
@@ -100,15 +100,15 @@ export const Proposal = () => {
 				className="u-margin-top-bottom-15px u-min-width-300px u-padding-10px"
 			>
 				<Grid item>
-					<ExpansionPanel>
-						<ExpansionPanelSummary
+					<Accordion>
+						<AccordionSummary
 							expandIcon={<ExpandMoreIcon />}
 						>
 							<Typography className={clsx('c-heading', classes.heading)}>
 								{Messages.Idea}
 							</Typography>
-						</ExpansionPanelSummary>
-						<ExpansionPanelDetails>
+						</AccordionSummary>
+						<AccordionDetails>
 							<Grid container direction="column">
 								<Grid item>
 									<Typography>
@@ -142,17 +142,17 @@ export const Proposal = () => {
 									</Typography>
 								</Grid>
 							</Grid>
-						</ExpansionPanelDetails>
-					</ExpansionPanel>
-					<ExpansionPanel>
-						<ExpansionPanelSummary
+						</AccordionDetails>
+					</Accordion>
+					<Accordion>
+						<AccordionSummary
 							expandIcon={<ExpandMoreIcon />}
 						>
 							<Typography className={classes.heading}>
 								{Messages.AreDatingSitesNeeded}
 							</Typography>
-						</ExpansionPanelSummary>
-						<ExpansionPanelDetails>
+						</AccordionSummary>
+						<AccordionDetails>
 							<Grid container direction="column">
 								<Grid item>
 									<Typography>
@@ -171,17 +171,17 @@ export const Proposal = () => {
 								</Typography>
 								</Grid>
 							</Grid>
-						</ExpansionPanelDetails>
-					</ExpansionPanel>
-					<ExpansionPanel>
-						<ExpansionPanelSummary
+						</AccordionDetails>
+					</Accordion>
+					<Accordion>
+						<AccordionSummary
 							expandIcon={<ExpandMoreIcon />}
 						>
 							<Typography className={classes.heading}>
 								{Messages.AnotherDatingSite}
 							</Typography>
-						</ExpansionPanelSummary>
-						<ExpansionPanelDetails>
+						</AccordionSummary>
+						<AccordionDetails>
 							<Grid container direction="column">
 								<Typography>
 									{Messages.YesOneOfGoalsIsDating}
@@ -205,8 +205,8 @@ export const Proposal = () => {
 									{Messages.OtherAlternatives}
 								</Typography>
 							</Grid>
-						</ExpansionPanelDetails>
-					</ExpansionPanel>
+						</AccordionDetails>
+					</Accordion>
 				</Grid>
 				<Grid item>
 					<Paper elevation={3} className="u-max-width-650px u-center-horizontally">
@@ -215,9 +215,9 @@ export const Proposal = () => {
 								<FontAwesomeIcon color="red" size="2x" icon={faExclamationCircle} />
 							</Grid>
 							<Grid item xs={10}>
-								<Typography>
+								<div className="MuiTypography-root MuiTypography-body1">
 									<ReactMarkdownMaterialUi source={Messages.spreadTheWordIfSeemsInteresting} />
-								</Typography>
+								</div>
 							</Grid>
 						</Grid>
 					</Paper>

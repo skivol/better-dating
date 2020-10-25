@@ -51,8 +51,8 @@ function HideOnScroll(props: Props) {
 	);
 }
 
-const ListItemLink = React.forwardRef((props: ListItemProps<'a', { button?: true }>) => {
-	return <ListItem button component="a" {...props} />;
+const ListItemLink = React.forwardRef((props: ListItemProps<'a', { button?: true }>, ref: any) => {
+	return <ListItem ref={ref} button component="a" {...props} />;
 });
 
 const Header = () => {
