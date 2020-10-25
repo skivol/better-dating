@@ -1,8 +1,8 @@
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 const RemoveProfileWithoutSsr = dynamic(
-    () => import('../components/RemoveProfile'),
-    { ssr: false }
-)
+  () => import("../components/RemoveProfile"),
+  { ssr: false }
+);
 
 export default RemoveProfileWithoutSsr;

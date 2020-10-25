@@ -1,5 +1,10 @@
-export const youngerThan20 = 'Для тех кто моложе 20 лет индекс может быть не точным.';
-export const bodyMassIndexInfo = (value: string, message: string, range: string) => `
+export const youngerThan20 =
+  "Для тех кто моложе 20 лет индекс может быть не точным.";
+export const bodyMassIndexInfo = (
+  value: string,
+  message: string,
+  range: string
+) => `
 **Индекс массы тела** (без учета пола и возраста, кг/м^2)
 
 Немного грубый, но хороший ориентировочный показатель здоровья учитывающий рост и вес.
@@ -8,18 +13,20 @@ export const bodyMassIndexInfo = (value: string, message: string, range: string)
 
 Оценка: **${message}** (*${range}*)
 `;
-export const bodyMassIndex = 'Индекс массы тела (без учета пола и возраста, кг/м^2)';
-export const bmiDescription = 'Немного грубый, но хороший ориентировочный показатель здоровья учитывающий рост и вес.';
-export const value = 'Значение:';
-export const evaluation = 'Оценка:';
+export const bodyMassIndex =
+  "Индекс массы тела (без учета пола и возраста, кг/м^2)";
+export const bmiDescription =
+  "Немного грубый, но хороший ориентировочный показатель здоровья учитывающий рост и вес.";
+export const value = "Значение:";
+export const evaluation = "Оценка:";
 
-export const massDeficiency = 'Выраженный дефицит массы тела';
-export const underWeight = 'Недостаточная (дефицит) масса тела';
-export const normal = 'Норма';
-export const preOverweight = 'Избыточная масса тела (предожирение)';
-export const overweight = 'Ожирение';
-export const severeOverweight = 'Ожирение резкое';
-export const verySevereOverweight = 'Очень резкое ожирение';
+export const massDeficiency = "Выраженный дефицит массы тела";
+export const underWeight = "Недостаточная (дефицит) масса тела";
+export const normal = "Норма";
+export const preOverweight = "Избыточная масса тела (предожирение)";
+export const overweight = "Ожирение";
+export const severeOverweight = "Ожирение резкое";
+export const verySevereOverweight = "Очень резкое ожирение";
 
 export const bmiMotivation = `
 Так как, легкость и радость движения зависят от умеренного веса тела и хорошего состояния мышц,
@@ -194,6 +201,7 @@ export const pornographyWatchingInfo = `
 Сообщите если чего-то не хватает, или что-то можно улучшить !
 `;
 
-export const results = 'Итоги анализа';
-export const starProfile = 'Выдающийся профиль!';
-export const goodProfileButCanBeImproved = 'Хороший профиль, но можно кое-что улучшить! ;)';
+export const results = "Итоги анализа";
+export const starProfile = "Выдающийся профиль!";
+export const goodProfileButCanBeImproved =
+  "Хороший профиль, но можно кое-что улучшить! ;)";

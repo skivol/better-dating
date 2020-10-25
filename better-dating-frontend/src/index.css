@@ -5,7 +5,8 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
 }
 
 /* https://github.com/mui-org/material-ui/issues/14427 */
@@ -134,8 +135,8 @@ input:-webkit-autofill {
   z-index: 1; /* to avoid placeholders showing up on top of the button */
 }
 
-
-.u-center-horizontally { /* "makeStyles-button-9" has margin */
+.u-center-horizontally {
+  /* "makeStyles-button-9" has margin */
   margin-left: auto !important;
   margin-right: auto !important;
 }

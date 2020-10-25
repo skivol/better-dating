@@ -1,7 +1,10 @@
-import { ProfileFormData, defaultValues as profileDefaultValues } from '../profile';
+import {
+  ProfileFormData,
+  defaultValues as profileDefaultValues,
+} from "../profile";
 
 export interface RegistrationFormData extends ProfileFormData {
-    acceptTerms?: boolean;
+  acceptTerms?: boolean;
 }
 
 export const defaultValues = { ...profileDefaultValues, acceptTerms: false };

@@ -1,2 +1,2 @@
-import Acknowledgements from '../components/Acknowledgements';
+import Acknowledgements from "../components/Acknowledgements";
 export default Acknowledgements;

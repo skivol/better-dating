@@ -1,7 +1,7 @@
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 const RegisterAccountFormWithoutSsr = dynamic(
-    () => import('../components/RegisterAccountForm'),
-    { ssr: false }
-)
+  () => import("../components/RegisterAccountForm"),
+  { ssr: false }
+);
 export default RegisterAccountFormWithoutSsr;

@@ -1,2 +1,2 @@
-export * from './RegistrationFormData';
-export * from './TermsOfUserAgreement';
+export * from "./RegistrationFormData";
+export * from "./TermsOfUserAgreement";

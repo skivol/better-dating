@@ -1,13 +1,16 @@
-import { formatISO, parseISO } from 'date-fns';
+import { formatISO, parseISO } from "date-fns";
 
 export const fromBackendProfileValues = ({ birthday, ...restValues }: any) => ({
-    ...restValues, bday: parseISO(birthday)
+  ...restValues,
+  bday: parseISO(birthday),
 });
 
 export const toBackendProfileValues = ({ bday, ...restValues }: any) => ({
-    ...restValues, birthday: formatISO(bday, { representation: 'date' })
+  ...restValues,
+  birthday: formatISO(bday, { representation: "date" }),
 });
 
 export const ensureBdayIsDate = ({ bday, ...restValues }: any) => ({
-    ...restValues, bday: bday && parseISO(bday)
+  ...restValues,
+  bday: bday && parseISO(bday),
 });

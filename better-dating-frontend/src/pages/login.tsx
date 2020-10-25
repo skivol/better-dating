@@ -1,8 +1,7 @@
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
-const LoginWithoutSsr = dynamic(
-    () => import('../containers/Login'),
-    { ssr: false }
-)
+const LoginWithoutSsr = dynamic(() => import("../containers/Login"), {
+  ssr: false,
+});
 
 export default LoginWithoutSsr;

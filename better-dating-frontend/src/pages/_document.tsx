@@ -1,10 +1,10 @@
-import { Children } from 'react';
-import Document, { Html, Head, Main, NextScript } from 'next/document';
-import { ServerStyleSheets } from '@material-ui/core/styles';
-import { Helmet } from 'react-helmet';
-import { theme } from '../configureTheme';
+import { Children } from "react";
+import Document, { Html, Head, Main, NextScript } from "next/document";
+import { ServerStyleSheets } from "@material-ui/core/styles";
+import { Helmet } from "react-helmet";
+import { theme } from "../configureTheme";
 
-export default class MyDocument extends Document<{ helmet: any; }> {
+export default class MyDocument extends Document<{ helmet: any }> {
   static async getInitialProps(ctx: any) {
     // Resolution order
     //
@@ -34,7 +34,8 @@ export default class MyDocument extends Document<{ helmet: any; }> {
 
     ctx.renderPage = () =>
       originalRenderPage({
-        enhanceApp: (App: any) => (props: any) => sheets.collect(<App {...props} />),
+        enhanceApp: (App: any) => (props: any) =>
+          sheets.collect(<App {...props} />),
       });
 
     const initialProps = await Document.getInitialProps(ctx);
@@ -44,8 +45,11 @@ export default class MyDocument extends Document<{ helmet: any; }> {
     return {
       ...initialProps,
       // Styles fragment is rendered after the app and page rendering finish.
-      styles: [...Children.toArray(initialProps.styles), sheets.getStyleElement()],
-      helmet: Helmet.renderStatic()
+      styles: [
+        ...Children.toArray(initialProps.styles),
+        sheets.getStyleElement(),
+      ],
+      helmet: Helmet.renderStatic(),
     };
   }
 
@@ -63,8 +67,8 @@ export default class MyDocument extends Document<{ helmet: any; }> {
   get helmetHeadComponents() {
     const { helmet } = this.props;
     return Object.keys(helmet)
-      .filter(el => !['htmlAttributes', 'bodyAttributes'].includes(el))
-      .map(el => helmet[el].toComponent());
+      .filter((el) => !["htmlAttributes", "bodyAttributes"].includes(el))
+      .map((el) => helmet[el].toComponent());
   }
 
   render() {
@@ -77,22 +81,72 @@ export default class MyDocument extends Document<{ helmet: any; }> {
           <link rel="shortcut icon" href="/favicon.ico" />
 
           <link rel="icon" sizes="16x16 32x32 64x64" href="/favicon.ico" />
-          <link rel="icon" type="image/png" sizes="196x196" href="/favicon-192.png" />
-          <link rel="icon" type="image/png" sizes="160x160" href="/favicon-160.png" />
-          <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
-          <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png" />
-          <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-          <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="196x196"
+            href="/favicon-192.png"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="160x160"
+            href="/favicon-160.png"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="96x96"
+            href="/favicon-96.png"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="64x64"
+            href="/favicon-64.png"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32.png"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16.png"
+          />
 
           <link rel="apple-touch-icon" href="/favicon-57.png" />
-          <link rel="apple-touch-icon" sizes="114x114" href="/favicon-114.png" />
+          <link
+            rel="apple-touch-icon"
+            sizes="114x114"
+            href="/favicon-114.png"
+          />
           <link rel="apple-touch-icon" sizes="72x72" href="/favicon-72.png" />
-          <link rel="apple-touch-icon" sizes="144x144" href="/favicon-144.png" />
+          <link
+            rel="apple-touch-icon"
+            sizes="144x144"
+            href="/favicon-144.png"
+          />
           <link rel="apple-touch-icon" sizes="60x60" href="/favicon-60.png" />
-          <link rel="apple-touch-icon" sizes="120x120" href="/favicon-120.png" />
+          <link
+            rel="apple-touch-icon"
+            sizes="120x120"
+            href="/favicon-120.png"
+          />
           <link rel="apple-touch-icon" sizes="76x76" href="/favicon-76.png" />
-          <link rel="apple-touch-icon" sizes="152x152" href="/favicon-152.png" />
-          <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png" />
+          <link
+            rel="apple-touch-icon"
+            sizes="152x152"
+            href="/favicon-152.png"
+          />
+          <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/favicon-180.png"
+          />
 
           <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
 
@@ -109,7 +163,9 @@ export default class MyDocument extends Document<{ helmet: any; }> {
           <link rel="manifest" href="/manifest.json" />
         </Head>
         <body {...this.helmetBodyAttrComponents}>
-          <noscript>Вам нужно включить JavaScript для полноценной работы данного сайта.</noscript>
+          <noscript>
+            Вам нужно включить JavaScript для полноценной работы данного сайта.
+          </noscript>
           <Main />
           <NextScript />
         </body>

@@ -1,71 +1,76 @@
-import * as Messages from '../Messages';
+import * as Messages from "../Messages";
 
 export type Recurrence =
-    "neverPurposefully" |
-    "neverDidButDoNotKnowIfGoingToDoInFuture" |
-    "neverDidAndNotGoingInFuture" |
-    "didBeforeButDoNotKnowIfGoingToDoInFuture" |
-    "didBeforeNotGoingInFuture" |
-    "coupleTimesInYearOrMoreSeldom" |
-    "coupleTimesInYear" |
-    "coupleTimesInMonth" |
-    "coupleTimesInWeek" |
-    "everyDay" |
-    "severalTimesInDay";
+  | "neverPurposefully"
+  | "neverDidButDoNotKnowIfGoingToDoInFuture"
+  | "neverDidAndNotGoingInFuture"
+  | "didBeforeButDoNotKnowIfGoingToDoInFuture"
+  | "didBeforeNotGoingInFuture"
+  | "coupleTimesInYearOrMoreSeldom"
+  | "coupleTimesInYear"
+  | "coupleTimesInMonth"
+  | "coupleTimesInWeek"
+  | "everyDay"
+  | "severalTimesInDay";
 
 const neverPurposefully = {
-    label: Messages.neverPurposefully,
-    value: "neverPurposefully"
+  label: Messages.neverPurposefully,
+  value: "neverPurposefully",
 };
 const neverDidAndNotGoingInFuture = {
-    label: Messages.neverDidAndNotGoingInFuture,
-    value: "neverDidAndNotGoingInFuture"
+  label: Messages.neverDidAndNotGoingInFuture,
+  value: "neverDidAndNotGoingInFuture",
 };
 const neverDidButDoNotKnowIfGoingToDoInFuture = {
-    label: Messages.neverDidButDoNotKnowIfGoingToDoInFuture,
-    value: "neverDidButDoNotKnowIfGoingToDoInFuture"
+  label: Messages.neverDidButDoNotKnowIfGoingToDoInFuture,
+  value: "neverDidButDoNotKnowIfGoingToDoInFuture",
 };
 const didBeforeButDoNotKnowIfGoingToDoInFuture = {
-    label: Messages.didBeforeButDoNotKnowIfGoingToDoInFuture,
-    value: "didBeforeButDoNotKnowIfGoingToDoInFuture"
+  label: Messages.didBeforeButDoNotKnowIfGoingToDoInFuture,
+  value: "didBeforeButDoNotKnowIfGoingToDoInFuture",
 };
 const didBeforeNotGoingInFuture = {
-    label: Messages.didBeforeNotGoingInFuture,
-    value: "didBeforeNotGoingInFuture"
+  label: Messages.didBeforeNotGoingInFuture,
+  value: "didBeforeNotGoingInFuture",
 };
 const coupleTimesInYear = {
-    label: Messages.coupleTimesInYear,
-    value: "coupleTimesInYear"
+  label: Messages.coupleTimesInYear,
+  value: "coupleTimesInYear",
 };
 const coupleTimesInMonth = {
-    label: Messages.coupleTimesInMonth,
-    value: "coupleTimesInMonth"
+  label: Messages.coupleTimesInMonth,
+  value: "coupleTimesInMonth",
 };
 const coupleTimesInWeek = {
-    label: Messages.coupleTimesInWeek,
-    value: "coupleTimesInWeek"
+  label: Messages.coupleTimesInWeek,
+  value: "coupleTimesInWeek",
 };
 const everyDay = {
-    label: Messages.everyDay,
-    value: "everyDay"
+  label: Messages.everyDay,
+  value: "everyDay",
 };
 const severalTimesInDay = {
-    label: Messages.severalTimesInDay,
-    value: "severalTimesInDay"
+  label: Messages.severalTimesInDay,
+  value: "severalTimesInDay",
 };
 const coupleTimesInYearOrMoreSeldom = {
-    label: Messages.coupleTimesInYearOrMoreSeldom,
-    value: "coupleTimesInYearOrMoreSeldom"
+  label: Messages.coupleTimesInYearOrMoreSeldom,
+  value: "coupleTimesInYearOrMoreSeldom",
 };
 
 const defaultOptions = [
-    neverDidButDoNotKnowIfGoingToDoInFuture, neverDidAndNotGoingInFuture, didBeforeButDoNotKnowIfGoingToDoInFuture,
-    didBeforeNotGoingInFuture, coupleTimesInYearOrMoreSeldom, coupleTimesInYear, coupleTimesInMonth,
-    coupleTimesInWeek, everyDay, severalTimesInDay
+  neverDidButDoNotKnowIfGoingToDoInFuture,
+  neverDidAndNotGoingInFuture,
+  didBeforeButDoNotKnowIfGoingToDoInFuture,
+  didBeforeNotGoingInFuture,
+  coupleTimesInYearOrMoreSeldom,
+  coupleTimesInYear,
+  coupleTimesInMonth,
+  coupleTimesInWeek,
+  everyDay,
+  severalTimesInDay,
 ];
-export const physicalExerciseOptions = [
-    neverPurposefully, ...defaultOptions
-];
+export const physicalExerciseOptions = [neverPurposefully, ...defaultOptions];
 export const smokingOptions = defaultOptions;
 export const alcoholOptions = defaultOptions;
 export const computerGamesOptions = defaultOptions;

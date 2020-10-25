@@ -1,3 +1,4 @@
-import { FormApi } from 'final-form';
+import { FormApi } from "final-form";
 
-export const emailHasChanged = (form: FormApi<any>) => form.getState().dirtyFields['email'] === true;
+export const emailHasChanged = (form: FormApi<any>) =>
+  form.getState().dirtyFields["email"] === true;

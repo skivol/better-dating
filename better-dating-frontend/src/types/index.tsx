@@ -3,7 +3,7 @@ export enum SnackbarVariant {
   warning = "warning",
   error = "error",
   info = "info",
-};
+}
 
 export interface StatusSnackbarState {
   isOpen: boolean;

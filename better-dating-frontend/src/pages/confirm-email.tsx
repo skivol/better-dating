@@ -1,8 +1,8 @@
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 const ConfirmEmailWithoutSsr = dynamic(
-    () => import('../components/ConfirmEmail'),
-    { ssr: false }
-)
+  () => import("../components/ConfirmEmail"),
+  { ssr: false }
+);
 
 export default ConfirmEmailWithoutSsr;

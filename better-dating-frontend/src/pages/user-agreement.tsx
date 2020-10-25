@@ -1,2 +1,2 @@
-import { UserAgreementPage } from '../components/user-agreement/UserAgreementPage';
+import { UserAgreementPage } from "../components/user-agreement/UserAgreementPage";
 export default UserAgreementPage;

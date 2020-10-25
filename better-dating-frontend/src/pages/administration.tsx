@@ -1,2 +1,2 @@
-import Administration from '../components/Administration';
+import Administration from "../components/Administration";
 export default Administration;

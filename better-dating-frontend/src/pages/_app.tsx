@@ -1,22 +1,22 @@
-import { useEffect } from 'react';
-import { AppProps } from 'next/app';
-import { Provider } from 'react-redux';
+import { useEffect } from "react";
+import { AppProps } from "next/app";
+import { Provider } from "react-redux";
 
-import { ThemeProvider } from '@material-ui/core/styles';
-import { Container, CssBaseline } from '@material-ui/core';
+import { ThemeProvider } from "@material-ui/core/styles";
+import { Container, CssBaseline } from "@material-ui/core";
 
-import { theme } from '../configureTheme';
-import Header from '../components/toplevel/Header';
-import Footer from '../components/toplevel/Footer';
-import StatusSnackbar from '../components/StatusSnackbar';
-import Meta from '../utils/Meta';
-import * as Messages from '../components/Messages';
-import { configureStore } from '../configureStore';
+import { theme } from "../configureTheme";
+import Header from "../components/toplevel/Header";
+import Footer from "../components/toplevel/Footer";
+import StatusSnackbar from "../components/StatusSnackbar";
+import Meta from "../utils/Meta";
+import * as Messages from "../components/Messages";
+import { configureStore } from "../configureStore";
 
-import 'typeface-roboto';
-import { config } from '@fortawesome/fontawesome-svg-core';
-import '@fortawesome/fontawesome-svg-core/styles.css';
-import '../index.css';
+import "typeface-roboto";
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import "../index.css";
 
 config.autoAddCss = false;
 
@@ -25,7 +25,7 @@ const store = configureStore();
 const BetterDatingApp = ({ Component, pageProps }: AppProps) => {
   useEffect(() => {
     // Remove the server-side injected CSS.
-    const jssStyles = document.querySelector('#jss-server-side');
+    const jssStyles = document.querySelector("#jss-server-side");
     if (jssStyles) {
       jssStyles.parentElement!.removeChild(jssStyles);
     }
@@ -44,14 +44,17 @@ const BetterDatingApp = ({ Component, pageProps }: AppProps) => {
           published="2019-07-26"
         />
         <Header />
-        <Container className="u-padding-10px u-max-width-892px" style={{ background: 'white', borderRadius: '10px', marginTop: 65 }}>
+        <Container
+          className="u-padding-10px u-max-width-892px"
+          style={{ background: "white", borderRadius: "10px", marginTop: 65 }}
+        >
           <Component {...pageProps} />
           <Footer />
           <StatusSnackbar />
         </Container>
       </ThemeProvider>
     </Provider>
-  )
-}
+  );
+};
 
 export default BetterDatingApp;
