@@ -20,13 +20,9 @@ import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 import { getData, ReactMarkdownMaterialUi } from "../utils";
 import { updated } from "../constants";
 import * as Messages from "./Messages";
-// @ts-ignore
 import FirstStageFlow from "./img/Первый_этап.png";
-// @ts-ignore
 import selfDevelopmentStage from "./img/self-development-stage.svg";
-// @ts-ignore
 import datingStage from "./img/dating-stage.svg";
-// @ts-ignore
 import familyStage from "./img/family-stage.svg";
 
 const useStyles = makeStyles((theme: Theme) =>

@@ -81,7 +81,7 @@ const calculateBmi = (
   };
   const { category, message, range } = categories.find(
     (c) => c.category === getCategory()
-  )!!;
+  )!;
   const severity = category === 3 ? "success" : "warning";
   return { bmi, message, range, severity };
 };

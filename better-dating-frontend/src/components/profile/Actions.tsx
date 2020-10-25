@@ -100,6 +100,7 @@ const actions = [
   },
 ];
 
+// eslint-disable-next-line react/display-name
 const actionSelect = (values: any, showAnalysis = false, readonly = false) => ({
   analysisType,
   validate,

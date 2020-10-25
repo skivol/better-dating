@@ -11,7 +11,6 @@ import {
 
 import * as Messages from "../Messages";
 import { ReactMarkdownMaterialUi } from "../../utils";
-// @ts-ignore
 import fullTextOfUserAgreement from "../user-agreement/UserAgreement.md";
 
 export interface Props {

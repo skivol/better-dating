@@ -32,6 +32,7 @@ export const configureStore = (preloadedState?: BetterDatingStoreState) => {
   if (dev && module.hot) {
     module.hot.accept("./reducers", () => {
       console.log("Replacing reducer");
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       store.replaceReducer(require("./reducers").default);
     });
   }

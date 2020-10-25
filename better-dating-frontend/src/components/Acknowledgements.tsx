@@ -12,17 +12,11 @@ import {
 import { devEnvironment } from "./acknowledgements/dev-environment";
 import { Licenses } from "./acknowledgements/licenses";
 import * as Messages from "./acknowledgements/Messages";
-// @ts-ignore
 import mitLicenseText from "./acknowledgements/licenses/MIT License.txt";
-// @ts-ignore
 import apacheLicenseText from "./acknowledgements/licenses/Apache License 2.0.txt";
-// @ts-ignore
 import postgresCopyrightText from "./acknowledgements/licenses/Postgres Copyright.txt";
-// @ts-ignore
 import eclipseLicenseText from "./acknowledgements/licenses/Eclipse Public License - v 2.0.txt";
-// @ts-ignore
 import bsd3LicenseText from "./acknowledgements/licenses/BSD-3-Clause.txt";
-// @ts-ignore
 import nginxLicenseText from "./acknowledgements/licenses/Nginx License.txt";
 
 const licenseId = (license: string) => license.replace(" ", "_");

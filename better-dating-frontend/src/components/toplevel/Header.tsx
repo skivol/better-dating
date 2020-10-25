@@ -1,4 +1,4 @@
-import * as React from "react";
+import { ReactElement, CSSProperties, forwardRef, useState } from "react";
 import { useRouter } from "next/router";
 import {
   AppBar,
@@ -32,12 +32,11 @@ import {
   registerAccount,
   login,
 } from "../navigation/NavigationUrls";
-// @ts-ignore
 import SmotrinyLogo from "../img/logo.svg";
 import { useUser } from "../../utils";
 import { LoggedInUserMenu } from "./LoggedInUserMenu";
 
-const logoStyle: React.CSSProperties = {
+const logoStyle: CSSProperties = {
   height: 50,
   width: 50,
   background: "white",
@@ -69,16 +68,17 @@ function HideOnScroll(props: Props) {
   );
 }
 
-const ListItemLink = React.forwardRef(
-  (props: ListItemProps<"a", { button?: true }>, ref: any) => {
-    return <ListItem ref={ref} button component="a" {...props} />;
+// eslint-disable-next-line react/display-name
+const ListItemLink = forwardRef(
+  (props: ListItemProps<"a", { button?: true }>, ref) => {
+    return <ListItem button component="a" {...props} />;
   }
 );
 
-const Header = () => {
+const Header = (): ReactElement => {
   const classes = useStyles();
 
-  const [drawerOpened, toggleDrawer] = React.useState(false);
+  const [drawerOpened, toggleDrawer] = useState(false);
 
   const router = useRouter();
   const userVisiblePath = fromPage(router.pathname);

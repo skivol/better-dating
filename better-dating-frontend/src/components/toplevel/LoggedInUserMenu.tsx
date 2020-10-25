@@ -26,6 +26,7 @@ import * as Messages from "../Messages";
 type MenuItemLinkProps = MenuItemProps<"a", { button?: true }> & {
   href: string;
 };
+// eslint-disable-next-line react/display-name
 const MenuItemLink = forwardRef(
   ({ href, onClick, ...rest }: MenuItemLinkProps, ref) => {
     return (

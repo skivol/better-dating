@@ -60,15 +60,13 @@ type State = {
 
 // https://material-ui.com/components/snackbars/
 const StatusSnackbar = () => {
-  const {
-    isOpen,
-    message,
-    variant,
-  } = useSelector(({ snackbar: { isOpen, message, variant } }: State) => ({
-    isOpen,
-    message,
-    variant,
-  }));
+  const { isOpen, message, variant } = useSelector(
+    ({ snackbar: { isOpen, message, variant } }: State) => ({
+      isOpen,
+      message,
+      variant,
+    })
+  );
   const contentClasses = contentStyles();
   const wrapperClasses = wrapperStyles();
   const Icon = variantIcon[variant];

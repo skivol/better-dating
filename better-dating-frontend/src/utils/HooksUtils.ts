@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import * as React from "react";
+import { useEffect, useState, MouseEvent } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import { firstValueIfArray } from ".";
@@ -17,16 +16,16 @@ export const useUser = () => {
 };
 
 export const useMenu = () => {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuIsOpen = Boolean(anchorEl);
-  const openMenu = (event: React.MouseEvent<HTMLElement>) =>
+  const openMenu = (event: MouseEvent<HTMLElement>) =>
     setAnchorEl(event.currentTarget);
   const closeMenu = () => setAnchorEl(null);
   return { anchorEl, menuIsOpen, openMenu, closeMenu };
 };
 
 export const useDialog = () => {
-  const [dialogIsOpen, setOpen] = React.useState(false);
+  const [dialogIsOpen, setOpen] = useState(false);
   const openDialog = () => setOpen(true);
   const closeDialog = () => setOpen(false);
 

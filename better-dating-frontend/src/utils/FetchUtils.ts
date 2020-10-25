@@ -56,7 +56,7 @@ const getCookie = (name: string) => {
   return match ? match[2] : "";
 };
 
-const requestWithBody = async (method: string, url: string, data: object) => {
+const requestWithBody = async (method: string, url: string, data: any) => {
   await getCsrf();
   const csrf = getCookie("XSRF-TOKEN");
   const response = await fetch(url, {
@@ -71,11 +71,11 @@ const requestWithBody = async (method: string, url: string, data: object) => {
   return ensureOkAndTryParseJson(response);
 };
 
-export const postData = async (url: string, data: object = {}) =>
+export const postData = async (url: string, data = {}) =>
   requestWithBody("POST", url, data);
-export const putData = async (url: string, data: object = {}) =>
+export const putData = async (url: string, data = {}) =>
   requestWithBody("PUT", url, data);
-export const deleteData = async (url: string, data: object = {}) =>
+export const deleteData = async (url: string, data = {}) =>
   requestWithBody("DELETE", url, data);
 
 export const firstValueIfArray = (target: string[] | string) =>

@@ -57,7 +57,7 @@ const resolveProfileError = (
   alreadyRegisteredNickname(error) ||
   genericErrorMessage;
 export const createAccount = (values: any): any => async (
-  dispatch: ThunkDispatch<{}, {}, Action>
+  dispatch: ThunkDispatch<any, any, Action>
 ) => {
   try {
     await postData("/api/user/profile", toBackendProfileValues(values));
@@ -78,7 +78,7 @@ export const createAccount = (values: any): any => async (
 };
 
 export const requestLogin = (email: string): ThunkResult<void> => async (
-  dispatch: ThunkDispatch<{}, {}, Action>
+  dispatch: ThunkDispatch<any, any, Action>
 ) => {
   try {
     await postData("/api/auth/login-link", { email });
@@ -91,7 +91,7 @@ export const requestLogin = (email: string): ThunkResult<void> => async (
 };
 
 export const performLogin = (token: string): any => async (
-  dispatch: ThunkDispatch<{}, {}, Action>
+  dispatch: ThunkDispatch<any, any, Action>
 ) => {
   try {
     await postData("/api/auth/login", { token });
@@ -109,7 +109,7 @@ export const performLogin = (token: string): any => async (
 export const updateAccount = (
   values: any,
   emailChanged: boolean | undefined
-): any => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+): any => async (dispatch: ThunkDispatch<any, any, Action>) => {
   try {
     await putData(`/api/user/profile`, toBackendProfileValues(values));
     const successMessage = emailChanged
@@ -127,7 +127,7 @@ export const updateAccount = (
 };
 
 export const requestAccountRemoval = (): any => async (
-  dispatch: ThunkDispatch<{}, {}, Action>
+  dispatch: ThunkDispatch<any, any, Action>
 ) => {
   try {
     await postData("/api/user/profile/request-removal");
@@ -146,7 +146,7 @@ export const removeAccount = (
   token: string,
   reason: string,
   explanationComment: string
-): any => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+): any => async (dispatch: ThunkDispatch<any, any, Action>) => {
   try {
     await deleteData("/api/user/profile", {
       token,
@@ -161,7 +161,7 @@ export const removeAccount = (
 };
 
 export const viewAuthorsProfile = (): any => async (
-  dispatch: ThunkDispatch<{}, {}, Action>
+  dispatch: ThunkDispatch<any, any, Action>
 ) => {
   try {
     await postData("/api/user/profile/authors-profile");
@@ -181,7 +181,7 @@ export const viewAuthorsProfile = (): any => async (
 
 export const requestAnotherValidationToken = (
   previousToken: string
-): ThunkResult<void> => async (dispatch: ThunkDispatch<{}, {}, Action>) => {
+): ThunkResult<void> => async (dispatch: ThunkDispatch<any, any, Action>) => {
   try {
     await postData("/api/user/email/new-verification", {
       token: previousToken,
@@ -200,7 +200,7 @@ export const requestAnotherValidationToken = (
 };
 
 export const fetchUser = (): ThunkResult<void> => async (
-  dispatch: ThunkDispatch<{}, {}, Action>
+  dispatch: ThunkDispatch<any, any, Action>
 ) => {
   if (browser()) {
     dispatch(user({ ...constants.emptyUser, loading: true }));
@@ -219,7 +219,7 @@ export const user = (user: any) => ({
 });
 
 export const logout = (): any => async (
-  dispatch: ThunkDispatch<{}, {}, Action>
+  dispatch: ThunkDispatch<any, any, Action>
 ) => {
   try {
     await postData("/api/auth/logout");

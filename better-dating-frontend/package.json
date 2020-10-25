@@ -36,10 +36,18 @@
   "scripts": {
     "dev": "node server.js",
     "build": "next build",
-    "prod": "NODE_ENV=production node server.js"
+    "prod": "NODE_ENV=production node server.js",
+    "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
   },
-  "eslintConfig": {
-    "extends": "react-app"
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx}": [
+      "eslint --fix"
+    ]
   },
   "browserslist": {
     "production": [
@@ -62,13 +70,22 @@
     "@types/react-redux": "7.1.9",
     "@types/redux-logger": "3.0.7",
     "@types/webpack-env": "1.14.1",
+    "@typescript-eslint/eslint-plugin": "4.5.0",
+    "@typescript-eslint/parser": "4.5.0",
     "css-loader": "3.4.0",
+    "eslint": "7.12.0",
+    "eslint-config-prettier": "6.14.0",
+    "eslint-plugin-prettier": "3.1.4",
+    "eslint-plugin-react": "7.21.5",
+    "eslint-plugin-react-hooks": "4.2.0",
     "extracted-loader": "1.0.7",
     "file-loader": "5.0.2",
     "http-proxy-middleware": "0.20.0",
+    "husky": "4.3.0",
     "ignore-loader": "0.1.2",
     "imagemin-mozjpeg": "8.0.0",
     "imagemin-optipng": "7.1.0",
+    "lint-staged": "10.4.2",
     "next-compose-plugins": "2.2.0",
     "next-optimized-images": "2.6.0",
     "prettier": "2.1.2",

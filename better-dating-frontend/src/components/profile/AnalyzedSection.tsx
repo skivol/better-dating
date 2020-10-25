@@ -1,4 +1,4 @@
-import * as React from "react";
+import { ReactNode } from "react";
 import { Grid, Paper } from "@material-ui/core";
 import { analyze } from ".";
 
@@ -7,7 +7,7 @@ interface AnalyzedSectionProps {
   values: any;
   visible: boolean;
   type: string;
-  children: React.ReactNode | Array<React.ReactNode>;
+  children: ReactNode | Array<ReactNode>;
 }
 
 export const AnalyzedSection = ({

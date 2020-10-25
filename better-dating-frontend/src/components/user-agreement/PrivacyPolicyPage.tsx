@@ -1,6 +1,5 @@
 import { Paper } from "@material-ui/core";
 import Header from "../toplevel/Header";
-// @ts-ignore
 import fullTextOfPrivacyPolicy from "./PrivacyPolicy.md";
 import { ReactMarkdownMaterialUi } from "../../utils";
 
