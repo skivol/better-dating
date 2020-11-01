@@ -58,7 +58,8 @@ open class Profile(
         val makeup: Recurrence,
         val intimateRelationsOutsideOfMarriage: Recurrence?,
         val pornographyWatching: Recurrence?,
-        val personalHealthEvaluation: Int
+        val personalHealthEvaluation: Int,
+        val eligibleForSecondStage: Boolean? = null // readonly
 ) {
     init {
         validate(this) {

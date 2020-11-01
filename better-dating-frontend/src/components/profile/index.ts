@@ -12,3 +12,4 @@ export * from "./SubmitButton";
 export * from "./Weight";
 export * from "./AccountRemovalConfirm";
 export * from "./ViewOtherUserProfileConfirm";
+export * from "./SecondStageEnableDialog";

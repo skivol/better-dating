@@ -104,3 +104,10 @@ class UsageStats(
         val registered: Long,
         val removed: Long
 )
+
+class PopulatedLocality(
+        val id: UUID,
+        val name: String,
+        val region: String,
+        val country: String
+)

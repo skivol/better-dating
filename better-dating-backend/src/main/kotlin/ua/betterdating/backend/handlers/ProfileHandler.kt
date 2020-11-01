@@ -84,7 +84,7 @@ class UserProfileHandler(
             userRoleRepository.save(UserRole(profileId, Role.ROLE_USER))
             freemarkerMailSender.sendWelcomeAndVerifyEmailMessage(email.id, email.email, request)
         }
-        return ok().json().bodyValueAndAwait(validCreateProfileRequest)
+        return ok().json().bodyValueAndAwait(existingProfileById(profileId))
     }
 
     suspend fun profile(request: ServerRequest): ServerResponse {
@@ -126,7 +126,7 @@ class UserProfileHandler(
             changedHealthEvaluation?.let { profileEvaluationRepository.save(it) }
         }
 
-        return ok().json().bodyValueAndAwait(profile)
+        return ok().json().bodyValueAndAwait(currentUserProfile(request))
     }
 
     suspend fun requestRemoval(request: ServerRequest): ServerResponse {
@@ -284,9 +284,9 @@ class UserProfileHandler(
     }
 
     private fun changedProfileInfo(existingProfile: Profile, profile: Profile) = if (
-        existingProfile.nickname != profile.nickname
-        || existingProfile.gender != profile.gender
-        || existingProfile.birthday != profile.birthday
+            existingProfile.nickname != profile.nickname
+            || existingProfile.gender != profile.gender
+            || existingProfile.birthday != profile.birthday
     ) {
         ProfileInfo(existingProfile.id!!, profile.nickname, profile.gender, profile.birthday, null, now())
     } else {
@@ -321,6 +321,8 @@ class UserProfileHandler(
     }
 
     private fun toWebEntity(email: Email, profileInfo: ProfileInfo, height: Height, weight: Weight, activities: Map<String, Activity>, personalHealthEvaluation: ProfileEvaluation): Profile {
+        val eligibleForSecondStage = activities[intimateRelationsOutsideOfMarriage.name] !== null
+                && activities[pornographyWatching.name] !== null
         return Profile(
                 email.id, email.email, profileInfo.nickname, profileInfo.gender, profileInfo.birthday, height.height, weight.weight,
                 activities[physicalExercise.name]!!.recurrence, activities[smoking.name]!!.recurrence,
@@ -328,7 +330,7 @@ class UserProfileHandler(
                 activities[gambling.name]!!.recurrence, activities[haircut.name]!!.recurrence,
                 activities[hairColoring.name]!!.recurrence, activities[makeup.name]!!.recurrence,
                 activities[intimateRelationsOutsideOfMarriage.name]?.recurrence, activities[pornographyWatching.name]?.recurrence,
-                personalHealthEvaluation.evaluation
+                personalHealthEvaluation.evaluation, eligibleForSecondStage
         )
     }
 }

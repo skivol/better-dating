@@ -13,6 +13,7 @@ import org.springframework.data.relational.core.query.Update.update
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitOneOrNull
 import org.springframework.r2dbc.core.awaitRowsUpdated
+import reactor.core.publisher.Flux
 import java.time.LocalDateTime
 import java.util.*
 
@@ -217,4 +218,26 @@ class ProfileViewHistoryRepository(private val template: R2dbcEntityTemplate, pr
 class StatisticsRepository(private val template: R2dbcEntityTemplate) {
     suspend fun registered(): Long = template.count(query(empty()), Email::class.java).awaitFirst()
     suspend fun removed(): Long = template.count(query(empty()), ProfileDeletionFeedback::class.java).awaitFirst()
+}
+
+class PopulatedLocalitiesRepository(private val client: DatabaseClient) {
+    fun find(query: String): Flux<PopulatedLocality> =
+            client.sql("SELECT pl.id, pl.\"name\", r.\"name\" AS \"region\", c.\"name\" AS \"country\" " +
+                    "FROM populated_locality pl " +
+                    "JOIN region r ON r.id = pl.region_id " +
+                    "JOIN country c ON c.id = r.country_id " +
+                    "WHERE :query = '' OR pl.\"name\" ~* :query OR r.\"name\" ~* :query OR c.\"name\" ~* :query " +
+                    // first output those that start with searched value (case insensitive),
+                    // then those that match case insensitive,
+                    // and lastly just sort by name
+                    "ORDER BY pl.\"name\" ~* concat('^', :query) DESC, pl.\"name\" ~* :query DESC, pl.\"name\" LIMIT 25")
+                    .bind("query", query)
+                    .map { row, _ ->
+                        PopulatedLocality(
+                                row["id"] as UUID,
+                                row["name"] as String,
+                                row["region"] as String,
+                                row["country"] as String
+                        )
+                    }.all()
 }

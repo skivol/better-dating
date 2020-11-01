@@ -111,11 +111,17 @@ export const updateAccount = (
   emailChanged: boolean | undefined
 ): any => async (dispatch: ThunkDispatch<any, any, Action>) => {
   try {
-    await putData(`/api/user/profile`, toBackendProfileValues(values));
+    const response = await putData(
+      `/api/user/profile`,
+      toBackendProfileValues(values)
+    );
+
     const successMessage = emailChanged
       ? Messages.successUpdatingProfileAndChangingEmailMessage
       : Messages.successUpdatingProfileMessage;
     dispatch(openSnackbar(successMessage, SnackbarVariant.success));
+
+    return response;
   } catch (error) {
     const message = resolveProfileError(
       error,

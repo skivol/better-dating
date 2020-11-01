@@ -15,6 +15,7 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
     beans {
         bean<EmailHandler>()
         bean<UserProfileHandler>()
+        bean<PopulatedLocalitiesHandler>()
         bean<AdminHandler>()
         bean<AuthHandler>()
         bean<HealthHandler>()

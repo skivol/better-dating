@@ -8,6 +8,7 @@ import ua.betterdating.backend.mapErrorToResponse
 fun routes(
         emailHandler: EmailHandler,
         userProfileHandler: UserProfileHandler,
+        populatedLocalitiesHandler: PopulatedLocalitiesHandler,
         authHandler: AuthHandler,
         adminHandler: AdminHandler,
         healthHandler: HealthHandler
@@ -27,6 +28,8 @@ fun routes(
         POST("/authors-profile", accept(APPLICATION_JSON), userProfileHandler::requestViewOfAuthorsProfile)
         GET("/view", userProfileHandler::viewOtherUserProfile)
     }
+    
+    GET("/api/populated-localities/autocomplete", populatedLocalitiesHandler::autocomplete)
 
     "/api/admin".nest {
         GET("/usage-stats", adminHandler::usageStatistics)

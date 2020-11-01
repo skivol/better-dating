@@ -1,7 +1,7 @@
 // https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Promise
 // https://developer.mozilla.org/ru/docs/Web/API/Fetch_API/Using_Fetch
 
-export const unauthorized = (response: any) =>
+export const unauthorized = (response: Response): boolean =>
   [401, 403].includes(response.status);
 
 const ensureOkAndTryParseJson = async (response: Response) => {
@@ -41,8 +41,8 @@ export const getData = async (
     ? `?${urlSearchParams}`
     : "";
   const response = await fetch(`${url}${queryPart}`, {
-    method: "GET", // *GET, POST, PUT, DELETE, etc.
-    credentials: "same-origin", // include, same-origin, omit
+    method: "GET",
+    credentials: "same-origin",
     headers,
   });
   return ensureOkAndTryParseJson(response);
@@ -66,7 +66,7 @@ const requestWithBody = async (method: string, url: string, data: any) => {
       "Content-Type": "application/json",
       "X-XSRF-TOKEN": csrf,
     },
-    body: JSON.stringify(data), // тип данных в body должен соответвовать значению заголовка "Content-Type"
+    body: JSON.stringify(data),
   });
   return ensureOkAndTryParseJson(response);
 };

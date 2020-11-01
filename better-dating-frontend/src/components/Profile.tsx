@@ -12,6 +12,7 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Tooltip,
 } from "@material-ui/core";
 import { ToggleButton } from "@material-ui/lab";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
@@ -20,6 +21,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSave,
   faUserCheck,
+  faLevelUpAlt,
   faUserMinus,
   faEllipsisV,
   faIdCard,
@@ -47,6 +49,7 @@ import {
   renderActions,
   AccountRemovalConfirm,
   ViewOtherUserProfileConfirm,
+  SecondStageEnableDialog,
 } from "./profile";
 
 import { SpinnerAdornment } from "./common";
@@ -72,10 +75,16 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  const { anchorEl, menuIsOpen, openMenu, closeMenu } = useMenu();
+  const { dialogIsOpen, openDialog, closeDialog } = useDialog();
+  const [dialogType, setDialogType] = useState<string | null>(null);
+
   const onSubmit = (values: any, form: FormApi<any>) => {
     setSaving(true);
     dispatch(actions.updateAccount(values, emailHasChanged(form)))
-      .then(() => setInitialValues(values))
+      .then((response: any) =>
+        setInitialValues(fromBackendProfileValues(response))
+      )
       .finally(() => setSaving(false));
   };
   const onProfileRemove = () => {
@@ -83,7 +92,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
     dispatch(actions.requestAccountRemoval())
       .then(() => {
         closeDialog();
-        setConfirmType(null);
+        setDialogType(null);
       })
       .finally(() => setLoading(false));
   };
@@ -92,7 +101,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
     dispatch(actions.viewAuthorsProfile())
       .then(() => {
         closeDialog();
-        setConfirmType(null);
+        setDialogType(null);
       })
       .finally(() => setLoading(false));
   };
@@ -114,18 +123,14 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
     }
   }, [showAnalysis]);
 
-  const { anchorEl, menuIsOpen, openMenu, closeMenu } = useMenu();
-  const { dialogIsOpen, openDialog, closeDialog } = useDialog();
-  const [confirmType, setConfirmType] = useState<string | null>(null);
-
-  const showConfirm = (type: string) => {
+  const showDialog = (type: string) => {
     closeMenu();
     openDialog();
-    setConfirmType(type);
+    setDialogType(type);
   };
-  let confirmDialog = null;
-  if (confirmType === "accountRemoval") {
-    confirmDialog = (
+  let dialog = null;
+  if (dialogType === "accountRemoval") {
+    dialog = (
       <AccountRemovalConfirm
         loading={loading}
         dialogIsOpen={dialogIsOpen}
@@ -133,13 +138,22 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
         onProfileRemove={onProfileRemove}
       />
     );
-  } else if (confirmType === "viewAuthorsProfile") {
-    confirmDialog = (
+  } else if (dialogType === "viewAuthorsProfile") {
+    dialog = (
       <ViewOtherUserProfileConfirm
         loading={loading}
         dialogIsOpen={dialogIsOpen}
         closeDialog={closeDialog}
         onRequestViewAuthorsProfile={onRequestViewAuthorsProfile}
+      />
+    );
+  } else if (dialogType === "enableSecondStage") {
+    dialog = (
+      <SecondStageEnableDialog
+        loading={loading}
+        dialogIsOpen={dialogIsOpen}
+        closeDialog={closeDialog}
+        onEnableSecondStage={(values: any) => console.log({ values })}
       />
     );
   }
@@ -256,7 +270,33 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
                     open={menuIsOpen}
                     onClose={closeMenu}
                   >
-                    <MenuItem onClick={() => showConfirm("accountRemoval")}>
+                    <Tooltip
+                      arrow
+                      title={
+                        values.eligibleForSecondStage
+                          ? ""
+                          : Messages.nonEligibleForSecondStageReason
+                      }
+                      placement="top"
+                    >
+                      <span>
+                        <MenuItem
+                          onClick={() => showDialog("enableSecondStage")}
+                          disabled={!values.eligibleForSecondStage}
+                        >
+                          <ListItemIcon className="u-color-green u-min-width-30px">
+                            <FontAwesomeIcon
+                              className="MuiButton-startIcon"
+                              icon={faLevelUpAlt}
+                            />
+                          </ListItemIcon>
+                          <ListItemText className="u-color-green">
+                            {Messages.nextLevel}
+                          </ListItemText>
+                        </MenuItem>
+                      </span>
+                    </Tooltip>
+                    <MenuItem onClick={() => showDialog("accountRemoval")}>
                       <ListItemIcon className="u-color-red u-min-width-30px">
                         <FontAwesomeIcon
                           className="MuiButton-startIcon"
@@ -267,7 +307,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
                         {Messages.removeProfile}
                       </ListItemText>
                     </MenuItem>
-                    <MenuItem onClick={() => showConfirm("viewAuthorsProfile")}>
+                    <MenuItem onClick={() => showDialog("viewAuthorsProfile")}>
                       <ListItemIcon className="u-min-width-30px">
                         <FontAwesomeIcon
                           className="MuiButton-startIcon"
@@ -283,7 +323,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
           );
         }}
       />
-      {confirmDialog}
+      {dialog}
     </>
   );
 };
