@@ -20,6 +20,14 @@ CREATE TABLE populated_locality (
 	CONSTRAINT populated_locality_fk FOREIGN KEY (region_id) REFERENCES region(id)
 );
 
+CREATE TABLE populated_locality_region (
+	region_id uuid NOT NULL,
+	populated_locality_id uuid NOT NULL,
+	CONSTRAINT populated_locality_region_pk PRIMARY KEY (region_id,populated_locality_id),
+	CONSTRAINT populated_locality_region__region_id_fk FOREIGN KEY (region_id) REFERENCES region(id),
+	CONSTRAINT populated_locality_region__populated_locality_id_fk FOREIGN KEY (populated_locality_id) REFERENCES populated_locality(id)
+);
+
 CREATE TABLE place (
 	id uuid NOT NULL,
 	"name" varchar(255) NOT NULL,
@@ -1542,7 +1550,530 @@ VALUES ('Аграрное', '787c26ae-6415-47e9-9825-9fe409fd7366', '5db28047-30
     ('Черноморское', '174a2718-9635-4a18-89b3-36e31eba0613', '5db28047-3063-4f53-bc55-fee9e6bd96eb'),
     ('Щебетовка', '787195a9-4f40-4398-98b9-abc6c2198186', '5db28047-3063-4f53-bc55-fee9e6bd96eb');
 
--- TODO continue here
+INSERT INTO country (id, "name")
+VALUES ('e7156acf-b118-4a23-92e4-8b2579ed798a', 'Россия');
+
+-- Республики
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('0fd8d975-3046-4bce-87bf-09644a1c32d4', 'Республика Адыгея', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Адыгейск (городской округ)', 'a90f7e04-8fe4-4581-b80c-f4a5596d33d3', '0fd8d975-3046-4bce-87bf-09644a1c32d4'),
+    ('Майкоп (городской округ)', '0d8f0413-0660-48df-a704-faf782445cc9', '0fd8d975-3046-4bce-87bf-09644a1c32d4');
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Тлюстенхабль', '1563fcf9-97f8-445d-a511-e8c0652f857e', '0fd8d975-3046-4bce-87bf-09644a1c32d4'),
+    ('Энем', '43969537-d3e8-46fe-8f9e-42a2aaa51bde', '0fd8d975-3046-4bce-87bf-09644a1c32d4'),
+    ('Яблоновский', '40bd0836-8b04-4903-992d-a3878b863043', '0fd8d975-3046-4bce-87bf-09644a1c32d4');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('63e535eb-67b7-4571-92cd-d6549ff393cc', 'Республика Алтай', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Горно-Алтайск', '32f952f6-8db8-40f2-b43b-7ca8a79d2865', '63e535eb-67b7-4571-92cd-d6549ff393cc');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('108a5cf9-795b-4732-a6d7-246f0ee8e2fc', 'Республика Башкортостан', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Агидель', 'b9f330fe-09ca-4af3-8fd3-932f61978612', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Баймак', 'e89c2ce6-468f-466e-9e3c-a8ae1c46b4e8', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Белебей', '4b1dcc09-7302-4f55-85c7-3b5e6fe9b0f5', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Белорецк', '3bc1aa73-0246-4166-9d83-16805fa543ae', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Бирск', '075bba54-cd50-49f3-b788-9b0c0e21c8ee', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Благовещенск', '6ac94f3d-b389-49ce-aba9-8f593af20d1c', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Давлеканово', '1ab03ae3-908d-4ee0-b4aa-088ef2d9a927', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Дюртюли', 'e3532312-36c8-4993-a49f-8d8d07665f76', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Ишимбай', '944f13ce-0a56-4b80-a149-354a5286084b', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Кумертау', '8a4bd91b-ffd2-4313-b62a-d78ea80aa031', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Межгорье', 'd552a94c-ba75-4a01-9333-13c0faaf3125', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Мелеуз', '761fc124-120f-4efe-a220-5b0352bda2dd', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Нефтекамск', 'ca6fb335-3628-4533-8ad4-1beb24539ae4', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Октябрьский', 'd20e7108-e8ce-4991-b665-65e127f473e1', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Салават', '89fc8371-89d4-4e4f-b65b-a9791fecb577', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Сибай', '4e86e066-26e1-4a35-9338-d3abb2e187df', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Стерлитамак', '602fb647-d066-4f3f-9ab2-115c0405671c', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Туймазы', 'a95ad1ac-1258-4f67-83ad-244db8a98f5a', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Учалы', '2738a219-a197-4599-92e3-4e491414f9d2', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Уфа', '63e659ff-3875-4acc-aae4-46e4ee655d95', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc'),
+    ('Янаул', '56649556-13b8-408c-81a6-721c139f6427', '108a5cf9-795b-4732-a6d7-246f0ee8e2fc');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('b437d24e-d317-4237-abc3-8ac138cc9867', 'Республика Бурятия', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Бабушкин', '487406f2-4d98-467d-8c7f-ee18f1fbfa2e', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Гусиноозёрск', '2d15bf2e-38f2-40e6-abe2-c8c1d1294910', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Закаменск', 'f852fa59-8d63-47da-a543-2d0a44cf5bfc', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Кяхта', '92e122d4-bcdc-49bf-aa2b-969625110db2', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Северобайкальск', '29bdd6b2-5d52-480d-859d-f9e61c708efd', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Улан-Удэ', '544dd509-9d70-40a7-80ce-64d2a571fb65', 'b437d24e-d317-4237-abc3-8ac138cc9867');
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Заиграево', '234c54d8-0fdc-420d-9ca1-da95ba4af73a', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Каменск', '307174ec-5db5-474d-bc74-92ff810cfef6', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Кичера', '060902de-4c83-4dbe-a001-0570aa35eeaf', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Наушки', '694c3fbc-b90e-42cc-8c26-5cf71406f1ae', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Нижнеангарск', '28a4b76d-5b5d-4d95-9c89-a8b61def915d', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Новый Уоян', 'a18c20d3-08e0-4fe5-ae78-8e80ca034e22', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Онохой', 'b3b73360-17e2-4fd5-bf73-3e252a14f148', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Северомуйск', 'be5671e0-226a-4fa1-a68d-786f5f08041f', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Селенгинск', 'dc659908-09ee-43e4-b457-dcec2746a18f', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Таксимо', '11c3d52d-4df3-4d2e-b1fa-4b741e0834bb', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Усть-Баргузин', 'cedb971f-8822-4da3-ba6c-dc6d3a1f1f9c', 'b437d24e-d317-4237-abc3-8ac138cc9867'),
+    ('Янчукан', 'd3c3b288-96dc-4224-a8d6-27eb613e4b35', 'b437d24e-d317-4237-abc3-8ac138cc9867');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a', 'Республика Дагестан', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Буйнакск', '68c43a78-4a7d-4261-9597-af8b0f90ef4d', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Дагестанские Огни', '9c5ab519-f905-4a89-a1a6-d1ebe8e84a0c', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Дербент', '98df760c-0b9d-430c-bbf1-7b2e3eab7c97', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Избербаш', '522b36d6-f792-4f4a-b1bb-5d685123d1e7', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Каспийск', '66a11ed0-f34e-4f59-be13-a3d3c86fa91c', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Кизилюрт', 'e4be3777-c693-4928-939b-495c68786198', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Кизляр', 'f9f91026-c83e-438c-882f-ae5764b00ac4', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Махачкала', '54a7dcbb-ba2c-4c6d-9a8c-71f0088ee3da', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Хасавюрт', '67e4de61-10ef-427b-a89f-f05bbb98db0d', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Южно-Сухокумск', 'de50520b-a899-466b-afc6-83b154b3c73f', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a');
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Альбурикент', '4ed4e3b7-b80d-4cb2-b463-e8b341b961d2', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Ачи-Су', '4e831662-c95a-4efb-a293-c23b2fd89032', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Бавтугай', '2436d628-abd2-4c62-98ac-f0380477b625', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Белиджи', '3f7817d5-28c1-43b7-8ffe-2ded7f85b0ae', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Дубки', 'bdf4ff38-029e-45ba-8316-62cdbfc533e0', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Комсомольский', '1337953d-d1e4-4260-88cd-d119f07f96a2', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Кяхулай', '0b600cec-5a61-4ff8-b1ad-6aa42da6f3c1', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Ленинкент', '506c7eb6-9338-47a0-aca3-bd205d68b459', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Мамедкала', 'b9b81a99-224f-432a-90ee-61832d1994aa', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Манас', '236d76e2-16e2-40e2-8ef2-8d6af9a906df', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Новый Кяхулай', 'dc6f688c-61bf-4cee-9403-250b1bbe0644', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Новый Сулак', '2b122581-8d5e-42af-b96d-bd80f6fb1b12', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Семендер', '7a10f71d-44c9-40ae-ad86-abd964c8c237', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Сулак', '634b4fda-d0f4-4427-8e40-6ce9420d348a', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Тарки', '5df6e548-b44d-4d35-adf5-3cd81977a864', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Тюбе', '8abee756-367a-4e4c-8996-59f2b14eb752', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Шамилькала', 'ddc92db2-7aab-4186-944d-7990ca07e92e', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a'),
+    ('Шамхал', 'c53d3ee8-dba1-4430-8794-ccdf30c34330', 'e1f8c7e3-d63c-4784-81f5-d92d13f4ab1a');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('b5ebc6a7-2dc9-4608-b3e5-b5c209285f16', 'Республика Ингушетия', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Карабулак', '13264d6f-adb9-4e5c-93e5-32f92a99b292', 'b5ebc6a7-2dc9-4608-b3e5-b5c209285f16'),
+    ('Магас', '74f72e64-c280-4bfe-a735-d55cf14c1943', 'b5ebc6a7-2dc9-4608-b3e5-b5c209285f16'),
+    ('Малгобек', '012ab7af-b3a0-4535-a5a9-4f00bef0abc3', 'b5ebc6a7-2dc9-4608-b3e5-b5c209285f16'),
+    ('Назрань', '6d244356-2ef6-4b44-82a7-79842ef96e82', 'b5ebc6a7-2dc9-4608-b3e5-b5c209285f16'),
+    ('Сунжа', 'e5bb544d-1401-442c-8e4b-5acfdaf436e0', 'b5ebc6a7-2dc9-4608-b3e5-b5c209285f16');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('ad7694a2-d3d1-4530-8153-db7eb40d59b3', 'Кабардино-Балкарская Республика', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Баксан', '9245cdf6-85ce-4fe7-9da7-9c74249200e8', 'ad7694a2-d3d1-4530-8153-db7eb40d59b3'),
+    ('Майский', '1544ed49-dfa0-48fb-9839-c3206043337e', 'ad7694a2-d3d1-4530-8153-db7eb40d59b3'),
+    ('Нальчик', '048a943c-adc6-4276-8931-56208f40e1a2', 'ad7694a2-d3d1-4530-8153-db7eb40d59b3'),
+    ('Нарткала', '76faa204-f9b8-4514-9074-5b8896c7501e', 'ad7694a2-d3d1-4530-8153-db7eb40d59b3'),
+    ('Прохладный', '7f9f565b-588e-48b8-ad2a-8266fb0e23da', 'ad7694a2-d3d1-4530-8153-db7eb40d59b3'),
+    ('Терек', 'e35f30f1-b532-4535-ac5a-6f2bfa4d3972', 'ad7694a2-d3d1-4530-8153-db7eb40d59b3'),
+    ('Тырныауз', 'ab21b396-efe2-4500-b8b1-296c533641f3', 'ad7694a2-d3d1-4530-8153-db7eb40d59b3'),
+    ('Чегем', '49871b6e-8774-4859-8aa2-cd6828819f2e', 'ad7694a2-d3d1-4530-8153-db7eb40d59b3');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('dd42cb2e-6edf-46b0-adda-95cbf517e2e8', 'Республика Калмыкия', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Городовиковск', 'f327485b-f0e9-4422-90d5-3a13d542dc02', 'dd42cb2e-6edf-46b0-adda-95cbf517e2e8'),
+    ('Лагань', '3fe811b8-7556-4997-9ff7-04d232906d49', 'dd42cb2e-6edf-46b0-adda-95cbf517e2e8'),
+    ('Элиста', '6f9c610a-82d0-4c59-a62e-5237aac46fa4', 'dd42cb2e-6edf-46b0-adda-95cbf517e2e8');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('82774cde-c0fc-4f45-ab25-e88ef6423b7f', 'Карачаево-Черкесская Республика', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Карачаевск', 'e387e76b-921e-4155-9615-d125fc88e958', '82774cde-c0fc-4f45-ab25-e88ef6423b7f'),
+    ('Теберда', 'b816ebb5-8347-4f26-984d-661a0d946cd2', '82774cde-c0fc-4f45-ab25-e88ef6423b7f'),
+    ('Усть-Джегута', '59bd2d49-279a-4255-b84e-87cb219ccc7f', '82774cde-c0fc-4f45-ab25-e88ef6423b7f'),
+    ('Черкесск', '1f3588fd-8dfa-49e3-a8ac-16165feb8f11', '82774cde-c0fc-4f45-ab25-e88ef6423b7f');
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Домбай', '71ceb4fb-44ad-40f5-9900-ce14409ef286', '82774cde-c0fc-4f45-ab25-e88ef6423b7f'),
+    ('Медногорский', 'f242b9a7-e6a8-4a75-81f9-5bd6196c6e0b', '82774cde-c0fc-4f45-ab25-e88ef6423b7f'),
+    ('Новый Карачай', '5b23a864-3d96-40b0-9e71-1525e6ee0757', '82774cde-c0fc-4f45-ab25-e88ef6423b7f'),
+    ('Орджоникидзевский', '0fd2e48e-1025-4c4e-8e65-0e1bd14b3711', '82774cde-c0fc-4f45-ab25-e88ef6423b7f'),
+    ('Правокубанский', 'f61b63ec-a424-466b-91b8-29d0a164f8ee', '82774cde-c0fc-4f45-ab25-e88ef6423b7f'),
+    ('Ударный', '1ebaa9a7-736f-40a1-a66b-adfdf8b1ff5c', '82774cde-c0fc-4f45-ab25-e88ef6423b7f'),
+    ('Эльбрусский', '085c5e10-fba8-4f3d-991f-fca1b0727f7a', '82774cde-c0fc-4f45-ab25-e88ef6423b7f');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('dbb20d65-160b-430c-95a6-b769dcdcc256', 'Республика Карелия', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Беломорск', 'fa71807e-ac33-49a1-8132-10227c16ddfd', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Кемь', '500f60e6-1850-4f9f-af23-600fdb425e88', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Кондопога', '0ab67833-2289-4bca-932b-1592bd1dbc3a', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Костомукша', '040c29ca-efa3-46a6-ba50-e36b1ce95206', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Лахденпохья', '99ef9914-76e8-4b58-9f99-f2c4d9d7cd73', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Медвежьегорск', 'ce435932-dc7a-40fa-93b3-763d362b145d', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Олонец', '3d52c9e3-1850-440b-918a-caf9b6867979', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Петрозаводск', '0dc21214-86bd-4e44-a123-16a21782995e', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Питкяранта', '7c9aea1b-2cb0-452e-9ad8-87b7b6efc67f', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Пудож', 'b286f23a-d577-4a80-ae52-00c764fd2345', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Сегежа', '85e5f4f2-25e6-4222-99c4-ccd476d55ce7', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Сортавала', 'a7e7447f-a689-4d64-9564-6af5dcb6f3a7', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Суоярви', 'cdf079cc-b762-4b36-84cf-9c63fcab435c', 'dbb20d65-160b-430c-95a6-b769dcdcc256');
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Вяртсиля', 'a405d61a-c5c8-4d2c-8b66-c9526fe7975f', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Калевала', '6b1063d5-35fa-4c07-834a-ad81e072b10b', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Лоухи', '71d7172b-d278-4f49-afb2-619b2dbb3d51', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Муезерский', '1e90a589-9bbf-4ad3-9b4a-f94ff08be5db', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Надвоицы', 'f417e435-8e02-4932-809b-ac8fce569a8c', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Пиндуши', '575bf8dd-0fa5-42b5-8402-fb15bf2e8236', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Повенец', '2af06db3-f72f-48ad-a7c6-54f4a4625c08', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Пряжа', '7d5d7942-b6be-4c97-8e9f-3a8a2699d54e', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Пяозерский', 'ca3fdc29-703b-43a0-bca6-73f98da5180e', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Хелюля', '426dfb3e-80bf-47c9-9244-e2217f6b0160', 'dbb20d65-160b-430c-95a6-b769dcdcc256'),
+    ('Чупа', '0c989ac6-73ab-4d46-85e8-4e368d601b31', 'dbb20d65-160b-430c-95a6-b769dcdcc256');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('4c58078a-08e5-4bea-bf72-cd441ead17f7', 'Республика Коми', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Воркута', 'c37f6b08-35e0-44dd-95a1-93120116200f', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Вуктыл', '21e24474-02ed-4193-aa84-312434d2cd39', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Емва', '8f421190-7496-47ec-adc1-5d1970ad69a1', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Инта', '3b129e6f-09e1-4961-9714-b442539061e1', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Микунь', 'fa630419-7759-4216-8c20-2e34dff0baeb', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Печора', 'ec92fdf4-d971-4ddb-92ca-6d1c2a7e282a', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Сосногорск', '53feb527-efbe-4004-81dd-d7ef2784b131', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Сыктывкар', '136171a7-105e-471c-b741-83bca0b0a302', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Усинск', '67478666-56d4-42f3-a8d1-af5e3960daa4', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Ухта', '33ceb1d2-ac60-49ec-ae8b-a19de64497ab', '4c58078a-08e5-4bea-bf72-cd441ead17f7');
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Благоево', '76def102-e692-4080-8fa9-47c3ea983a6e', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Боровой', '080533e1-275a-4b88-8c68-d917d0801e64', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Верхняя Инта', '198b3bf4-5561-4cd6-b142-be9d57ab6bd4', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Верхняя Максаковка', '89e415fe-3a19-4ae0-b148-7a474418d36a', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Водный', '78a34646-1ce1-4d8f-9bb1-407cdbd6e97b', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Войвож', 'fc2963c7-d717-4cc6-929e-19c9788bbe5c', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Воргашор', '0a9a3f7d-3774-487d-89d7-ebf8c4c58275', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Елецкий', '9dcb6d55-f91a-43db-9daa-1ee015550190', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Жешарт', '7f5df9d8-c906-4291-910e-d3166073ef71', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Заполярный', '77273409-d699-41d5-91cf-1c5206208997', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Изъяю', '94ec9b11-6707-47f0-9217-c25f81b6663f', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Кожва', '49819b51-019c-477b-8de6-94296b58aef4', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Кожым', 'ca5cdebe-1286-4e15-b60f-a78ab2e4f253', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Комсомольский', 'a70e24e4-9c26-47fe-b3de-a0abf18c60d4', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Краснозатонский', '8e762eee-cc9c-4a0b-b358-82b7ce3f29e1', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Междуреченск', 'dcc11248-c7d8-4f44-bd8c-caaaa4e6d273', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Мульда', 'eaa55631-b64f-44fd-be75-b9b484c7d14c', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Нижний Одес', 'f47fed62-8f5e-4cdc-8102-93998c362b95', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Октябрьский', '59547607-acd3-4d19-b88f-92cc5d7021bd', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Парма', 'f4768b46-0978-45a5-a9f7-47e23659d875', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Промышленный', 'c94ed43f-17b3-44f0-a975-1469578283b4', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Путеец', '74a05106-5db6-4fdc-aac1-e4ef07d81c55', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Седкыркещ', '7d5cae4e-94cf-4d62-8e55-f1f488a1f2a5', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Синдор', '3701cacd-e13e-4c0e-99ea-9cc069090c7f', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Троицко-Печорск', 'cf1c2bee-4a4e-4e05-a6ad-20bcd13bfc5f', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Усогорск', '68b9c1f0-1e49-4541-9c77-19eacab6b58e', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Шудаяг', '4b374bb9-5e51-4e5f-a82d-dc9281a60187', '4c58078a-08e5-4bea-bf72-cd441ead17f7'),
+    ('Ярега', '3f48863f-6351-48e8-8d21-25ca67ec78a0', '4c58078a-08e5-4bea-bf72-cd441ead17f7');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'Республика Крым', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality_region (region_id, populated_locality_id)
+VALUES ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'f72b2cf2-cc5b-4ce8-a0e8-57fe35ec4d1e'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'e27ad993-ed7a-451a-abd2-501fc48eea9c'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'b579da2c-622e-4beb-b6c6-fe3919609d1c'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '745eb28b-f77d-4c2c-8971-95904b41e231'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '7632eee6-1369-4399-8066-a61eafe390e0'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '1fd1ae00-1d39-47e1-9c06-14d77a954336'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'bb9a2bef-457b-4c75-8ee8-df3f320291ed'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '4e6d9c53-a904-48c9-91b4-68e74dcba001'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'd5db4b3b-8510-4cd1-9179-756be1aeccc1'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'de05356e-bdb0-40ee-be92-bcb8edfe2063'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'a06edab0-5bc0-44ef-ac79-8ee68291027b'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '6afebe5f-18e4-4f1a-9332-81abddb66fa4'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'd5f2c531-c8a6-428d-9c6a-06c9a5491859'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '9ac8c17b-c1ed-41c6-aeb3-c4b4609dc324'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'f2bb48bf-11b0-4030-86a1-ef34bd7a105e'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'fc9a5542-038e-4180-9998-4c3203244462'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '88cdf2ee-7e26-450a-a252-0eb5b0ec3977');
+INSERT INTO populated_locality_region (region_id, populated_locality_id)
+VALUES ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '787c26ae-6415-47e9-9825-9fe409fd7366'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '5ea56d88-530f-4bce-9da9-259f759846db'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '88be6c6a-89e9-407c-b1b0-cd096ed05b05'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '3cd4dd00-8b5e-428c-9763-536445f44ab1'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '952f1934-c270-4914-8764-e8b5644f3a63'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '3badb72e-7172-45c5-9cae-7eb70f2059bb'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'bb449e01-c8f6-45dc-8d52-9ca1a033eb56'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'cca9804a-6e63-4c3b-9892-de27dcd820b3'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'e1359c9e-368e-4517-a8d1-b28f30ef1cad'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '5ab7ea84-86c1-42e8-9439-72ab8c685206'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '9adb1840-787d-4a0c-ac28-9d3933ea2420'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '0b1d095d-ce49-471a-a936-bc45bc22e15f'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '82022539-8fce-4d78-8296-bbc207484160'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '121ff14a-73a8-4bba-a6c9-d4f536457566'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '28517302-f751-4445-94d3-f2480dd0c336'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '20fd5c52-a36f-4520-be49-044501b34fa9'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'd9507816-9377-4d5a-990d-399f610c3c9f'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '00acc8a0-0e8f-4cc7-853e-496213af44a9'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'cebc3868-7a98-423d-a112-eaf2dd3af68d'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '6ab80a68-e3bc-4c85-9baa-17ab3616b65c'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '7e52281f-9287-4769-be3b-98b51188ad9d'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '32f297e5-99e6-43a2-a790-7485c43a66a9'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'a04c82f5-4fa2-4055-9002-40bfbb4dc1fd'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '971ae943-dd12-4071-ae21-1a88dc3a758f'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '15633eb9-72f5-4780-b088-b0730a9cd418'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'c982e4d4-a792-4b9f-90d5-ec177460132e'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '3b0fd9ed-6092-40cb-90aa-2fc3313b36d7'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'ed8dbcbd-858e-41b3-aab0-e664a14e9abf'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '6f83a4ff-9efe-4707-aa4d-2743e5232311'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'a24e159e-530d-4552-a5ae-373d437a3e77'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'cbeafd69-5d4b-4a80-ad3e-dfa537a0f0a7'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '396805b9-91b9-4fe6-a520-eb6832dbce95'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '3e602e82-7a89-4f64-ba4f-4255b1f4e347'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'e37a82c2-3e88-425c-9975-a1ae5dce1b5e'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '9ad69ecf-2224-4062-9cde-524e9873c389'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'b7f08418-6088-408c-a868-397dcb324a6e'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'e905d677-8fbf-4aee-89b8-5975f3d6787f'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '4c8a8b40-1eed-43d0-8fdf-9d50d73f9dc4'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '4f3ae830-fd90-49e2-8f1e-342067ded735'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '9cc98a8c-2b26-4a7c-b488-8eb4c3474139'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '4f5e4266-bc8c-425a-b0f2-9670871f56c3'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '65e7faa8-4d28-43cd-8db0-1a8e8f12864c'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '82ca0f30-7a0b-40a9-81f8-58d8cd9c928f'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '0c8b0263-c1f3-4138-a8ff-6eed27f75174'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '40044cb9-04d0-4ba2-bff9-53a96eab062c'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'b95f3d18-4418-48d7-9584-8a320e4b1ec1'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'f7a3ceb4-2975-4901-ad5b-e0c1c5ee8d5f'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '4dfdbbed-bd31-43e1-b89e-0f7d6f06bc9e'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '8166ec02-1c4f-4adb-b314-70d24f5817ec'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '16f762b0-681d-4d6c-8130-c4f5f8b9ba6d'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '37d486e9-c063-440e-80e3-70502971465c'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'da215380-0416-461a-b0f4-e8d4baf44ebf'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '12c001e1-d081-426d-9a3c-8a6c7a0d6e73'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', 'd488b823-803a-4c9c-bde5-09d616bb1d87'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '174a2718-9635-4a18-89b3-36e31eba0613'),
+    ('619bdc7b-a88f-4a82-933a-fc89fd6949cd', '787195a9-4f40-4398-98b9-abc6c2198186');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('e18bf907-5cdb-4691-a73f-d02b27b0d937', 'Республика Марий Эл', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Волжск', 'a2ca9931-af61-4347-bcf8-b75cc4565755', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Звенигово', '5035bd1e-8861-4b71-8547-53a0eb9e6012', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Йошкар-Ола', 'd819411a-3b8d-4075-9029-1278981de1b1', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Козьмодемьянск', 'd8fc083e-85b8-49b3-b47a-ad67c7cc54bb', 'e18bf907-5cdb-4691-a73f-d02b27b0d937');
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Килемары', '26972554-128a-4ec9-8392-df65a385bc39', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Красногорский', '3ca26099-777e-496f-ba88-9ac8b08a02ec', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Краснооктябрьский', '5c445fe7-c1fb-4f38-b7cb-d1242f90306c', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Куженер', '8d5ee0f8-cf5a-4e1f-80ae-5dddd5560078', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Мари-Турек', 'a2e36e3b-d2a6-452e-b771-e5d7fb9dc44b', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Медведево', '8042bf7e-9f4f-4a04-ade3-7e5502dae7e8', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Морки', '3b448c30-b5ac-4446-9309-b3ba6806e53c', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Новый Торъял', 'b66b734c-def0-498c-bdb5-61669f87e233', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Оршанка', '2f9c91e8-94fd-4906-b2bc-90c6dad30fff', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Параньга', '6f2e21ee-b3d3-4b5a-8831-8bdd5f458b6b', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Приволжский', '7498c788-fc24-4c64-892b-4562d6179a94', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Сернур', '0ace1bb3-cbb9-4faa-8082-974cc51f372e', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Советский', 'e68b9ca5-4712-4d65-a6bb-a59cb8ccc3af', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Суслонгер', '6e38705a-5b77-4c8a-83b4-a1d3a2cd4dab', 'e18bf907-5cdb-4691-a73f-d02b27b0d937'),
+    ('Юрино', '45a1f7ad-f6e1-4745-b905-ee2d27431d99', 'e18bf907-5cdb-4691-a73f-d02b27b0d937');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('65774664-5f24-4c8b-91a0-18131fcbfc2b', 'Республика Мордовия', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Ардатов', '0528e342-1aac-4c57-a025-37a419e5ff02', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Инсар', '983bf21e-7b3c-4d56-8307-dac384555634', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Ковылкино', '6711acca-e78a-402a-a60d-29e71d703ab3', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Краснослободск', 'cb1d7f04-1368-4520-9c16-c59144fe6da6', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Рузаевка', '84f4ca68-18b3-4c77-a349-a1906d36a75c', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Саранск', 'e892e786-9623-4505-8924-06bb87e1b8bc', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Темников', '986ca770-ad6b-4b5a-91d3-86f4306c8784', '65774664-5f24-4c8b-91a0-18131fcbfc2b');
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Атяшево', 'a7bdb0bf-037b-49ac-b963-c91d0dc2091e', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Зубова Поляна', '19f7dc4f-bca9-4da4-8012-6527eebcb1dc', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Кадошкино', 'a5a7b282-3abb-4428-bdae-31b994f2ce80', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Комсомольский', '435805b7-0e2c-439a-b369-60371437d313', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Луховка', '0744c308-27b9-4586-836e-f0c9de720093', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Николаевка', '850e9bef-9947-4b1d-bcae-7f0a20b817a7', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Потьма', 'c9020444-79bf-4afa-8fcb-37a6490674a6', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Торбеево', 'b2f170fc-be3e-44b3-ac07-0683bcb56c5a', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Тургенево', 'ab7f2c53-9165-4215-bbcc-8846ac13dea4', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Умёт', '9341a40f-1c9c-43de-8f6f-906fa747881c', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Чамзинка', 'fa8bc48f-86bb-4d19-8d82-9fbec59477ed', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Явас', '5d80632c-de5f-454e-a8b7-b1ec3e1eceb7', '65774664-5f24-4c8b-91a0-18131fcbfc2b'),
+    ('Ялга', '1f332e1e-1f93-41d6-9395-3ecddf9a7565', '65774664-5f24-4c8b-91a0-18131fcbfc2b');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('b5714cc8-7de9-42ac-bc56-2fff7a9a290c', 'Республика Саха (Якутия)', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Алдан', '2c40d557-1174-4057-9d28-d12480e7d4ba', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Верхоянск', 'addead12-bcfa-49d9-8288-c9729c0b9cfd', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Вилюйск', 'dbd23c14-bf4d-4b07-969a-439ae22d0083', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Ленск', '1e516924-9735-4729-9f77-95ff393dc2fc', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Мирный', 'a30b0216-c007-48a5-bc79-8110edf9a780', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Нерюнгри', '9447473c-8cf7-4d84-8179-8822685a68d4', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Нюрба', '32caf5a4-1ad8-48ca-9bd3-e43248b35c52', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Олёкминск', '2d45f0c4-cb29-4d28-9362-3513a0dd2e50', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Покровск', '93f3f6c5-8f67-42a3-b083-92b7941d8891', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Среднеколымск', '52950ea8-acdc-4392-ae70-832f8800c318', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Томмот', '0c8f0af1-4c74-40ab-8574-93fcd6a22b52', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Удачный', 'f453df99-dfec-4be9-a124-1d5f06c7caa7', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Якутск', '2d94ab29-141f-4186-a0ca-5b9ff454d0c8', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c');
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Айхал', '6e2272de-aff3-46e1-bc61-32cbd6fea882', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Аллах-Юнь', '4f18f4ff-8545-4030-9662-8506b9dfb2fb', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Алмазный', 'e2324e80-662c-4876-a02d-c144eedb863b', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Артык', 'bdeb5425-f286-4f39-9b89-823a4cfba0c6', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Батагай', '1282a56e-fd2d-46cc-b8bc-0c483a78275c', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Белая Гора', '17186afb-a421-4cd9-8f3f-efe254430a3b', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Беркакит', '4ecccccc-0441-467b-b854-0259421a98b8', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Витим', 'e6b8ad9a-440f-4204-92f9-a992ed52306f', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Депутатский', '0304bb7c-092f-4528-9b39-2c9320a09931', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Джебарики-Хая', '5543baa2-2d7c-4c23-a067-bdd948fd3a2c', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Жатай', 'b7416ad0-7850-47e6-b83b-37c61cf6d8ca', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Звёздочка', '58e79533-d012-44a2-b1c8-407425179630', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Золотинка', '36ad5ce5-5cf5-43e6-820b-6464183f7378', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Зырянка', 'df93953c-c8ac-4b15-bdb2-48d410fe4306', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Кысыл-Сыр', 'd75bf02e-7823-41a5-b17b-086474ddd708', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Лебединый', '2dfdbfd3-e4bb-40c0-9f63-2d32ec613b9d', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Ленинский', 'c1cf4c16-ad73-46e9-8b08-9196f33ba471', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Мохсоголлох', '73037fcc-8ab3-473e-b640-82bca203540d', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Нижнеянск', '9008234f-58f8-489b-a715-73a1f30d946c', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Нижний Бестях', 'd3f705b9-89a6-416f-b81e-9e1716370a05', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Нижний Куранах', 'a3c62b82-6115-4321-a820-1585bde86774', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Пеледуй', '5af45ff0-82e5-485a-bbf2-13ba81563521', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Сангар', '35e8b394-801a-4593-b8f3-4da8e3113522', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Светлый', '0a4ea084-3428-49ab-8cae-7cd7e984f104', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Серебряный Бор', '06840f33-d626-4591-885a-e09027271a3b', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Солнечный', '4acd0df5-66f6-41f9-9fb2-8cfdb2b382af', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Тикси', 'eb0ab6a3-f28a-4807-81fc-c91ac66c7302', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Усть-Куйга', 'c6595168-484e-484e-ae79-5c61b2b6909b', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Усть-Мая', '1a831d7e-d938-44f6-91fe-e414fe23cfc9', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Усть-Нера', '17fa80f1-8d34-4a7d-9dec-69dc07c73fad', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Хандыга', '88ea2130-d37e-42e8-bbfb-a5def73d9d87', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Хани', '57aae426-5267-4d99-97a7-28f17dffe81c', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Чернышевский', 'eb77c915-e05a-49bc-9878-9d1b4cd06546', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Черский', '076ac3f4-0964-4981-9bb2-a0c4d36ba054', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Чокурдах', '2255ff85-5907-4dbc-a23b-91fd15644afb', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Чульман', 'c58b198d-e4f5-4387-b826-259b4d866595', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Эльдикан', '39b084d0-2808-47ab-bfb0-069546fd1b36', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Эсэ-Хайя', '29735afd-9ec1-4f21-8c93-7bc3c8904d50', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c'),
+    ('Югорёнок', '2db88779-cfe3-47ab-9557-3d657e8f3273', 'b5714cc8-7de9-42ac-bc56-2fff7a9a290c');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('043c2fb6-67e4-4ea3-a40c-d8c036218985', 'Республика Северная Осетия', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Алагир', 'd4fbc0a9-9e0e-453f-941e-06e4d2d9ea51', '043c2fb6-67e4-4ea3-a40c-d8c036218985'),
+    ('Ардон', 'c2a6d925-7c45-428b-bb19-389155cf9223', '043c2fb6-67e4-4ea3-a40c-d8c036218985'),
+    ('Беслан', '618da73d-9489-4758-8eec-18f2c5db19f6', '043c2fb6-67e4-4ea3-a40c-d8c036218985'),
+    ('Владикавказ', '6f27403e-4d29-4cbe-940c-a6a726686d93', '043c2fb6-67e4-4ea3-a40c-d8c036218985'),
+    ('Дигора', '2fe86f4f-200c-4985-b3b2-5d2f06bac07f', '043c2fb6-67e4-4ea3-a40c-d8c036218985'),
+    ('Заводской', 'e1f468fe-2521-4a4d-9460-1a96cc1f16b5', '043c2fb6-67e4-4ea3-a40c-d8c036218985'),
+    ('Моздок', 'ebd9535a-1860-4733-90e5-5d262b5c8c36', '043c2fb6-67e4-4ea3-a40c-d8c036218985');
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('6376ffd3-b3f3-407d-827b-92ada3c7cfb5', 'Республика Татарстан', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Агрыз', '76d1e5e4-5fe7-40ac-93b5-c47a914089ee', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Азнакаево', 'f0e2de14-a175-4b12-b68b-b09ffd8b5de3', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Альметьевск', 'def80a58-59fe-40ad-82b5-8f0d094942f9', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Арск', 'cdcb71ba-c79b-40fa-a686-b1506cba4cb6', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Бавлы', '1f6fdd21-19b0-4783-8099-1904d0b8e24f', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Болгар', '933c780f-0c04-4e9e-89cf-435d8a8e763f', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Бугульма', '86a0e269-79c4-45ef-be1c-704fd5ca5d95', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Буинск', '646f6733-33a3-44b1-863a-401a5fa663b3', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Елабуга', 'f314bf03-4995-4fef-ae3a-8d6416ff4d6d', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Заинск', '4693d759-4c97-43aa-bc5d-e59b4314aba7', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Зеленодольск', 'c9c9c578-def2-458a-9d58-6811f18f0e30', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Иннополис', 'a339686d-e55e-4daa-9afe-340de63f38b8', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Казань ', 'c06175b1-720c-4acb-9ce8-d51e24890e11', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Кукмор', 'bff57fb7-784a-4964-8d65-69afb7d9e8fc', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Лаишево', '15f01db8-5ce1-43b0-a1b1-8843c5140d06', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Лениногорск', '3bbb467b-3a90-4727-89e1-b2d1b4f7f24b', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Мамадыш', '954da285-e370-4c51-b36c-68f0c59fc823', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Менделеевск', 'cfaadab9-a29e-4708-8821-2e71bb98a34f', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Мензелинск', '88a31b37-16af-4d46-ab00-9690591925f7', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Набережные Челны ', '62446533-4dd3-433c-b02f-20db409ba6cb', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Нижнекамск', '98bac6c3-77e8-4576-ad54-976f19427757', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Нурлат', 'ac60dda8-43e0-4061-8664-dd0e794df3ba', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Тетюши', 'b9576208-0be5-448b-80c4-923eab741ba0', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Чистополь ', '949d25fd-7e1f-4fe1-8e64-8fe2969f76bd', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5');
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES ('Аксубаево', 'c7389cf5-a957-4cc8-8030-aa8bf8970ce0', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Актюбинский', 'aad86daf-e3cf-461f-b600-8508de1c1fb0', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Алексеевское', 'f8e263ce-4cca-47e8-8d14-3f27f7644bfd', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Апастово', '99406644-c999-4c52-be0c-70c8f59f34ba', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Балтаси', '6b3509e2-08d5-43ec-8711-8c93db437e34', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Богатые Сабы', '8838b139-1d75-41d8-aa2f-0cbc7a06081b', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Васильево', 'f5c964e4-1865-420a-8185-b9f438c1f935', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Джалиль', '70028ea3-013d-4e84-b39d-f089311963e4', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Камские Поляны', 'd89ca4e3-d50d-4af3-ba9c-2fd05e86b79c', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Камское Устье', 'e8e79d02-4c14-4ab3-9634-4a249c384f23', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Карабаш', '180fcbe3-b9d8-4b0a-abc8-0ca41b90281b', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Куйбышевский Затон', '388c92ac-7fbd-4449-806e-96cb801b12fa', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Нижние Вязовые', '5eb3f9c6-eaae-4236-a50d-b25fa332d218', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Нижняя Мактама', '913907c3-8de5-4bcc-9c35-16695ba9a862', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Рыбная Слобода', '0c14ef15-bce6-4c9e-bf9b-34940a6092d4', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Тенишево', '8280aebf-0363-4d6c-89d0-bbb63b8caeb8', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5'),
+    ('Уруссу', '0ec0d93a-2bc4-4257-ad0e-8973a9134d17', '6376ffd3-b3f3-407d-827b-92ada3c7cfb5');
+
+---- TODO continue here
+INSERT INTO region (id, "name", country_id)
+VALUES ('031b12a2-9126-468d-80cf-f40bb110d289', '', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('3d36bea4-953b-4c4c-9a1b-30ceab94b431', '', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('3aecf44c-d71e-4425-b592-d5eb41ee7008', '', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('a6f43af3-09c7-497c-921e-50873e7bcf96', '', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES
+
+INSERT INTO region (id, "name", country_id)
+VALUES ('673369ac-cf28-451b-b42c-5afa6a418ebe', '', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES
+INSERT INTO populated_locality ("name", id, region_id)
+VALUES
+
+--INSERT INTO region (id, "name", country_id)
+--VALUES ('', '', 'e7156acf-b118-4a23-92e4-8b2579ed798a');
+--
+--INSERT INTO populated_locality ("name", id, region_id)
+--VALUES
+--INSERT INTO populated_locality ("name", id, region_id)
+--VALUES
+
 --INSERT INTO country (id, "name")
 --VALUES ('', '');
 --

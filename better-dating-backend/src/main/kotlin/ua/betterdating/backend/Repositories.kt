@@ -220,17 +220,28 @@ class StatisticsRepository(private val template: R2dbcEntityTemplate) {
     suspend fun removed(): Long = template.count(query(empty()), ProfileDeletionFeedback::class.java).awaitFirst()
 }
 
+val regionToPopulatedLocality = """
+    WITH region_to_populated_locality AS (
+        SELECT region_id, populated_locality_id FROM populated_locality_region plr
+        UNION
+        SELECT region_id, id as "populated_locality_id" FROM populated_locality
+    )
+""".trimIndent()
+
 class PopulatedLocalitiesRepository(private val client: DatabaseClient) {
+    // Ordering:
+    // * first output those that start with searched value (case insensitive),
+    // * then those that match case insensitive,
+    // * and lastly just sort by name
     fun find(query: String): Flux<PopulatedLocality> =
-            client.sql("SELECT pl.id, pl.\"name\", r.\"name\" AS \"region\", c.\"name\" AS \"country\" " +
-                    "FROM populated_locality pl " +
-                    "JOIN region r ON r.id = pl.region_id " +
-                    "JOIN country c ON c.id = r.country_id " +
-                    "WHERE :query = '' OR pl.\"name\" ~* :query OR r.\"name\" ~* :query OR c.\"name\" ~* :query " +
-                    // first output those that start with searched value (case insensitive),
-                    // then those that match case insensitive,
-                    // and lastly just sort by name
-                    "ORDER BY pl.\"name\" ~* concat('^', :query) DESC, pl.\"name\" ~* :query DESC, pl.\"name\" LIMIT 25")
+            client.sql("""$regionToPopulatedLocality
+                        SELECT pl.id, pl."name", r."name" AS "region", c."name" AS "country"
+                        FROM populated_locality pl
+                        JOIN region_to_populated_locality rtpl ON rtpl.populated_locality_id = pl.id
+                        JOIN region r ON r.id = rtpl.region_id
+                        JOIN country c ON c.id = r.country_id
+                        WHERE :query = '' OR pl."name" ~* :query OR r."name" ~* :query OR c."name" ~* :query
+                        ORDER BY pl."name" ~* concat('^', :query) DESC, pl."name" ~* :query DESC, pl."name" LIMIT 25""".trimIndent())
                     .bind("query", query)
                     .map { row, _ ->
                         PopulatedLocality(

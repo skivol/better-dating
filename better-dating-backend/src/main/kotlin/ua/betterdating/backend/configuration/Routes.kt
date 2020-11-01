@@ -28,7 +28,7 @@ fun routes(
         POST("/authors-profile", accept(APPLICATION_JSON), userProfileHandler::requestViewOfAuthorsProfile)
         GET("/view", userProfileHandler::viewOtherUserProfile)
     }
-    
+
     GET("/api/populated-localities/autocomplete", populatedLocalitiesHandler::autocomplete)
 
     "/api/admin".nest {
