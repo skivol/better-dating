@@ -1,0 +1,65 @@
+import { useState, useEffect, useMemo } from "react";
+import { Autocomplete } from "mui-rff";
+import { debounce, getData } from "../../../utils";
+
+type PersonalQuality = {
+  id: string;
+  name: string;
+};
+
+const showPersonalQuality = ({ name }: PersonalQuality) => name;
+
+export const PersonalQualityAutocomplete = ({ name, label }: any) => {
+  const [value, setValue] = useState<PersonalQuality[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [options, setOptions] = useState<PersonalQuality[]>([]);
+  const debouncedPersonalQualitiesAutocomplete = useMemo(
+    () =>
+      debounce(
+        (input: string, callback: (results?: PersonalQuality[]) => void) =>
+          getData(`/api/personal-qualities/autocomplete?q=${input}`).then(
+            callback
+          ),
+        200,
+        true
+      ),
+    []
+  );
+
+  useEffect(() => {
+    let active = true;
+    debouncedPersonalQualitiesAutocomplete(
+      inputValue,
+      (personalQuality?: PersonalQuality[]) => {
+        if (active && personalQuality) {
+          setOptions(personalQuality);
+        }
+      }
+    );
+    return () => {
+      active = false;
+    };
+  }, [inputValue, debouncedPersonalQualitiesAutocomplete]);
+
+  return (
+    <Autocomplete
+      multiple
+      required
+      label={label}
+      name={name}
+      autoComplete
+      options={options}
+      value={value}
+      onChange={(event: any, newValue: PersonalQuality | null) => {
+        setValue(newValue);
+      }}
+      onInputChange={(event, newInputValue) => {
+        setInputValue(newInputValue);
+      }}
+      getOptionValue={({ id }: PersonalQuality) => id}
+      getOptionLabel={showPersonalQuality}
+      renderOption={showPersonalQuality}
+      style={{ width: 500 }}
+    />
+  );
+};

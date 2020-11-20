@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Autocomplete } from "mui-rff";
-import { debounce, getData } from "../../utils";
+import { debounce, getData } from "../../../utils";
 import * as Messages from "./Messages";
 
 type PopulatedLocality = {
@@ -47,8 +47,8 @@ export const PopulatedLocalityAutocomplete = () => {
 
   return (
     <Autocomplete
+      required
       label={Messages.populatedLocalityWhereOneLives}
-      helperText={Messages.contactUsIfYourLocalityIsMissing}
       name="populatedLocality"
       autoComplete
       options={options}

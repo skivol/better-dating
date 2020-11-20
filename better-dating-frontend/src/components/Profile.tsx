@@ -153,6 +153,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
         loading={loading}
         dialogIsOpen={dialogIsOpen}
         closeDialog={closeDialog}
+        // TODO validation
         onEnableSecondStage={(values: any) => console.log({ values })}
       />
     );

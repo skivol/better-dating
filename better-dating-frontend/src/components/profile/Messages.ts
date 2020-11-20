@@ -205,8 +205,3 @@ export const results = "Итоги анализа";
 export const starProfile = "Выдающийся профиль!";
 export const goodProfileButCanBeImproved =
   "Хороший профиль, но можно кое-что улучшить! ;)";
-
-export const populatedLocalityWhereOneLives =
-  "Населенный пункт проживания (для организации свиданий)";
-export const contactUsIfYourLocalityIsMissing =
-  "Если населенного пункта нет в списке, то сообщите об этом через форму обратной связи на главной странице и он будет добавлен";

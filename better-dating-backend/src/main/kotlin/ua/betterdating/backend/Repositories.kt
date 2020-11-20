@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort.by
 import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria.empty
 import org.springframework.data.relational.core.query.Criteria.where
+import org.springframework.data.relational.core.query.Query
 import org.springframework.data.relational.core.query.Query.query
 import org.springframework.data.relational.core.query.Update.update
 import org.springframework.r2dbc.core.DatabaseClient
@@ -250,5 +251,32 @@ class PopulatedLocalitiesRepository(private val client: DatabaseClient) {
                                 row["region"] as String,
                                 row["country"] as String
                         )
+                    }.all()
+}
+
+class LanguagesRepository(private val client: DatabaseClient) {
+    fun find(query: String): Flux<Language> =
+        client.sql("SELECT * FROM language WHERE :query = '' OR name ~* :query ORDER BY name LIMIT 25")
+                .bind("query", query)
+                .map { row, _ ->
+                    Language(row["id"] as UUID, row["name"] as String)
+                }.all()
+}
+
+class InterestsRepository(private val client: DatabaseClient) {
+    fun find(query: String): Flux<Interest> =
+            client.sql("SELECT * FROM interest WHERE :query = '' OR name ~* :query ORDER BY name LIMIT 25")
+                    .bind("query", query)
+                    .map { row, _ ->
+                        Interest(row["id"] as UUID, row["name"] as String)
+                    }.all()
+}
+
+class PersonalQualitiesRepository(private val client: DatabaseClient) {
+    fun find(query: String): Flux<PersonalQuality> =
+            client.sql("SELECT * FROM personal_quality WHERE :query = '' OR name ~* :query ORDER BY name LIMIT 25")
+                    .bind("query", query)
+                    .map { row, _ ->
+                        PersonalQuality(row["id"] as UUID, row["name"] as String)
                     }.all()
 }

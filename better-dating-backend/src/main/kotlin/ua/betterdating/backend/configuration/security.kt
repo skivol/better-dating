@@ -148,6 +148,9 @@ fun securityConfig(emailRepository: EmailRepository, roleRepository: UserRoleRep
                 // Profile
                 authorize("/api/user/profile/**", hasAuthority("ROLE_USER"))
                 authorize("/api/populated-localities/**", hasAuthority("ROLE_USER"))
+                authorize("/api/languages/**", hasAuthority("ROLE_USER"))
+                authorize("/api/interests/**", hasAuthority("ROLE_USER"))
+                authorize("/api/personal-qualities/**", hasAuthority("ROLE_USER"))
 
                 // Administration
                 authorize("/api/admin/**", hasAuthority("ROLE_ADMIN"))

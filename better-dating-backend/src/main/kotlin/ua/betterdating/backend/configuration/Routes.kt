@@ -9,6 +9,9 @@ fun routes(
         emailHandler: EmailHandler,
         userProfileHandler: UserProfileHandler,
         populatedLocalitiesHandler: PopulatedLocalitiesHandler,
+        languagesHandler: LanguagesHandler,
+        interestsHandler: InterestsHandler,
+        personalQualitiesHandler: PersonalQualitiesHandler,
         authHandler: AuthHandler,
         adminHandler: AdminHandler,
         healthHandler: HealthHandler
@@ -30,6 +33,9 @@ fun routes(
     }
 
     GET("/api/populated-localities/autocomplete", populatedLocalitiesHandler::autocomplete)
+    GET("/api/languages/autocomplete", languagesHandler::autocomplete)
+    GET("/api/interests/autocomplete", interestsHandler::autocomplete)
+    GET("/api/personal-qualities/autocomplete", personalQualitiesHandler::autocomplete)
 
     "/api/admin".nest {
         GET("/usage-stats", adminHandler::usageStatistics)

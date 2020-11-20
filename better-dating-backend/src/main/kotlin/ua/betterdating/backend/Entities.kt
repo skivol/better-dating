@@ -5,6 +5,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
+// TODO check if @Id annotation is still needed
 class Email(
         var email: String,
         var verified: Boolean,
@@ -84,6 +85,7 @@ enum class Role {
     ROLE_USER,
     ROLE_ADMIN
 }
+
 class UserRole(
         @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
         val role: Role,
@@ -110,4 +112,19 @@ class PopulatedLocality(
         val name: String,
         val region: String,
         val country: String
+)
+
+class Language(
+        val id: UUID,
+        val name: String
+)
+
+class Interest(
+        val id: UUID,
+        val name: String
+)
+
+class PersonalQuality(
+        val id: UUID,
+        val name: String
 )

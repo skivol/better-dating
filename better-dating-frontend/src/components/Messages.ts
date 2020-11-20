@@ -141,7 +141,8 @@ export const hideAnalysis = "Скрыть анализ";
 export const nextLevel = "Перейти к следующему этапу";
 export const nonEligibleForSecondStageReason =
   "Для перехода на следующий этап нужно заполнить всю информацию запрашиваемую на текущем этапе";
-export const secondStageDialogTitle = "Активация второго этапа";
+export const secondStageDialogTitle =
+  "Активация второго этапа (свидания и встречи)";
 
 export const removeProfile = "Удалить профиль";
 export const viewAuthorsProfile = "Профиль автора";
