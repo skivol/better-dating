@@ -1,5 +1,6 @@
 import { Link } from "@material-ui/core";
 import { Select } from "mui-rff";
+import { required } from "../../../utils";
 import * as Messages from "./Messages";
 
 const eyeColorOptions = [
@@ -44,7 +45,7 @@ const eyeColorOptions = [
 const helpLink = "https://ru.wikipedia.org/wiki/Цвет_глаз";
 export const EyeColorSelect = () => (
   <Select
-    required
+    fieldProps={{ validate: required }}
     name="eyeColor"
     helperText={<Link href={helpLink}>{Messages.wiki}</Link>}
     label={Messages.eyeColor}

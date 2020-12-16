@@ -119,3 +119,31 @@ data class DeleteProfileData(val token: String, val reason: DeleteReason, val ex
         }
     }
 }
+
+enum class DatingGoals {
+    findSoulMate
+}
+
+enum class AppearanceType {
+    european, oriental, caucasian, indian, darkSkinned, hispanic, middleEastern, american, mixed
+}
+
+enum class HairColor {
+    black, ginger, blond, brown, fair, gray
+}
+
+enum class EyeColor {
+    darkBlue, blue, gray, green, amber, olive, brown, black, yellow
+}
+
+data class ActivateSecondStageRequest(
+        val goal: DatingGoals,
+        val populatedLocality: PopulatedLocality,
+        val nativeLanguages: List<Language>,
+        val appearanceType: AppearanceType,
+        val naturalHairColor: HairColor,
+        val eyeColor: EyeColor,
+        val interests: List<Interest>,
+        val likedPersonalQualities: List<PersonalQuality>,
+        val dislikedPersonalQualities: List<PersonalQuality>
+)

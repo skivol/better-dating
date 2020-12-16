@@ -128,3 +128,40 @@ class PersonalQuality(
         val id: UUID,
         val name: String
 )
+
+class DatingProfileInfo(
+        @Id val profileId: UUID,
+        val goal: DatingGoals,
+        val appearanceType: AppearanceType,
+        val naturalHairColor: HairColor,
+        val eyeColor: EyeColor
+)
+
+class UserPopulatedLocality(
+        @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
+        val populatedLocalityId: UUID,
+        val position: Int
+)
+
+class UserLanguage(
+        @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
+        val languageId: UUID,
+        val position: Int
+)
+
+class UserInterest(
+        @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
+        val interestId: UUID,
+        val position: Int
+)
+
+enum class Attitude {
+    likes, dislikes
+}
+
+class UserPersonalQuality(
+        @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
+        val personalQualityId: UUID,
+        val attitude: Attitude,
+        val position: Int
+)

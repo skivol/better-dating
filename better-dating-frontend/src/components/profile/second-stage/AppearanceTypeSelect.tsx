@@ -1,4 +1,5 @@
 import { Select } from "mui-rff";
+import { required } from "../../../utils";
 import * as Messages from "./Messages";
 
 const appearanceOptions = [
@@ -42,7 +43,7 @@ const appearanceOptions = [
 
 export const AppearanceTypeSelect = () => (
   <Select
-    required
+    fieldProps={{ validate: required }}
     name="appearanceType"
     label={Messages.appearanceType}
     data={appearanceOptions}

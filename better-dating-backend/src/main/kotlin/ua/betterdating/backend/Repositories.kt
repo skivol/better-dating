@@ -67,12 +67,6 @@ class ExpiringTokenRepository(private val template: R2dbcEntityTemplate, private
     suspend fun save(token: ExpiringToken): ExpiringToken =
             template.insert<ExpiringToken>().usingAndAwait(token)
 
-    suspend fun findByProfileIdAndType(profileId: UUID, type: TokenType): ExpiringToken? =
-            template.select<ExpiringToken>()
-                    .matching(query(
-                            where("profile_id").`is`(profileId).and("type").`is`(type)
-                    )).awaitOneOrNull()
-
     suspend fun findEmailByTokenId(id: UUID): Email? = client.sql(
             "SELECT e.id, email, verified FROM email e JOIN expiring_token et ON e.id = et.profile_id WHERE et.id = :tokenId"
     ).bind("tokenId", id).map { row, _ ->
@@ -279,4 +273,29 @@ class PersonalQualitiesRepository(private val client: DatabaseClient) {
                     .map { row, _ ->
                         PersonalQuality(row["id"] as UUID, row["name"] as String)
                     }.all()
+}
+
+class DatingProfileInfoRepository(private val template: R2dbcEntityTemplate) {
+    suspend fun save(datingProfileInfo: DatingProfileInfo): DatingProfileInfo =
+            template.insert<DatingProfileInfo>().usingAndAwait(datingProfileInfo)
+}
+
+class UserPopulatedLocalityRepository(private val template: R2dbcEntityTemplate) {
+    suspend fun save(userPopulatedLocality: UserPopulatedLocality): UserPopulatedLocality =
+            template.insert<UserPopulatedLocality>().usingAndAwait(userPopulatedLocality)
+}
+
+class UserLanguageRepository(private val template: R2dbcEntityTemplate) {
+    suspend fun save(userLanguage: UserLanguage): UserLanguage =
+            template.insert<UserLanguage>().usingAndAwait(userLanguage)
+}
+
+class UserInterestRepository(private val template: R2dbcEntityTemplate) {
+    suspend fun save(userInterest: UserInterest): UserInterest =
+            template.insert<UserInterest>().usingAndAwait(userInterest)
+}
+
+class UserPersonalQualityRepository(private val template: R2dbcEntityTemplate) {
+    suspend fun save(userPersonalQuality: UserPersonalQuality): UserPersonalQuality =
+            template.insert<UserPersonalQuality>().usingAndAwait(userPersonalQuality)
 }

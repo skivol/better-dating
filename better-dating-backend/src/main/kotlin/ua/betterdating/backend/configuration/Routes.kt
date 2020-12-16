@@ -30,6 +30,7 @@ fun routes(
         DELETE("", accept(APPLICATION_JSON), userProfileHandler::removeProfile)
         POST("/authors-profile", accept(APPLICATION_JSON), userProfileHandler::requestViewOfAuthorsProfile)
         GET("/view", userProfileHandler::viewOtherUserProfile)
+        POST("/activate-second-stage", userProfileHandler::activateSecondStage)
     }
 
     GET("/api/populated-localities/autocomplete", populatedLocalitiesHandler::autocomplete)

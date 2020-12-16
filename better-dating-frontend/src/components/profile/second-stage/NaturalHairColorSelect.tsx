@@ -1,5 +1,6 @@
 import { Link } from "@material-ui/core";
 import { Select } from "mui-rff";
+import { required } from "../../../utils";
 import * as Messages from "./Messages";
 
 const naturalHairColorOptions = [
@@ -32,11 +33,11 @@ const naturalHairColorOptions = [
 const helpLink = "https://ru.wikipedia.org/wiki/Пигментация_волос";
 export const NaturalHairColorSelect = () => (
   <Select
-    required
     name="naturalHairColor"
     helperText={<Link href={helpLink}>{Messages.hairPigmentation}</Link>}
     label={Messages.naturalHairColor}
     data={naturalHairColorOptions}
+    fieldProps={{ validate: required }}
     style={{ width: 500 }}
   />
 );

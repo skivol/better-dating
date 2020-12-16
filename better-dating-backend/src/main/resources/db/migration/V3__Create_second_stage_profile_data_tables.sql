@@ -5328,16 +5328,20 @@ CREATE TABLE personal_quality (
 
 INSERT INTO personal_quality ("name", id)
 VALUES ('безстрастие', '01b06163-4ec4-4464-b967-7c4ef0b1ed60'),
+    ('вера', '45acac23-9013-49b4-8937-412ca6795eff'),
     ('внимательность', 'c2fd0fcd-3555-46e9-afff-26d83fa9ea40'),
     ('гордость', '1ac5e62f-af99-42a0-b34a-0bf7bdf2d118'),
     ('добросовестность', '2cfb7a76-236f-4ea6-8b1b-1a5302b0a65d'),
     ('доброта', '2401c5ff-f2e1-4ce1-a73e-e714efdb8cd4'),
+    ('любовь', 'cc7205b3-c24f-46d8-b988-7fe9987e7a5b'),
     ('милосердие', 'd9a14816-e508-4212-967e-659722871d66'),
+    ('мудрость', '38a27662-9ae5-4215-99c2-9743150bf612'),
     ('надежность', '4a1a75f8-37df-42c0-a394-ff7298f544f9'),
     ('настойчивость', 'c35d53c4-d185-49be-ae5b-8c4443a1b788'),
     ('ответственность', '484da64e-e713-4f7a-b588-bd4d9ece5561'),
     ('отсутствие зависти', '58d59d4d-a7a6-421c-bd51-30d1a520c8d8'),
     ('подвижничество', 'f468e9f4-fe22-4b60-a489-034778a3bb75'),
+    ('познание', '9a1dc6c9-b7c4-403d-91fb-e1e92a787870'),
     ('правдивость', '1f32fcf2-df7f-44cf-964f-fed807a263ee'),
     ('праведность', 'c98f05e2-8fb4-41eb-9ef2-1324f81bc034'),
     ('признание ошибок', 'cd516e5f-5e45-40ce-bf94-a28d9b08a572'),
@@ -5347,6 +5351,9 @@ VALUES ('безстрастие', '01b06163-4ec4-4464-b967-7c4ef0b1ed60'),
     ('сила', '9e3bb79e-c251-4057-8b6f-fc65bc3aec50'),
     ('смелость', 'a7a9bf81-f600-4bbe-acfc-a5b03240c7df'),
     ('собранность', '57fc1cfe-d36d-4969-82aa-a634809c4cd2'),
+    ('совесть', '602015cb-a3a2-4f92-ade5-5836b63ca0e8'),
+    ('созидание', '1a9b82c2-fcaa-4870-bf35-587514eadd7a'),
+    ('созидательность', '941bcc44-d860-45ef-913a-91446031ca79'),
     ('сообразительность', '5e617da8-41a8-45bd-8a45-e8018abf2cbf'),
     ('способность к исследованию', '49a149c1-b5d1-4c93-b820-971d1964ced7'),
     ('способность к размышлению', 'b90e1567-1102-4189-bfc7-9f56b723c4a7'),
@@ -5357,13 +5364,16 @@ VALUES ('безстрастие', '01b06163-4ec4-4464-b967-7c4ef0b1ed60'),
     ('стыдливость', '5d898640-f3a4-4083-894a-9756e852975d'),
     ('терпение', '840ce48e-56c7-4034-8ffd-be8467390eb9'),
     ('трезвость', 'e7c8295d-a50b-4e13-b0ca-74f025577243'),
+    ('трудолюбие', '1aec743a-ee3e-4a5f-886c-4c6ad01b655e'),
     ('упорство', '42348655-3e57-4565-b4d0-74df4cb9fc10'),
+    ('усердие', 'c3a846e1-4725-4608-9b11-2b9d18889eaa'),
     ('целеустремленность', '75ebf365-1871-4b30-9f16-43e0302d7963'),
     ('целомудрие', '2019c045-1574-442f-9cc4-5fb1c73de916'),
     ('честность', '51efb352-4fe3-472d-9fec-83584ffacaf6');
 
 INSERT INTO personal_quality ("name", id)
-VALUES ('безпокойство', 'a40bc2d2-9236-449c-a91d-a897f6e1db36'),
+VALUES ('бездуховность', '8ad2efd6-b1f3-4dd3-ac5b-2fb7a07f1087'),
+    ('безпокойство', 'a40bc2d2-9236-449c-a91d-a897f6e1db36'),
     ('влечение', '859ac128-7bfa-4223-80b9-33ce86c368a3'),
     ('вожделение', '777be80e-4810-481c-810e-65b0b5afde17'),
     ('враждебность', 'd29e894d-2c85-4624-bf11-76b95fc99f64'),
@@ -5383,24 +5393,37 @@ VALUES ('безпокойство', 'a40bc2d2-9236-449c-a91d-a897f6e1db36'),
     ('злость', '0d788738-14d4-4561-8cd8-e7eb4c0507c0'),
     ('лень', '2ebef98c-02ca-4de4-85d9-c6e9c2934f1e'),
     ('лесть', 'c05fb54a-dfc1-471f-a997-2ab594d1213a'),
+    ('лихоимство', '9a13fd06-992b-4319-896d-07050efdec52'),
     ('лицемерие', '2c090bed-4296-42db-bc14-5aa339fd0186'),
     ('ложь', 'dd18c20d-652b-4b5c-91d5-01c2317dd792'),
     ('многословие', '85f782db-813d-4d68-b947-647652dfdde1'),
+    ('мстительность', 'b27737ef-d02b-4f5c-b64c-7465a15dfa59'),
     ('наушничество', '5ee3e37d-9af0-4f13-8d3c-367b32a4dd24'),
+    ('неведение', 'c6f29a0e-d5f0-466b-ba80-3355f50f47a6'),
     ('невежество', '24dccbf5-464b-4c38-aa14-90d85ac6c491'),
+    ('незнание', '9fb5bbd2-d7f5-4a0b-86ed-0a3272af14a4'),
     ('ненависть', '94a23af8-92ce-4282-b4b1-39d95ac9ea25'),
+    ('нерешительность', '9291dae3-9428-4d13-ad07-911269219b6e'),
+    ('неуверенность в своих силах', 'c63dab44-0225-45dd-87a2-d83806a85965'),
     ('неустойчивость', 'd4269bbd-1d6f-413e-b0e0-fc565c8f563d'),
+    ('низменность', 'd8feed0f-bbc5-4ea9-9981-9c5e1c73c99a'),
     ('обжорство', 'bdd30925-6e00-4cf3-ba04-81e1f7a31748'),
     ('обидчивость', '64a6f97a-15a0-4169-ad38-75d7e858829d'),
     ('обман', '7759216a-4844-4942-8d38-4d70a19e8745'),
+    ('оговор', '5bcf36de-4445-4009-8d8f-2e35685657ae'),
     ('осуждение', 'db53a80c-8a61-45b2-9cc3-bda0da1434a6'),
     ('отвращение', '2e4dea85-351c-4568-9733-7d6be624cecd'),
     ('повторение ошибок', 'd08b4514-406e-4ae2-9cb5-e1bb753db15f'),
     ('погоня за наслаждениями', '993393c5-9b31-4eb2-a1ce-c3252d50662d'),
+    ('порочность', 'cdb5721c-ce41-4402-9954-f6635421ca09'),
     ('похоть', 'f3bb4d1d-e83e-40c2-a242-1f144d295f45'),
+    ('праздность', 'b6040f92-0080-4f60-a117-21698808ae76'),
+    ('предательство', '921b1ae4-7797-4d64-bf79-71661befd680'),
     ('раздражительность', '0b38cc36-e366-4a94-bed1-2295c86e937d'),
     ('распутство', '94b2f4e5-18b1-44f6-892b-529f726a8ed6'),
     ('ропот', '07dfbe84-ab87-45b2-b7b5-7b0f331d8d9f'),
+    ('самолюбие', '253803b8-2e01-49ab-82c6-e3429e720d12'),
+    ('самолюбование', '19643e72-97dc-4244-9869-1de94f5da399'),
     ('самонадеянность', '4fd8a3f3-6210-449f-b6f3-1b2867bbc094'),
     ('самообман', 'f858d4f6-8796-497f-9500-441090a8586b'),
     ('сквернословие', 'c156801d-ed16-4121-878b-c7276b3aa792'),
@@ -5417,3 +5440,50 @@ VALUES ('безпокойство', 'a40bc2d2-9236-449c-a91d-a897f6e1db36'),
     ('хвастливость', '6573c5ca-1946-4129-83b7-f77806cb8b8f'),
     ('хвастовство своей щедростью', 'd1b5b971-bdde-4dea-8d47-f885422f5a10'),
     ('чревоугодие', '42b084d1-c83f-4931-85c1-40d346847650');
+
+CREATE TABLE dating_profile_info (
+	profile_id uuid NOT NULL,
+	goal varchar(64) NOT NULL,
+	appearance_type varchar(32) NOT NULL,
+	natural_hair_color varchar(8) NOT NULL,
+	eye_color varchar(8) NOT NULL,
+	CONSTRAINT dating_profile_info_pk PRIMARY KEY (profile_id),
+	CONSTRAINT dating_profile_info_fk FOREIGN KEY (profile_id) REFERENCES email(id)
+);
+
+CREATE TABLE user_populated_locality (
+	profile_id uuid NOT NULL,
+	populated_locality_id uuid NOT NULL,
+	position numeric(2) NOT NULL,
+	CONSTRAINT user_populated_locality_pk PRIMARY KEY (profile_id,populated_locality_id),
+	CONSTRAINT user_populated_locality_fk FOREIGN KEY (profile_id) REFERENCES email(id),
+	CONSTRAINT user_populated_locality_fk_1 FOREIGN KEY (populated_locality_id) REFERENCES populated_locality(id)
+);
+
+CREATE TABLE user_language (
+	profile_id uuid NOT NULL,
+	language_id uuid NOT NULL,
+	position numeric(2) NOT NULL,
+	CONSTRAINT user_language_pk PRIMARY KEY (profile_id,language_id),
+	CONSTRAINT user_language_fk FOREIGN KEY (profile_id) REFERENCES email(id),
+	CONSTRAINT user_language_fk_1 FOREIGN KEY (language_id) REFERENCES language(id)
+);
+
+CREATE TABLE user_interest (
+	profile_id uuid NOT NULL,
+	interest_id uuid NOT NULL,
+	position numeric(2) NOT NULL,
+	CONSTRAINT user_interest_pk PRIMARY KEY (profile_id,interest_id),
+	CONSTRAINT user_interest_fk FOREIGN KEY (profile_id) REFERENCES email(id),
+	CONSTRAINT user_interest_fk_1 FOREIGN KEY (interest_id) REFERENCES interest(id)
+);
+
+CREATE TABLE user_personal_quality (
+	profile_id uuid NOT NULL,
+	personal_quality_id uuid NOT NULL,
+	attitude varchar(8) NOT NULL, -- likes / dislikes
+	position numeric(2) NOT NULL,
+	CONSTRAINT user_personal_quality_pk PRIMARY KEY (profile_id,personal_quality_id),
+	CONSTRAINT user_personal_quality_fk FOREIGN KEY (profile_id) REFERENCES email(id),
+	CONSTRAINT user_personal_quality_fk_1 FOREIGN KEY (personal_quality_id) REFERENCES personal_quality(id)
+);

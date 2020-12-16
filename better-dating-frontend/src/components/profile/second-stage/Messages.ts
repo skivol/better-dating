@@ -4,9 +4,9 @@ export const findSoulMate = "Поиск второй половинки";
 export const populatedLocalityWhereOneLives =
   "Населенный пункт проживания (для организации свиданий)";
 
-export const nativeLanguages = "Родной/родные язык(и)";
+export const nativeLanguages = "Родной/родные язык(и) *";
 
-export const appearanceType = "Тип внешности";
+export const appearanceType = "Тип внешности *";
 export const european = "Европейская";
 export const oriental = "Азиатская";
 export const caucasian = "Кавказская";
@@ -17,7 +17,7 @@ export const middleEastern = "Ближневосточная";
 export const american = "Американская";
 export const mixed = "Смешанная";
 
-export const naturalHairColor = "Естественный цвет волос";
+export const naturalHairColor = "Естественный цвет волос *";
 export const hairPigmentation = "(пигментация волос)";
 export const black = "Брюнет(ка) (чёрный)";
 export const ginger = "Рыжий";
@@ -39,14 +39,14 @@ export const yellow = "Жёлтый";
 
 export const wiki = "(вики)";
 
-export const interests = "Интересы";
+export const interests = "Интересы *";
 export const interestsHelp =
   "то с чем нравится иметь дело/пользоваться, или что нравится делать, что, возможно, было бы интересно узнать в контексте знакомства";
 
 export const likedPersonalQualities =
-  "Что нравится в себе и/или в окружающих людях";
+  "Что нравится в себе и/или в окружающих людях *";
 export const dislikedPersonalQualities =
-  "Что НЕ нравится в себе и/или в окружающих людях";
+  "Что НЕ нравится в себе и/или в окружающих людях *";
 
 export const missingOptionsNotification =
   "Если необходимого населенного пункта, языка, интереса или человеческого качества нет в списке, сообщите и он(о) будет добавлен(о)";

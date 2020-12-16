@@ -185,6 +185,20 @@ export const viewAuthorsProfile = (): any => async (
   }
 };
 
+export const activateSecondStage = (values: any): any => async (
+  dispatch: ThunkDispatch<any, any, Action>
+) => {
+  try {
+    await postData("/api/user/profile/activate-second-stage", values);
+    dispatch(openSnackbar(Messages.secondStageEnabled, SnackbarVariant.info));
+  } catch (error) {
+    dispatch(
+      openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
+    );
+    throw error;
+  }
+};
+
 export const requestAnotherValidationToken = (
   previousToken: string
 ): ThunkResult<void> => async (dispatch: ThunkDispatch<any, any, Action>) => {

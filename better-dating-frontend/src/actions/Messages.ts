@@ -17,6 +17,7 @@ export const profileWasRemoved =
   "Профиль был успешно удален! Надеемся на скорое возвращение :)";
 export const linkForViewingAuthorsProfileWasSent =
   "Ссылка для просмотра профиля автора была выслана на почту.";
+export const secondStageEnabled = "Второй этап был активирован!";
 
 export const alreadyPresentEmail = "Такая почта уже существует";
 export const alreadyPresentNickname = "Такое имя/псевдоним уже существует";

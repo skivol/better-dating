@@ -25,7 +25,7 @@ class Token(val token: String) {
 class DecodedToken(val id: UUID, val tokenValue: String)
 
 suspend fun ExpiringToken.verify(webToken: DecodedToken, type: TokenType, passwordEncoder: PasswordEncoder) {
-    if (type !== type) throwBadCredentials()
+    if (this.type !== type) throwBadCredentials()
     if (expired()) throw ExpiredTokenException()
     if (!passwordEncoder.matches(webToken.tokenValue, encodedValue)) throwBadCredentials()
 }

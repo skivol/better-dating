@@ -30,6 +30,11 @@ class UserProfileHandler(
         private val userRoleRepository: UserRoleRepository,
         private val tokenDataRepository: ViewOtherUserProfileTokenDataRepository,
         private val profileViewHistoryRepository: ProfileViewHistoryRepository,
+        private val datingProfileInfoRepository: DatingProfileInfoRepository,
+        private val userPopulatedLocalityRepository: UserPopulatedLocalityRepository,
+        private val userLanguageRepository: UserLanguageRepository,
+        private val userInterestRepository: UserInterestRepository,
+        private val userPersonalQualityRepository: UserPersonalQualityRepository,
         private val logoutHandler: DelegatingServerLogoutHandler,
         private val passwordEncoder: PasswordEncoder,
         private val transactionalOperator: TransactionalOperator,
@@ -227,6 +232,23 @@ class UserProfileHandler(
         }
 
         return ok().json().bodyValueAndAwait(targetProfileData)
+    }
+
+    suspend fun activateSecondStage(request: ServerRequest): ServerResponse {
+        // verify that activation is allowed
+        val currentUserProfile = currentUserProfile(request)
+        if (currentUserProfile.eligibleForSecondStage != true) throw NotEligibleForSecondStageException()
+
+        val body = request.awaitBody<ActivateSecondStageRequest>()
+        transactionalOperator.executeAndAwait {
+            datingProfileInfoRepository.save(DatingProfileInfo(currentUserProfile.id!!, body.goal, body.appearanceType, body.naturalHairColor, body.eyeColor))
+            userPopulatedLocalityRepository.save(UserPopulatedLocality(currentUserProfile.id!!, body.populatedLocality.id, 0))
+            body.nativeLanguages.forEachIndexed { index, language -> userLanguageRepository.save(UserLanguage(currentUserProfile.id!!, language.id, index)) }
+            body.interests.forEachIndexed { index, interest -> userInterestRepository.save(UserInterest(currentUserProfile.id!!, interest.id, index)) }
+            body.likedPersonalQualities.forEachIndexed { index, personalQuality -> userPersonalQualityRepository.save(UserPersonalQuality(currentUserProfile.id!!, personalQuality.id, Attitude.likes, index)) }
+            body.dislikedPersonalQualities.forEachIndexed { index, personalQuality -> userPersonalQualityRepository.save(UserPersonalQuality(currentUserProfile.id!!, personalQuality.id, Attitude.dislikes, index)) }
+        }
+        return okEmptyJsonObject()
     }
 
     private fun changedHealthEvaluation(existingProfile: Profile, profile: Profile) = if (existingProfile.personalHealthEvaluation != profile.personalHealthEvaluation) {

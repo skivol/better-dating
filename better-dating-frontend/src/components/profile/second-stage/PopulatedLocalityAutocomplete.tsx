@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Autocomplete } from "mui-rff";
-import { debounce, getData } from "../../../utils";
+import { debounce, getData, required } from "../../../utils";
 import * as Messages from "./Messages";
 
 type PopulatedLocality = {
@@ -13,10 +13,15 @@ type PopulatedLocality = {
 const showPopulatedLocality = ({ name, region, country }: PopulatedLocality) =>
   `${name}, ${region}, ${country}`;
 
-export const PopulatedLocalityAutocomplete = () => {
-  const [value, setValue] = useState<PopulatedLocality | null>(null);
+type Props = {
+  initialValue: PopulatedLocality;
+};
+export const PopulatedLocalityAutocomplete = ({ initialValue }: Props) => {
+  const [value, setValue] = useState<PopulatedLocality | undefined>(
+    initialValue
+  );
   const [inputValue, setInputValue] = useState("");
-  const [options, setOptions] = useState<PopulatedLocality[]>([]);
+  const [options, setOptions] = useState<PopulatedLocality[]>([initialValue]);
   const debouncedPopulatedLocalitiesAutocomplete = useMemo(
     () =>
       debounce(
@@ -47,7 +52,7 @@ export const PopulatedLocalityAutocomplete = () => {
 
   return (
     <Autocomplete
-      required
+      fieldProps={{ validate: required }}
       label={Messages.populatedLocalityWhereOneLives}
       name="populatedLocality"
       autoComplete
@@ -59,7 +64,7 @@ export const PopulatedLocalityAutocomplete = () => {
       onInputChange={(event, newInputValue) => {
         setInputValue(newInputValue);
       }}
-      getOptionValue={({ id }: PopulatedLocality) => id}
+      getOptionValue={(locality: PopulatedLocality) => locality}
       getOptionLabel={showPopulatedLocality}
       style={{ width: 500 }}
       renderOption={showPopulatedLocality}

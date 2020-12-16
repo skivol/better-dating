@@ -5,15 +5,16 @@ import { useRouter } from "next/router";
 import { Form, FormSpy } from "react-final-form";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import { Grid, Typography, Paper, Fab } from "@material-ui/core";
+import { Grid, Typography, Paper } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import { Field } from "react-final-form";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 
-import { storageCreator, ensureBdayIsDate } from "../utils";
+import { storageCreator, ensureBdayIsDate, currentTime } from "../utils";
 import * as actions from "../actions";
+import { ClearButton } from "./common";
 import * as Messages from "./Messages";
 import {
   TermsOfUserAgreement,
@@ -37,15 +38,11 @@ const useStyles = makeStyles((theme: Theme) =>
     button: {
       margin: theme.spacing(1),
     },
-    icon: {
-      marginRight: theme.spacing(1),
-    },
   })
 );
 
 const storage = storageCreator("registration-data");
 
-const currentTime = () => new Date().getTime();
 export const RegisterAccountForm = () => {
   const classes = useStyles();
   const router = useRouter();
@@ -155,17 +152,7 @@ export const RegisterAccountForm = () => {
                 buttonClass={classes.button}
                 submitting={submitting}
               />
-              {hasData && (
-                <div className="c-clear-button">
-                  <Fab variant="extended" onClick={() => reset()}>
-                    <FontAwesomeIcon
-                      className={classes.icon}
-                      icon={faTrashAlt}
-                    />
-                    {Messages.clear}
-                  </Fab>
-                </div>
-              )}
+              {hasData && <ClearButton onClick={reset} />}
             </Grid>
           </form>
         );

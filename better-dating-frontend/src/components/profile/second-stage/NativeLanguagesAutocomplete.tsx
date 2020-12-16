@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Autocomplete } from "mui-rff";
-import { debounce, getData } from "../../../utils";
+import { debounce, getData, required } from "../../../utils";
 import * as Messages from "./Messages";
 
 type Language = {
@@ -11,10 +11,13 @@ type Language = {
 const showLanguage = ({ name }: Language) => name;
 
 // TODO generalize and extract common autocomplete functionality ?
-export const NativeLanguagesAutocomplete = () => {
-  const [value, setValue] = useState<Language[]>([]);
+type Props = {
+  initialValues?: Language[];
+};
+export const NativeLanguagesAutocomplete = ({ initialValues = [] }: Props) => {
+  const [value, setValue] = useState<Language[]>(initialValues);
   const [inputValue, setInputValue] = useState("");
-  const [options, setOptions] = useState<Language[]>([]);
+  const [options, setOptions] = useState<Language[]>(initialValues);
   const debouncedLanguagesAutocomplete = useMemo(
     () =>
       debounce(
@@ -41,11 +44,12 @@ export const NativeLanguagesAutocomplete = () => {
   return (
     <Autocomplete
       multiple
-      required
       label={Messages.nativeLanguages}
       name="nativeLanguages"
+      fieldProps={{ validate: required }}
       autoComplete
-      options={options}
+      options={[...value, ...options]}
+      filterSelectedOptions
       value={value}
       onChange={(event: any, newValue: Language | null) => {
         setValue(newValue);
@@ -53,7 +57,10 @@ export const NativeLanguagesAutocomplete = () => {
       onInputChange={(event, newInputValue) => {
         setInputValue(newInputValue);
       }}
-      getOptionValue={({ id }: Language) => id}
+      getOptionValue={(language: Language) => language}
+      getOptionSelected={({ id: optionId }, { id: valueId }) =>
+        optionId === valueId
+      }
       getOptionLabel={showLanguage}
       style={{ width: 500 }}
       renderOption={showLanguage}

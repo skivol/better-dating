@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Autocomplete } from "mui-rff";
-import { debounce, getData } from "../../../utils";
+import { debounce, getData, required } from "../../../utils";
 
 type PersonalQuality = {
   id: string;
@@ -9,10 +9,19 @@ type PersonalQuality = {
 
 const showPersonalQuality = ({ name }: PersonalQuality) => name;
 
-export const PersonalQualityAutocomplete = ({ name, label }: any) => {
-  const [value, setValue] = useState<PersonalQuality[]>([]);
+type Props = {
+  name: string;
+  label: string;
+  initialValues?: PersonalQuality[];
+};
+export const PersonalQualityAutocomplete = ({
+  name,
+  label,
+  initialValues = [],
+}: Props) => {
+  const [value, setValue] = useState<PersonalQuality[]>(initialValues);
   const [inputValue, setInputValue] = useState("");
-  const [options, setOptions] = useState<PersonalQuality[]>([]);
+  const [options, setOptions] = useState<PersonalQuality[]>(initialValues);
   const debouncedPersonalQualitiesAutocomplete = useMemo(
     () =>
       debounce(
@@ -41,14 +50,16 @@ export const PersonalQualityAutocomplete = ({ name, label }: any) => {
     };
   }, [inputValue, debouncedPersonalQualitiesAutocomplete]);
 
+  // https://github.com/mui-org/material-ui/issues/18514
   return (
     <Autocomplete
       multiple
-      required
       label={label}
       name={name}
+      fieldProps={{ validate: required }}
       autoComplete
-      options={options}
+      options={[...value, ...options]}
+      filterSelectedOptions
       value={value}
       onChange={(event: any, newValue: PersonalQuality | null) => {
         setValue(newValue);
@@ -56,8 +67,11 @@ export const PersonalQualityAutocomplete = ({ name, label }: any) => {
       onInputChange={(event, newInputValue) => {
         setInputValue(newInputValue);
       }}
-      getOptionValue={({ id }: PersonalQuality) => id}
+      getOptionValue={(personalQuality: PersonalQuality) => personalQuality}
       getOptionLabel={showPersonalQuality}
+      getOptionSelected={({ id: optionId }, { id: valueId }) =>
+        optionId === valueId
+      }
       renderOption={showPersonalQuality}
       style={{ width: 500 }}
     />

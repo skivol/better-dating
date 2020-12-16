@@ -105,6 +105,17 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
       })
       .finally(() => setLoading(false));
   };
+  const onSecondStageActivationRequest = (values: any) => {
+    console.log({ values });
+    setLoading(true);
+    dispatch(actions.activateSecondStage(values))
+      .then(() => {
+        // TODO re-enable code
+        // closeDialog();
+        // setDialogType(null);
+      })
+      .finally(() => setLoading(false));
+  };
 
   const classes = useStyles();
   const profileDataWithDate = fromBackendProfileValues(profileData);
@@ -153,8 +164,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
         loading={loading}
         dialogIsOpen={dialogIsOpen}
         closeDialog={closeDialog}
-        // TODO validation
-        onEnableSecondStage={(values: any) => console.log({ values })}
+        onEnableSecondStage={onSecondStageActivationRequest}
       />
     );
   }

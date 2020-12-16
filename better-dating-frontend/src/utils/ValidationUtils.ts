@@ -4,7 +4,9 @@ import * as Messages from "../Messages";
 const composeValidators = (...validators: any[]) => (value: any) =>
   validators.reduce((error, validator) => error || validator(value), undefined);
 export const required = (value: any) =>
-  value ? undefined : Messages.requiredField;
+  value && !(Array.isArray(value) && value.length == 0)
+    ? undefined
+    : Messages.requiredField;
 const min = (minValue: number) => (value: number) =>
   value < minValue ? Messages.minValue(minValue) : undefined;
 const max = (maxValue: number) => (value: number) =>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Autocomplete } from "mui-rff";
-import { debounce, getData } from "../../../utils";
+import { debounce, getData, required } from "../../../utils";
 import * as Messages from "./Messages";
 
 type Interest = {
@@ -10,10 +10,13 @@ type Interest = {
 
 const showInterest = ({ name }: Interest) => name;
 
-export const InterestsAutocomplete = () => {
-  const [value, setValue] = useState<Interest[]>([]);
+type Props = {
+  initialValues?: Interest[];
+};
+export const InterestsAutocomplete = ({ initialValues = [] }: Props) => {
+  const [value, setValue] = useState<Interest[]>(initialValues);
   const [inputValue, setInputValue] = useState("");
-  const [options, setOptions] = useState<Interest[]>([]);
+  const [options, setOptions] = useState<Interest[]>(initialValues);
   const debouncedInterestsAutocomplete = useMemo(
     () =>
       debounce(
@@ -40,12 +43,13 @@ export const InterestsAutocomplete = () => {
   return (
     <Autocomplete
       multiple
-      required
       label={Messages.interests}
       helperText={Messages.interestsHelp}
+      fieldProps={{ validate: required }}
       name="interests"
       autoComplete
-      options={options}
+      options={[...value, ...options]}
+      filterSelectedOptions
       value={value}
       onChange={(event: any, newValue: Interest | null) => {
         setValue(newValue);
@@ -53,7 +57,10 @@ export const InterestsAutocomplete = () => {
       onInputChange={(event, newInputValue) => {
         setInputValue(newInputValue);
       }}
-      getOptionValue={({ id }: Interest) => id}
+      getOptionValue={(interest: Interest) => interest}
+      getOptionSelected={({ id: optionId }, { id: valueId }) =>
+        optionId === valueId
+      }
       getOptionLabel={showInterest}
       style={{ width: 500 }}
       renderOption={showInterest}

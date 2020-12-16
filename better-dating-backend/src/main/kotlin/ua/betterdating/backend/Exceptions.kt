@@ -68,6 +68,7 @@ suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResp
         }
         is AuthenticationException -> ErrorResponseEntity(request, UNAUTHORIZED, UNAUTHORIZED.reasonPhrase)
         is AuthorNotFoundException -> ErrorResponseEntity(request, NOT_FOUND, "Author's profile was not found, try again later.")
+        is NotEligibleForSecondStageException -> ErrorResponseEntity(request, BAD_REQUEST, "Not eligible for second stage")
         else -> {
             LOG.error("Internal error", e)
             ErrorResponseEntity(request, INTERNAL_SERVER_ERROR, "Internal error")
@@ -104,3 +105,5 @@ class EmailWasNotProvidedException : AuthenticationException("Email was not prov
 class EmailNotRegisteredException(val email: String? = null) : AuthenticationException("Profile with this email is not registered")
 
 class AuthorNotFoundException : RuntimeException()
+
+class NotEligibleForSecondStageException : RuntimeException()
