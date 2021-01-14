@@ -131,7 +131,7 @@ class PersonalQuality(
 
 class DatingProfileInfo(
         @Id val profileId: UUID,
-        val goal: DatingGoals,
+        val goal: DatingGoal,
         val appearanceType: AppearanceType,
         val naturalHairColor: HairColor,
         val eyeColor: EyeColor

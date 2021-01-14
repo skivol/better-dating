@@ -8,10 +8,10 @@ import org.springframework.data.domain.Sort.by
 import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria.empty
 import org.springframework.data.relational.core.query.Criteria.where
-import org.springframework.data.relational.core.query.Query
 import org.springframework.data.relational.core.query.Query.query
 import org.springframework.data.relational.core.query.Update.update
 import org.springframework.r2dbc.core.DatabaseClient
+import org.springframework.r2dbc.core.awaitFirst
 import org.springframework.r2dbc.core.awaitOneOrNull
 import org.springframework.r2dbc.core.awaitRowsUpdated
 import reactor.core.publisher.Flux
@@ -222,19 +222,22 @@ val regionToPopulatedLocality = """
         SELECT region_id, id as "populated_locality_id" FROM populated_locality
     )
 """.trimIndent()
+val selectFullPopulatedLocality = """
+    $regionToPopulatedLocality
+    SELECT pl.id, pl."name", r."name" AS "region", c."name" AS "country"
+    FROM populated_locality pl
+    JOIN region_to_populated_locality rtpl ON rtpl.populated_locality_id = pl.id
+    JOIN region r ON r.id = rtpl.region_id
+    JOIN country c ON c.id = r.country_id
+""".trimIndent()
 
-class PopulatedLocalitiesRepository(private val client: DatabaseClient) {
+class PopulatedLocalitiesRepository(private val client: DatabaseClient, private val template: R2dbcEntityTemplate) {
     // Ordering:
     // * first output those that start with searched value (case insensitive),
     // * then those that match case insensitive,
     // * and lastly just sort by name
     fun find(query: String): Flux<PopulatedLocality> =
-            client.sql("""$regionToPopulatedLocality
-                        SELECT pl.id, pl."name", r."name" AS "region", c."name" AS "country"
-                        FROM populated_locality pl
-                        JOIN region_to_populated_locality rtpl ON rtpl.populated_locality_id = pl.id
-                        JOIN region r ON r.id = rtpl.region_id
-                        JOIN country c ON c.id = r.country_id
+            client.sql("""$selectFullPopulatedLocality
                         WHERE :query = '' OR pl."name" ~* :query OR r."name" ~* :query OR c."name" ~* :query
                         ORDER BY pl."name" ~* concat('^', :query) DESC, pl."name" ~* :query DESC, pl."name" LIMIT 25""".trimIndent())
                     .bind("query", query)
@@ -246,56 +249,100 @@ class PopulatedLocalitiesRepository(private val client: DatabaseClient) {
                                 row["country"] as String
                         )
                     }.all()
+
+    suspend fun findById(populatedLocalityId: UUID): PopulatedLocality = client.sql("""$selectFullPopulatedLocality
+        WHERE pl.id = :populatedLocalityId
+    """.trimIndent()).bind("populatedLocalityId", populatedLocalityId).map { row, _ ->
+        PopulatedLocality(
+                row["id"] as UUID,
+                row["name"] as String,
+                row["region"] as String,
+                row["country"] as String
+        )
+    }.awaitFirst()
 }
 
-class LanguagesRepository(private val client: DatabaseClient) {
+class LanguagesRepository(private val client: DatabaseClient, private val template: R2dbcEntityTemplate) {
     fun find(query: String): Flux<Language> =
-        client.sql("SELECT * FROM language WHERE :query = '' OR name ~* :query ORDER BY name LIMIT 25")
-                .bind("query", query)
-                .map { row, _ ->
-                    Language(row["id"] as UUID, row["name"] as String)
-                }.all()
+            client.sql("SELECT * FROM language WHERE :query = '' OR name ~* :query ORDER BY name LIMIT 25")
+                    .bind("query", query)
+                    .map { row, _ ->
+                        Language(row["id"] as UUID, row["name"] as String)
+                    }.all()
+
+    suspend fun findAll(ids: List<UUID>): List<Language> = template.select<Language>()
+            .matching(query(where("id").`in`(ids)))
+            .all().collectList().awaitFirst()
 }
 
-class InterestsRepository(private val client: DatabaseClient) {
+class InterestsRepository(private val client: DatabaseClient, private val template: R2dbcEntityTemplate) {
     fun find(query: String): Flux<Interest> =
             client.sql("SELECT * FROM interest WHERE :query = '' OR name ~* :query ORDER BY name LIMIT 25")
                     .bind("query", query)
                     .map { row, _ ->
                         Interest(row["id"] as UUID, row["name"] as String)
                     }.all()
+
+    suspend fun findAll(ids: List<UUID>): List<Interest> = template.select<Interest>()
+            .matching(query(where("id").`in`(ids)))
+            .all().collectList().awaitFirst()
 }
 
-class PersonalQualitiesRepository(private val client: DatabaseClient) {
+class PersonalQualitiesRepository(private val client: DatabaseClient, private val template: R2dbcEntityTemplate) {
     fun find(query: String): Flux<PersonalQuality> =
             client.sql("SELECT * FROM personal_quality WHERE :query = '' OR name ~* :query ORDER BY name LIMIT 25")
                     .bind("query", query)
                     .map { row, _ ->
                         PersonalQuality(row["id"] as UUID, row["name"] as String)
                     }.all()
+
+    suspend fun find(ids: List<UUID>): List<PersonalQuality> =
+            template.select<PersonalQuality>().matching(query(where("id").`in`(ids)))
+                    .all().collectList().awaitFirst()
 }
 
 class DatingProfileInfoRepository(private val template: R2dbcEntityTemplate) {
     suspend fun save(datingProfileInfo: DatingProfileInfo): DatingProfileInfo =
             template.insert<DatingProfileInfo>().usingAndAwait(datingProfileInfo)
+
+    suspend fun find(profileId: UUID): DatingProfileInfo? =
+            template.select<DatingProfileInfo>().matching(query(where("profile_id").`is`(profileId)))
+                    .awaitFirstOrNull()
 }
 
 class UserPopulatedLocalityRepository(private val template: R2dbcEntityTemplate) {
     suspend fun save(userPopulatedLocality: UserPopulatedLocality): UserPopulatedLocality =
             template.insert<UserPopulatedLocality>().usingAndAwait(userPopulatedLocality)
+
+    suspend fun find(profileId: UUID): UserPopulatedLocality =
+            template.select<UserPopulatedLocality>().matching(query(where("profile_id").`is`(profileId)))
+                    .awaitFirst()
 }
 
 class UserLanguageRepository(private val template: R2dbcEntityTemplate) {
     suspend fun save(userLanguage: UserLanguage): UserLanguage =
             template.insert<UserLanguage>().usingAndAwait(userLanguage)
+
+    suspend fun find(profileId: UUID): List<UserLanguage> = template.select<UserLanguage>()
+            .matching(query(where("profile_id").`is`(profileId)))
+            .all().collectList().awaitFirst()
 }
 
 class UserInterestRepository(private val template: R2dbcEntityTemplate) {
     suspend fun save(userInterest: UserInterest): UserInterest =
             template.insert<UserInterest>().usingAndAwait(userInterest)
+
+    suspend fun find(profileId: UUID): List<UserInterest> =
+            template.select<UserInterest>()
+                    .matching(query(where("profile_id").`is`(profileId)))
+                    .all().collectList().awaitFirst()
 }
 
 class UserPersonalQualityRepository(private val template: R2dbcEntityTemplate) {
     suspend fun save(userPersonalQuality: UserPersonalQuality): UserPersonalQuality =
             template.insert<UserPersonalQuality>().usingAndAwait(userPersonalQuality)
+
+    suspend fun find(profileId: UUID, attitude: Attitude): List<UserPersonalQuality> =
+            template.select<UserPersonalQuality>().matching(query(where("profile_id").`is`(profileId).and("attitude").`is`(attitude)))
+                    .all().collectList().awaitFirst()
 }

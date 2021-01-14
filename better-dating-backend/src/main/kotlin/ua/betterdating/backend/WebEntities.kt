@@ -59,7 +59,8 @@ open class Profile(
         val intimateRelationsOutsideOfMarriage: Recurrence?,
         val pornographyWatching: Recurrence?,
         val personalHealthEvaluation: Int,
-        val eligibleForSecondStage: Boolean? = null // readonly
+        val eligibleForSecondStage: Boolean? = null, // readonly
+        val secondStageData: SecondStageData? = null
 ) {
     init {
         validate(this) {
@@ -120,7 +121,7 @@ data class DeleteProfileData(val token: String, val reason: DeleteReason, val ex
     }
 }
 
-enum class DatingGoals {
+enum class DatingGoal {
     findSoulMate
 }
 
@@ -136,8 +137,8 @@ enum class EyeColor {
     darkBlue, blue, gray, green, amber, olive, brown, black, yellow
 }
 
-data class ActivateSecondStageRequest(
-        val goal: DatingGoals,
+data class SecondStageData(
+        val goal: DatingGoal,
         val populatedLocality: PopulatedLocality,
         val nativeLanguages: List<Language>,
         val appearanceType: AppearanceType,
@@ -146,4 +147,13 @@ data class ActivateSecondStageRequest(
         val interests: List<Interest>,
         val likedPersonalQualities: List<PersonalQuality>,
         val dislikedPersonalQualities: List<PersonalQuality>
-)
+) {
+    init {
+        validate(this) {
+            validate(SecondStageData::nativeLanguages).hasSize(1)
+            validate(SecondStageData::interests).hasSize(1)
+            validate(SecondStageData::likedPersonalQualities).hasSize(1)
+            validate(SecondStageData::dislikedPersonalQualities).hasSize(1)
+        }
+    }
+}

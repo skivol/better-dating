@@ -121,7 +121,7 @@ class BackendApplicationTests {
     private fun givenExistingToken(id: UUID, email: Email): ExpiringToken {
         // Given
         val token = ExpiringToken(type = TokenType.EMAIL_VERIFICATION, profileId = email.id, expires = now().plusMinutes(5), encodedValue = id.toString())
-        coEvery { emailVerificationTokenRepository.findByProfileIdAndType(eq(id), eq(TokenType.EMAIL_VERIFICATION)) } returns token
+        coEvery { emailVerificationTokenRepository.findById(eq(id)) } returns token
         return token
     }
 }

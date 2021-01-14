@@ -32,9 +32,13 @@ class UserProfileHandler(
         private val profileViewHistoryRepository: ProfileViewHistoryRepository,
         private val datingProfileInfoRepository: DatingProfileInfoRepository,
         private val userPopulatedLocalityRepository: UserPopulatedLocalityRepository,
+        private val populatedLocalitiesRepository: PopulatedLocalitiesRepository,
         private val userLanguageRepository: UserLanguageRepository,
+        private val languagesRepository: LanguagesRepository,
         private val userInterestRepository: UserInterestRepository,
+        private val interestsRepository: InterestsRepository,
         private val userPersonalQualityRepository: UserPersonalQualityRepository,
+        private val personalQualitiesRepository: PersonalQualitiesRepository,
         private val logoutHandler: DelegatingServerLogoutHandler,
         private val passwordEncoder: PasswordEncoder,
         private val transactionalOperator: TransactionalOperator,
@@ -239,7 +243,7 @@ class UserProfileHandler(
         val currentUserProfile = currentUserProfile(request)
         if (currentUserProfile.eligibleForSecondStage != true) throw NotEligibleForSecondStageException()
 
-        val body = request.awaitBody<ActivateSecondStageRequest>()
+        val body = request.awaitBody<SecondStageData>()
         transactionalOperator.executeAndAwait {
             datingProfileInfoRepository.save(DatingProfileInfo(currentUserProfile.id!!, body.goal, body.appearanceType, body.naturalHairColor, body.eyeColor))
             userPopulatedLocalityRepository.save(UserPopulatedLocality(currentUserProfile.id!!, body.populatedLocality.id, 0))
@@ -339,10 +343,36 @@ class UserProfileHandler(
         )
         val activities = activityRepository.findLatestByProfileId(profileId, activityNames).collectMap { it.name }.awaitFirst()
         val personalHealthEvaluation = profileEvaluationRepository.findLatestHealthEvaluationByProfileId(profileId)
-        return toWebEntity(email, profileInfo, height, weight, activities, personalHealthEvaluation)
+        return toWebEntity(email, profileInfo, height, weight, activities, personalHealthEvaluation, secondStageProfileInformation(profileId))
     }
 
-    private fun toWebEntity(email: Email, profileInfo: ProfileInfo, height: Height, weight: Weight, activities: Map<String, Activity>, personalHealthEvaluation: ProfileEvaluation): Profile {
+    private suspend fun secondStageProfileInformation(profileId: UUID): SecondStageData? {
+        val datingProfileInfo = datingProfileInfoRepository.find(profileId) ?: return null // return null if second stage is not enabled
+        val userPopulatedLocality = userPopulatedLocalityRepository.find(profileId)
+        val populatedLocality = populatedLocalitiesRepository.findById(userPopulatedLocality.populatedLocalityId)
+        val userLanguages = userLanguageRepository.find(profileId)
+        val nativeLanguages = languagesRepository.findAll(userLanguages.map { it.languageId })
+        val userInterests = userInterestRepository.find(profileId)
+        val interests = interestsRepository.findAll(userInterests.map { it.interestId })
+        val userLikedPersonalQualities = userPersonalQualityRepository.find(profileId, Attitude.likes)
+        val likedPersonalQualities = personalQualitiesRepository.find(userLikedPersonalQualities.map { it.personalQualityId })
+        val userDislikedPersonalQualities = userPersonalQualityRepository.find(profileId, Attitude.dislikes)
+        val dislikedPersonalQualities = personalQualitiesRepository.find(userDislikedPersonalQualities.map { it.personalQualityId })
+
+        return SecondStageData(
+                datingProfileInfo.goal,
+                populatedLocality,
+                nativeLanguages,
+                datingProfileInfo.appearanceType,
+                datingProfileInfo.naturalHairColor,
+                datingProfileInfo.eyeColor,
+                interests,
+                likedPersonalQualities,
+                dislikedPersonalQualities
+        )
+    }
+
+    private fun toWebEntity(email: Email, profileInfo: ProfileInfo, height: Height, weight: Weight, activities: Map<String, Activity>, personalHealthEvaluation: ProfileEvaluation, secondStageProfileInformation: SecondStageData?): Profile {
         val eligibleForSecondStage = activities[intimateRelationsOutsideOfMarriage.name] !== null
                 && activities[pornographyWatching.name] !== null
         return Profile(
@@ -352,7 +382,7 @@ class UserProfileHandler(
                 activities[gambling.name]!!.recurrence, activities[haircut.name]!!.recurrence,
                 activities[hairColoring.name]!!.recurrence, activities[makeup.name]!!.recurrence,
                 activities[intimateRelationsOutsideOfMarriage.name]?.recurrence, activities[pornographyWatching.name]?.recurrence,
-                personalHealthEvaluation.evaluation, eligibleForSecondStage
+                personalHealthEvaluation.evaluation, eligibleForSecondStage, secondStageProfileInformation
         )
     }
 }

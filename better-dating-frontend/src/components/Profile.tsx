@@ -106,13 +106,11 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
       .finally(() => setLoading(false));
   };
   const onSecondStageActivationRequest = (values: any) => {
-    console.log({ values });
     setLoading(true);
     dispatch(actions.activateSecondStage(values))
       .then(() => {
-        // TODO re-enable code
-        // closeDialog();
-        // setDialogType(null);
+        closeDialog();
+        setDialogType(null);
       })
       .finally(() => setLoading(false));
   };
