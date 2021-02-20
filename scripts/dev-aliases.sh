@@ -171,3 +171,9 @@ alias pnbom='wd proj-ui && rm -rf pnpm-lock.yaml node_modules && pnpm i'
 
 # Git
 alias ggpush-fork='git push fork "$(git_current_branch)"'
+
+# Troubleshooting
+troubleshooting-logout() {
+	echo "Disable browser cache!"
+}
+

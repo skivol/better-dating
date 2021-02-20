@@ -1,32 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import { useDispatch } from "react-redux";
 import { FormApi } from "final-form";
 import { Form } from "react-final-form";
-import {
-  Grid,
-  Typography,
-  Paper,
-  Button,
-  ButtonGroup,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Tooltip,
-} from "@material-ui/core";
-import { ToggleButton } from "@material-ui/lab";
+import { AppBar, Tabs, Tab, Grid, Typography, Paper } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faSave,
-  faUserCheck,
-  faLevelUpAlt,
-  faUserMinus,
-  faEllipsisV,
-  faIdCard,
-  faBinoculars,
-} from "@fortawesome/free-solid-svg-icons";
+import { faIdCard } from "@fortawesome/free-solid-svg-icons";
 
 import * as actions from "../actions";
 import {
@@ -38,21 +18,14 @@ import {
 import * as Messages from "./Messages";
 import {
   ProfileFormData,
-  Email,
-  Nickname,
-  Gender,
-  Birthday,
-  Height,
-  Weight,
-  AnalyzedSection,
-  PersonalHealthEvaluation,
-  renderActions,
+  FirstStageProfile,
+  SecondStageProfile,
+  ControlButtons,
+  EllipsisMenu,
   AccountRemovalConfirm,
   ViewOtherUserProfileConfirm,
   SecondStageEnableDialog,
 } from "./profile";
-
-import { SpinnerAdornment } from "./common";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -167,12 +140,21 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
     );
   }
 
+  const [selectedTab, setSelectedTab] = useState(0);
+
+  const handleTabChange = (event: ChangeEvent<unknown>, newTab: number) => {
+    setSelectedTab(newTab);
+  };
+
+  const nameAdjuster = (v: string) => `secondStageData.${v}`;
   return (
     <>
       <Form
         initialValues={initialValues}
         onSubmit={onSubmit}
         render={({ handleSubmit, values, pristine }) => {
+          console.log({ values });
+          const secondStageEnabled = values.secondStageData !== undefined;
           return (
             <form onSubmit={handleSubmit}>
               <Grid
@@ -196,136 +178,54 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
                     </div>
                   </Paper>
                 </Grid>
-                {!readonly && <Email />}
-                <Nickname readonly={readonly} />
-                <Gender readonly={readonly} />
-                <Birthday id="birthday" readonly={readonly} />
 
-                <AnalyzedSection
-                  id="height-weight-analyze"
-                  type="height-weight"
-                  values={values}
-                  visible={showAnalysis}
+                <AppBar
+                  position="static"
+                  color="default"
+                  className="u-margin-top-bottom-15px"
                 >
-                  <Height readonly={readonly} />
-                  <Weight readonly={readonly} />
-                </AnalyzedSection>
-
-                {renderActions(values, showAnalysis, readonly)}
-                <AnalyzedSection
-                  type="summary"
-                  values={values}
-                  visible={showAnalysis}
-                >
-                  <PersonalHealthEvaluation readonly={readonly} />
-                </AnalyzedSection>
-
-                <ButtonGroup
-                  variant="contained"
-                  size="large"
-                  className={`${classes.button} u-center-horizontally`}
-                >
-                  {!readonly && (
-                    <Button
-                      color="primary"
-                      type="submit"
-                      disabled={pristine || saving}
-                      startIcon={
-                        saving ? (
-                          <SpinnerAdornment />
-                        ) : (
-                          <FontAwesomeIcon icon={faSave} />
-                        )
-                      }
-                    >
-                      {Messages.save}
-                    </Button>
-                  )}
-                  <ToggleButton
-                    className="u-color-green"
-                    selected={showAnalysis}
-                    value="analyze"
-                    onChange={() => setShowAnalysis(!showAnalysis)}
+                  <Tabs
+                    value={selectedTab}
+                    onChange={handleTabChange}
+                    variant="fullWidth"
+                    aria-label="simple tabs example"
                   >
-                    <FontAwesomeIcon
-                      className={`${classes.icon} MuiButton-startIcon`}
-                      icon={faUserCheck}
-                    />
-                    {showAnalysis ? Messages.hideAnalysis : Messages.analyze}
-                  </ToggleButton>
-                  {!readonly && (
-                    <Button className="u-color-black" onClick={openMenu}>
-                      <FontAwesomeIcon
-                        className="MuiButton-startIcon"
-                        icon={faEllipsisV}
-                        size="lg"
-                      />
-                    </Button>
-                  )}
-                </ButtonGroup>
+                    <Tab label="Саморазвитие" />
+                    <Tab label="Свидания (Второй этап)" />
+                  </Tabs>
+                </AppBar>
+
+                <FirstStageProfile
+                  readonly={readonly}
+                  values={values}
+                  showAnalysis={showAnalysis}
+                />
+
+                {secondStageEnabled && (
+                  <SecondStageProfile
+                    nameAdjuster={nameAdjuster}
+                    initialValues={values.secondStageData}
+                  />
+                )}
+
+                <ControlButtons
+                  classes={classes}
+                  readonly={readonly}
+                  showAnalysis={showAnalysis}
+                  setShowAnalysis={setShowAnalysis}
+                  openMenu={openMenu}
+                  saving={saving}
+                  pristine={pristine}
+                />
+
                 {!readonly && (
-                  <Menu
-                    id="menu-profile-extra"
+                  <EllipsisMenu
+                    values={values}
                     anchorEl={anchorEl}
-                    anchorOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    keepMounted
-                    transformOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    open={menuIsOpen}
-                    onClose={closeMenu}
-                  >
-                    <Tooltip
-                      arrow
-                      title={
-                        values.eligibleForSecondStage
-                          ? ""
-                          : Messages.nonEligibleForSecondStageReason
-                      }
-                      placement="top"
-                    >
-                      <span>
-                        <MenuItem
-                          onClick={() => showDialog("enableSecondStage")}
-                          disabled={!values.eligibleForSecondStage}
-                        >
-                          <ListItemIcon className="u-color-green u-min-width-30px">
-                            <FontAwesomeIcon
-                              className="MuiButton-startIcon"
-                              icon={faLevelUpAlt}
-                            />
-                          </ListItemIcon>
-                          <ListItemText className="u-color-green">
-                            {Messages.nextLevel}
-                          </ListItemText>
-                        </MenuItem>
-                      </span>
-                    </Tooltip>
-                    <MenuItem onClick={() => showDialog("accountRemoval")}>
-                      <ListItemIcon className="u-color-red u-min-width-30px">
-                        <FontAwesomeIcon
-                          className="MuiButton-startIcon"
-                          icon={faUserMinus}
-                        />
-                      </ListItemIcon>
-                      <ListItemText className="u-color-red">
-                        {Messages.removeProfile}
-                      </ListItemText>
-                    </MenuItem>
-                    <MenuItem onClick={() => showDialog("viewAuthorsProfile")}>
-                      <ListItemIcon className="u-min-width-30px">
-                        <FontAwesomeIcon
-                          className="MuiButton-startIcon"
-                          icon={faBinoculars}
-                        />
-                      </ListItemIcon>
-                      <ListItemText>{Messages.viewAuthorsProfile}</ListItemText>
-                    </MenuItem>
-                  </Menu>
+                    menuIsOpen={menuIsOpen}
+                    closeMenu={closeMenu}
+                    showDialog={showDialog}
+                  />
                 )}
               </Grid>
             </form>

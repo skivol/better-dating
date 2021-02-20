@@ -15,8 +15,12 @@ const showPopulatedLocality = ({ name, region, country }: PopulatedLocality) =>
 
 type Props = {
   initialValue: PopulatedLocality;
+  nameAdjuster: (name: string) => string;
 };
-export const PopulatedLocalityAutocomplete = ({ initialValue }: Props) => {
+export const PopulatedLocalityAutocomplete = ({
+  initialValue,
+  nameAdjuster,
+}: Props) => {
   const [value, setValue] = useState<PopulatedLocality | undefined>(
     initialValue
   );
@@ -54,7 +58,7 @@ export const PopulatedLocalityAutocomplete = ({ initialValue }: Props) => {
     <Autocomplete
       fieldProps={{ validate: required }}
       label={Messages.populatedLocalityWhereOneLives}
-      name="populatedLocality"
+      name={nameAdjuster("populatedLocality")}
       autoComplete
       options={options}
       value={value}

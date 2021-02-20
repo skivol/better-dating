@@ -7,11 +7,11 @@ const goalOptions = [
     value: "findSoulMate",
   },
 ];
-export const GoalSelect = () => (
+export const GoalSelect = ({ nameAdjuster }: any) => (
   <Select
     disabled
     required
-    name="goal"
+    name={nameAdjuster("goal")}
     label={Messages.goal}
     value="findSoulMate"
     data={goalOptions}

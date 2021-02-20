@@ -31,9 +31,9 @@ const naturalHairColorOptions = [
 ].sort((a, b) => (a.label > b.label ? 1 : 0));
 
 const helpLink = "https://ru.wikipedia.org/wiki/Пигментация_волос";
-export const NaturalHairColorSelect = () => (
+export const NaturalHairColorSelect = ({ nameAdjuster }: any) => (
   <Select
-    name="naturalHairColor"
+    name={nameAdjuster("naturalHairColor")}
     helperText={<Link href={helpLink}>{Messages.hairPigmentation}</Link>}
     label={Messages.naturalHairColor}
     data={naturalHairColorOptions}

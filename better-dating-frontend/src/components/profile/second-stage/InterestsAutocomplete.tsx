@@ -12,8 +12,12 @@ const showInterest = ({ name }: Interest) => name;
 
 type Props = {
   initialValues?: Interest[];
+  nameAdjuster: (name: string) => string;
 };
-export const InterestsAutocomplete = ({ initialValues = [] }: Props) => {
+export const InterestsAutocomplete = ({
+  nameAdjuster,
+  initialValues = [],
+}: Props) => {
   const [value, setValue] = useState<Interest[]>(initialValues);
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<Interest[]>(initialValues);
@@ -46,7 +50,7 @@ export const InterestsAutocomplete = ({ initialValues = [] }: Props) => {
       label={Messages.interests}
       helperText={Messages.interestsHelp}
       fieldProps={{ validate: required }}
-      name="interests"
+      name={nameAdjuster("interests")}
       autoComplete
       options={[...value, ...options]}
       filterSelectedOptions

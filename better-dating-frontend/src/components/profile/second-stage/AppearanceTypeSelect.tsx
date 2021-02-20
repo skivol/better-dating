@@ -41,12 +41,14 @@ const appearanceOptions = [
   },
 ].sort((a, b) => (a.label > b.label ? 1 : 0));
 
-export const AppearanceTypeSelect = () => (
-  <Select
-    fieldProps={{ validate: required }}
-    name="appearanceType"
-    label={Messages.appearanceType}
-    data={appearanceOptions}
-    style={{ width: 500 }}
-  />
-);
+export const AppearanceTypeSelect = ({ nameAdjuster }: any) => {
+  return (
+    <Select
+      fieldProps={{ validate: required }}
+      name={nameAdjuster("appearanceType")}
+      label={Messages.appearanceType}
+      data={appearanceOptions}
+      style={{ width: 500 }}
+    />
+  );
+};

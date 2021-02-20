@@ -43,10 +43,10 @@ const eyeColorOptions = [
 ].sort((a, b) => (a.label > b.label ? 1 : 0));
 
 const helpLink = "https://ru.wikipedia.org/wiki/Цвет_глаз";
-export const EyeColorSelect = () => (
+export const EyeColorSelect = ({ nameAdjuster }: any) => (
   <Select
     fieldProps={{ validate: required }}
-    name="eyeColor"
+    name={nameAdjuster("eyeColor")}
     helperText={<Link href={helpLink}>{Messages.wiki}</Link>}
     label={Messages.eyeColor}
     data={eyeColorOptions}

@@ -205,3 +205,13 @@ export const results = "Итоги анализа";
 export const starProfile = "Выдающийся профиль!";
 export const goodProfileButCanBeImproved =
   "Хороший профиль, но можно кое-что улучшить! ;)";
+
+export const save = "Сохранить";
+export const analyze = "Проанализировать";
+export const hideAnalysis = "Скрыть анализ";
+
+export const nonEligibleForSecondStageReason =
+  "Для перехода на следующий этап нужно заполнить всю информацию запрашиваемую на текущем этапе";
+export const nextLevel = "Перейти к следующему этапу";
+export const removeProfile = "Удалить профиль";
+export const viewAuthorsProfile = "Профиль автора";

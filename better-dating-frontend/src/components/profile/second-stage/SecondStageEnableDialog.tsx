@@ -5,22 +5,12 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Grid,
 } from "@material-ui/core";
 import { Form, FormSpy } from "react-final-form";
 import * as Messages from "../../Messages";
-import * as LocalMessages from "./Messages";
 import { storageCreator, currentTime } from "../../../utils";
 import { SpinnerAdornment, ClearButton } from "../../common";
-import { GoalSelect } from "./GoalSelect";
-import { MissingOptionsNotification } from "./MissingOptionsNotification";
-import { PopulatedLocalityAutocomplete } from "./PopulatedLocalityAutocomplete";
-import { NativeLanguagesAutocomplete } from "./NativeLanguagesAutocomplete";
-import { AppearanceTypeSelect } from "./AppearanceTypeSelect";
-import { NaturalHairColorSelect } from "./NaturalHairColorSelect";
-import { EyeColorSelect } from "./EyeColorSelect";
-import { InterestsAutocomplete } from "./InterestsAutocomplete";
-import { PersonalQualityAutocomplete } from "./PersonalQualityAutocomplete";
+import { SecondStageProfile } from ".";
 
 const storage = storageCreator("second-stage-data");
 export const SecondStageEnableDialog = ({
@@ -65,46 +55,7 @@ export const SecondStageEnableDialog = ({
                 }}
               />
               <DialogContent>
-                <Grid
-                  container
-                  direction="column"
-                  className="u-margin-top-bottom-15px u-padding-10px"
-                  spacing={2}
-                >
-                  <MissingOptionsNotification />
-                  <div style={{ margin: 10 }} />
-                  <GoalSelect />
-                  <div style={{ margin: 10 }} />
-                  <PopulatedLocalityAutocomplete
-                    initialValue={initialValues.populatedLocality}
-                  />
-                  <div style={{ margin: 10 }} />
-                  <NativeLanguagesAutocomplete
-                    initialValues={initialValues.nativeLanguages}
-                  />
-                  <div style={{ margin: 10 }} />
-                  <AppearanceTypeSelect />
-                  <div style={{ margin: 10 }} />
-                  <NaturalHairColorSelect />
-                  <div style={{ margin: 10 }} />
-                  <EyeColorSelect />
-                  <div style={{ margin: 10 }} />
-                  <InterestsAutocomplete
-                    initialValues={initialValues.interests}
-                  />
-                  <div style={{ margin: 10 }} />
-                  <PersonalQualityAutocomplete
-                    name="likedPersonalQualities"
-                    initialValues={initialValues.likedPersonalQualities}
-                    label={LocalMessages.likedPersonalQualities}
-                  />
-                  <div style={{ margin: 10 }} />
-                  <PersonalQualityAutocomplete
-                    name="dislikedPersonalQualities"
-                    initialValues={initialValues.dislikedPersonalQualities}
-                    label={LocalMessages.dislikedPersonalQualities}
-                  />
-                </Grid>
+                <SecondStageProfile initialValues={initialValues} />
               </DialogContent>
               <DialogActions>
                 <Button onClick={closeDialog} color="secondary">

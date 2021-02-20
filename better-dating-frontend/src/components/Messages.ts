@@ -133,18 +133,9 @@ export const personalHealthEvaluation =
 export const personalHealthEvaluationCriteria =
   "Критерии: состояние кожи / волос / ногтей / глаз, радость от движения, легкость выполнения физических упражнений, гибкость мышления, управление вниманием, легкость принятия волевых решений.";
 
-export const save = "Сохранить";
-export const analyze = "Проанализировать";
-export const hideAnalysis = "Скрыть анализ";
-
-export const nextLevel = "Перейти к следующему этапу";
-export const nonEligibleForSecondStageReason =
-  "Для перехода на следующий этап нужно заполнить всю информацию запрашиваемую на текущем этапе";
 export const secondStageDialogTitle =
   "Активация второго этапа (свидания и встречи)";
 
-export const removeProfile = "Удалить профиль";
-export const viewAuthorsProfile = "Профиль автора";
 export const areYouSureThatWantToRemoveProfile =
   "Вы уверены, что хотите удалить свой профиль?";
 export const thisActionIsIrreversible = "Это действие нельзя будет отменить!";

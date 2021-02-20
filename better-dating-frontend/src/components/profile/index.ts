@@ -12,4 +12,8 @@ export * from "./SubmitButton";
 export * from "./Weight";
 export * from "./AccountRemovalConfirm";
 export * from "./ViewOtherUserProfileConfirm";
+export * from "./FirstStageProfile";
+export * from "./EllipsisMenu";
+export * from "./ControlButtons";
 export * from "./second-stage/SecondStageEnableDialog";
+export * from "./second-stage/SecondStageProfile";

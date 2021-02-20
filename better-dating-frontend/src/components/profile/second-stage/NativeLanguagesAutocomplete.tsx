@@ -13,8 +13,12 @@ const showLanguage = ({ name }: Language) => name;
 // TODO generalize and extract common autocomplete functionality ?
 type Props = {
   initialValues?: Language[];
+  nameAdjuster: (name: string) => string;
 };
-export const NativeLanguagesAutocomplete = ({ initialValues = [] }: Props) => {
+export const NativeLanguagesAutocomplete = ({
+  nameAdjuster,
+  initialValues = [],
+}: Props) => {
   const [value, setValue] = useState<Language[]>(initialValues);
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<Language[]>(initialValues);
@@ -45,7 +49,7 @@ export const NativeLanguagesAutocomplete = ({ initialValues = [] }: Props) => {
     <Autocomplete
       multiple
       label={Messages.nativeLanguages}
-      name="nativeLanguages"
+      name={nameAdjuster("nativeLanguages")}
       fieldProps={{ validate: required }}
       autoComplete
       options={[...value, ...options]}
