@@ -13,6 +13,7 @@ export const ControlButtons = ({
   classes,
   readonly,
   showAnalysis,
+  analysisButtonAvailable,
   setShowAnalysis,
   openMenu,
   saving,
@@ -21,7 +22,7 @@ export const ControlButtons = ({
   <ButtonGroup
     variant="contained"
     size="large"
-    className={`${classes.button} u-center-horizontally`}
+    className={`${classes.button} u-center-horizontally u-margin-top-bottom`}
   >
     {!readonly && (
       <Button
@@ -35,18 +36,20 @@ export const ControlButtons = ({
         {Messages.save}
       </Button>
     )}
-    <ToggleButton
-      className="u-color-green"
-      selected={showAnalysis}
-      value="analyze"
-      onChange={() => setShowAnalysis(!showAnalysis)}
-    >
-      <FontAwesomeIcon
-        className={`${classes.icon} MuiButton-startIcon`}
-        icon={faUserCheck}
-      />
-      {showAnalysis ? Messages.hideAnalysis : Messages.analyze}
-    </ToggleButton>
+    {analysisButtonAvailable && (
+      <ToggleButton
+        className="u-color-green"
+        selected={showAnalysis}
+        value="analyze"
+        onChange={() => setShowAnalysis(!showAnalysis)}
+      >
+        <FontAwesomeIcon
+          className={`${classes.icon} MuiButton-startIcon`}
+          icon={faUserCheck}
+        />
+        {showAnalysis ? Messages.hideAnalysis : Messages.analyze}
+      </ToggleButton>
+    )}
     {!readonly && (
       <Button className="u-color-black" onClick={openMenu}>
         <FontAwesomeIcon

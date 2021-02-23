@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Autocomplete } from "mui-rff";
 import { debounce, getData, required } from "../../../utils";
+import { PaperGrid } from "../../common";
 import * as Messages from "./Messages";
 
 type Interest = {
@@ -45,29 +46,30 @@ export const InterestsAutocomplete = ({
   }, [inputValue, debouncedInterestsAutocomplete]);
 
   return (
-    <Autocomplete
-      multiple
-      label={Messages.interests}
-      helperText={Messages.interestsHelp}
-      fieldProps={{ validate: required }}
-      name={nameAdjuster("interests")}
-      autoComplete
-      options={[...value, ...options]}
-      filterSelectedOptions
-      value={value}
-      onChange={(event: any, newValue: Interest | null) => {
-        setValue(newValue);
-      }}
-      onInputChange={(event, newInputValue) => {
-        setInputValue(newInputValue);
-      }}
-      getOptionValue={(interest: Interest) => interest}
-      getOptionSelected={({ id: optionId }, { id: valueId }) =>
-        optionId === valueId
-      }
-      getOptionLabel={showInterest}
-      style={{ width: 500 }}
-      renderOption={showInterest}
-    />
+    <PaperGrid>
+      <Autocomplete
+        multiple
+        label={Messages.interests}
+        helperText={Messages.interestsHelp}
+        fieldProps={{ validate: required }}
+        name={nameAdjuster("interests")}
+        autoComplete
+        options={[...value, ...options]}
+        filterSelectedOptions
+        value={value}
+        onChange={(event: any, newValue: Interest | null) => {
+          setValue(newValue);
+        }}
+        onInputChange={(event, newInputValue) => {
+          setInputValue(newInputValue);
+        }}
+        getOptionValue={(interest: Interest) => interest}
+        getOptionSelected={({ id: optionId }, { id: valueId }) =>
+          optionId === valueId
+        }
+        getOptionLabel={showInterest}
+        renderOption={showInterest}
+      />
+    </PaperGrid>
   );
 };

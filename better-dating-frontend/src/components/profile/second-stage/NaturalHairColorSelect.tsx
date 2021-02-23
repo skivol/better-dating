@@ -1,6 +1,7 @@
 import { Link } from "@material-ui/core";
 import { Select } from "mui-rff";
 import { required } from "../../../utils";
+import { PaperGrid } from "../../common";
 import * as Messages from "./Messages";
 
 const naturalHairColorOptions = [
@@ -32,12 +33,13 @@ const naturalHairColorOptions = [
 
 const helpLink = "https://ru.wikipedia.org/wiki/Пигментация_волос";
 export const NaturalHairColorSelect = ({ nameAdjuster }: any) => (
-  <Select
-    name={nameAdjuster("naturalHairColor")}
-    helperText={<Link href={helpLink}>{Messages.hairPigmentation}</Link>}
-    label={Messages.naturalHairColor}
-    data={naturalHairColorOptions}
-    fieldProps={{ validate: required }}
-    style={{ width: 500 }}
-  />
+  <PaperGrid>
+    <Select
+      name={nameAdjuster("naturalHairColor")}
+      helperText={<Link href={helpLink}>{Messages.hairPigmentation}</Link>}
+      label={Messages.naturalHairColor}
+      data={naturalHairColorOptions}
+      fieldProps={{ validate: required }}
+    />
+  </PaperGrid>
 );

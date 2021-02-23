@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Autocomplete } from "mui-rff";
 import { debounce, getData, required } from "../../../utils";
+import { PaperGrid } from "../../common";
 
 type PersonalQuality = {
   id: string;
@@ -52,28 +53,29 @@ export const PersonalQualityAutocomplete = ({
 
   // https://github.com/mui-org/material-ui/issues/18514
   return (
-    <Autocomplete
-      multiple
-      label={label}
-      name={name}
-      fieldProps={{ validate: required }}
-      autoComplete
-      options={[...value, ...options]}
-      filterSelectedOptions
-      value={value}
-      onChange={(event: any, newValue: PersonalQuality | null) => {
-        setValue(newValue);
-      }}
-      onInputChange={(event, newInputValue) => {
-        setInputValue(newInputValue);
-      }}
-      getOptionValue={(personalQuality: PersonalQuality) => personalQuality}
-      getOptionLabel={showPersonalQuality}
-      getOptionSelected={({ id: optionId }, { id: valueId }) =>
-        optionId === valueId
-      }
-      renderOption={showPersonalQuality}
-      style={{ width: 500 }}
-    />
+    <PaperGrid>
+      <Autocomplete
+        multiple
+        label={label}
+        name={name}
+        fieldProps={{ validate: required }}
+        autoComplete
+        options={[...value, ...options]}
+        filterSelectedOptions
+        value={value}
+        onChange={(event: any, newValue: PersonalQuality | null) => {
+          setValue(newValue);
+        }}
+        onInputChange={(event, newInputValue) => {
+          setInputValue(newInputValue);
+        }}
+        getOptionValue={(personalQuality: PersonalQuality) => personalQuality}
+        getOptionLabel={showPersonalQuality}
+        getOptionSelected={({ id: optionId }, { id: valueId }) =>
+          optionId === valueId
+        }
+        renderOption={showPersonalQuality}
+      />
+    </PaperGrid>
   );
 };

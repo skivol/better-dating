@@ -1,5 +1,6 @@
 import { Select } from "mui-rff";
 import * as Messages from "./Messages";
+import { PaperGrid } from "../../common";
 
 const goalOptions = [
   {
@@ -8,13 +9,14 @@ const goalOptions = [
   },
 ];
 export const GoalSelect = ({ nameAdjuster }: any) => (
-  <Select
-    disabled
-    required
-    name={nameAdjuster("goal")}
-    label={Messages.goal}
-    value="findSoulMate"
-    data={goalOptions}
-    style={{ width: 500 }}
-  />
+  <PaperGrid>
+    <Select
+      disabled
+      required
+      name={nameAdjuster("goal")}
+      label={Messages.goal}
+      value="findSoulMate"
+      data={goalOptions}
+    />
+  </PaperGrid>
 );

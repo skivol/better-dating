@@ -215,3 +215,16 @@ export const nonEligibleForSecondStageReason =
 export const nextLevel = "Перейти к следующему этапу";
 export const removeProfile = "Удалить профиль";
 export const viewAuthorsProfile = "Профиль автора";
+
+export const personalHealthEvaluationCriteria =
+  "Критерии: состояние кожи / волос / ногтей / глаз, радость от движения, легкость выполнения физических упражнений, гибкость мышления, управление вниманием, легкость принятия волевых решений.";
+export const awful = "Ужасное";
+export const soSo = "Так себе";
+export const weak = "Слабое";
+export const notBad = "Ничего";
+export const normalHealth = "Нормальное";
+export const aboveAverage = "Выше среднего";
+export const good = "Хорошее";
+export const goodPlus = "Хорошее+";
+export const wonderful = "Замечательное";
+export const cantBeBetter = "Лучше некуда";

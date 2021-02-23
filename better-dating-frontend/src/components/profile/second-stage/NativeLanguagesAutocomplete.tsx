@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Autocomplete } from "mui-rff";
 import { debounce, getData, required } from "../../../utils";
+import { PaperGrid } from "../../common";
 import * as Messages from "./Messages";
 
 type Language = {
@@ -46,28 +47,29 @@ export const NativeLanguagesAutocomplete = ({
   }, [inputValue, debouncedLanguagesAutocomplete]);
 
   return (
-    <Autocomplete
-      multiple
-      label={Messages.nativeLanguages}
-      name={nameAdjuster("nativeLanguages")}
-      fieldProps={{ validate: required }}
-      autoComplete
-      options={[...value, ...options]}
-      filterSelectedOptions
-      value={value}
-      onChange={(event: any, newValue: Language | null) => {
-        setValue(newValue);
-      }}
-      onInputChange={(event, newInputValue) => {
-        setInputValue(newInputValue);
-      }}
-      getOptionValue={(language: Language) => language}
-      getOptionSelected={({ id: optionId }, { id: valueId }) =>
-        optionId === valueId
-      }
-      getOptionLabel={showLanguage}
-      style={{ width: 500 }}
-      renderOption={showLanguage}
-    />
+    <PaperGrid>
+      <Autocomplete
+        multiple
+        label={Messages.nativeLanguages}
+        name={nameAdjuster("nativeLanguages")}
+        fieldProps={{ validate: required }}
+        autoComplete
+        options={[...value, ...options]}
+        filterSelectedOptions
+        value={value}
+        onChange={(event: any, newValue: Language | null) => {
+          setValue(newValue);
+        }}
+        onInputChange={(event, newInputValue) => {
+          setInputValue(newInputValue);
+        }}
+        getOptionValue={(language: Language) => language}
+        getOptionSelected={({ id: optionId }, { id: valueId }) =>
+          optionId === valueId
+        }
+        getOptionLabel={showLanguage}
+        renderOption={showLanguage}
+      />
+    </PaperGrid>
   );
 };

@@ -1,5 +1,4 @@
 import { Select } from "mui-rff";
-import { Grid, Paper } from "@material-ui/core";
 import {
   physicalExerciseOptions,
   smokingOptions,
@@ -13,6 +12,7 @@ import {
   pornographyWatchingOptions,
   required,
 } from "../../utils";
+import { PaperGrid } from "../common";
 import * as Messages from "../Messages";
 import { AnalyzedSection } from ".";
 
@@ -116,22 +116,17 @@ const actionSelect = (values: any, showAnalysis = false, readonly = false) => ({
     visible={showAnalysis}
     type={analysisType}
   >
-    <Grid item key={name}>
-      <Paper
-        elevation={3}
-        className="u-padding-16px u-center-horizontally u-max-width-450px"
-      >
-        <Select
-          disabled={readonly}
-          required={required}
-          fieldProps={{ validate }}
-          name={name}
-          label={label}
-          data={data}
-          helperText={helperText}
-        />
-      </Paper>
-    </Grid>
+    <PaperGrid>
+      <Select
+        disabled={readonly}
+        required={required}
+        fieldProps={{ validate }}
+        name={name}
+        label={label}
+        data={data}
+        helperText={helperText}
+      />
+    </PaperGrid>
   </AnalyzedSection>
 );
 

@@ -100,7 +100,8 @@ const Header = (): ReactElement => {
   return (
     <>
       <HideOnScroll>
-        <AppBar>
+        {/** to beat the one used for tabs */}
+        <AppBar style={{ zIndex: 1101 }}>
           <Toolbar>
             <IconButton
               className={classes.marginRight}

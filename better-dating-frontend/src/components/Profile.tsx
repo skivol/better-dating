@@ -2,7 +2,15 @@ import { useState, useEffect, ChangeEvent } from "react";
 import { useDispatch } from "react-redux";
 import { FormApi } from "final-form";
 import { Form } from "react-final-form";
-import { AppBar, Tabs, Tab, Grid, Typography, Paper } from "@material-ui/core";
+import {
+  AppBar,
+  Tabs,
+  Tab,
+  Grid,
+  Typography,
+  Paper,
+  TabPanelProps,
+} from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -37,6 +45,16 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
+
+const TabPanel = (props: TabPanelProps) => {
+  const { children, value, index } = props;
+  if (value !== index) {
+    return null;
+  }
+
+  // consider example from https://material-ui.com/ru/components/tabs/#simple-tabs ?
+  return children;
+};
 
 type Props = {
   profileData: ProfileFormData;
@@ -161,7 +179,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
                 container
                 direction="column"
                 className="u-margin-top-bottom-15px u-padding-10px"
-                spacing={2}
+                spacing={3}
               >
                 <Grid item>
                   <Paper
@@ -179,54 +197,68 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
                   </Paper>
                 </Grid>
 
-                <AppBar
-                  position="static"
-                  color="default"
-                  className="u-margin-top-bottom-15px"
-                >
+                <AppBar position="static" color="default">
                   <Tabs
                     value={selectedTab}
                     onChange={handleTabChange}
                     variant="fullWidth"
-                    aria-label="simple tabs example"
+                    aria-label={Messages.profileTabsAria}
                   >
-                    <Tab label="Саморазвитие" />
-                    <Tab label="Свидания (Второй этап)" />
+                    <Tab label={Messages.selfDevelopmentTab} />
+                    {secondStageEnabled && (
+                      <Tab label={Messages.datingProfileTab} />
+                    )}
                   </Tabs>
                 </AppBar>
 
-                <FirstStageProfile
-                  readonly={readonly}
-                  values={values}
-                  showAnalysis={showAnalysis}
-                />
+                <Grid
+                  container
+                  direction="column"
+                  spacing={2}
+                  className="u-padding-10px"
+                >
+                  <Paper className="u-padding-10px">
+                    <TabPanel value={selectedTab} index={0}>
+                      <FirstStageProfile
+                        readonly={readonly}
+                        values={values}
+                        showAnalysis={showAnalysis}
+                      />
+                    </TabPanel>
 
-                {secondStageEnabled && (
-                  <SecondStageProfile
-                    nameAdjuster={nameAdjuster}
-                    initialValues={values.secondStageData}
-                  />
-                )}
+                    {secondStageEnabled && (
+                      <TabPanel value={selectedTab} index={1}>
+                        <SecondStageProfile
+                          nameAdjuster={nameAdjuster}
+                          initialValues={values.secondStageData}
+                        />
+                      </TabPanel>
+                    )}
 
-                <ControlButtons
-                  classes={classes}
-                  readonly={readonly}
-                  showAnalysis={showAnalysis}
-                  setShowAnalysis={setShowAnalysis}
-                  openMenu={openMenu}
-                  saving={saving}
-                  pristine={pristine}
-                />
+                    <Grid item className="u-display-flex">
+                      <ControlButtons
+                        classes={classes}
+                        readonly={readonly}
+                        showAnalysis={showAnalysis}
+                        analysisButtonAvailable={selectedTab === 0}
+                        setShowAnalysis={setShowAnalysis}
+                        openMenu={openMenu}
+                        saving={saving}
+                        pristine={pristine}
+                      />
+                    </Grid>
 
-                {!readonly && (
-                  <EllipsisMenu
-                    values={values}
-                    anchorEl={anchorEl}
-                    menuIsOpen={menuIsOpen}
-                    closeMenu={closeMenu}
-                    showDialog={showDialog}
-                  />
-                )}
+                    {!readonly && (
+                      <EllipsisMenu
+                        values={values}
+                        anchorEl={anchorEl}
+                        menuIsOpen={menuIsOpen}
+                        closeMenu={closeMenu}
+                        showDialog={showDialog}
+                      />
+                    )}
+                  </Paper>
+                </Grid>
               </Grid>
             </form>
           );

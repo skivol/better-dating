@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { PaperGrid } from "../../common";
 import { Autocomplete } from "mui-rff";
 import { debounce, getData, required } from "../../../utils";
 import * as Messages from "./Messages";
@@ -55,23 +56,24 @@ export const PopulatedLocalityAutocomplete = ({
   }, [inputValue, debouncedPopulatedLocalitiesAutocomplete]);
 
   return (
-    <Autocomplete
-      fieldProps={{ validate: required }}
-      label={Messages.populatedLocalityWhereOneLives}
-      name={nameAdjuster("populatedLocality")}
-      autoComplete
-      options={options}
-      value={value}
-      onChange={(event: any, newValue: PopulatedLocality | null) => {
-        setValue(newValue);
-      }}
-      onInputChange={(event, newInputValue) => {
-        setInputValue(newInputValue);
-      }}
-      getOptionValue={(locality: PopulatedLocality) => locality}
-      getOptionLabel={showPopulatedLocality}
-      style={{ width: 500 }}
-      renderOption={showPopulatedLocality}
-    />
+    <PaperGrid>
+      <Autocomplete
+        fieldProps={{ validate: required }}
+        label={Messages.populatedLocalityWhereOneLives}
+        name={nameAdjuster("populatedLocality")}
+        autoComplete
+        options={options}
+        value={value}
+        onChange={(event: any, newValue: PopulatedLocality | null) => {
+          setValue(newValue);
+        }}
+        onInputChange={(event, newInputValue) => {
+          setInputValue(newInputValue);
+        }}
+        getOptionValue={(locality: PopulatedLocality) => locality}
+        getOptionLabel={showPopulatedLocality}
+        renderOption={showPopulatedLocality}
+      />
+    </PaperGrid>
   );
 };

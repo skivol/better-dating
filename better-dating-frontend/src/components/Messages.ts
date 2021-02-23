@@ -130,8 +130,6 @@ export const pornographyWatching = "Просмотр порнографии";
 
 export const personalHealthEvaluation =
   "Личная оценка физического и психического здоровья на данный момент";
-export const personalHealthEvaluationCriteria =
-  "Критерии: состояние кожи / волос / ногтей / глаз, радость от движения, легкость выполнения физических упражнений, гибкость мышления, управление вниманием, легкость принятия волевых решений.";
 
 export const secondStageDialogTitle =
   "Активация второго этапа (свидания и встречи)";
@@ -163,3 +161,7 @@ export const removedNumber = (number: any) =>
 export const unauthorized = "Не достаточно прав для просмотра этой страницы";
 export const testEmail = "Тестовое письмо";
 export const testEmailWasSent = "Тестовое письмо было отправлено";
+
+export const profileTabsAria = "Табы профиля";
+export const selfDevelopmentTab = "Саморазвитие";
+export const datingProfileTab = "Свидания (Второй этап)";

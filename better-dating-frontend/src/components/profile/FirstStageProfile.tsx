@@ -1,3 +1,4 @@
+import { Grid } from "@material-ui/core";
 import {
   Email,
   Nickname,
@@ -11,7 +12,7 @@ import {
 } from ".";
 
 export const FirstStageProfile = ({ readonly, values, showAnalysis }: any) => (
-  <>
+  <Grid container direction="column" className="u-padding-10px" spacing={2}>
     {!readonly && <Email />}
     <Nickname readonly={readonly} />
     <Gender readonly={readonly} />
@@ -31,5 +32,5 @@ export const FirstStageProfile = ({ readonly, values, showAnalysis }: any) => (
     <AnalyzedSection type="summary" values={values} visible={showAnalysis}>
       <PersonalHealthEvaluation readonly={readonly} />
     </AnalyzedSection>
-  </>
+  </Grid>
 );

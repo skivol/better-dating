@@ -1,6 +1,7 @@
 import { Link } from "@material-ui/core";
 import { Select } from "mui-rff";
 import { required } from "../../../utils";
+import { PaperGrid } from "../../common";
 import * as Messages from "./Messages";
 
 const eyeColorOptions = [
@@ -44,12 +45,13 @@ const eyeColorOptions = [
 
 const helpLink = "https://ru.wikipedia.org/wiki/Цвет_глаз";
 export const EyeColorSelect = ({ nameAdjuster }: any) => (
-  <Select
-    fieldProps={{ validate: required }}
-    name={nameAdjuster("eyeColor")}
-    helperText={<Link href={helpLink}>{Messages.wiki}</Link>}
-    label={Messages.eyeColor}
-    data={eyeColorOptions}
-    style={{ width: 500 }}
-  />
+  <PaperGrid>
+    <Select
+      fieldProps={{ validate: required }}
+      name={nameAdjuster("eyeColor")}
+      helperText={<Link href={helpLink}>{Messages.wiki}</Link>}
+      label={Messages.eyeColor}
+      data={eyeColorOptions}
+    />
+  </PaperGrid>
 );
