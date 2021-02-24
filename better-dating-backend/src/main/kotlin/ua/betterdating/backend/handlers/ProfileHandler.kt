@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
 import ua.betterdating.backend.TokenType.VIEW_OTHER_USER_PROFILE
+import ua.betterdating.backend.utils.*
 import java.util.*
 
 class UserProfileHandler(
@@ -102,19 +103,19 @@ class UserProfileHandler(
     }
 
     suspend fun updateProfile(request: ServerRequest): ServerResponse {
-        val profile = request.awaitBody<Profile>()
-        val existingProfile = currentUserProfile(request)
-        val changedEmail = changedEmail(existingProfile, profile)
-        val changedProfileInfo = changedProfileInfo(existingProfile, profile)
-        val changedHeight = changedHeight(existingProfile, profile)
-        val changedWeight = changedWeight(existingProfile, profile)
-        val changedActivities = changedActivities(existingProfile, profile)
-        val changedHealthEvaluation = changedHealthEvaluation(existingProfile, profile)
+        val updated = request.awaitBody<Profile>()
+        val existing = currentUserProfile(request)
+        val changedEmail = changedEmail(existing, updated)
+        val changedProfileInfo = changedProfileInfo(existing, updated)
+        val changedHeight = changedHeight(existing, updated)
+        val changedWeight = changedWeight(existing, updated)
+        val changedActivities = changedActivities(existing, updated)
+        val changedHealthEvaluation = changedHealthEvaluation(existing, updated)
 
         transactionalOperator.executeAndAwait {
             changedEmail?.let {
                 emailRepository.update(it)
-                freemarkerMailSender.sendChangeMailNotificationToOldAddress(existingProfile.email)
+                freemarkerMailSender.sendChangeMailNotificationToOldAddress(existing.email)
                 val subject = "Подтверждение новой почты"
                 freemarkerMailSender.generateAndSendEmailVerificationToken(
                         it.id, "ChangeEmailVerification.ftlh",
@@ -133,6 +134,38 @@ class UserProfileHandler(
             changedWeight?.let { weightRepository.save(it) }
             changedActivities.forEach { activityRepository.save(it) }
             changedHealthEvaluation?.let { profileEvaluationRepository.save(it) }
+
+            if (existing.secondStageData != null && updated.secondStageData != null) {
+                val changedDatingProfileInfo = changedDatingProfileInfo(existing, updated)
+                changedDatingProfileInfo?.let { datingProfileInfoRepository.update(it) }
+
+                val changedPopulatedLocality = changedPopulatedLocality(existing, updated)
+                changedPopulatedLocality?.let { userPopulatedLocalityRepository.update(it) }
+
+                val changedNativeLanguages = changedNativeLanguages(existing, updated)
+                changedNativeLanguages?.let {
+                    userLanguageRepository.delete(existing.id!!)
+                    it.forEach { userLanguage -> userLanguageRepository.save(userLanguage) }
+                }
+
+                val changedInterests = changedInterests(existing, updated)
+                changedInterests?.let {
+                    userInterestRepository.delete(existing.id!!)
+                    it.forEach { userInterest -> userInterestRepository.save(userInterest) }
+                }
+
+                val changedLikedPersonalQualities = changedLikedPersonalQualities(existing, updated)
+                changedLikedPersonalQualities?.let {
+                    userPersonalQualityRepository.delete(existing.id!!, Attitude.likes)
+                    it.forEach { likedQuality -> userPersonalQualityRepository.save(likedQuality) }
+                }
+
+                val changedDislikedPersonalQualities = changedDislikedPersonalQualities(existing, updated)
+                changedDislikedPersonalQualities?.let {
+                    userPersonalQualityRepository.delete(existing.id!!, Attitude.dislikes)
+                    it.forEach { dislikedQuality -> userPersonalQualityRepository.save(dislikedQuality) }
+                }
+            }
         }
 
         return ok().json().bodyValueAndAwait(currentUserProfile(request))
@@ -255,76 +288,6 @@ class UserProfileHandler(
         return okEmptyJsonObject()
     }
 
-    private fun changedHealthEvaluation(existingProfile: Profile, profile: Profile) = if (existingProfile.personalHealthEvaluation != profile.personalHealthEvaluation) {
-        ProfileEvaluation(existingProfile.id!!, existingProfile.id!!, now(), profile.personalHealthEvaluation, null)
-    } else {
-        null
-    }
-
-    private fun changedActivities(existingProfile: Profile, profile: Profile): List<Activity> {
-        val changedActivities = mutableListOf<Activity>()
-        val now = now()
-        if (existingProfile.physicalExercise != profile.physicalExercise) {
-            changedActivities.add(Activity(existingProfile.id!!, physicalExercise.name, now, profile.physicalExercise))
-        }
-        if (existingProfile.smoking != profile.smoking) {
-            changedActivities.add(Activity(existingProfile.id!!, smoking.name, now, profile.smoking))
-        }
-        if (existingProfile.alcohol != profile.alcohol) {
-            changedActivities.add(Activity(existingProfile.id!!, alcohol.name, now, profile.alcohol))
-        }
-        if (existingProfile.computerGames != profile.computerGames) {
-            changedActivities.add(Activity(existingProfile.id!!, computerGames.name, now, profile.computerGames))
-        }
-        if (existingProfile.gambling != profile.gambling) {
-            changedActivities.add(Activity(existingProfile.id!!, gambling.name, now, profile.gambling))
-        }
-        if (existingProfile.haircut != profile.haircut) {
-            changedActivities.add(Activity(existingProfile.id!!, haircut.name, now, profile.haircut))
-        }
-        if (existingProfile.hairColoring != profile.hairColoring) {
-            changedActivities.add(Activity(existingProfile.id!!, hairColoring.name, now, profile.hairColoring))
-        }
-        if (existingProfile.makeup != profile.makeup) {
-            changedActivities.add(Activity(existingProfile.id!!, makeup.name, now, profile.makeup))
-        }
-        if (profile.intimateRelationsOutsideOfMarriage != null && existingProfile.intimateRelationsOutsideOfMarriage != profile.intimateRelationsOutsideOfMarriage) {
-            changedActivities.add(Activity(existingProfile.id!!, intimateRelationsOutsideOfMarriage.name, now, profile.intimateRelationsOutsideOfMarriage))
-        }
-        if (profile.pornographyWatching != null && existingProfile.pornographyWatching != profile.pornographyWatching) {
-            changedActivities.add(Activity(existingProfile.id!!, pornographyWatching.name, now, profile.pornographyWatching))
-        }
-        return changedActivities
-    }
-
-    private fun changedWeight(existingProfile: Profile, profile: Profile) = if (existingProfile.weight != profile.weight) {
-        Weight(existingProfile.id!!, now(), profile.weight)
-    } else {
-        null
-    }
-
-    private fun changedHeight(existingProfile: Profile, profile: Profile) = if (existingProfile.height != profile.height) {
-        Height(existingProfile.id!!, now(), profile.height)
-    } else {
-        null
-    }
-
-    private fun changedProfileInfo(existingProfile: Profile, profile: Profile) = if (
-            existingProfile.nickname != profile.nickname
-            || existingProfile.gender != profile.gender
-            || existingProfile.birthday != profile.birthday
-    ) {
-        ProfileInfo(existingProfile.id!!, profile.nickname, profile.gender, profile.birthday, null, now())
-    } else {
-        null
-    }
-
-    private fun changedEmail(existingProfile: Profile, profile: Profile) = if (existingProfile.email != profile.email) {
-        Email(profile.email, false, existingProfile.id!!)
-    } else {
-        null
-    }
-
     private suspend fun currentUserProfile(request: ServerRequest): Profile {
         val principal = request.principal().awaitFirst()
         return existingProfileById(UUID.fromString(principal.name))
@@ -369,20 +332,6 @@ class UserProfileHandler(
                 interests,
                 likedPersonalQualities,
                 dislikedPersonalQualities
-        )
-    }
-
-    private fun toWebEntity(email: Email, profileInfo: ProfileInfo, height: Height, weight: Weight, activities: Map<String, Activity>, personalHealthEvaluation: ProfileEvaluation, secondStageProfileInformation: SecondStageData?): Profile {
-        val eligibleForSecondStage = activities[intimateRelationsOutsideOfMarriage.name] !== null
-                && activities[pornographyWatching.name] !== null
-        return Profile(
-                email.id, email.email, profileInfo.nickname, profileInfo.gender, profileInfo.birthday, height.height, weight.weight,
-                activities[physicalExercise.name]!!.recurrence, activities[smoking.name]!!.recurrence,
-                activities[alcohol.name]!!.recurrence, activities[computerGames.name]!!.recurrence,
-                activities[gambling.name]!!.recurrence, activities[haircut.name]!!.recurrence,
-                activities[hairColoring.name]!!.recurrence, activities[makeup.name]!!.recurrence,
-                activities[intimateRelationsOutsideOfMarriage.name]?.recurrence, activities[pornographyWatching.name]?.recurrence,
-                personalHealthEvaluation.evaluation, eligibleForSecondStage, secondStageProfileInformation
         )
     }
 }

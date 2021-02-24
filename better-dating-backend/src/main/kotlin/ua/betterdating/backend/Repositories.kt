@@ -308,6 +308,15 @@ class DatingProfileInfoRepository(private val template: R2dbcEntityTemplate) {
     suspend fun find(profileId: UUID): DatingProfileInfo? =
             template.select<DatingProfileInfo>().matching(query(where("profile_id").`is`(profileId)))
                     .awaitFirstOrNull()
+
+    suspend fun update(updated: DatingProfileInfo) =
+            template.update<DatingProfileInfo>()
+                    .matching(query(where("profile_id").`is`(updated.profileId)))
+                    .apply(update("goal", updated.goal)
+                            .set("appearance_type", updated.appearanceType)
+                            .set("natural_hair_color", updated.naturalHairColor)
+                            .set("eye_color", updated.eyeColor)
+                    ).awaitSingle()
 }
 
 class UserPopulatedLocalityRepository(private val template: R2dbcEntityTemplate) {
@@ -317,6 +326,11 @@ class UserPopulatedLocalityRepository(private val template: R2dbcEntityTemplate)
     suspend fun find(profileId: UUID): UserPopulatedLocality =
             template.select<UserPopulatedLocality>().matching(query(where("profile_id").`is`(profileId)))
                     .awaitFirst()
+
+    suspend fun update(updated: UserPopulatedLocality) =
+            template.update<UserPopulatedLocality>()
+                    .matching(query(where("profile_id").`is`(updated.profileId).and("position").`is`(updated.position)))
+                    .apply(update("populated_locality_id", updated.populatedLocalityId)).awaitSingle()
 }
 
 class UserLanguageRepository(private val template: R2dbcEntityTemplate) {
@@ -326,6 +340,9 @@ class UserLanguageRepository(private val template: R2dbcEntityTemplate) {
     suspend fun find(profileId: UUID): List<UserLanguage> = template.select<UserLanguage>()
             .matching(query(where("profile_id").`is`(profileId)))
             .all().collectList().awaitFirst()
+
+    suspend fun delete(profileId: UUID) = template.delete<UserLanguage>()
+            .matching(query(where("profile_id").`is`(profileId))).allAndAwait()
 }
 
 class UserInterestRepository(private val template: R2dbcEntityTemplate) {
@@ -336,6 +353,9 @@ class UserInterestRepository(private val template: R2dbcEntityTemplate) {
             template.select<UserInterest>()
                     .matching(query(where("profile_id").`is`(profileId)))
                     .all().collectList().awaitFirst()
+
+    suspend fun delete(profileId: UUID) = template.delete<UserInterest>()
+            .matching(query(where("profile_id").`is`(profileId))).allAndAwait()
 }
 
 class UserPersonalQualityRepository(private val template: R2dbcEntityTemplate) {
@@ -345,4 +365,7 @@ class UserPersonalQualityRepository(private val template: R2dbcEntityTemplate) {
     suspend fun find(profileId: UUID, attitude: Attitude): List<UserPersonalQuality> =
             template.select<UserPersonalQuality>().matching(query(where("profile_id").`is`(profileId).and("attitude").`is`(attitude)))
                     .all().collectList().awaitFirst()
+
+    suspend fun delete(profileId: UUID, attitude: Attitude) = template.delete<UserPersonalQuality>()
+            .matching(query(where("profile_id").`is`(profileId).and("attitude").`is`(attitude))).allAndAwait()
 }

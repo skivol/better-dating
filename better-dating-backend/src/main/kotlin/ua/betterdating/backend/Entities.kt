@@ -107,24 +107,24 @@ class UsageStats(
         val removed: Long
 )
 
-class PopulatedLocality(
+data class PopulatedLocality(
         val id: UUID,
         val name: String,
         val region: String,
         val country: String
 )
 
-class Language(
+data class Language(
         val id: UUID,
         val name: String
 )
 
-class Interest(
+data class Interest(
         val id: UUID,
         val name: String
 )
 
-class PersonalQuality(
+data class PersonalQuality(
         val id: UUID,
         val name: String
 )
