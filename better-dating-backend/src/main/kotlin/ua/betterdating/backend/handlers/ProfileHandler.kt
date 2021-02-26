@@ -213,6 +213,15 @@ class UserProfileHandler(
             expiringTokenRepository.deleteByProfileId(currentUserProfileId)
             userRoleRepository.delete(currentUserProfileId)
             profileViewHistoryRepository.delete(currentUserProfileId)
+
+            // remove second stage profile data
+            datingProfileInfoRepository.delete(currentUserProfileId)
+            userPopulatedLocalityRepository.delete(currentUserProfileId)
+            userLanguageRepository.delete(currentUserProfileId)
+            userInterestRepository.delete(currentUserProfileId)
+            userPersonalQualityRepository.delete(currentUserProfileId, Attitude.likes)
+            userPersonalQualityRepository.delete(currentUserProfileId, Attitude.dislikes)
+
             emailRepository.delete(currentUserProfileId)
             emailChangeHistoryRepository.delete(currentUserProfileId)
 

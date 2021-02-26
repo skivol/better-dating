@@ -171,8 +171,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
         initialValues={initialValues}
         onSubmit={onSubmit}
         render={({ handleSubmit, values, pristine }) => {
-          console.log({ values });
-          const secondStageEnabled = values.secondStageData !== undefined;
+          const secondStageEnabled = values.secondStageData !== null;
           return (
             <form onSubmit={handleSubmit}>
               <Grid

@@ -15,6 +15,7 @@ import {
 import { SnackbarVariant } from "../types";
 import { removeAccount, openSnackbar } from "../actions";
 import * as Messages from "./Messages";
+import * as ProfileMessages from "./profile/Messages";
 import { CenteredSpinner, SpinnerAdornment } from "./common";
 
 const removalReasonOptions = [
@@ -106,7 +107,7 @@ export const RemoveProfile = () => {
                       )
                     }
                   >
-                    {Messages.removeProfile}
+                    {ProfileMessages.removeProfile}
                   </Button>
                 </Grid>
               </Grid>

@@ -317,6 +317,9 @@ class DatingProfileInfoRepository(private val template: R2dbcEntityTemplate) {
                             .set("natural_hair_color", updated.naturalHairColor)
                             .set("eye_color", updated.eyeColor)
                     ).awaitSingle()
+
+    suspend fun delete(profileId: UUID) =
+            template.delete<DatingProfileInfo>().matching(query(where("profile_id").`is`(profileId))).allAndAwait()
 }
 
 class UserPopulatedLocalityRepository(private val template: R2dbcEntityTemplate) {
@@ -331,6 +334,9 @@ class UserPopulatedLocalityRepository(private val template: R2dbcEntityTemplate)
             template.update<UserPopulatedLocality>()
                     .matching(query(where("profile_id").`is`(updated.profileId).and("position").`is`(updated.position)))
                     .apply(update("populated_locality_id", updated.populatedLocalityId)).awaitSingle()
+
+    suspend fun delete(profileId: UUID) =
+            template.delete<UserPopulatedLocality>().matching(query(where("profile_id").`is`(profileId))).allAndAwait()
 }
 
 class UserLanguageRepository(private val template: R2dbcEntityTemplate) {
