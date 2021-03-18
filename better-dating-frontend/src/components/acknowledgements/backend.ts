@@ -38,13 +38,6 @@ export const libraries = [
     copyright: null,
   },
   {
-    name: "Spring Security Kotlin DSL",
-    url:
-      "https://github.com/spring-projects-experimental/spring-security-kotlin-dsl",
-    license: Licenses.APACHE,
-    copyright: null,
-  },
-  {
     name: "Spring Session",
     url: "https://github.com/spring-projects/spring-session",
     license: Licenses.APACHE,

@@ -2,11 +2,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     application
-	id("org.springframework.boot") version "2.4.0-M2"
-	id("io.spring.dependency-management") version "1.0.9.RELEASE"
+	id("org.springframework.boot") version "2.4.0"
+	id("io.spring.dependency-management") version "1.0.10.RELEASE"
 
-	kotlin("jvm") version "1.4.0"
-	kotlin("plugin.spring") version "1.4.0"
+	kotlin("jvm") version "1.4.10"
+	kotlin("plugin.spring") version "1.4.10"
 
 	// Better checking of dependencies update
 	// https://github.com/patrikerdes/gradle-use-latest-versions-plugin
@@ -33,7 +33,7 @@ dependencyManagement {
 	imports {
 		mavenBom("io.projectreactor:reactor-bom:Bismuth-RELEASE") // https://projectreactor.io/docs/core/release/reference/#getting
 		mavenBom("io.netty:netty-bom:4.1.50.Final")
-		mavenBom("org.springframework.boot:spring-boot-dependencies:2.4.0-M2")
+		mavenBom("org.springframework.boot:spring-boot-dependencies:2.4.0")
 	}
 }
 
@@ -55,7 +55,6 @@ dependencies {
 	implementation("io.netty:netty-all")
 	// # security
 	implementation("org.springframework.boot:spring-boot-starter-security")
-	implementation("org.springframework.security.dsl:spring-security-kotlin-dsl:0.0.1.BUILD-SNAPSHOT")
 	implementation("org.springframework.session:spring-session-data-redis")
 	implementation("io.lettuce:lettuce-core")
 	// ## OAuth 2.0

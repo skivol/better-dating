@@ -10,10 +10,8 @@ import org.springframework.data.relational.core.query.Criteria.empty
 import org.springframework.data.relational.core.query.Criteria.where
 import org.springframework.data.relational.core.query.Query.query
 import org.springframework.data.relational.core.query.Update.update
+import org.springframework.r2dbc.core.*
 import org.springframework.r2dbc.core.DatabaseClient
-import org.springframework.r2dbc.core.awaitFirst
-import org.springframework.r2dbc.core.awaitOneOrNull
-import org.springframework.r2dbc.core.awaitRowsUpdated
 import reactor.core.publisher.Flux
 import java.time.LocalDateTime
 import java.util.*
@@ -259,7 +257,7 @@ class PopulatedLocalitiesRepository(private val client: DatabaseClient, private 
                 row["region"] as String,
                 row["country"] as String
         )
-    }.awaitFirst()
+    }.awaitSingle()
 }
 
 class LanguagesRepository(private val client: DatabaseClient, private val template: R2dbcEntityTemplate) {

@@ -210,6 +210,7 @@ class UserProfileHandler(
             heightRepository.delete(currentUserProfileId)
             profileInfoRepository.delete(currentUserProfileId)
             acceptedTermsRepository.delete(currentUserProfileId)
+
             expiringTokenRepository.deleteByProfileId(currentUserProfileId)
             userRoleRepository.delete(currentUserProfileId)
             profileViewHistoryRepository.delete(currentUserProfileId)

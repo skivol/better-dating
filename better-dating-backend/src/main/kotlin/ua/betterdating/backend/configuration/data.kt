@@ -3,6 +3,7 @@ package ua.betterdating.backend.configuration
 import io.r2dbc.spi.ConnectionFactoryOptions
 import org.springframework.boot.autoconfigure.r2dbc.ConnectionFactoryOptionsBuilderCustomizer
 import org.springframework.boot.autoconfigure.r2dbc.R2dbcProperties
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.fu.kofu.configuration
 import org.springframework.fu.kofu.flyway.flyway
 import org.springframework.fu.kofu.r2dbc.r2dbc
@@ -30,6 +31,7 @@ fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleReposi
     }
 
     beans {
+        bean<R2dbcEntityTemplate>()
         bean { emailRepository }
         bean { rolesRepository }
         bean<ExpiringTokenRepository>()

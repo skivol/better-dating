@@ -7,6 +7,7 @@ import org.springframework.fu.kofu.redis.reactiveRedis
 import org.springframework.fu.kofu.session.reactiveRedis
 import org.springframework.fu.kofu.session.session
 import org.springframework.fu.kofu.webflux.security
+import org.springframework.fu.kofu.webflux.webFlux
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.ReactiveAuthenticationManager
@@ -61,111 +62,6 @@ import ua.betterdating.backend.handlers.createAuth
 import java.net.URLEncoder.encode
 import java.nio.charset.Charset.defaultCharset
 
-fun securityConfig(emailRepository: EmailRepository, roleRepository: UserRoleRepository) = configuration {
-    val securityContextRepository = WebSessionServerSecurityContextRepository()
-    val delegatingLogoutHandler = logoutHandler()
-    beans {
-        bean<PasswordEncoder> {
-            val idForEncode = "bcrypt"
-            DelegatingPasswordEncoder(idForEncode, mapOf(idForEncode to BCryptPasswordEncoder(13)))
-        }
-        bean<ServerSecurityContextRepository> { securityContextRepository }
-        bean<ForwardedHeaderTransformer>("forwardedHeaderTransformer")
-        bean { delegatingLogoutHandler }
-    }
-
-    reactiveRedis {
-        lettuce()
-    }
-    session {
-        reactiveRedis()
-    }
-
-    val oauth2ClientProperties = configurationProperties<OAuth2ClientProperties>(prefix = "spring.security.oauth2.client")
-    val clientRegistrationRepository = ReactiveOAuth2ClientConfigurationsInitializer.clientRegistrationRepository(oauth2ClientProperties)
-    val authenticationManager = OAuth2SimpleAuthenticationManager(
-            WebClientReactiveAuthorizationCodeTokenResponseClient(),
-            DefaultReactiveOAuth2UserService(),
-            emailRepository, roleRepository
-    )
-    val authorizationRequestRepository = WebSessionOAuth2ServerAuthorizationRequestRepository()
-    val authorizationRequestResolver = DefaultServerOAuth2AuthorizationRequestResolver(
-            clientRegistrationRepository,
-            // GET of this url initiates authorization flow by redirecting to OAuth 2.0 provider
-            // "/oauth2/authorization/{registrationId}" by default
-            PathPatternParserServerWebExchangeMatcher("/api/auth/login/oauth2/authorization/{registrationId}")
-    )
-    authorizationRequestResolver.setAuthorizationRequestCustomizer {
-        // Vk returns not encoded "state" param which (if, for example, "=" is there in default base64 with padding encoding)
-        // causes problems when ForwardedHeaderTransformer tries to do its job
-        // while decoding this value in authorization callback
-        it.state(generateUrlSafeToken())
-    }
-
-    security {
-        securityCustomizer = {
-            it.securityContextRepository(securityContextRepository)
-
-            val simpleLoginWebFilter = simpleOAuth2LoginWebFilter(
-                    authenticationManager,
-                    authenticationConverter(clientRegistrationRepository, authorizationRequestRepository),
-                    securityContextRepository
-            )
-
-            it.addFilterBefore(simpleLoginWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-            it.addFilterAfter(AccessDeniedFilter(), SecurityWebFiltersOrder.EXCEPTION_TRANSLATION)
-        }
-        http = {
-            csrf {
-                csrfTokenRepository = CookieServerCsrfTokenRepository.withHttpOnlyFalse()
-            }
-            formLogin { disable() }
-            logout {
-                logoutUrl = "/api/auth/logout"
-                logoutHandler = delegatingLogoutHandler
-                logoutSuccessHandler = HttpStatusReturningServerLogoutSuccessHandler()
-            }
-            oauth2Login {
-                this.authorizationRequestRepository = authorizationRequestRepository
-                this.authorizationRequestResolver = authorizationRequestResolver
-                this.clientRegistrationRepository = clientRegistrationRepository
-            }
-
-            authorizeExchange {
-                // [internal] Health
-                authorize("/actuator/health", permitAll)
-
-                // Registration & Email verification / triggering new verification / contact
-                authorize(pathMatchers(HttpMethod.POST, "/api/user/profile"), permitAll)
-                authorize("/api/user/email/**", permitAll)
-
-                // Login
-                authorize(pathMatchers(HttpMethod.POST, "/api/auth/login-link"), permitAll) // consider having web client credentials
-                authorize(pathMatchers(HttpMethod.POST, "/api/auth/login"), permitAll)
-                authorize("/api/support/csrf", permitAll)
-                authorize("/api/auth/me", hasAuthority("ROLE_USER"))
-
-                // Profile
-                authorize("/api/user/profile/**", hasAuthority("ROLE_USER"))
-                authorize("/api/populated-localities/**", hasAuthority("ROLE_USER"))
-                authorize("/api/languages/**", hasAuthority("ROLE_USER"))
-                authorize("/api/interests/**", hasAuthority("ROLE_USER"))
-                authorize("/api/personal-qualities/**", hasAuthority("ROLE_USER"))
-
-                // Administration
-                authorize("/api/admin/**", hasAuthority("ROLE_ADMIN"))
-
-                // Deny rest
-                authorize(anyExchange, denyAll)
-            }
-        }
-        oauth2ClientBeans {
-            this.oauth2ClientProperties = oauth2ClientProperties
-            this.reactiveClientRegistrationRepository = clientRegistrationRepository
-        }
-    }
-}
-
 fun simpleOAuth2LoginWebFilter(authenticationManager: ReactiveAuthenticationManager, authenticationConverter: ServerAuthenticationConverter, securityContextRepository: ServerSecurityContextRepository): OAuth2SimpleLoginWebFilter {
     // superseding OAuth2LoginAuthenticationWebFilter which does too much (for example, saves AuthorizedClients)
     val oAuthWebFilter = OAuth2SimpleLoginWebFilter(authenticationManager)
@@ -198,7 +94,7 @@ fun simpleOAuth2LoginWebFilter(authenticationManager: ReactiveAuthenticationMana
 /**
  * @see ServerHttpSecurity::getAuthenticationConverter
  */
-private fun authenticationConverter(clientRegistrationRepository: ReactiveClientRegistrationRepository, authorizationRequestRepository: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest>): ServerAuthenticationConverter {
+fun authenticationConverter(clientRegistrationRepository: ReactiveClientRegistrationRepository, authorizationRequestRepository: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest>): ServerAuthenticationConverter {
     val delegate = ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository)
     delegate.setAuthorizationRequestRepository(authorizationRequestRepository)
     return ServerAuthenticationConverter { exchange: ServerWebExchange? ->
@@ -279,8 +175,7 @@ fun authenticateVk(token: OAuth2AuthorizationCodeAuthenticationToken): Mono<Stri
                         .queryParam("client_secret", clientSecret)
                         .queryParam("code", code)
                         .build()
-            }.exchange()
-            .flatMap { response -> response.bodyToMono(VkToken::class.java) }
+            }.exchangeToMono { response -> response.bodyToMono(VkToken::class.java) }
             .flatMap { accessToken ->
                 if (accessToken.email == null) Mono.error(EmailWasNotProvidedException()) // access to email wasn't provided
                 else Mono.just(accessToken.email)

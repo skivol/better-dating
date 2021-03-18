@@ -25,7 +25,7 @@ export const AnalyzedSection = ({
     <Grid id={id} item>
       <Paper
         elevation={3}
-        className="u-padding-15px u-min-width-450px u-max-width-500px u-center-horizontally"
+        className="u-padding-15px u-max-width-500px u-center-horizontally"
       >
         <Grid container direction="column" spacing={2}>
           {children}

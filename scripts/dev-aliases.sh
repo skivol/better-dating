@@ -177,3 +177,101 @@ troubleshooting-logout() {
 	echo "Disable browser cache!"
 }
 
+# Api utils
+alias bd-http='http --session=bd-login'
+api-user-profile-create() {
+	http POST localhost:8080/api/user/profile \
+	  X-XSRF-TOKEN:$1 \
+	  "Cookie:XSRF-TOKEN=$1; Path=/" \
+	  acceptTerms:=true \
+	  email=$2 \
+	  nickname=$3 \
+	  gender=$4 \
+	  birthday=$5 \
+	  height:=$6 \
+	  weight:=$7 \
+	  physicalExercise=$8 \
+	  smoking=$9 \
+	  alcohol=${10} \
+	  computerGames=${11} \
+	  gambling=${12} \
+	  haircut=${13} \
+	  hairColoring=${14} \
+	  makeup=${15} \
+	  intimateRelationsOutsideOfMarriage=${16} \
+	  pornographyWatching=${17} \
+	  personalHealthEvaluation:=${18}
+}
+
+api-user-profile-update() {
+	bd-http PUT localhost:8080/api/user/profile \
+	  X-XSRF-TOKEN:$1 \
+	  "Cookie:XSRF-TOKEN=$1; Path=/" \
+	  email=$2 \
+	  nickname=$3 \
+	  gender=$4 \
+	  birthday=$5 \
+	  height:=$6 \
+	  weight:=$7 \
+	  physicalExercise=$8 \
+	  smoking=$9 \
+	  alcohol=${10} \
+	  computerGames=${11} \
+	  gambling=${12} \
+	  haircut=${13} \
+	  hairColoring=${14} \
+	  makeup=${15} \
+	  intimateRelationsOutsideOfMarriage=${16} \
+	  pornographyWatching=${17} \
+	  personalHealthEvaluation:=${18}
+}
+
+api-user-email-verify() {
+	bd-http POST localhost:8080/api/user/email/verify \
+	    X-XSRF-TOKEN:$1 \
+	    "Cookie:XSRF-TOKEN=$1; Path=/" \
+	    token=$2
+}
+
+api-auth-login-link() {
+	http POST localhost:8080/api/auth/login-link \
+	    X-XSRF-TOKEN:$1 \
+	    "Cookie:XSRF-TOKEN=$1; Path=/" \
+	    email=$2
+}
+
+api-auth-login() {
+	bd-http POST localhost:8080/api/auth/login \
+	  X-XSRF-TOKEN:$1 \
+	  "Cookie:XSRF-TOKEN=$1; Path=/" \
+	  token=$2
+}
+
+api-auth-me() {
+	bd-http localhost:8080/api/auth/me
+}
+
+api-user-profile-activate-second-stage() {
+	bd-http POST localhost:8080/api/user/profile/activate-second-stage \
+	  X-XSRF-TOKEN:$1 \
+	  "Cookie:XSRF-TOKEN=$1; Path=/" \
+	  goal=$2 \
+	  populatedLocality:=$3 \
+	  nativeLanguages:=$4 \
+	  eyeColor=$5 \
+	  interests:=$6 \
+	  likedPersonalQualities:=$7 \
+	  dislikedPersonalQualities:=$8 \
+	  appearanceType=$9 \
+	  naturalHairColor=${10}
+}
+
+actuator-health() {
+	http localhost:8080/actuator/health
+}
+
+api-user-email-contact() {
+	http localhost:8080/api/user/email/contact
+}
+
+
