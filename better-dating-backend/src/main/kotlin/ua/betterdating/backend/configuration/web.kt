@@ -29,8 +29,8 @@ import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer
 import reactor.core.publisher.Mono
-import ua.betterdating.backend.EmailRepository
-import ua.betterdating.backend.UserRoleRepository
+import ua.betterdating.backend.data.EmailRepository
+import ua.betterdating.backend.data.UserRoleRepository
 import ua.betterdating.backend.generateUrlSafeToken
 import ua.betterdating.backend.handlers.*
 

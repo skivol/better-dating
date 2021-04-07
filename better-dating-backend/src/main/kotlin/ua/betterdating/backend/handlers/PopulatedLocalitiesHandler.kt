@@ -6,7 +6,7 @@ import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.ServerResponse.ok
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.json
-import ua.betterdating.backend.PopulatedLocalitiesRepository
+import ua.betterdating.backend.data.PopulatedLocalitiesRepository
 
 class PopulatedLocalitiesHandler(
         private val populatedLocalitiesRepository: PopulatedLocalitiesRepository

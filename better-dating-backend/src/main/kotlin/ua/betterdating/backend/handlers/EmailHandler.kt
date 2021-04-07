@@ -9,6 +9,9 @@ import org.springframework.web.reactive.function.server.*
 import org.springframework.web.reactive.function.server.ServerResponse.ok
 import ua.betterdating.backend.*
 import ua.betterdating.backend.TokenType.EMAIL_VERIFICATION
+import ua.betterdating.backend.data.EmailRepository
+import ua.betterdating.backend.data.ExpiringTokenRepository
+import ua.betterdating.backend.utils.okEmptyJsonObject
 import java.util.*
 
 class EmailHandler(

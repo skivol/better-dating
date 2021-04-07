@@ -5,7 +5,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.json
-import ua.betterdating.backend.LanguagesRepository
+import ua.betterdating.backend.data.LanguagesRepository
 
 class LanguagesHandler(
         private val languagesRepository: LanguagesRepository

@@ -2,7 +2,6 @@ package ua.betterdating.backend.handlers
 
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.DisabledException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -19,6 +18,10 @@ import org.springframework.web.reactive.function.server.awaitBody
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import ua.betterdating.backend.*
 import ua.betterdating.backend.TokenType.ONE_TIME_PASSWORD
+import ua.betterdating.backend.data.EmailRepository
+import ua.betterdating.backend.data.ExpiringTokenRepository
+import ua.betterdating.backend.data.UserRoleRepository
+import ua.betterdating.backend.utils.okEmptyJsonObject
 import java.util.*
 
 class AuthHandler(

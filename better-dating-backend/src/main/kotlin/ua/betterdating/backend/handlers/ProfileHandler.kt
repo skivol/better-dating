@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
 import ua.betterdating.backend.TokenType.VIEW_OTHER_USER_PROFILE
+import ua.betterdating.backend.data.*
 import ua.betterdating.backend.utils.*
 import java.util.*
 

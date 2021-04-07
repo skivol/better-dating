@@ -7,7 +7,6 @@ import io.mockk.slot
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.MediaType
@@ -15,6 +14,8 @@ import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.transaction.reactive.TransactionalOperator
+import ua.betterdating.backend.data.EmailRepository
+import ua.betterdating.backend.data.ExpiringTokenRepository
 import java.time.LocalDate
 import java.util.*
 

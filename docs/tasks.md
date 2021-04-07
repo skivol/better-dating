@@ -47,7 +47,7 @@
 - Добавить дату удаления профиля ?
 
 - Улучшить внешний вид
-- дополнительные цели встреч ( желание поделиться семейным опытом / желание увидеть потенциальных зятей-невесток :) )
+- дополнительные цели встреч (желание поделиться опытом саморазвития / желание поделиться семейным опытом / желание увидеть потенциальных зятей-невесток :) )
 - Fail2Ban
   ** https://unix.stackexchange.com/questions/88744/what-is-the-centos-equivalent-of-var-log-syslog-on-ubuntu
   ** https://www.digitalocean.com/community/tutorials/how-fail2ban-works-to-protect-services-on-a-linux-server#the-basic-concept
@@ -77,6 +77,7 @@
 
 # On leisure
 
+- edge / facebook login
 - древний/прописной шрифт для названия сайта
 - checkout ReactiveCrudRepository ? https://docs.spring.io/spring-data/r2dbc/docs/1.0.0.M2/reference/html/#r2dbc.repositories
 - checkout reverse proxy written in rust: https://github.com/sozu-proxy/sozu

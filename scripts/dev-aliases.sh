@@ -178,9 +178,13 @@ troubleshooting-logout() {
 }
 
 # Api utils
-alias bd-http='http --session=bd-login'
+sessionId="bd-login"
+bd-http() {
+	http --session=$sessionId $*
+}
+backend="localhost:8080"
 api-user-profile-create() {
-	http POST localhost:8080/api/user/profile \
+	http POST $backend/api/user/profile \
 	  X-XSRF-TOKEN:$1 \
 	  "Cookie:XSRF-TOKEN=$1; Path=/" \
 	  acceptTerms:=true \
@@ -204,7 +208,7 @@ api-user-profile-create() {
 }
 
 api-user-profile-update() {
-	bd-http PUT localhost:8080/api/user/profile \
+	bd-http PUT $backend/api/user/profile \
 	  X-XSRF-TOKEN:$1 \
 	  "Cookie:XSRF-TOKEN=$1; Path=/" \
 	  email=$2 \
@@ -227,32 +231,32 @@ api-user-profile-update() {
 }
 
 api-user-email-verify() {
-	bd-http POST localhost:8080/api/user/email/verify \
+	bd-http POST $backend/api/user/email/verify \
 	    X-XSRF-TOKEN:$1 \
 	    "Cookie:XSRF-TOKEN=$1; Path=/" \
 	    token=$2
 }
 
 api-auth-login-link() {
-	http POST localhost:8080/api/auth/login-link \
+	http POST $backend/api/auth/login-link \
 	    X-XSRF-TOKEN:$1 \
 	    "Cookie:XSRF-TOKEN=$1; Path=/" \
 	    email=$2
 }
 
 api-auth-login() {
-	bd-http POST localhost:8080/api/auth/login \
+	bd-http POST $backend/api/auth/login \
 	  X-XSRF-TOKEN:$1 \
 	  "Cookie:XSRF-TOKEN=$1; Path=/" \
 	  token=$2
 }
 
 api-auth-me() {
-	bd-http localhost:8080/api/auth/me
+	bd-http $backend/api/auth/me
 }
 
 api-user-profile-activate-second-stage() {
-	bd-http POST localhost:8080/api/user/profile/activate-second-stage \
+	bd-http POST $backend/api/user/profile/activate-second-stage \
 	  X-XSRF-TOKEN:$1 \
 	  "Cookie:XSRF-TOKEN=$1; Path=/" \
 	  goal=$2 \
@@ -266,12 +270,16 @@ api-user-profile-activate-second-stage() {
 	  naturalHairColor=${10}
 }
 
+api-user-profile() {
+	bd-http $backend/api/user/profile
+}
+
 actuator-health() {
-	http localhost:8080/actuator/health
+	http $backend/actuator/health
 }
 
 api-user-email-contact() {
-	http localhost:8080/api/user/email/contact
+	http $backend/api/user/email/contact
 }
 
 

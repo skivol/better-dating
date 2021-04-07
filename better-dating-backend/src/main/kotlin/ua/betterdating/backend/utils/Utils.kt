@@ -1,4 +1,4 @@
-package ua.betterdating.backend
+package ua.betterdating.backend.utils
 
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils
@@ -6,6 +6,9 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.json
+import ua.betterdating.backend.AppearanceType
+import ua.betterdating.backend.Gender
+import ua.betterdating.backend.Recurrence
 import java.net.IDN
 
 fun host(request: ServerRequest): String = request.uri().host
@@ -18,3 +21,8 @@ fun renderTemplate(
 }
 
 suspend fun okEmptyJsonObject() = ServerResponse.ok().json().bodyValueAndAwait("{}")
+
+// String extensions
+fun String.toRecurrence(): Recurrence = Recurrence.valueOf(this)
+fun Any?.toGender(): Gender = Gender.valueOf(this as String)
+fun Any?.toAppearanceType(): AppearanceType = AppearanceType.valueOf(this as String)

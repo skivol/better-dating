@@ -8,6 +8,7 @@ import org.springframework.fu.kofu.configuration
 import org.springframework.fu.kofu.flyway.flyway
 import org.springframework.fu.kofu.r2dbc.r2dbc
 import ua.betterdating.backend.*
+import ua.betterdating.backend.data.*
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
@@ -55,5 +56,7 @@ fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleReposi
         bean<UserLanguageRepository>()
         bean<UserInterestRepository>()
         bean<UserPersonalQualityRepository>()
+
+        bean<PairsRepository>()
     }
 }

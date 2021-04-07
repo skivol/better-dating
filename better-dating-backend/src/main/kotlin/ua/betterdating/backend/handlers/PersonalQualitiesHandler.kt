@@ -5,7 +5,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.json
-import ua.betterdating.backend.PersonalQualitiesRepository
+import ua.betterdating.backend.data.PersonalQualitiesRepository
 
 class PersonalQualitiesHandler(
         private val personalQualitiesRepository: PersonalQualitiesRepository

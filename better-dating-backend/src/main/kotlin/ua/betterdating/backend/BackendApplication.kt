@@ -2,9 +2,15 @@ package ua.betterdating.backend
 
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.fu.kofu.reactiveWebApplication
+import org.springframework.fu.kofu.scheduling.scheduling
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
 import ua.betterdating.backend.configuration.dataConfig
 import ua.betterdating.backend.configuration.mailConfig
 import ua.betterdating.backend.configuration.webConfig
+import ua.betterdating.backend.data.EmailRepository
+import ua.betterdating.backend.data.UserRoleRepository
+import ua.betterdating.backend.tasks.PairMatcherTask
+import java.util.concurrent.Executors
 
 val app = reactiveWebApplication {
 	val passwordFiles = configurationProperties<PasswordFiles>(prefix = "password-files")
@@ -14,6 +20,13 @@ val app = reactiveWebApplication {
 	enable(dataConfig(emailRepository, userRoleRepository, passwordFiles.db))
 	enable(mailConfig(passwordFiles.mail))
 	enable(webConfig(emailRepository, userRoleRepository))
+
+	scheduling {
+		taskScheduler = ConcurrentTaskScheduler(Executors.newSingleThreadScheduledExecutor())
+	}
+    beans {
+    	bean<PairMatcherTask>()
+	}
 }
 
 fun main(args: Array<String>) {
