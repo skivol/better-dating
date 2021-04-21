@@ -1,11 +1,13 @@
 package ua.betterdating.backend.configuration
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.r2dbc.spi.ConnectionFactoryOptions
 import org.springframework.boot.autoconfigure.r2dbc.ConnectionFactoryOptionsBuilderCustomizer
 import org.springframework.boot.autoconfigure.r2dbc.R2dbcProperties
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
+import org.springframework.data.r2dbc.convert.R2dbcCustomConversions
 import org.springframework.fu.kofu.configuration
 import org.springframework.fu.kofu.flyway.flyway
+import org.springframework.fu.kofu.r2dbc.dataR2dbc
 import org.springframework.fu.kofu.r2dbc.r2dbc
 import ua.betterdating.backend.*
 import ua.betterdating.backend.data.*
@@ -15,14 +17,16 @@ import java.time.temporal.ChronoUnit
 fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleRepository, dbPasswordFile: String) = configuration {
     val dbPassword = readPassword(profiles, dbPasswordFile)
     val r2dbcProperties = configurationProperties<R2dbcProperties>(prefix = "datasource")
-    r2dbc {
-        url = r2dbcProperties.url
-        username = r2dbcProperties.username
-        password = dbPassword
-        optionsCustomizers = listOf(ConnectionFactoryOptionsBuilderCustomizer {
-            it.option(ConnectionFactoryOptions.CONNECT_TIMEOUT, Duration.of(30, ChronoUnit.SECONDS))
-        })
-        transactional = true
+    dataR2dbc {
+        r2dbc {
+            url = r2dbcProperties.url
+            username = r2dbcProperties.username
+            password = dbPassword
+            optionsCustomizers = listOf(ConnectionFactoryOptionsBuilderCustomizer {
+                it.option(ConnectionFactoryOptions.CONNECT_TIMEOUT, Duration.of(30, ChronoUnit.SECONDS))
+            })
+            transactional = true
+        }
     }
 
     flyway {
@@ -32,7 +36,6 @@ fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleReposi
     }
 
     beans {
-        bean<R2dbcEntityTemplate>()
         bean { emailRepository }
         bean { rolesRepository }
         bean<ExpiringTokenRepository>()

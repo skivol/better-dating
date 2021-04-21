@@ -28,7 +28,7 @@
 	* [ensure "ftype" filesystem option is set to 1](https://docs.docker.com/storage/storagedriver/overlayfs-driver/)
 	* [Post install](https://docs.docker.com/engine/install/linux-postinstall/)
 		** Manage Docker as a non-root user;
-		** Configure Docker to start on boot;
+		** Configure Docker to start on boot (`sudo systemctl enable --now docker`);
 		** Configure the default logging driver
 3. Configure Docker:
 	* [Docker daemon config](https://docs.docker.com/config/daemon/) (/etc/docker/daemon.json - { "storage-driver": "overlay2" })

@@ -88,7 +88,10 @@ alias docker-cleanup-containers='docker rm $(docker ps -a -q)'
 alias docker-cleanup-everything='docker system prune --volumes --force'
 
 # https://hub.docker.com/_/postgres
-alias bd-db-run='docker run --name bd-db --publish 5432:5432 -e POSTGRES_PASSWORD=postgres -d --rm postgres:alpine'
+bd-db-run() {
+  docker run --name bd-db --publish 5432:5432 -e POSTGRES_PASSWORD=postgres -d $* postgres:alpine
+}
+alias bd-db-run-rm='bd-db-run --rm'
 alias bd-db-stop='docker stop bd-db'
 alias bd-db-restart='bd-db-stop && bd-db-run'
 ## Psql docs: https://www.postgresql.org/docs/current/app-psql.html

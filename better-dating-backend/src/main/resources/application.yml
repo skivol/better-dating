@@ -44,7 +44,8 @@ spring:
             client-name: vk
 
 logging:
-  file: ./logs/better-dating-java.log
+  file:
+    name: ./logs/better-dating-java.log
 
 ---
 spring:
@@ -55,7 +56,8 @@ server:
   netty:
     accesslog: /logs/better-dating_backend_access_log.log
 logging:
-  file: /logs/better-dating_backend_java.log
+  file:
+    name: /logs/better-dating_backend_java.log
 
 ---
 spring:
