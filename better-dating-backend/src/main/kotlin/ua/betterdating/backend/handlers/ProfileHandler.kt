@@ -244,18 +244,9 @@ class UserProfileHandler(
         // send token
         val subject = "Ссылка для просмотра профиля автора сайта смотрины.укр & смотрины.рус"
         transactionalOperator.executeAndAwait {
-            freemarkerMailSender.generateAndSendLinkWithToken(
-                    currentUserEmail.id, VIEW_OTHER_USER_PROFILE, "LinkToViewOtherUserProfile.ftlh",
-                    currentUserEmail.email, subject, request, "просмотр-профиля",
-                    // while saving additional token payload
-                    { token -> tokenDataRepository.save(ViewOtherUserProfileTokenData(token.id, adminProfileId)) }
-            ) { link ->
-                object {
-                    val title = subject
-                    val actionLabel = "Просмотр профиля"
-                    val actionUrl = link
-                }
-            }
+            freemarkerMailSender.viewOtherUserProfile(
+                currentUserEmail.id, currentUserEmail.email, subject, "", unicodeHostHeader(request)
+            ) { token -> tokenDataRepository.save(ViewOtherUserProfileTokenData(token.id, adminProfileId)) }
         }
         return okEmptyJsonObject()
     }

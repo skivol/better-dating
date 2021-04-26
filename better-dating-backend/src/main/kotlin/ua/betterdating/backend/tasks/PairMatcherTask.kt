@@ -1,24 +1,19 @@
 package ua.betterdating.backend.tasks
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
-import ua.betterdating.backend.DatingGoal
-import ua.betterdating.backend.Gender
-import ua.betterdating.backend.Recurrence
+import ua.betterdating.backend.*
 import ua.betterdating.backend.Recurrence.*
-import ua.betterdating.backend.data.DatingPair
-import ua.betterdating.backend.data.DatingPairLock
-import ua.betterdating.backend.data.PairsRepository
-import ua.betterdating.backend.data.ProfileMatchInformation
-import java.lang.RuntimeException
+import ua.betterdating.backend.data.*
+import ua.betterdating.backend.utils.LoggerDelegate
+import ua.betterdating.backend.utils.getLogger
 import java.time.LocalDateTime
 
 val abstaining = listOf(neverDidAndNotGoingInFuture, didBeforeNotGoingInFuture)
@@ -27,33 +22,34 @@ val doing = listOf(coupleTimesInYearOrMoreSeldom, coupleTimesInYear, coupleTimes
 
 class PairMatcherTask(
     private val pairsRepository: PairsRepository,
+    private val tokenDataRepository: ViewOtherUserProfileTokenDataRepository,
     private val transactionalOperator: TransactionalOperator,
+    private val mailSender: FreemarkerMailSender
 ) {
+    private val log by LoggerDelegate()
 
-    @Scheduled(fixedRateString = "PT5m") // run every 5 minutes
+    @Scheduled(fixedDelayString = "PT5m") // run constantly with 5 minutes pause
     fun match() {
-        runBlocking<Unit> { // https://kotlinlang.org/docs/coroutine-context-and-dispatchers.html
-            launch { // context of the parent, main runBlocking coroutine
-                doMatching()
-            }
+        runBlocking { // https://kotlinlang.org/docs/coroutine-context-and-dispatchers.html
+            doMatching()
         }
 
         // checkout Spring Batch ? (https://docs.spring.io/spring-batch/docs/current/reference/html/index.html)
     }
 
     private suspend fun doMatching() {
-        println("Matching pairs! :) at ${LocalDateTime.now()}")
+        log.info("Matching pairs! :)")
 
         // users are processed in registration order
         pairsRepository.usersToFindMatchesFor()
             .asFlow()
-            .flatMapConcat(this::findMatches)
-            .collect {}
+            .collect(this::findMatches)
 
-        println("Done!")
+        log.info("Done!")
     }
 
-    private fun findMatches(targetProfile: ProfileMatchInformation): Flow<DatingPair> {
+    private suspend fun findMatches(targetProfileWithEmail: ProfileMatchInformationWithEmail) {
+        val targetProfile = targetProfileWithEmail.profileMatchInformation
         val lookingForCandidatesForMaleUser = targetProfile.gender == Gender.male
         val candidateGender = if (lookingForCandidatesForMaleUser) Gender.female else Gender.male
 
@@ -86,7 +82,7 @@ class PairMatcherTask(
         val candidatePornographyWatching = matchHabit(targetProfile.pornographyWatching)
         val candidateIntimateRelationsOutsideOfMarriage = matchHabit(targetProfile.intimateRelationsOutsideOfMarriage)
 
-        return pairsRepository.findCandidates(
+        val matchedCandidateWithEmail = pairsRepository.findCandidates(
             targetProfile.id,
             // same weight category (bmi);
             candidateGender, targetProfile.bmiCategory,
@@ -100,37 +96,82 @@ class PairMatcherTask(
             targetProfile.populatedLocality.id,
             // one native language(s) or readiness to learn native languages of each other
             targetProfile.nativeLanguages
-        ).asFlow().take(1).flatMapConcat<ProfileMatchInformation, DatingPair> { matchedCandidate ->
-            println()
-            println("current: $targetProfile")
-            println("matched: $matchedCandidate")
-            println()
-            flow {
-                try {
-                    transactionalOperator.executeAndAwait {
-                        pairsRepository.save(
-                            DatingPair(
-                                targetProfile.id,
-                                matchedCandidate.id,
-                                DatingGoal.findSoulMate,
-                                LocalDateTime.now(),
-                                true,
-                                targetProfile,
-                                matchedCandidate
-                            )
+        ).awaitFirstOrNull()
+
+        val matchedCandidate = (matchedCandidateWithEmail ?: return).profileMatchInformation
+
+        log.debug("current: {}", targetProfile)
+        log.debug("matched: {}", matchedCandidate)
+
+        try {
+            transactionalOperator.executeAndAwait {
+                pairsRepository.save(
+                    DatingPair(
+                        targetProfile.id,
+                        matchedCandidate.id,
+                        DatingGoal.findSoulMate,
+                        LocalDateTime.now(),
+                        true,
+                        targetProfile,
+                        matchedCandidate
+                    )
+                )
+                // Allowing only 1 active pair per user on database level
+                pairsRepository.save(DatingPairLock(targetProfile.id))
+                pairsRepository.save(DatingPairLock(matchedCandidate.id))
+
+                // Consider: move token generation / email sending to a different task if becomes too slow/unreliable
+                val subject =
+                    { nickname: String -> "Ссылка для просмотра профиля пользователя $nickname с которым/которой будет организовано свидание" }
+
+                // TODO mention the actual date
+                // if we're able (that is we have a place to suggest and a free timeslot), we should organize a date directly
+                // otherwise we should ask users for an advice on that
+
+                val body = "Рекомендуется внимательно изучить профиль и при личной встрече проверить его истинность ;). " +
+                           "Детали свидания будут сообщены в последующем письме."
+                // TODO save host header on user registration (or second stage activation) and use here instead of hard-coded value
+                val unicodeHostHeader = "смотрины.укр"
+
+                // notify target user
+                mailSender.viewOtherUserProfile(
+                    targetProfile.id,
+                    targetProfileWithEmail.email,
+                    subject(matchedCandidateWithEmail.nickname),
+                    body,
+                    unicodeHostHeader
+                ) { token ->
+                    tokenDataRepository.save(
+                        ViewOtherUserProfileTokenData(
+                            token.id,
+                            matchedCandidate.id
                         )
-                        // Allowing only 1 active pair per user on database level
-                        pairsRepository.save(DatingPairLock(targetProfile.id))
-                        pairsRepository.save(DatingPairLock(matchedCandidate.id))
-                    }
-                } catch (e: DataIntegrityViolationException) {
-                    // TODO possible to get here ?
-                    // 23505 status
-                    val alreadyCreatedDatingPair = e.message?.contains("""violates unique constraint "dating_pair_lock_pk""""") ?: false
-                    if (!alreadyCreatedDatingPair) {
-                        throw e
-                    }
+                    )
                 }
+
+                // notify matched user
+                mailSender.viewOtherUserProfile(
+                    matchedCandidate.id,
+                    matchedCandidateWithEmail.email,
+                    subject(targetProfileWithEmail.nickname),
+                    body,
+                    unicodeHostHeader
+                ) { token ->
+                    tokenDataRepository.save(
+                        ViewOtherUserProfileTokenData(
+                            token.id,
+                            targetProfile.id
+                        )
+                    )
+                }
+            }
+        } catch (e: DataIntegrityViolationException) {
+            // TODO possible to get here ?
+            // 23505 status
+            val alreadyCreatedDatingPair =
+                e.message?.contains("""violates unique constraint "dating_pair_lock_pk""""") ?: false
+            if (!alreadyCreatedDatingPair) {
+                throw e
             }
         }
     }

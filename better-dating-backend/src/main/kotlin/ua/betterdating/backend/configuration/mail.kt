@@ -4,7 +4,7 @@ import org.springframework.fu.kofu.configuration
 import org.springframework.fu.kofu.freemarker.freeMarker
 import org.springframework.fu.kofu.mail.mail
 import ua.betterdating.backend.FreemarkerMailSender
-import ua.betterdating.backend.NoOpMailSender
+import ua.betterdating.backend.ConsoleMailSender
 import ua.betterdating.backend.SmotrinyMailSenderImpl
 
 fun mailConfig(mailPassword: String) = configuration {
@@ -12,7 +12,7 @@ fun mailConfig(mailPassword: String) = configuration {
         if (profiles.contains("mail") || profiles.contains("production")) {
             bean<SmotrinyMailSenderImpl>()
         } else {
-            bean<NoOpMailSender>()
+            bean<ConsoleMailSender>()
         }
         bean<FreemarkerMailSender>()
     }

@@ -63,7 +63,7 @@ export const PersonalQualityAutocomplete = ({
         options={[...value, ...options]}
         filterSelectedOptions
         value={value}
-        onChange={(event: any, newValue: PersonalQuality | null) => {
+        onChange={(event: any, newValue: any) => {
           setValue(newValue);
         }}
         onInputChange={(event, newInputValue) => {

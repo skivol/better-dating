@@ -57,7 +57,7 @@ export const NativeLanguagesAutocomplete = ({
         options={[...value, ...options]}
         filterSelectedOptions
         value={value}
-        onChange={(event: any, newValue: Language | null) => {
+        onChange={(event: any, newValue: any) => {
           setValue(newValue);
         }}
         onInputChange={(event, newInputValue) => {

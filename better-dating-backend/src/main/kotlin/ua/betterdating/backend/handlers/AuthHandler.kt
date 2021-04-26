@@ -33,6 +33,7 @@ class AuthHandler(
         private val transactionalOperator: TransactionalOperator,
         private val serverSecurityContextRepository: ServerSecurityContextRepository
 ) {
+    @Suppress("UNUSED_PARAMETER")
     suspend fun csrf(request: ServerRequest) = okEmptyJsonObject()
 
     suspend fun sendLoginLink(request: ServerRequest): ServerResponse {

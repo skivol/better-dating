@@ -15,6 +15,7 @@ class AdminHandler(
         private val emailRepository: EmailRepository,
         private val freemarkerMailSender: FreemarkerMailSender
 ) {
+    @Suppress("UNUSED_PARAMETER")
     suspend fun usageStatistics(request: ServerRequest): ServerResponse {
         val registered = statisticsRepository.registered()
         val removed = statisticsRepository.removed()

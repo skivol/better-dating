@@ -1,5 +1,7 @@
 package ua.betterdating.backend.utils
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -13,11 +15,11 @@ import java.net.IDN
 
 fun host(request: ServerRequest): String = request.uri().host
 fun unicodeHostHeader(request: ServerRequest): String = IDN.toUnicode(host(request))
-fun renderTemplate(
-        templateConfigurationFactory: FreeMarkerConfigurationFactoryBean, templateName: String, param: Any
-): String {
+suspend fun renderTemplate(
+    templateConfigurationFactory: FreeMarkerConfigurationFactoryBean, templateName: String, param: Any
+): String = withContext(Dispatchers.IO) {
     val template = templateConfigurationFactory.createConfiguration().getTemplate(templateName)
-    return FreeMarkerTemplateUtils.processTemplateIntoString(template, param)
+    FreeMarkerTemplateUtils.processTemplateIntoString(template, param)
 }
 
 suspend fun okEmptyJsonObject() = ServerResponse.ok().json().bodyValueAndAwait("{}")

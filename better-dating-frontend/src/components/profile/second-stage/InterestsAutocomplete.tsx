@@ -57,7 +57,7 @@ export const InterestsAutocomplete = ({
         options={[...value, ...options]}
         filterSelectedOptions
         value={value}
-        onChange={(event: any, newValue: Interest | null) => {
+        onChange={(event: any, newValue: any) => {
           setValue(newValue);
         }}
         onInputChange={(event, newInputValue) => {

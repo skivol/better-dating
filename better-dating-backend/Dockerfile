@@ -9,7 +9,7 @@ COPY ./build/libs/backend-0.0.1-SNAPSHOT.jar /opt/backend.jar
 
 CMD ["sh", "-c", "java -XX:+UnlockExperimentalVMOptions \
       -XX:+UseContainerSupport -XX:InitialRAMPercentage=50.0 \
-      -XX:MinRAMPercentage=50.0 -XX:MaxRAMPercentage=75.0 -Dreactor.netty.http.server.accessLogEnabled \
+      -XX:MinRAMPercentage=50.0 -XX:MaxRAMPercentage=75.0 -Dreactor.netty.http.server.accessLogEnabled=true \
       -jar /opt/backend.jar --spring.profiles.active=production \
       --spring.redis.host=bd-redis \
       --spring.security.oauth2.client.registration.facebook.client-id=$FACEBOOK_CLIENT_ID \

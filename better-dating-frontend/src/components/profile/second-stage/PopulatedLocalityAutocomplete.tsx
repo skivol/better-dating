@@ -64,7 +64,7 @@ export const PopulatedLocalityAutocomplete = ({
         autoComplete
         options={options}
         value={value}
-        onChange={(event: any, newValue: PopulatedLocality | null) => {
+        onChange={(event: any, newValue: any) => {
           setValue(newValue);
         }}
         onInputChange={(event, newInputValue) => {

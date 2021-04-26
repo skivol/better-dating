@@ -1,15 +1,13 @@
 package ua.betterdating.backend.configuration
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.r2dbc.spi.ConnectionFactoryOptions
 import org.springframework.boot.autoconfigure.r2dbc.ConnectionFactoryOptionsBuilderCustomizer
 import org.springframework.boot.autoconfigure.r2dbc.R2dbcProperties
-import org.springframework.data.r2dbc.convert.R2dbcCustomConversions
 import org.springframework.fu.kofu.configuration
 import org.springframework.fu.kofu.flyway.flyway
 import org.springframework.fu.kofu.r2dbc.dataR2dbc
 import org.springframework.fu.kofu.r2dbc.r2dbc
-import ua.betterdating.backend.*
+import ua.betterdating.backend.ProfileInfoRepository
 import ua.betterdating.backend.data.*
 import java.time.Duration
 import java.time.temporal.ChronoUnit

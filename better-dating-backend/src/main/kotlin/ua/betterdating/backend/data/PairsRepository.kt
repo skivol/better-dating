@@ -1,25 +1,16 @@
 package ua.betterdating.backend.data
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.r2dbc.postgresql.codec.Json
 import io.r2dbc.spi.Row
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.withContext
-import org.springframework.core.convert.converter.Converter
 import org.springframework.data.annotation.Id
-import org.springframework.data.convert.ReadingConverter
-import org.springframework.data.convert.WritingConverter
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.data.r2dbc.core.insert
 import org.springframework.data.r2dbc.core.usingAndAwait
-import org.springframework.data.r2dbc.mapping.OutboundRow
-import org.springframework.data.r2dbc.mapping.SettableValue
 import org.springframework.r2dbc.core.DatabaseClient
-import org.springframework.r2dbc.core.Parameter
 import reactor.core.publisher.Flux
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
@@ -33,9 +24,6 @@ import java.util.*
 // Note, this entity resembles "Profile" from web entities
 data class ProfileMatchInformation(
     val id: UUID,
-    // TODO will be needed later when notifying users about the match
-    // var email: String,
-    // var nickname: String,
     val gender: Gender,
     val birthday: LocalDate,
     val height: Float,
@@ -51,6 +39,12 @@ data class ProfileMatchInformation(
     val populatedLocality: PopulatedLocality,
     val nativeLanguages: List<Language>,
     val appearanceType: AppearanceType,
+)
+
+data class ProfileMatchInformationWithEmail(
+    val email: String,
+    val nickname: String,
+    val profileMatchInformation: ProfileMatchInformation
 )
 
 class DatingPair(
@@ -121,19 +115,20 @@ class PairsRepository(
     private val template: R2dbcEntityTemplate,
     private val mapper: ObjectMapper
 ) {
-    fun usersToFindMatchesFor(): Flux<ProfileMatchInformation> = client.sql(
+    fun usersToFindMatchesFor(): Flux<ProfileMatchInformationWithEmail> = client.sql(
         """
             WITH $latestHeight,
                  $latestWeight,
                  $latestActivities,
                  $userLanguages,
                  $bmiCategory
-            SELECT pi.profile_id, pi.gender, pi.birthday, lh.height, lw.weight,
+            SELECT e.email, pi.nickname, pi.profile_id, pi.gender, pi.birthday, lh.height, lw.weight,
                bc.category "bmi_category", la.activity_names, la.activity_recurrences,
                pl.id "populated_locality_id", pl.name "populated_locality_name", r.name "populated_locality_region", c.name "populated_locality_country",
                ul.language_ids, ul.language_names,
                dpi.appearance_type
             FROM profile_info pi
+            JOIN email e ON e.id = pi.profile_id
             JOIN dating_profile_info dpi ON dpi.profile_id = pi.profile_id
             JOIN latest_height lh ON lh.profile_id = pi.profile_id
             JOIN latest_weight lw ON lw.profile_id = pi.profile_id
@@ -149,11 +144,12 @@ class PairsRepository(
             
             LEFT JOIN dating_pair_lock dpl ON dpl.profile_id = pi.profile_id
             
-            WHERE dpl.profile_id IS NULL
+            WHERE e.verified 
+            AND dpl.profile_id IS NULL
 
             ORDER BY pi.created_at ASC
             """.trimIndent()
-    ).map { row, _ -> extractProfileMatchInformation(row) }.all()
+    ).map { row, _ -> extractProfileMatchInformationWithEmail(row) }.all()
 
     fun findCandidates(
         targetProfileId: UUID,
@@ -162,19 +158,20 @@ class PairsRepository(
         candidateSmoking: List<Recurrence>, candidateAlcohol: List<Recurrence>,
         candidatePornographyWatching: List<Recurrence>, candidateIntimateRelationsOutsideOfMarriage: List<Recurrence>,
         appearanceType: AppearanceType, populatedLocalityId: UUID, nativeLanguages: List<Language>
-    ): Flux<ProfileMatchInformation> = client.sql(
+    ): Flux<ProfileMatchInformationWithEmail> = client.sql(
         """
             WITH $latestHeight,
                  $latestWeight,
                  $latestActivities,
                  $userLanguages,
                  $bmiCategory
-            SELECT pi.profile_id, pi.gender, pi.birthday, lh.height, lw.weight,
+            SELECT e.email, pi.nickname, pi.profile_id, pi.gender, pi.birthday, lh.height, lw.weight,
                bc.category "bmi_category", la.activity_names, la.activity_recurrences,
                pl.id "populated_locality_id", pl.name "populated_locality_name", r.name "populated_locality_region", c.name "populated_locality_country",
                ul.language_ids, ul.language_names,
                dpi.appearance_type
             FROM profile_info pi
+            JOIN email e ON e.id = pi.profile_id
             JOIN dating_profile_info dpi ON dpi.profile_id = pi.profile_id
             JOIN latest_height lh ON lh.profile_id = pi.profile_id
             JOIN latest_weight lw ON lw.profile_id = pi.profile_id
@@ -195,7 +192,8 @@ class PairsRepository(
                 (dp.second_profile_id = pi.profile_id AND dp.first_profile_id = '$targetProfileId')
             )
             
-            WHERE pi.gender = '$candidateGender'
+            WHERE e.verified 
+                AND pi.gender = '$candidateGender'
                 AND bc.category = $candidateBmi
                 AND pi.birthday BETWEEN '$candidateBirthdayFrom' AND '$candidateBirthdayTo'
                 AND lh.height BETWEEN $candidateHeightFrom AND $candidateHeightTo
@@ -212,7 +210,7 @@ class PairsRepository(
 
             ORDER BY pi.created_at ASC
         """.trimIndent()
-    ).map { row, _ -> extractProfileMatchInformation(row) }.all()
+    ).map { row, _ -> extractProfileMatchInformationWithEmail(row) }.all()
 
     /* JsonByteArrayInput is handled as persistent entity and gets NullBinding in the end... not good...
        (if using "template.insert<DatingPair>().usingAndAwait(pair)" + @WritingConverter ... : Converter<ProfileMatchInformation, Json> / Converter<DatingPair, OutboundRow>
@@ -251,37 +249,43 @@ class PairsRepository(
     suspend fun save(pairLock: DatingPairLock): DatingPairLock =
         template.insert<DatingPairLock>().usingAndAwait(pairLock)
 
-    private fun extractProfileMatchInformation(row: Row): ProfileMatchInformation =
-        ProfileMatchInformation(
-            row["profile_id"] as UUID,
-            row["gender"].toGender(),
-            row["birthday"] as LocalDate,
-            (row["height"] as BigDecimal).toFloat(),
-            (row["weight"] as BigDecimal).toFloat(),
+    private fun extractProfileMatchInformationWithEmail(row: Row): ProfileMatchInformationWithEmail =
+        ProfileMatchInformationWithEmail(
+            row["email"] as String,
+            row["nickname"] as String,
+            ProfileMatchInformation(
+                row["profile_id"] as UUID,
+                row["gender"].toGender(),
+                row["birthday"] as LocalDate,
+                (row["height"] as BigDecimal).toFloat(),
+                (row["weight"] as BigDecimal).toFloat(),
 
-            row["bmi_category"] as Int,
+                row["bmi_category"] as Int,
 
-            extractActivity(row, smoking),
-            extractActivity(row, alcohol),
-            extractActivity(row, intimateRelationsOutsideOfMarriage),
-            extractActivity(row, pornographyWatching),
+                extractActivity(row, smoking),
+                extractActivity(row, alcohol),
+                extractActivity(row, intimateRelationsOutsideOfMarriage),
+                extractActivity(row, pornographyWatching),
 
-            PopulatedLocality(
-                row["populated_locality_id"] as UUID,
-                row["populated_locality_name"] as String,
-                row["populated_locality_region"] as String,
-                row["populated_locality_country"] as String,
-            ),
-            extractLanguages(row),
-            row["appearance_type"].toAppearanceType(),
+                PopulatedLocality(
+                    row["populated_locality_id"] as UUID,
+                    row["populated_locality_name"] as String,
+                    row["populated_locality_region"] as String,
+                    row["populated_locality_country"] as String,
+                ),
+                extractLanguages(row),
+                row["appearance_type"].toAppearanceType(),
+            )
         )
 
+    @Suppress("UNCHECKED_CAST")
     private fun extractLanguages(row: Row): List<Language> {
         val languageIds = row["language_ids"] as Array<UUID>
         val languageNames = row["language_names"] as Array<String>
         return languageIds.zip(languageNames).map { Language(it.first, it.second) }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun extractActivity(row: Row, type: ActivityType): Recurrence {
         val names = row["activity_names"] as Array<String>
         val recurrences = row["activity_recurrences"] as Array<String>

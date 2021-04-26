@@ -36,7 +36,9 @@ export const NaturalHairColorSelect = ({ nameAdjuster }: any) => (
   <PaperGrid>
     <Select
       name={nameAdjuster("naturalHairColor")}
-      helperText={<Link href={helpLink}>{Messages.hairPigmentation}</Link>}
+      helperText={
+        (<Link href={helpLink}>{Messages.hairPigmentation}</Link>) as any
+      }
       label={Messages.naturalHairColor}
       data={naturalHairColorOptions}
       fieldProps={{ validate: required }}

@@ -49,7 +49,7 @@ export const EyeColorSelect = ({ nameAdjuster }: any) => (
     <Select
       fieldProps={{ validate: required }}
       name={nameAdjuster("eyeColor")}
-      helperText={<Link href={helpLink}>{Messages.wiki}</Link>}
+      helperText={(<Link href={helpLink}>{Messages.wiki}</Link>) as any}
       label={Messages.eyeColor}
       data={eyeColorOptions}
     />

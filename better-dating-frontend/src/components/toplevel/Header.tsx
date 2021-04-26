@@ -99,8 +99,8 @@ const Header = (): ReactElement => {
 
   return (
     <>
+      {/** to beat z-index used for tabs */}
       <HideOnScroll>
-        {/** to beat the one used for tabs */}
         <AppBar style={{ zIndex: 1101 }}>
           <Toolbar>
             <IconButton

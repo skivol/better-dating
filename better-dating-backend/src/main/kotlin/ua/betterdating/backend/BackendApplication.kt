@@ -5,6 +5,7 @@ import org.springframework.fu.kofu.reactiveWebApplication
 import org.springframework.fu.kofu.scheduling.scheduling
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
 import ua.betterdating.backend.configuration.dataConfig
+import ua.betterdating.backend.configuration.loggingConfig
 import ua.betterdating.backend.configuration.mailConfig
 import ua.betterdating.backend.configuration.webConfig
 import ua.betterdating.backend.data.EmailRepository
@@ -20,6 +21,7 @@ val app = reactiveWebApplication {
 	enable(dataConfig(emailRepository, userRoleRepository, passwordFiles.db))
 	enable(mailConfig(passwordFiles.mail))
 	enable(webConfig(emailRepository, userRoleRepository))
+	enable(loggingConfig())
 
 	scheduling {
 		taskScheduler = ConcurrentTaskScheduler(Executors.newSingleThreadScheduledExecutor())

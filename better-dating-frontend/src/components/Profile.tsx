@@ -2,15 +2,7 @@ import { useState, useEffect, ChangeEvent } from "react";
 import { useDispatch } from "react-redux";
 import { FormApi } from "final-form";
 import { Form } from "react-final-form";
-import {
-  AppBar,
-  Tabs,
-  Tab,
-  Grid,
-  Typography,
-  Paper,
-  TabPanelProps,
-} from "@material-ui/core";
+import { AppBar, Tabs, Tab, Grid, Typography, Paper } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -46,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const TabPanel = (props: TabPanelProps) => {
+const TabPanel = (props: any) => {
   const { children, value, index } = props;
   if (value !== index) {
     return null;

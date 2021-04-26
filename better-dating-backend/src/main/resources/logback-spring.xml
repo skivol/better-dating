@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 	<include resource="org/springframework/boot/logging/logback/base.xml"/>
-	<logger name="org.springframework.web" level="ERROR"/>
-	<logger name="ua.betterdating" level="ERROR"/>
-
-	<logger name="io.netty" level="ERROR"/>
-	<logger name="reactor.core" level="OFF"/>
-	<logger name="io.r2dbc.postgresql.client" level="OFF"/>
-<!--	<logger name="io.r2dbc.postgresql.client" level="DEBUG"/>-->
-<!--	<logger name="org.springframework.data.r2dbc" level="DEBUG"/>-->
-	<logger name="reactor.netty.channel" level="OFF"/>
 
 	<appender name="accessLog" class="ch.qos.logback.core.FileAppender">
-		<file>./logs/better-dating_backend_access_log.log</file>
+		<file>./logs/better-dating_backend_access.log</file>
 		<encoder>
 			<pattern>%msg%n</pattern>
 		</encoder>

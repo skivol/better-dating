@@ -1,5 +1,7 @@
 package ua.betterdating.backend
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.core.env.Environment
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean
@@ -26,22 +28,28 @@ class FreemarkerMailSender(
             templateParams: (link: String) -> Any
     ) = generateAndSendLinkWithToken(profileId, type, templateName, to, subject, request, urlPath, {}, templateParams)
 
-    suspend fun generateAndSendLinkWithToken(
+    private suspend fun generateAndSendLinkWithToken(
             profileId: UUID, type: TokenType, templateName: String,
             to: String, subject: String,
             request: ServerRequest, urlPath: String, saveExtraTokenData: suspend (token: ExpiringToken) -> Any,
             templateParams: (link: String) -> Any
+    ) = generateAndSendLinkWithToken(profileId, type, templateName, to, subject, unicodeHostHeader(request), urlPath, saveExtraTokenData, templateParams)
+
+    private suspend fun generateAndSendLinkWithToken(
+        profileId: UUID, type: TokenType, templateName: String,
+        to: String, subject: String,
+        unicodeHostHeader: String, urlPath: String, saveExtraTokenData: suspend (token: ExpiringToken) -> Any,
+        templateParams: (link: String) -> Any
     ) {
-        val token = generateUrlSafeToken()
+        val token = withContext(Dispatchers.Default) { generateUrlSafeToken() }
         val expiringToken = ExpiringToken(
-                profileId = profileId, expires = expiresValue(),
-                encodedValue = passwordEncoder.encode(token), type = type
+            profileId = profileId, expires = expiresValue(),
+            encodedValue = passwordEncoder.encode(token), type = type
         )
         expiringTokenRepository.deleteByProfileIdAndTypeIfAny(profileId, type)
         expiringTokenRepository.save(expiringToken)
         saveExtraTokenData.invoke(expiringToken)
 
-        val unicodeHostHeader = unicodeHostHeader(request)
         val link = "https://$unicodeHostHeader/$urlPath?токен=${encodeToken(expiringToken.id, token)}"
         val body = renderTemplate(templateConfigurationFactory, templateName, templateParams.invoke(link))
 
@@ -72,7 +80,7 @@ class FreemarkerMailSender(
         }
     }
 
-    fun sendChangeMailNotificationToOldAddress(oldEmailAddress: String) {
+    suspend fun sendChangeMailNotificationToOldAddress(oldEmailAddress: String) {
         val subject = "Эта почта больше не подключена к профилю на сайте \"смотрины.укр & смотрины.рус\""
         val body = renderTemplate(templateConfigurationFactory, "ChangeEmailNotificationToOldAddress.ftlh", object {
             val title = subject
@@ -81,9 +89,28 @@ class FreemarkerMailSender(
         smotrinyMailSender.send(to = oldEmailAddress, subject = subject, body = body)
     }
 
-    fun sendTestMail(to: String) {
+    suspend fun sendTestMail(to: String) {
         val subject = "Тестовое письмо"
         smotrinyMailSender.send(to = to, subject = subject, body = subject)
+    }
+
+    suspend fun viewOtherUserProfile(targetUserId: UUID, targetUserEmail: String, subject: String,
+                                     body: String, unicodeHost: String,
+                                     saveExtraTokenData: suspend (token: ExpiringToken) -> Any
+    ) {
+        generateAndSendLinkWithToken(
+            targetUserId, TokenType.VIEW_OTHER_USER_PROFILE, "LinkToViewOtherUserProfile.ftlh",
+            targetUserEmail, subject, unicodeHost, "просмотр-профиля",
+            // while saving additional token payload
+            saveExtraTokenData
+        ) { link ->
+            object {
+                val title = subject
+                val body = body
+                val actionLabel = "Просмотр профиля"
+                val actionUrl = link
+            }
+        }
     }
 
     fun smotrinySender() = environment.getProperty("spring.mail.username")!!
