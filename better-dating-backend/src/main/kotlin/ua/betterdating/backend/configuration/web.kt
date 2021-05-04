@@ -94,7 +94,6 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
             string()
             jackson()
         }
-        filter<CsrfFilter>()
 
         security {
             securityCustomizer = {
@@ -108,6 +107,7 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
 
                 it.addFilterBefore(simpleLoginWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 it.addFilterAfter(AccessDeniedFilter(), SecurityWebFiltersOrder.EXCEPTION_TRANSLATION)
+                it.addFilterAfter(CsrfFilter(), SecurityWebFiltersOrder.CSRF)
             }
             http {
                 csrf {

@@ -4,6 +4,7 @@ import { FormApi } from "final-form";
 import { Form } from "react-final-form";
 import { AppBar, Tabs, Tab, Grid, Typography, Paper } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import Alert from "@material-ui/lab/Alert";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faIdCard } from "@fortawesome/free-solid-svg-icons";
@@ -51,9 +52,10 @@ const TabPanel = (props: any) => {
 type Props = {
   profileData: ProfileFormData;
   readonly: boolean;
+  titleMessage?: string;
 };
 
-export const Profile = ({ profileData, readonly = false }: Props) => {
+export const Profile = ({ profileData, readonly = false, titleMessage }: Props) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -156,6 +158,14 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
     setSelectedTab(newTab);
   };
 
+  const subTitle = titleMessage && (
+    <Alert
+      severity="info"
+      className="u-margin-top-bottom"
+    >
+      {titleMessage}
+    </Alert>
+  );
   const nameAdjuster = (v: string) => `secondStageData.${v}`;
   return (
     <>
@@ -184,6 +194,7 @@ export const Profile = ({ profileData, readonly = false }: Props) => {
                       >
                         <FontAwesomeIcon icon={faIdCard} /> {Messages.Profile}
                       </Typography>
+                      {subTitle}
                     </div>
                   </Paper>
                 </Grid>

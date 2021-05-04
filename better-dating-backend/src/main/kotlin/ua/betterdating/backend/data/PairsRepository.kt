@@ -1,16 +1,15 @@
 package ua.betterdating.backend.data
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.r2dbc.postgresql.codec.Json
 import io.r2dbc.spi.Row
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.withContext
 import org.springframework.data.annotation.Id
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
-import org.springframework.data.r2dbc.core.insert
-import org.springframework.data.r2dbc.core.usingAndAwait
+import org.springframework.data.r2dbc.core.*
 import org.springframework.r2dbc.core.DatabaseClient
+import org.springframework.r2dbc.core.awaitRowsUpdated
 import reactor.core.publisher.Flux
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
@@ -226,7 +225,7 @@ class PairsRepository(
        * https://docs.spring.io/spring-data/r2dbc/docs/current/reference/html/#mapping.explicit.enum.converters
        * https://medium.com/@nikola.babic1/mapping-to-json-fields-with-spring-data-r2dbc-and-reactive-postgres-driver-1db765067dc5
        */
-    suspend fun save(pair: DatingPair): Long {
+    suspend fun save(pair: DatingPair): Int {
         // https://stackoverflow.com/a/64306690
         val firstProfileSnapshotJson =
             Json.of(withContext(Dispatchers.IO) { mapper.writeValueAsString(pair.firstProfileSnapshot) })
@@ -243,11 +242,33 @@ class PairsRepository(
             .bind("whenMatched", pair.whenMatched)
             .bind("firstProfileSnapshot", firstProfileSnapshotJson)
             .bind("secondProfileSnapshot", secondProfileSnapshotJson)
-            .fetch().all().count().awaitFirst()
+            .fetch().awaitRowsUpdated()
     }
 
     suspend fun save(pairLock: DatingPairLock): DatingPairLock =
         template.insert<DatingPairLock>().usingAndAwait(pairLock)
+
+    fun findActivePair(one: UUID, other: UUID): Flux<DatingPair> =
+        client.sql(
+            """
+                SELECT * FROM dating_pair
+                WHERE active AND (
+                    (first_profile_id = :first_profile_id AND second_profile_id = :second_profile_id)
+                    OR
+                    (first_profile_id = :second_profile_id AND second_profile_id = :first_profile_id)
+                )
+            """.trimIndent()
+        ).bind("first_profile_id", one)
+            .bind("second_profile_id", other)
+            .map { row, _ ->
+                DatingPair(
+                    row["first_profile_id"] as UUID, row["second_profile_id"] as UUID,
+                    DatingGoal.valueOf(row["goal"] as String), row["when_matched"] as LocalDateTime,
+                    row["active"] as Boolean,
+                    mapper.readValue((row["first_profile_snapshot"] as Json).asArray()), // TODO run this in Dispatchers.IO ?
+                    mapper.readValue((row["second_profile_snapshot"] as Json).asArray())
+                )
+            }.all()
 
     private fun extractProfileMatchInformationWithEmail(row: Row): ProfileMatchInformationWithEmail =
         ProfileMatchInformationWithEmail(

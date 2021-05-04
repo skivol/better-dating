@@ -78,6 +78,14 @@ open class Profile(
     }
 }
 
+enum class Relation {
+    matchedProfile, authorsProfile
+}
+class ProfileViewData(
+    val profile: Profile,
+    val relation: Relation
+)
+
 enum class Gender {
     female, male
 }

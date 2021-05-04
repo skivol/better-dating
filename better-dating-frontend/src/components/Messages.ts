@@ -165,3 +165,6 @@ export const testEmailWasSent = "Тестовое письмо было отпр
 export const profileTabsAria = "Табы профиля";
 export const selfDevelopmentTab = "Саморазвитие";
 export const datingProfileTab = "Свидания (Второй этап)";
+
+export const matchedProfileTitle = "Профиль человека с которым была сформирована пара, поэтому рекомендуется внимательное ознакомление и проверка данных профиля при личной встрече. Доверяй, но проверяй :)";
+export const authorsProfileTitle = "Профиль автора сайта";

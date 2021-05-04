@@ -41,6 +41,7 @@ class UserProfileHandler(
         private val interestsRepository: InterestsRepository,
         private val userPersonalQualityRepository: UserPersonalQualityRepository,
         private val personalQualitiesRepository: PersonalQualitiesRepository,
+        private val pairsRepository: PairsRepository,
         private val logoutHandler: DelegatingServerLogoutHandler,
         private val passwordEncoder: PasswordEncoder,
         private val transactionalOperator: TransactionalOperator,
@@ -262,6 +263,9 @@ class UserProfileHandler(
         val targetProfileData = existingProfileById(tokenData.targetProfileId).also {
             it.email = "" // we're not revealing target user email here
         }
+        val activePair = pairsRepository.findActivePair(dbToken.profileId, tokenData.targetProfileId).awaitFirstOrNull()
+        val relation = if (activePair == null) Relation.authorsProfile else Relation.matchedProfile
+        val profileViewData = ProfileViewData(targetProfileData, relation)
 
         transactionalOperator.executeAndAwait {
             // track who viewed whose profile
@@ -270,7 +274,7 @@ class UserProfileHandler(
             expiringTokenRepository.delete(dbToken)
         }
 
-        return ok().json().bodyValueAndAwait(targetProfileData)
+        return ok().json().bodyValueAndAwait(profileViewData)
     }
 
     suspend fun activateSecondStage(request: ServerRequest): ServerResponse {

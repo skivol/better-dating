@@ -7,11 +7,19 @@ import { resolveTokenMessage } from "../Messages";
 import { CenteredSpinner } from "./common";
 import { Profile } from "./Profile";
 import { ProfileFormData } from "./profile";
+import * as Messages from "./Messages";
+
+type ProfileViewRelation = "authorsProfile" | "matchedProfile";
+
+type ViewProfileData = {
+  profile: ProfileFormData;
+  relation: ProfileViewRelation;
+};
 
 const ProfileView = () => {
   const token = useToken();
   const dispatch = useDispatch();
-  const [profileData, setProfileData] = useState<null | ProfileFormData>(null);
+  const [profileData, setProfileData] = useState<null | ViewProfileData>(null);
 
   useEffect(() => {
     getData("/api/user/profile/view", { token })
@@ -30,7 +38,10 @@ const ProfileView = () => {
     return <CenteredSpinner />;
   }
 
-  return <Profile readonly profileData={profileData} />;
+  const message = profileData.relation === "matchedProfile"
+    ? Messages.matchedProfileTitle
+    : Messages.authorsProfileTitle;
+  return <Profile readonly profileData={profileData.profile} titleMessage={message} />;
 };
 
 export default ProfileView;
