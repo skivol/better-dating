@@ -34,6 +34,6 @@ export const useDialog = () => {
 
 export const useToken = () => {
   const router = useRouter();
-  const token = firstValueIfArray(router.query[tokenName]);
+  const token = firstValueIfArray(router.query[tokenName]) as string;
   return token;
 };

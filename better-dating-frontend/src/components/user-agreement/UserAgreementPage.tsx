@@ -7,7 +7,9 @@ export const UserAgreementPage = () => (
   <>
     <Header />
     <Paper elevation={3} className="u-padding-15px">
-      <ReactMarkdownMaterialUi source={fullTextOfUserAgreement} />
+      <ReactMarkdownMaterialUi>
+        {fullTextOfUserAgreement}
+      </ReactMarkdownMaterialUi>
     </Paper>
   </>
 );

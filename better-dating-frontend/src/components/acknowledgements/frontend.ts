@@ -97,12 +97,6 @@ export const libraries = [
     copyright: "Copyright (c) 2015-present Dan Abramov",
   },
   {
-    name: "redux-logger",
-    url: "https://github.com/LogRocket/redux-logger",
-    license: Licenses.MIT,
-    copyright: "Copyright (c) 2016 Eugene Rodionov",
-  },
-  {
     name: "Redux Thunk", // TODO check if used
     url: "https://github.com/reduxjs/redux-thunk",
     license: Licenses.MIT,
@@ -127,29 +121,10 @@ export const tools = [
     ],
   },
   {
-    name: "imagemin-mozjpeg",
-    url: "https://github.com/imagemin/imagemin-mozjpeg",
-    license: Licenses.MIT,
-    copyright: "Copyright (c) Imagemin",
-  },
-  {
-    name: "imagemin-optipng",
-    url: "https://github.com/imagemin/imagemin-optipng",
-    license: Licenses.MIT,
-    copyright:
-      "Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)",
-  },
-  {
     name: "next-compose-plugins",
     url: "https://github.com/cyrilwanner/next-compose-plugins",
     license: Licenses.MIT,
     copyright: "Copyright (c) 2018-present Cyril Wanner",
-  },
-  {
-    name: "next-optimized-images",
-    url: "https://github.com/cyrilwanner/next-optimized-images",
-    license: Licenses.MIT,
-    copyright: "Copyright (c) 2018 Cyril Wanner",
   },
   {
     name: "raw-loader",
@@ -198,18 +173,6 @@ export const tools = [
     url: "https://github.com/webpack-contrib/file-loader",
     license: Licenses.MIT,
     copyright: "Copyright JS Foundation and other contributors",
-  },
-  {
-    name: "ignore-loader", // TODO double check if needed
-    url: "https://github.com/cherrry/ignore-loader",
-    license: Licenses.MIT,
-    copyright: "Copyright (c) 2016 Cherry Ng",
-  },
-  {
-    name: "extracted-loader", // TODO double check if needed
-    url: "https://github.com/sheerun/extracted-loader",
-    license: Licenses.MIT,
-    copyright: null,
   },
   {
     name: "Babel",

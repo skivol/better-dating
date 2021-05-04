@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 import clsx from "clsx";
 import {
   Grid,
@@ -20,10 +21,6 @@ import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 import { getData, ReactMarkdownMaterialUi } from "../utils";
 import { updated } from "../constants";
 import * as Messages from "./Messages";
-import FirstStageFlow from "./img/Первый_этап.png";
-import selfDevelopmentStage from "./img/self-development-stage.svg";
-import datingStage from "./img/dating-stage.svg";
-import familyStage from "./img/family-stage.svg";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -44,7 +41,7 @@ const onContactRequest = async () => {
 const DialogWithFirstStageFlowImage = (handleClose: () => void) => (
   <Dialog open onClose={handleClose} aria-labelledby="max-width-dialog-title">
     <img
-      src={FirstStageFlow}
+      src="/img/Первый_этап.png"
       alt={Messages.firstStageFlowAlt}
       className="c-first-stage-flow-image"
     />
@@ -69,24 +66,27 @@ export const Proposal = () => {
           </Grid>
           <Grid container justify="center" spacing={3}>
             <Grid item>
-              <img
-                src={selfDevelopmentStage}
+              <Image
+                src="/img/self-development-stage.svg"
                 alt={Messages.selfDevelopment}
-                style={{ width: 100 }}
+                width={100}
+                height={92.36}
               />
             </Grid>
             <Grid item>
-              <img
-                src={datingStage}
+              <Image
+                src="/img/dating-stage.svg"
                 alt={Messages.dating}
-                style={{ width: 100 }}
+                width={100}
+                height={92.36}
               />
             </Grid>
             <Grid item>
-              <img
-                src={familyStage}
+              <Image
+                src="/img/family-stage.svg"
                 alt={Messages.family}
-                style={{ width: 100 }}
+                width={100}
+                height={92.36}
               />
             </Grid>
           </Grid>
@@ -100,10 +100,9 @@ export const Proposal = () => {
                 marginTop: "10px",
               }}
             >
-              <ReactMarkdownMaterialUi
-                className="u-max-width-400px"
-                source={Messages.flowDescription}
-              />
+              <ReactMarkdownMaterialUi className="u-max-width-400px">
+                {Messages.flowDescription}
+              </ReactMarkdownMaterialUi>
             </Grid>
           </Grid>
         </Paper>
@@ -129,7 +128,7 @@ export const Proposal = () => {
                 </Grid>
                 <Grid item>
                   <CardMedia
-                    src={FirstStageFlow}
+                    src="/img/Первый_этап.png"
                     component="img"
                     alt={Messages.firstStageFlowAlt}
                     onClick={openDialog}
@@ -221,9 +220,9 @@ export const Proposal = () => {
               </Grid>
               <Grid item xs={10}>
                 <div className="MuiTypography-root MuiTypography-body1">
-                  <ReactMarkdownMaterialUi
-                    source={Messages.spreadTheWordIfSeemsInteresting}
-                  />
+                  <ReactMarkdownMaterialUi>
+                    {Messages.spreadTheWordIfSeemsInteresting}
+                  </ReactMarkdownMaterialUi>
                 </div>
               </Grid>
             </Grid>

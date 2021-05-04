@@ -14,6 +14,8 @@ const NextMuiLink = ({ children, href, ...rest }: any) =>
   ) : (
     <MuiLink {...{ children, href, ...rest }} />
   );
-export const ReactMarkdownMaterialUi = ({ renderers = {}, ...rest }: any) => (
-  <ReactMarkdown renderers={{ link: NextMuiLink, ...renderers }} {...rest} />
+export const ReactMarkdownMaterialUi = ({ children, ...rest }: any) => (
+  <ReactMarkdown components={{ a: NextMuiLink }} {...rest}>
+    {children}
+  </ReactMarkdown>
 );

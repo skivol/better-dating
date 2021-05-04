@@ -1,5 +1,6 @@
-import { ReactElement, CSSProperties, forwardRef, useState } from "react";
+import { ReactElement, forwardRef, useState } from "react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 import {
   AppBar,
   Toolbar,
@@ -32,16 +33,8 @@ import {
   registerAccount,
   login,
 } from "../navigation/NavigationUrls";
-import SmotrinyLogo from "../img/logo.svg";
 import { useUser } from "../../utils";
 import { LoggedInUserMenu } from "./LoggedInUserMenu";
-
-const logoStyle: CSSProperties = {
-  height: 50,
-  width: 50,
-  background: "white",
-  borderRadius: 10,
-};
 
 const useStyles = makeStyles((theme) => ({
   marginRight: {
@@ -112,12 +105,14 @@ const Header = (): ReactElement => {
             >
               <FontAwesomeIcon icon={faBars} />
             </IconButton>
-            <img
-              src={SmotrinyLogo}
+            <Image
+              src="/img/logo.svg"
               alt={Messages.logoTooltip}
-              style={logoStyle}
-              className={classes.marginRight}
+              width={50}
+              height={50}
+              className="logo"
             />
+            <div className={classes.marginRight} />
             <Typography variant="h6" className={classes.title} color="inherit">
               {Messages.title}
             </Typography>

@@ -7,7 +7,9 @@ export const PrivacyPolicyPage = () => (
   <>
     <Header />
     <Paper elevation={3} className="u-padding-15px">
-      <ReactMarkdownMaterialUi source={fullTextOfPrivacyPolicy} />
+      <ReactMarkdownMaterialUi>
+        {fullTextOfPrivacyPolicy}
+      </ReactMarkdownMaterialUi>
     </Paper>
   </>
 );

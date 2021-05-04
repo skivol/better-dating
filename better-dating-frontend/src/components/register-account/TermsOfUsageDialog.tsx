@@ -5,7 +5,6 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
   Button,
 } from "@material-ui/core";
 
@@ -51,7 +50,9 @@ const TermsOfUsageDialog = ({
           ref={descriptionElementRef}
           tabIndex={-1}
         />
-        <ReactMarkdownMaterialUi source={fullTextOfUserAgreement} />
+        <ReactMarkdownMaterialUi>
+          {fullTextOfUserAgreement}
+        </ReactMarkdownMaterialUi>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleDecline} variant="contained">

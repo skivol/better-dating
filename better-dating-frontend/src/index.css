@@ -185,3 +185,8 @@ input:-webkit-autofill {
 .u-align-self-end {
   align-self: end;
 }
+
+.logo {
+  background: white;
+  border-radius: 10px;
+}

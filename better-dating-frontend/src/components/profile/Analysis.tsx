@@ -92,9 +92,9 @@ const analyzeBmi = (birthday: Date, height: number, weight: number) => {
   return (
     <>
       <Alert severity={severity} className="u-margin-bottom-10px">
-        <ReactMarkdownMaterialUi
-          source={Messages.bodyMassIndexInfo(bmi.toFixed(2), message, range)}
-        />
+        <ReactMarkdownMaterialUi>
+          {Messages.bodyMassIndexInfo(bmi.toFixed(2), message, range)}
+        </ReactMarkdownMaterialUi>
       </Alert>
       {youngerThan20 && (
         <Alert severity="warning" className="u-margin-bottom-10px">
@@ -106,12 +106,14 @@ const analyzeBmi = (birthday: Date, height: number, weight: number) => {
         variant="outlined"
         className="u-margin-bottom-10px"
       >
-        <ReactMarkdownMaterialUi source={Messages.bmiMotivation} />
+        <ReactMarkdownMaterialUi>
+          {Messages.bmiMotivation}
+        </ReactMarkdownMaterialUi>
       </Alert>
       <Alert severity="success" variant="outlined">
-        <ReactMarkdownMaterialUi
-          source={Messages.someProsOfKeepingGoodWeight}
-        />
+        <ReactMarkdownMaterialUi>
+          {Messages.someProsOfKeepingGoodWeight}
+        </ReactMarkdownMaterialUi>
       </Alert>
     </>
   );
@@ -144,12 +146,14 @@ const analyzePhysicalExercise = (physicalExerciseRecurrence: Recurrence) => {
         variant="outlined"
         className="u-margin-bottom-10px"
       >
-        <ReactMarkdownMaterialUi source={Messages.physicalExerciseInfo} />
+        <ReactMarkdownMaterialUi>
+          {Messages.physicalExerciseInfo}
+        </ReactMarkdownMaterialUi>
       </Alert>
       <Alert severity="success" variant="outlined">
-        <ReactMarkdownMaterialUi
-          source={Messages.someProsOfKeepingGoodPhysicalShape}
-        />
+        <ReactMarkdownMaterialUi>
+          {Messages.someProsOfKeepingGoodPhysicalShape}
+        </ReactMarkdownMaterialUi>
       </Alert>
     </>
   );
@@ -163,7 +167,9 @@ const analyzeSmoking = (smoking: Recurrence) => {
         <p>{Messages.smokingWarning}</p>
       </Alert>
       <Alert severity="info" variant="outlined">
-        <ReactMarkdownMaterialUi source={Messages.smokingInfo} />
+        <ReactMarkdownMaterialUi>
+          {Messages.smokingInfo}
+        </ReactMarkdownMaterialUi>
       </Alert>
     </>
   );
@@ -177,7 +183,9 @@ const analyzeAlcohol = (alcohol: Recurrence) => {
         <p>{Messages.alcoholWarning}</p>
       </Alert>
       <Alert severity="info" variant="outlined">
-        <ReactMarkdownMaterialUi source={Messages.alcoholInfo} />
+        <ReactMarkdownMaterialUi>
+          {Messages.alcoholInfo}
+        </ReactMarkdownMaterialUi>
       </Alert>
     </>
   );
@@ -191,7 +199,9 @@ const analyzeComputerGames = (computerGames: Recurrence) => {
         <p>{Messages.computerGamesWarning}</p>
       </Alert>
       <Alert severity="info" variant="outlined">
-        <ReactMarkdownMaterialUi source={Messages.computerGamesInfo} />
+        <ReactMarkdownMaterialUi>
+          {Messages.computerGamesInfo}
+        </ReactMarkdownMaterialUi>
       </Alert>
     </>
   );
@@ -216,7 +226,9 @@ const analyzeHaircut = (haircut: Recurrence) => {
         <p>{Messages.haircutWarning}</p>
       </Alert>
       <Alert severity="info" variant="outlined">
-        <ReactMarkdownMaterialUi source={Messages.haircutInfo} />
+        <ReactMarkdownMaterialUi>
+          {Messages.haircutInfo}
+        </ReactMarkdownMaterialUi>
       </Alert>
     </>
   );
@@ -241,10 +253,12 @@ const analyzeMakeup = (makeup: Recurrence) => {
   return (
     <>
       <Alert severity={severity} className="u-margin-bottom-10px">
-        <ReactMarkdownMaterialUi source={Messages.makeupWarning} />
+        <ReactMarkdownMaterialUi>
+          {Messages.makeupWarning}
+        </ReactMarkdownMaterialUi>
       </Alert>
       <Alert severity="info" variant="outlined">
-        <ReactMarkdownMaterialUi source={Messages.makeupInfo} />
+        <ReactMarkdownMaterialUi>{Messages.makeupInfo}</ReactMarkdownMaterialUi>
       </Alert>
     </>
   );
@@ -260,9 +274,9 @@ const analyzeIntimateRelationsOutsideOfMarriage = (
         <p>{Messages.intimateRelationsOutsideOfMarriageWarning}</p>
       </Alert>
       <Alert severity="info" variant="outlined">
-        <ReactMarkdownMaterialUi
-          source={Messages.intimateRelationsOutsideOfMarriageInfo}
-        />
+        <ReactMarkdownMaterialUi>
+          {Messages.intimateRelationsOutsideOfMarriageInfo}
+        </ReactMarkdownMaterialUi>
       </Alert>
     </>
   );
@@ -276,7 +290,9 @@ const analyzePornographyWatching = (pornographyWatching: Recurrence) => {
         <p>{Messages.pornographyWatchingWarning}</p>
       </Alert>
       <Alert severity="info" variant="outlined">
-        <ReactMarkdownMaterialUi source={Messages.pornographyWatchingInfo} />
+        <ReactMarkdownMaterialUi>
+          {Messages.pornographyWatchingInfo}
+        </ReactMarkdownMaterialUi>
       </Alert>
     </>
   );

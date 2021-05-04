@@ -78,7 +78,7 @@ export const putData = async (url: string, data = {}) =>
 export const deleteData = async (url: string, data = {}) =>
   requestWithBody("DELETE", url, data);
 
-export const firstValueIfArray = (target: string[] | string) =>
+export const firstValueIfArray = (target: string[] | string | undefined) =>
   target instanceof Array ? target[0] : target;
 
 export const headers = (req: any) =>
