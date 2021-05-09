@@ -32,9 +32,10 @@ const naturalHairColorOptions = [
 ].sort((a, b) => (a.label > b.label ? 1 : 0));
 
 const helpLink = "https://ru.wikipedia.org/wiki/Пигментация_волос";
-export const NaturalHairColorSelect = ({ nameAdjuster }: any) => (
+export const NaturalHairColorSelect = ({ nameAdjuster, readonly }: any) => (
   <PaperGrid>
     <Select
+      disabled={readonly}
       name={nameAdjuster("naturalHairColor")}
       helperText={
         (<Link href={helpLink}>{Messages.hairPigmentation}</Link>) as any

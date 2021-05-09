@@ -185,6 +185,25 @@ export const viewAuthorsProfile = (): any => async (
   }
 };
 
+export const viewOtherUserProfile = ({ id, nickname }: any): any => async (
+  dispatch: ThunkDispatch<any, any, Action>
+) => {
+  try {
+    await postData("/api/user/profile/user-profile", { targetId: id });
+    dispatch(
+      openSnackbar(
+        Messages.linkForViewingUsersProfileWasSent(nickname),
+        SnackbarVariant.info
+      )
+    );
+  } catch (error) {
+    dispatch(
+      openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
+    );
+    throw error;
+  }
+};
+
 export const activateSecondStage = (values: any): any => async (
   dispatch: ThunkDispatch<any, any, Action>
 ) => {

@@ -8,6 +8,7 @@ import ua.betterdating.backend.mapErrorToResponse
 fun routes(
         emailHandler: EmailHandler,
         userProfileHandler: UserProfileHandler,
+        datingHandler: DatingHandler,
         populatedLocalitiesHandler: PopulatedLocalitiesHandler,
         languagesHandler: LanguagesHandler,
         interestsHandler: InterestsHandler,
@@ -29,8 +30,13 @@ fun routes(
         POST("/request-removal", accept(APPLICATION_JSON), userProfileHandler::requestRemoval)
         DELETE("", accept(APPLICATION_JSON), userProfileHandler::removeProfile)
         POST("/authors-profile", accept(APPLICATION_JSON), userProfileHandler::requestViewOfAuthorsProfile)
+        POST("/user-profile", accept(APPLICATION_JSON), userProfileHandler::requestViewOfOtherUserProfile)
         GET("/view", userProfileHandler::viewOtherUserProfile)
         POST("/activate-second-stage", userProfileHandler::activateSecondStage)
+    }
+
+    "/api/user/dating".nest {
+        GET("", datingHandler::datingData)
     }
 
     GET("/api/populated-localities/autocomplete", populatedLocalitiesHandler::autocomplete)

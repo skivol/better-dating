@@ -12,12 +12,14 @@ type Interest = {
 const showInterest = ({ name }: Interest) => name;
 
 type Props = {
+  readonly: boolean;
   initialValues?: Interest[];
   nameAdjuster: (name: string) => string;
 };
 export const InterestsAutocomplete = ({
   nameAdjuster,
   initialValues = [],
+  readonly,
 }: Props) => {
   const [value, setValue] = useState<Interest[]>(initialValues);
   const [inputValue, setInputValue] = useState("");
@@ -48,6 +50,7 @@ export const InterestsAutocomplete = ({
   return (
     <PaperGrid>
       <Autocomplete
+        disabled={readonly}
         multiple
         label={Messages.interests}
         helperText={Messages.interestsHelp}

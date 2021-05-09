@@ -15,12 +15,14 @@ const showPopulatedLocality = ({ name, region, country }: PopulatedLocality) =>
   `${name}, ${region}, ${country}`;
 
 type Props = {
+  readonly: boolean;
   initialValue: PopulatedLocality;
   nameAdjuster: (name: string) => string;
 };
 export const PopulatedLocalityAutocomplete = ({
   initialValue,
   nameAdjuster,
+  readonly,
 }: Props) => {
   const [value, setValue] = useState<PopulatedLocality | undefined>(
     initialValue
@@ -58,6 +60,7 @@ export const PopulatedLocalityAutocomplete = ({
   return (
     <PaperGrid>
       <Autocomplete
+        disabled={readonly}
         fieldProps={{ validate: required }}
         label={Messages.populatedLocalityWhereOneLives}
         name={nameAdjuster("populatedLocality")}

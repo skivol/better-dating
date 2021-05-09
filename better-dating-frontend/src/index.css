@@ -48,6 +48,9 @@ input:-webkit-autofill {
 .u-min-width-450px {
   width: 450px;
 }
+.u-min-width-700px {
+  width: 700px !important;
+}
 
 .u-margin-bottom-5px {
   margin-bottom: 5px !important; /* MuiButtonBase-root has margin as well */
@@ -189,4 +192,11 @@ input:-webkit-autofill {
 .logo {
   background: white;
   border-radius: 10px;
+}
+
+.c-pairs-table {
+  table-layout: auto;
+}
+.c-pairs-table th {
+  font-weight: bold;
 }

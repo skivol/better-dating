@@ -11,6 +11,7 @@ type PersonalQuality = {
 const showPersonalQuality = ({ name }: PersonalQuality) => name;
 
 type Props = {
+  readonly: boolean;
   name: string;
   label: string;
   initialValues?: PersonalQuality[];
@@ -19,6 +20,7 @@ export const PersonalQualityAutocomplete = ({
   name,
   label,
   initialValues = [],
+  readonly,
 }: Props) => {
   const [value, setValue] = useState<PersonalQuality[]>(initialValues);
   const [inputValue, setInputValue] = useState("");
@@ -55,6 +57,7 @@ export const PersonalQualityAutocomplete = ({
   return (
     <PaperGrid>
       <Autocomplete
+        disabled={readonly}
         multiple
         label={label}
         name={name}

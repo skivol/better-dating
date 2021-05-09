@@ -1,5 +1,6 @@
 export const goal = "Цель встреч";
 export const findSoulMate = "Поиск второй половинки";
+export const unknown = "Неизвестна";
 
 export const populatedLocalityWhereOneLives =
   "Населенный пункт проживания (для организации свиданий)";

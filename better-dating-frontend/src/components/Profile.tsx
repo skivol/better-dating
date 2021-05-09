@@ -15,6 +15,7 @@ import {
   useMenu,
   useDialog,
   fromBackendProfileValues,
+  TabPanel,
 } from "../utils";
 import * as Messages from "./Messages";
 import {
@@ -39,23 +40,17 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const TabPanel = (props: any) => {
-  const { children, value, index } = props;
-  if (value !== index) {
-    return null;
-  }
-
-  // consider example from https://material-ui.com/ru/components/tabs/#simple-tabs ?
-  return children;
-};
-
 type Props = {
   profileData: ProfileFormData;
   readonly: boolean;
   titleMessage?: string;
 };
 
-export const Profile = ({ profileData, readonly = false, titleMessage }: Props) => {
+export const Profile = ({
+  profileData,
+  readonly = false,
+  titleMessage,
+}: Props) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -135,10 +130,11 @@ export const Profile = ({ profileData, readonly = false, titleMessage }: Props) 
   } else if (dialogType === "viewAuthorsProfile") {
     dialog = (
       <ViewOtherUserProfileConfirm
+        title={Messages.areYouSureThatWantToSeeAuthorsProfile}
         loading={loading}
         dialogIsOpen={dialogIsOpen}
         closeDialog={closeDialog}
-        onRequestViewAuthorsProfile={onRequestViewAuthorsProfile}
+        onConfirm={onRequestViewAuthorsProfile}
       />
     );
   } else if (dialogType === "enableSecondStage") {
@@ -159,10 +155,7 @@ export const Profile = ({ profileData, readonly = false, titleMessage }: Props) 
   };
 
   const subTitle = titleMessage && (
-    <Alert
-      severity="info"
-      className="u-margin-top-bottom"
-    >
+    <Alert severity="info" className="u-margin-top-bottom">
       {titleMessage}
     </Alert>
   );
@@ -231,6 +224,7 @@ export const Profile = ({ profileData, readonly = false, titleMessage }: Props) 
                     {secondStageEnabled && (
                       <TabPanel value={selectedTab} index={1}>
                         <SecondStageProfile
+                          readonly={readonly}
                           nameAdjuster={nameAdjuster}
                           initialValues={values.secondStageData}
                         />

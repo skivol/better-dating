@@ -18,6 +18,7 @@ export const proposal = "предложение";
 export const Proposal = "Предложение";
 export const Registration = "Регистрация";
 export const Profile = "Профиль";
+export const Dating = "Свидания";
 export const Administration = "Администрирование";
 export const Technologies = "Технологии";
 export const logoTooltip = "Смотрины.укр & Смотрины.рус логотип";
@@ -168,3 +169,20 @@ export const datingProfileTab = "Свидания (Второй этап)";
 
 export const matchedProfileTitle = "Профиль человека с которым была сформирована пара, поэтому рекомендуется внимательное ознакомление и проверка данных профиля при личной встрече. Доверяй, но проверяй :)";
 export const authorsProfileTitle = "Профиль автора сайта";
+
+export const datingTabsAria = "Табы свиданий";
+
+export const pairsTab = "Пары";
+export const user1 = "Польз.1";
+export const user2 = "Польз.2";
+export const dateStatus = "Статус";
+export const goal = "Цель";
+export const whenMatched = "Дата";
+export const active = "Активна";
+export const inactive = "Неактивна";
+export const datingTableAria = "таблица пар";
+export const viewMatchedUserProfile = (nickname: string) => `Посмотреть профиль пользователя ${nickname}`;
+export const areYouSureThatWantToOtherUsersProfile = (nickname: string) =>
+  `Выслать ссылку для просмотра профиля ${nickname}?`;
+
+export const dateTimePlaceTab = "Дата / Время / Место";

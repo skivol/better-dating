@@ -1,5 +1,5 @@
 import { useEffect, useState, MouseEvent } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, useStore } from "react-redux";
 import { useRouter } from "next/router";
 import { firstValueIfArray } from ".";
 import { BetterDatingStoreState } from "../configureStore";
@@ -9,8 +9,11 @@ import { tokenName } from "../Messages";
 export const useUser = () => {
   const user = useSelector((state: BetterDatingStoreState) => state.user);
   const dispatch = useDispatch();
+  const store = useStore();
   useEffect(() => {
-    dispatch(fetchUser());
+    if (!store.getState().user.loading) {
+      dispatch(fetchUser());
+    }
   }, [dispatch]);
   return user;
 };

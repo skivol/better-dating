@@ -16,4 +16,5 @@ export interface UserState {
   loadError: any;
   id: string | null;
   roles: any;
+  secondStageEnabled: boolean;
 }

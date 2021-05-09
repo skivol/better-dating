@@ -42,10 +42,11 @@ const appearanceOptions = [
   },
 ].sort((a, b) => (a.label > b.label ? 1 : 0));
 
-export const AppearanceTypeSelect = ({ nameAdjuster }: any) => {
+export const AppearanceTypeSelect = ({ nameAdjuster, readonly }: any) => {
   return (
     <PaperGrid>
       <Select
+        disabled={readonly}
         fieldProps={{ validate: required }}
         name={nameAdjuster("appearanceType")}
         label={Messages.appearanceType}

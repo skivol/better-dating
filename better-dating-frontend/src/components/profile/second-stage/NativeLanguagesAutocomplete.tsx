@@ -13,12 +13,14 @@ const showLanguage = ({ name }: Language) => name;
 
 // TODO generalize and extract common autocomplete functionality ?
 type Props = {
+  readonly: boolean;
   initialValues?: Language[];
   nameAdjuster: (name: string) => string;
 };
 export const NativeLanguagesAutocomplete = ({
   nameAdjuster,
   initialValues = [],
+  readonly,
 }: Props) => {
   const [value, setValue] = useState<Language[]>(initialValues);
   const [inputValue, setInputValue] = useState("");
@@ -49,6 +51,7 @@ export const NativeLanguagesAutocomplete = ({
   return (
     <PaperGrid>
       <Autocomplete
+        disabled={readonly}
         multiple
         label={Messages.nativeLanguages}
         name={nameAdjuster("nativeLanguages")}

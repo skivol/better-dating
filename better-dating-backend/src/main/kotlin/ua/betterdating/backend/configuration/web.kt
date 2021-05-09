@@ -41,6 +41,7 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
     beans {
         bean<EmailHandler>()
         bean<UserProfileHandler>()
+        bean<DatingHandler>()
         bean<PopulatedLocalitiesHandler>()
         bean<LanguagesHandler>()
         bean<InterestsHandler>()
@@ -145,6 +146,9 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
                     authorize("/api/languages/**", hasAuthority("ROLE_USER"))
                     authorize("/api/interests/**", hasAuthority("ROLE_USER"))
                     authorize("/api/personal-qualities/**", hasAuthority("ROLE_USER"))
+
+                    // Dating
+                    authorize("/api/user/dating/**", hasAuthority("ROLE_USER"))
 
                     // Administration
                     authorize("/api/admin/**", hasAuthority("ROLE_ADMIN"))

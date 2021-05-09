@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.server.awaitBody
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import ua.betterdating.backend.*
 import ua.betterdating.backend.TokenType.ONE_TIME_PASSWORD
+import ua.betterdating.backend.data.DatingProfileInfoRepository
 import ua.betterdating.backend.data.EmailRepository
 import ua.betterdating.backend.data.ExpiringTokenRepository
 import ua.betterdating.backend.data.UserRoleRepository
@@ -25,13 +26,14 @@ import ua.betterdating.backend.utils.okEmptyJsonObject
 import java.util.*
 
 class AuthHandler(
-        private val emailRepository: EmailRepository,
-        private val freemarkerMailSender: FreemarkerMailSender,
-        private val expiringTokenRepository: ExpiringTokenRepository,
-        private val roleRepository: UserRoleRepository,
-        private val passwordEncoder: PasswordEncoder,
-        private val transactionalOperator: TransactionalOperator,
-        private val serverSecurityContextRepository: ServerSecurityContextRepository
+    private val emailRepository: EmailRepository,
+    private val freemarkerMailSender: FreemarkerMailSender,
+    private val expiringTokenRepository: ExpiringTokenRepository,
+    private val roleRepository: UserRoleRepository,
+    private val datingProfileInfoRepository: DatingProfileInfoRepository,
+    private val passwordEncoder: PasswordEncoder,
+    private val transactionalOperator: TransactionalOperator,
+    private val serverSecurityContextRepository: ServerSecurityContextRepository
 ) {
     @Suppress("UNUSED_PARAMETER")
     suspend fun csrf(request: ServerRequest) = okEmptyJsonObject()
@@ -80,7 +82,8 @@ class AuthHandler(
 
     suspend fun currentUser(request: ServerRequest): ServerResponse {
         val principal = request.principal().awaitFirst() as UsernamePasswordAuthenticationToken
-        return ok().bodyValueAndAwait(User(principal.name, principal.authorities.map { it.authority }))
+        val secondStageEnabled = datingProfileInfoRepository.find(UUID.fromString(principal.name)) != null // optimize later if needed
+        return ok().bodyValueAndAwait(User(principal.name, principal.authorities.map { it.authority }, secondStageEnabled))
     }
 
     /**
@@ -98,4 +101,4 @@ fun createAuth(profileId: String, roles: List<UserRole>): UsernamePasswordAuthen
     return UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
 }
 
-class User(val id: String, val roles: List<String>)
+class User(val id: String, val roles: List<String>, val secondStageEnabled: Boolean)

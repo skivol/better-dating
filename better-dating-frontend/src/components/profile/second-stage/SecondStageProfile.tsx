@@ -21,31 +21,37 @@ export const SecondStageProfile = ({
     dislikedPersonalQualities,
   },
   nameAdjuster = (v: string) => v,
+  readonly = false,
 }: any) => (
   <Grid container direction="column" className="u-padding-10px" spacing={2}>
-    <MissingOptionsNotification />
+    {!readonly && <MissingOptionsNotification />}
     <GoalSelect nameAdjuster={nameAdjuster} />
     <PopulatedLocalityAutocomplete
+      readonly={readonly}
       nameAdjuster={nameAdjuster}
       initialValue={populatedLocality}
     />
     <NativeLanguagesAutocomplete
+      readonly={readonly}
       nameAdjuster={nameAdjuster}
       initialValues={nativeLanguages}
     />
-    <AppearanceTypeSelect nameAdjuster={nameAdjuster} />
-    <NaturalHairColorSelect nameAdjuster={nameAdjuster} />
-    <EyeColorSelect nameAdjuster={nameAdjuster} />
+    <AppearanceTypeSelect readonly={readonly} nameAdjuster={nameAdjuster} />
+    <NaturalHairColorSelect readonly={readonly} nameAdjuster={nameAdjuster} />
+    <EyeColorSelect readonly={readonly} nameAdjuster={nameAdjuster} />
     <InterestsAutocomplete
+      readonly={readonly}
       nameAdjuster={nameAdjuster}
       initialValues={interests}
     />
     <PersonalQualityAutocomplete
+      readonly={readonly}
       name={nameAdjuster("likedPersonalQualities")}
       initialValues={likedPersonalQualities}
       label={LocalMessages.likedPersonalQualities}
     />
     <PersonalQualityAutocomplete
+      readonly={readonly}
       name={nameAdjuster("dislikedPersonalQualities")}
       initialValues={dislikedPersonalQualities}
       label={LocalMessages.dislikedPersonalQualities}

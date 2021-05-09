@@ -5,10 +5,13 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.r2dbc.postgresql.codec.Json
 import io.r2dbc.spi.Row
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.withContext
 import org.springframework.data.annotation.Id
 import org.springframework.data.r2dbc.core.*
 import org.springframework.r2dbc.core.DatabaseClient
+import org.springframework.r2dbc.core.awaitOneOrNull
 import org.springframework.r2dbc.core.awaitRowsUpdated
 import reactor.core.publisher.Flux
 import ua.betterdating.backend.*
@@ -52,8 +55,14 @@ class DatingPair(
     val goal: DatingGoal,
     val whenMatched: LocalDateTime,
     val active: Boolean,
-    val firstProfileSnapshot: ProfileMatchInformation,
-    val secondProfileSnapshot: ProfileMatchInformation,
+    var firstProfileSnapshot: ProfileMatchInformation? = null,
+    var secondProfileSnapshot: ProfileMatchInformation? = null,
+)
+
+class DatingPairWithNicknames(
+    val firstProfileNickname: String?,
+    val secondProfileNickname: String?,
+    val datingPair: DatingPair
 )
 
 class DatingPairLock(
@@ -91,7 +100,7 @@ val userLanguages = """
         GROUP BY profile_id
      )
 """.trimIndent()
-val bmiValue = "(lw.weight / (lh.height * lh.height / 10000))";
+const val bmiValue = "(lw.weight / (lh.height * lh.height / 10000))";
 val bmiCategory = """
     bmi_category AS (
         SELECT lh.profile_id,
@@ -248,11 +257,11 @@ class PairsRepository(
     suspend fun save(pairLock: DatingPairLock): DatingPairLock =
         template.insert<DatingPairLock>().usingAndAwait(pairLock)
 
-    fun findActivePair(one: UUID, other: UUID): Flux<DatingPair> =
+    suspend fun findPair(one: UUID, other: UUID): DatingPair? =
         client.sql(
             """
                 SELECT * FROM dating_pair
-                WHERE active AND (
+                WHERE (
                     (first_profile_id = :first_profile_id AND second_profile_id = :second_profile_id)
                     OR
                     (first_profile_id = :second_profile_id AND second_profile_id = :first_profile_id)
@@ -261,14 +270,35 @@ class PairsRepository(
         ).bind("first_profile_id", one)
             .bind("second_profile_id", other)
             .map { row, _ ->
-                DatingPair(
-                    row["first_profile_id"] as UUID, row["second_profile_id"] as UUID,
-                    DatingGoal.valueOf(row["goal"] as String), row["when_matched"] as LocalDateTime,
-                    row["active"] as Boolean,
-                    mapper.readValue((row["first_profile_snapshot"] as Json).asArray()), // TODO run this in Dispatchers.IO ?
-                    mapper.readValue((row["second_profile_snapshot"] as Json).asArray())
+                extractDatingPair(row)
+            }.awaitOneOrNull()
+
+    suspend fun findRelevantPairs(profileId: UUID): List<DatingPairWithNicknames> =
+        client.sql(
+            """
+                SELECT
+                    dp.*, pi1.nickname "first_nickname", pi2.nickname "second_nickname"
+                FROM dating_pair dp
+                LEFT JOIN profile_info pi1 ON pi1.profile_id = dp.first_profile_id
+                LEFT JOIN profile_info pi2 ON pi2.profile_id = dp.second_profile_id
+                WHERE first_profile_id = :profile_id OR second_profile_id = :profile_id
+            """.trimIndent()
+        ).bind("profile_id", profileId)
+            .map { row, _ ->
+                DatingPairWithNicknames(
+                    row["first_nickname"] as String?,
+                    row["second_nickname"] as String?,
+                    extractDatingPair(row)
                 )
-            }.all()
+            }.all().collectList().awaitSingle()
+
+    private fun extractDatingPair(row: Row): DatingPair = DatingPair(
+        row["first_profile_id"] as UUID, row["second_profile_id"] as UUID,
+        DatingGoal.valueOf(row["goal"] as String), row["when_matched"] as LocalDateTime,
+        row["active"] as Boolean,
+        mapper.readValue((row["first_profile_snapshot"] as Json).asArray()), // TODO run this in Dispatchers.IO ?
+        mapper.readValue((row["second_profile_snapshot"] as Json).asArray())
+    )
 
     private fun extractProfileMatchInformationWithEmail(row: Row): ProfileMatchInformationWithEmail =
         ProfileMatchInformationWithEmail(

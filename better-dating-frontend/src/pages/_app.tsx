@@ -45,7 +45,7 @@ const BetterDatingApp = ({ Component, pageProps }: AppProps) => {
         />
         <Header />
         <Container
-          className="u-padding-10px u-max-width-892px"
+          className="u-padding-10px u-max-width-892px u-min-width-700px"
           style={{ background: "white", borderRadius: "10px", marginTop: 65 }}
         >
           <Component {...pageProps} />

@@ -125,7 +125,7 @@ class PairMatcherTask(
 
             val body = "Рекомендуется внимательно изучить профиль и при личной встрече проверить его истинность ;). " +
                     "Детали свидания будут сообщены в последующем письме. Их также можно найти в меню \"Свидания\" на сайте."
-            // TODO save host header on user registration (or second stage activation) and use here instead of hard-coded value
+            // TODO save host header on user registration (or second stage activation or login) and use here instead of hard-coded value
             val unicodeHostHeader = "смотрины.укр"
 
             // notify target user

@@ -11,10 +11,11 @@ import * as Messages from "../Messages";
 import { SpinnerAdornment } from "../common";
 
 export const ViewOtherUserProfileConfirm = ({
+  title,
   loading,
   dialogIsOpen,
   closeDialog,
-  onRequestViewAuthorsProfile,
+  onConfirm,
 }: any) => (
   <Dialog
     open={dialogIsOpen}
@@ -22,22 +23,20 @@ export const ViewOtherUserProfileConfirm = ({
     aria-labelledby="alert-dialog-title"
     aria-describedby="alert-dialog-description"
   >
-    <DialogTitle id="alert-dialog-title">
-      {Messages.areYouSureThatWantToSeeAuthorsProfile}
-    </DialogTitle>
+    <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
     <DialogContent>
-      <DialogContentText id="alert-dialog-description">
-        <Alert severity="info">
+      <Alert severity="info">
+        <DialogContentText id="alert-dialog-description">
           {Messages.whenYouLookAtOtherUserProfileThenOwnerWillKnowAboutThis}
-        </Alert>
-      </DialogContentText>
+        </DialogContentText>
+      </Alert>
     </DialogContent>
     <DialogActions>
       <Button onClick={closeDialog} color="secondary">
         {Messages.cancel}
       </Button>
       <Button
-        onClick={onRequestViewAuthorsProfile}
+        onClick={onConfirm}
         color="primary"
         autoFocus
         startIcon={loading && <SpinnerAdornment color="gray" />}

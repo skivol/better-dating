@@ -14,10 +14,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserCircle,
   faIdCard,
+  faUserFriends,
   faTools,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import { profile, administration } from "../navigation/NavigationUrls";
+import { profile, dating, administration } from "../navigation/NavigationUrls";
 import { useMenu } from "../../utils";
 import { UserState } from "../../types";
 import * as actions from "../../actions";
@@ -49,6 +50,7 @@ export const LoggedInUserMenu = ({ user }: Props) => {
     dispatch(actions.logout()).then(() => router.push("/"));
   };
   const isAdmin = user.roles.includes("ROLE_ADMIN");
+  const secondStageEnabled = user.secondStageEnabled;
 
   return (
     <div>
@@ -82,6 +84,14 @@ export const LoggedInUserMenu = ({ user }: Props) => {
           </ListItemIcon>
           <ListItemText>{Messages.Profile}</ListItemText>
         </MenuItemLink>
+        {secondStageEnabled && (
+          <MenuItemLink onClick={closeMenu} href={dating}>
+            <ListItemIcon className="u-min-width-30px">
+              <FontAwesomeIcon icon={faUserFriends} />
+            </ListItemIcon>
+            <ListItemText>{Messages.Dating}</ListItemText>
+          </MenuItemLink>
+        )}
         {isAdmin && (
           <MenuItemLink onClick={closeMenu} href={administration}>
             <ListItemIcon className="u-min-width-30px">

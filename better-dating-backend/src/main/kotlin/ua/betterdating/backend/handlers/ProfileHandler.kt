@@ -242,12 +242,35 @@ class UserProfileHandler(
         val adminProfileId = (userRoleRepository.findAdmin() ?: throw AuthorNotFoundException()).profileId
         val currentUserEmail = currentUserEmail(emailRepository, request)
 
-        // send token
         val subject = "Ссылка для просмотра профиля автора сайта смотрины.укр & смотрины.рус"
+        return sendTokenAndReturnEmpty(currentUserEmail, subject, request, adminProfileId)
+    }
+
+    suspend fun requestViewOfOtherUserProfile(request: ServerRequest): ServerResponse {
+        val targetId = request.awaitBody<ViewOtherUserProfileRequest>().targetId
+        // verify that user is allowed to do that (that is, there is or was a pair)
+        val currentUserId = UUID.fromString(request.awaitPrincipal()!!.name)
+        pairsRepository.findPair(currentUserId, targetId) ?: throwBadCredentials()
+        val targetNickname = (profileInfoRepository.findByProfileId(targetId) ?: throwBadCredentials()).nickname
+
+        val currentUserEmail = currentUserEmail(emailRepository, request)
+
+        val subject = "Ссылка для просмотра профиля пользователя $targetNickname"
+        return sendTokenAndReturnEmpty(currentUserEmail, subject, request, targetId)
+    }
+
+    private class ViewOtherUserProfileRequest(val targetId: UUID)
+
+    private suspend fun sendTokenAndReturnEmpty(
+        currentUserEmail: Email,
+        subject: String,
+        request: ServerRequest,
+        targetId: UUID
+    ): ServerResponse {
         transactionalOperator.executeAndAwait {
             freemarkerMailSender.viewOtherUserProfile(
                 currentUserEmail.id, currentUserEmail.email, subject, "", unicodeHostHeader(request)
-            ) { token -> tokenDataRepository.save(ViewOtherUserProfileTokenData(token.id, adminProfileId)) }
+            ) { token -> tokenDataRepository.save(ViewOtherUserProfileTokenData(token.id, targetId)) }
         }
         return okEmptyJsonObject()
     }
@@ -263,7 +286,7 @@ class UserProfileHandler(
         val targetProfileData = existingProfileById(tokenData.targetProfileId).also {
             it.email = "" // we're not revealing target user email here
         }
-        val activePair = pairsRepository.findActivePair(dbToken.profileId, tokenData.targetProfileId).awaitFirstOrNull()
+        val activePair = pairsRepository.findPair(dbToken.profileId, tokenData.targetProfileId)
         val relation = if (activePair == null) Relation.authorsProfile else Relation.matchedProfile
         val profileViewData = ProfileViewData(targetProfileData, relation)
 

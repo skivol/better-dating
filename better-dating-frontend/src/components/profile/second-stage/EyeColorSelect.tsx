@@ -44,9 +44,10 @@ const eyeColorOptions = [
 ].sort((a, b) => (a.label > b.label ? 1 : 0));
 
 const helpLink = "https://ru.wikipedia.org/wiki/Цвет_глаз";
-export const EyeColorSelect = ({ nameAdjuster }: any) => (
+export const EyeColorSelect = ({ nameAdjuster, readonly }: any) => (
   <PaperGrid>
     <Select
+      disabled={readonly}
       fieldProps={{ validate: required }}
       name={nameAdjuster("eyeColor")}
       helperText={(<Link href={helpLink}>{Messages.wiki}</Link>) as any}

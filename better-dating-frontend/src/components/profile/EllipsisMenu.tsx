@@ -35,7 +35,7 @@ export const EllipsisMenu = ({
     open={menuIsOpen}
     onClose={closeMenu}
   >
-    <Tooltip
+    {!values.secondStageData && (<Tooltip
       arrow
       title={
         values.eligibleForSecondStage
@@ -61,6 +61,7 @@ export const EllipsisMenu = ({
         </MenuItem>
       </span>
     </Tooltip>
+    )}
     <MenuItem onClick={() => showDialog("accountRemoval")}>
       <ListItemIcon className="u-color-red u-min-width-30px">
         <FontAwesomeIcon className="MuiButton-startIcon" icon={faUserMinus} />
