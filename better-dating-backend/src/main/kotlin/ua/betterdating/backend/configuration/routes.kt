@@ -31,8 +31,9 @@ fun routes(
         DELETE("", accept(APPLICATION_JSON), userProfileHandler::removeProfile)
         POST("/authors-profile", accept(APPLICATION_JSON), userProfileHandler::requestViewOfAuthorsProfile)
         POST("/user-profile", accept(APPLICATION_JSON), userProfileHandler::requestViewOfOtherUserProfile)
-        GET("/view", userProfileHandler::viewOtherUserProfile)
-        POST("/activate-second-stage", userProfileHandler::activateSecondStage)
+        POST("/view", accept(APPLICATION_JSON), userProfileHandler::viewOtherUserProfile)
+        POST("/new-view-user-profile", accept(APPLICATION_JSON), userProfileHandler::newViewOtherUserProfile)
+        POST("/activate-second-stage", accept(APPLICATION_JSON), userProfileHandler::activateSecondStage)
     }
 
     "/api/user/dating".nest {

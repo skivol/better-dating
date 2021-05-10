@@ -1,10 +1,6 @@
-import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { SnackbarVariant } from "../types";
 import * as actions from "../actions";
-import { getData, useToken } from "../utils";
-import { resolveTokenMessage } from "../Messages";
-import { CenteredSpinner } from "./common";
+import { useRequestAnotherTokenFormIfNeeded } from "../utils";
 import { Profile } from "./Profile";
 import { ProfileFormData } from "./profile";
 import * as Messages from "./Messages";
@@ -17,31 +13,32 @@ type ViewProfileData = {
 };
 
 const ProfileView = () => {
-  const token = useToken();
   const dispatch = useDispatch();
-  const [profileData, setProfileData] = useState<null | ViewProfileData>(null);
+  const onSuccess = (profileData: ViewProfileData) => {
+    const message =
+      profileData.relation === "matchedProfile"
+        ? Messages.matchedProfileTitle
+        : Messages.authorsProfileTitle;
+    return (
+      <Profile
+        readonly
+        profileData={profileData.profile}
+        titleMessage={message}
+      />
+    );
+  };
+  const onRequestAnotherToken = (token: string) =>
+    dispatch(actions.requestAnotherViewProfileToken(token));
 
-  useEffect(() => {
-    getData("/api/user/profile/view", { token })
-      .then(setProfileData)
-      .catch((errorMessage) =>
-        dispatch(
-          actions.openSnackbar(
-            resolveTokenMessage(errorMessage),
-            SnackbarVariant.error
-          )
-        )
-      );
-  }, []);
+  const component = useRequestAnotherTokenFormIfNeeded(
+    "/api/user/profile/view",
+    onSuccess,
+    onRequestAnotherToken,
+    Messages.sendNewToken,
+    Messages.profileView
+  );
 
-  if (!profileData) {
-    return <CenteredSpinner />;
-  }
-
-  const message = profileData.relation === "matchedProfile"
-    ? Messages.matchedProfileTitle
-    : Messages.authorsProfileTitle;
-  return <Profile readonly profileData={profileData.profile} titleMessage={message} />;
+  return component;
 };
 
 export default ProfileView;

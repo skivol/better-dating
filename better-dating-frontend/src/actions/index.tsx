@@ -238,6 +238,26 @@ export const requestAnotherValidationToken = (
   }
 };
 
+export const requestAnotherViewProfileToken = (
+  previousToken: string
+): ThunkResult<void> => async (dispatch: ThunkDispatch<any, any, Action>) => {
+  try {
+    await postData("/api/user/profile/new-view-user-profile", {
+      token: previousToken,
+    });
+    dispatch(
+      openSnackbar(
+        Messages.successRequestingNewProfileViewMessage,
+        SnackbarVariant.success
+      )
+    );
+  } catch (error) {
+    dispatch(
+      openSnackbar(resolveTokenMessage(error.message), SnackbarVariant.error)
+    );
+  }
+};
+
 export const fetchUser = (): ThunkResult<void> => async (
   dispatch: ThunkDispatch<any, any, Action>
 ) => {

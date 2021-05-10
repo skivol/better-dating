@@ -5,6 +5,8 @@ export const oopsSomethingWentWrong =
 export const errorSubmittingProfileMessage = oopsSomethingWentWrong;
 export const successTriggeringNewVerificationMessage =
   "Новое письмо для проверки почты было отправлено.";
+export const successRequestingNewProfileViewMessage =
+  "Новое письмо для просмотра профиля было отправлено.";
 
 export const successUpdatingProfileMessage =
   "Обновление данных профиля успешно!";

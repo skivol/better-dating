@@ -1,10 +1,11 @@
 - вкладка посвященная организации встреч
-- обработать истекший токен на просмотр профиля другого участника
-- удаление пар / свиданий при удалении профилей обоих участников
 
 - письмо с возможностью предложить место встречи (если таковых еще нет, либо есть, но не в достаточном количестве). Памятник, центр, известное здание и прочее.
   // if we're able (that is we have a place to suggest and a free timeslot), we should organize a date directly
   // otherwise we should ask users for an advice on that (will do that in a separate, for example, DateOrganizingTask)
+
+- удаление пар / свиданий при удалении профилей обоих участников
+- история просмотров профилей
 
 - возможность де-активировать (приостановить участие в свиданиях - автоматически, чтобы параллельно не организовывалось несколько свиданий; по-желанию - если человек хочет по тем или иным причинам сделать перерыв), а также снова активировать;
 
@@ -94,6 +95,7 @@
 - reference Wikipedia's article and picture: https://ru.wikipedia.org/wiki/Смотрины ?
 - Publicity / SEO: Facebook, Wikipedia, Reddit, Youtube, Wordpress, Linkedin, Vk, Dating sites (tinder, love.ua etc)?.
 - форматировать статьи в LaTeX книгу 5/27/2020 5:19
+- https://www.jetbrains.com/community/opensource/#support
 
 # Things to consider
 

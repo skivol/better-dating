@@ -75,8 +75,9 @@ export const contactUs =
 export const contactUsButton = "Написать письмо";
 
 export const emailVerification = "Подтверждение почты";
+export const profileView = "Просмотр профиля";
 
-export const sendNewVerificationToken = "Отправить новый токен";
+export const sendNewToken = "Отправить новый токен";
 
 export const firstStageFlowAlt =
   "Диаграмма схематически описывающая первый этап использования предлагаемой системы: анкета - самооценка и саморазвитие - свидания - обратная связь - если оба участника хотят продолжать отношения, то переход на следующий этап, иначе возврат на шаг 2.";

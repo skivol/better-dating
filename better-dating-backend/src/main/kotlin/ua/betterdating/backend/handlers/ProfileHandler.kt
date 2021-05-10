@@ -246,8 +246,22 @@ class UserProfileHandler(
         return sendTokenAndReturnEmpty(currentUserEmail, subject, request, adminProfileId)
     }
 
-    suspend fun requestViewOfOtherUserProfile(request: ServerRequest): ServerResponse {
-        val targetId = request.awaitBody<ViewOtherUserProfileRequest>().targetId
+    private class ViewOtherUserProfileRequest(val targetId: UUID)
+
+    suspend fun requestViewOfOtherUserProfile(request: ServerRequest) =
+        requestViewOfOtherUserProfile(request, request.awaitBody<ViewOtherUserProfileRequest>().targetId)
+
+    suspend fun newViewOtherUserProfile(request: ServerRequest): ServerResponse {
+        val decodedToken = request.awaitBody<Token>().decode()
+        val token = expiringTokenRepository.findById(decodedToken.id)
+            ?.also { dbToken ->
+                if (dbToken.type !== VIEW_OTHER_USER_PROFILE) throwNoSuchToken()
+            } ?: throwNoSuchToken()
+        val targetId = tokenDataRepository.find(token.id).targetProfileId
+        return requestViewOfOtherUserProfile(request, targetId)
+    }
+
+    private suspend fun requestViewOfOtherUserProfile(request: ServerRequest, targetId: UUID): ServerResponse {
         // verify that user is allowed to do that (that is, there is or was a pair)
         val currentUserId = UUID.fromString(request.awaitPrincipal()!!.name)
         pairsRepository.findPair(currentUserId, targetId) ?: throwBadCredentials()
@@ -258,8 +272,6 @@ class UserProfileHandler(
         val subject = "Ссылка для просмотра профиля пользователя $targetNickname"
         return sendTokenAndReturnEmpty(currentUserEmail, subject, request, targetId)
     }
-
-    private class ViewOtherUserProfileRequest(val targetId: UUID)
 
     private suspend fun sendTokenAndReturnEmpty(
         currentUserEmail: Email,
@@ -276,8 +288,7 @@ class UserProfileHandler(
     }
 
     suspend fun viewOtherUserProfile(request: ServerRequest): ServerResponse {
-        val webToken = request.queryParam("token").map { Token(it).decode() }
-                .orElseThrow { throw NoSuchTokenException() }
+        val webToken = request.awaitBody<Token>().decode()
         val dbToken = expiringTokenRepository.findById(webToken.id) ?: throwNoSuchToken()
         dbToken.verify(webToken, VIEW_OTHER_USER_PROFILE, passwordEncoder)
 
