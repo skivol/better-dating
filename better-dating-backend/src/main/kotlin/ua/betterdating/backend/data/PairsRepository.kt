@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.r2dbc.postgresql.codec.Json
 import io.r2dbc.spi.Row
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.withContext
@@ -292,12 +293,23 @@ class PairsRepository(
                 )
             }.all().collectList().awaitSingle()
 
+    fun findActivePairsWithoutDates() =
+        client.sql(
+            """
+                SELECT first_profile_id, second_profile_id, goal, when_matched, active, first_profile_snapshot, second_profile_snapshot
+                FROM dating_pair dp
+                LEFT JOIN dates d ON d.pair_id = dp.id
+                WHERE dp.active AND d.id IS NULL
+            """.trimIndent())
+            .map { row, _ -> extractDatingPair(row)}
+            .all().asFlow()
+
     private fun extractDatingPair(row: Row): DatingPair = DatingPair(
         row["first_profile_id"] as UUID, row["second_profile_id"] as UUID,
         DatingGoal.valueOf(row["goal"] as String), row["when_matched"] as LocalDateTime,
         row["active"] as Boolean,
-        mapper.readValue((row["first_profile_snapshot"] as Json).asArray()), // TODO run this in Dispatchers.IO ?
-        mapper.readValue((row["second_profile_snapshot"] as Json).asArray())
+        row["first_profile_snapshot"]?.let { mapper.readValue((it as Json).asArray()) }, // TODO run this in Dispatchers.IO ?
+        row["second_profile_snapshot"]?.let { mapper.readValue((it as Json).asArray()) }
     )
 
     private fun extractProfileMatchInformationWithEmail(row: Row): ProfileMatchInformationWithEmail =

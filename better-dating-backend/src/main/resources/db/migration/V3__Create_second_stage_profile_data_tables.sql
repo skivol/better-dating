@@ -29,14 +29,6 @@ CREATE TABLE populated_locality_region (
 	CONSTRAINT populated_locality_region__populated_locality_id_fk FOREIGN KEY (populated_locality_id) REFERENCES populated_locality(id)
 );
 
-CREATE TABLE place (
-	id uuid NOT NULL,
-	"name" varchar(255) NOT NULL,
-	latitude numeric(9,6) NOT NULL,
-	longitude numeric(9,6) NOT NULL,
-	CONSTRAINT place_pk PRIMARY KEY (id)
-);
-
 INSERT INTO country (id, "name")
 VALUES ('fba52635-0325-43a2-a2bd-8027041beb4b', 'Украина');
 
@@ -5246,11 +5238,6 @@ VALUES ('Асыката', '5e4f00a9-3df2-4491-8a20-08cdc9b313e4', '4af943ba-8996
     ('Шаян', 'd3484311-7c45-4b5e-b866-9aaa001453ba', '4af943ba-8996-4b01-9747-4d2a42641c7b'),
     ('Шаульдер', 'fa9aa442-bd44-408f-885f-3d0471ff51be', '4af943ba-8996-4b01-9747-4d2a42641c7b'),
     ('Шолаккорган', '51a2c1d1-01df-4445-9049-ab09f97073d6', '4af943ba-8996-4b01-9747-4d2a42641c7b');
-
--- Places
--- https://www.latlong.net/
-INSERT INTO place (id, latitude, longitude, "name")
-VALUES ('9d1c3f1a-a6b4-466d-89f1-26a7bbb82a3f', 49.589497, 34.551087, 'Центр Полтавы. Монумент Славы');
 
 -- Languages
 CREATE TABLE language (

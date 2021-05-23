@@ -59,5 +59,6 @@ fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleReposi
         bean<UserPersonalQualityRepository>()
 
         bean<PairsRepository>()
+        bean<DatesRepository>()
     }
 }

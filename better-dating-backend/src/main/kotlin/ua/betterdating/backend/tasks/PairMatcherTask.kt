@@ -129,7 +129,6 @@ class PairMatcherTask(
             val unicodeHostHeader = "смотрины.укр"
 
             // notify target user
-            // TODO extend token validity to 7 days ?
             mailSender.viewOtherUserProfile(
                 targetProfile.id,
                 targetProfileWithEmail.email,
