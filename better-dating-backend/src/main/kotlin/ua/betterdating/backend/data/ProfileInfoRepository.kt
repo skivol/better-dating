@@ -1,9 +1,10 @@
-package ua.betterdating.backend
+package ua.betterdating.backend.data
 
 import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
 import org.springframework.data.relational.core.query.Update
+import ua.betterdating.backend.ProfileInfo
 import java.util.*
 
 class ProfileInfoRepository(private val template: R2dbcEntityTemplate) {

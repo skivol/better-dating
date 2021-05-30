@@ -4,12 +4,14 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.fu.kofu.reactiveWebApplication
 import org.springframework.fu.kofu.scheduling.scheduling
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 import ua.betterdating.backend.configuration.dataConfig
 import ua.betterdating.backend.configuration.loggingConfig
 import ua.betterdating.backend.configuration.mailConfig
 import ua.betterdating.backend.configuration.webConfig
 import ua.betterdating.backend.data.EmailRepository
 import ua.betterdating.backend.data.UserRoleRepository
+import ua.betterdating.backend.tasks.DateOrganizingTask
 import ua.betterdating.backend.tasks.PairMatcherTask
 import java.util.concurrent.Executors
 
@@ -24,10 +26,11 @@ val app = reactiveWebApplication {
 	enable(loggingConfig())
 
 	scheduling {
-		taskScheduler = ConcurrentTaskScheduler(Executors.newSingleThreadScheduledExecutor())
+		taskScheduler = ConcurrentTaskScheduler(Executors.newScheduledThreadPool(2))
 	}
     beans {
-    	bean<PairMatcherTask>()
+		bean<PairMatcherTask>()
+		bean<DateOrganizingTask>()
 	}
 }
 

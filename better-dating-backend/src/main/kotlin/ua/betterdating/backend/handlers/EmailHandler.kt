@@ -1,17 +1,18 @@
 package ua.betterdating.backend.handlers
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import org.springframework.web.reactive.function.server.*
 import org.springframework.web.reactive.function.server.ServerResponse.ok
-import ua.betterdating.backend.*
+import ua.betterdating.backend.FreemarkerMailSender
+import ua.betterdating.backend.Token
 import ua.betterdating.backend.TokenType.EMAIL_VERIFICATION
 import ua.betterdating.backend.data.EmailRepository
 import ua.betterdating.backend.data.ExpiringTokenRepository
+import ua.betterdating.backend.throwNoSuchToken
 import ua.betterdating.backend.utils.okEmptyJsonObject
+import ua.betterdating.backend.verify
 import java.util.*
 
 class EmailHandler(
@@ -22,7 +23,6 @@ class EmailHandler(
         private val transactionalOperator: TransactionalOperator,
         private val authHandler: AuthHandler
 ) {
-    private val LOG: Logger = LoggerFactory.getLogger(EmailHandler::class.java)
 
     suspend fun verifyEmail(request: ServerRequest): ServerResponse {
         val decodedToken = request.awaitBody<Token>().decode()

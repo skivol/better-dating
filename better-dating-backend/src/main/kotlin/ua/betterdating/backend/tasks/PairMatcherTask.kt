@@ -1,11 +1,9 @@
 package ua.betterdating.backend.tasks
 
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
@@ -13,7 +11,6 @@ import ua.betterdating.backend.*
 import ua.betterdating.backend.Recurrence.*
 import ua.betterdating.backend.data.*
 import ua.betterdating.backend.utils.LoggerDelegate
-import ua.betterdating.backend.utils.getLogger
 import java.time.LocalDateTime
 
 val abstaining = listOf(neverDidAndNotGoingInFuture, didBeforeNotGoingInFuture)
@@ -23,6 +20,7 @@ val doing = listOf(coupleTimesInYearOrMoreSeldom, coupleTimesInYear, coupleTimes
 class PairMatcherTask(
     private val pairsRepository: PairsRepository,
     private val tokenDataRepository: ViewOtherUserProfileTokenDataRepository,
+    private val loginInformationRepository: LoginInformationRepository,
     private val transactionalOperator: TransactionalOperator,
     private val mailSender: FreemarkerMailSender
 ) {
@@ -106,13 +104,13 @@ class PairMatcherTask(
         transactionalOperator.executeAndAwait {
             pairsRepository.save(
                 DatingPair(
-                    targetProfile.id,
-                    matchedCandidate.id,
-                    DatingGoal.findSoulMate,
-                    LocalDateTime.now(),
-                    true,
-                    targetProfile,
-                    matchedCandidate
+                    firstProfileId = targetProfile.id,
+                    secondProfileId = matchedCandidate.id,
+                    goal = DatingGoal.findSoulMate,
+                    whenMatched = LocalDateTime.now(),
+                    active = true,
+                    firstProfileSnapshot = targetProfile,
+                    secondProfileSnapshot = matchedCandidate
                 )
             )
             // Allowing only 1 active pair per user on database level
@@ -125,17 +123,15 @@ class PairMatcherTask(
 
             val body = "Рекомендуется внимательно изучить профиль и при личной встрече проверить его истинность ;). " +
                     "Детали свидания будут сообщены в последующем письме. Их также можно найти в меню \"Свидания\" на сайте."
-            // TODO save host header on user registration (or second stage activation or login) and use here instead of hard-coded value
-            val unicodeHostHeader = "смотрины.укр"
 
+            val firstUserLastHost = loginInformationRepository.find(targetProfile.id).lastHost
             // notify target user
-            // TODO extend token validity to 7 days ?
             mailSender.viewOtherUserProfile(
                 targetProfile.id,
                 targetProfileWithEmail.email,
                 subject(matchedCandidateWithEmail.nickname),
                 body,
-                unicodeHostHeader
+                firstUserLastHost
             ) { token ->
                 tokenDataRepository.save(
                     ViewOtherUserProfileTokenData(
@@ -145,13 +141,14 @@ class PairMatcherTask(
                 )
             }
 
+            val secondUserLastHost = loginInformationRepository.find(matchedCandidate.id).lastHost
             // notify matched user
             mailSender.viewOtherUserProfile(
                 matchedCandidate.id,
                 matchedCandidateWithEmail.email,
                 subject(targetProfileWithEmail.nickname),
                 body,
-                unicodeHostHeader
+                secondUserLastHost
             ) { token ->
                 tokenDataRepository.save(
                     ViewOtherUserProfileTokenData(

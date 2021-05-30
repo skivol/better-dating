@@ -18,11 +18,9 @@ import org.springframework.web.reactive.function.server.awaitBody
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import ua.betterdating.backend.*
 import ua.betterdating.backend.TokenType.ONE_TIME_PASSWORD
-import ua.betterdating.backend.data.DatingProfileInfoRepository
-import ua.betterdating.backend.data.EmailRepository
-import ua.betterdating.backend.data.ExpiringTokenRepository
-import ua.betterdating.backend.data.UserRoleRepository
+import ua.betterdating.backend.data.*
 import ua.betterdating.backend.utils.okEmptyJsonObject
+import ua.betterdating.backend.utils.unicodeHostHeader
 import java.util.*
 
 class AuthHandler(
@@ -31,6 +29,7 @@ class AuthHandler(
     private val expiringTokenRepository: ExpiringTokenRepository,
     private val roleRepository: UserRoleRepository,
     private val datingProfileInfoRepository: DatingProfileInfoRepository,
+    private val loginInformationRepository: LoginInformationRepository,
     private val passwordEncoder: PasswordEncoder,
     private val transactionalOperator: TransactionalOperator,
     private val serverSecurityContextRepository: ServerSecurityContextRepository
@@ -93,6 +92,7 @@ class AuthHandler(
         val auth = createAuth(profileId.toString(), roleRepository.findAll(profileId))
         SecurityContextHolder.getContext().authentication = auth
         serverSecurityContextRepository.save(request.exchange(), SecurityContextHolder.getContext()).awaitFirstOrNull()
+        loginInformationRepository.upsert(LoginInformation(profileId, unicodeHostHeader(request)))
     }
 }
 

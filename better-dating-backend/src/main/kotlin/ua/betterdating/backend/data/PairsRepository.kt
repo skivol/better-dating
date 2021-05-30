@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.r2dbc.postgresql.codec.Json
 import io.r2dbc.spi.Row
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.withContext
 import org.springframework.data.annotation.Id
@@ -50,7 +50,8 @@ data class ProfileMatchInformationWithEmail(
 )
 
 class DatingPair(
-    @Id val firstProfileId: UUID,
+    @Id val id: UUID = UUID.randomUUID(),
+    val firstProfileId: UUID,
     val secondProfileId: UUID,
     val goal: DatingGoal,
     val whenMatched: LocalDateTime,
@@ -243,10 +244,11 @@ class PairsRepository(
 
         return client.sql(
             """
-        INSERT INTO dating_pair("first_profile_id", "second_profile_id", "goal", "when_matched", "active", "first_profile_snapshot", "second_profile_snapshot")
-        VALUES(:firstProfileId, :secondProfileId, :goal, :whenMatched, :active, :firstProfileSnapshot, :secondProfileSnapshot)
+        INSERT INTO dating_pair("id", "first_profile_id", "second_profile_id", "goal", "when_matched", "active", "first_profile_snapshot", "second_profile_snapshot")
+        VALUES(:id, :firstProfileId, :secondProfileId, :goal, :whenMatched, :active, :firstProfileSnapshot, :secondProfileSnapshot)
         """.trimIndent()
         ).bind("firstProfileId", pair.firstProfileId).bind("secondProfileId", pair.secondProfileId)
+            .bind("id", pair.id)
             .bind("goal", pair.goal.toString()).bind("active", pair.active)
             .bind("whenMatched", pair.whenMatched)
             .bind("firstProfileSnapshot", firstProfileSnapshotJson)
@@ -292,12 +294,24 @@ class PairsRepository(
                 )
             }.all().collectList().awaitSingle()
 
+    fun findActivePairsWithoutDates() =
+        client.sql(
+            """
+                SELECT dp.id, first_profile_id, second_profile_id, goal, when_matched, active, first_profile_snapshot, second_profile_snapshot
+                FROM dating_pair dp
+                LEFT JOIN dates d ON d.pair_id = dp.id
+                WHERE dp.active AND d.id IS NULL
+            """.trimIndent())
+            .map { row, _ -> extractDatingPair(row)}
+            .all().asFlow()
+
     private fun extractDatingPair(row: Row): DatingPair = DatingPair(
+        row["id"] as UUID,
         row["first_profile_id"] as UUID, row["second_profile_id"] as UUID,
         DatingGoal.valueOf(row["goal"] as String), row["when_matched"] as LocalDateTime,
         row["active"] as Boolean,
-        mapper.readValue((row["first_profile_snapshot"] as Json).asArray()), // TODO run this in Dispatchers.IO ?
-        mapper.readValue((row["second_profile_snapshot"] as Json).asArray())
+        row["first_profile_snapshot"]?.let { mapper.readValue((it as Json).asArray()) }, // TODO run this in Dispatchers.IO ?
+        row["second_profile_snapshot"]?.let { mapper.readValue((it as Json).asArray()) }
     )
 
     private fun extractProfileMatchInformationWithEmail(row: Row): ProfileMatchInformationWithEmail =

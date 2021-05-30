@@ -21,10 +21,11 @@ class ExpiringToken(
 )
 
 enum class TokenType {
-    EMAIL_VERIFICATION,
-    ONE_TIME_PASSWORD,
-    ACCOUNT_REMOVAL,
-    VIEW_OTHER_USER_PROFILE
+        EMAIL_VERIFICATION,
+        ONE_TIME_PASSWORD,
+        ACCOUNT_REMOVAL,
+        VIEW_OTHER_USER_PROFILE,
+        ADD_PLACE,
 }
 
 class AcceptedTerms(

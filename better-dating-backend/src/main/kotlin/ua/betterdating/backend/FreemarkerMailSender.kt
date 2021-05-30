@@ -35,7 +35,7 @@ class FreemarkerMailSender(
             templateParams: (link: String) -> Any
     ) = generateAndSendLinkWithToken(profileId, type, templateName, to, subject, unicodeHostHeader(request), urlPath, saveExtraTokenData, templateParams)
 
-    private suspend fun generateAndSendLinkWithToken(
+    suspend fun generateAndSendLinkWithToken(
         profileId: UUID, type: TokenType, templateName: String,
         to: String, subject: String,
         unicodeHostHeader: String, urlPath: String, saveExtraTokenData: suspend (token: ExpiringToken) -> Any,
