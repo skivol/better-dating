@@ -5,9 +5,6 @@ import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitOneOrNull
-import ua.betterdating.backend.Email
-import ua.betterdating.backend.ExpiringToken
-import ua.betterdating.backend.TokenType
 import java.util.*
 
 class ExpiringTokenRepository(private val template: R2dbcEntityTemplate, private val client: DatabaseClient) {

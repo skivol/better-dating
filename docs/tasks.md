@@ -1,11 +1,23 @@
-- страница добавления места встречи
-- вкладка посвященная организации встреч
+- (AddLocation) approval flow - negative case - suggest new place
+- (AddLocation) handle "TooCloseToOtherPlacesException"
+- negative case - won't come to the date (specify reason)
+- provide possibility to view the place again after scheduling the date ?
+- randomize time selection for higher security ;) ?
 
 - удаление пар / свиданий при удалении профилей обоих участников
 - история просмотров профилей
 - gracefull shutdown (handle it in tasks)
 
+- credits to koatuu / leafletjs / react-leaflet / mapbox
+
+- советы перед походом на свидание организованное через интернет
+- check-in на свидании
+- обратная связь после свидания (оценка правдивости данных профиля / предложения по улучшению / решение продолжать отношения или нет или не достаточно информации / впечатлений для принятия решения)
+- TODO place_rating (profile_id, place_id, score, motivation) ? (ease of communication / finding, publicity, near cafe / parks, other criteria ?)
+
 - возможность де-активировать (приостановить участие в свиданиях - автоматически, чтобы параллельно не организовывалось несколько свиданий; по-желанию - если человек хочет по тем или иным причинам сделать перерыв), а также снова активировать;
+
+- активировать PostGIS на сервере ("CREATE EXTENSION postgis;" / https://github.com/postgis/docker-postgis/blob/master/13-3.1/update-postgis.sh)
 
 - Описать почему была сформирована пара
 - Демо-режим
@@ -78,6 +90,7 @@
 - checkout ReactiveCrudRepository ? https://docs.spring.io/spring-data/r2dbc/docs/1.0.0.M2/reference/html/#r2dbc.repositories
 - checkout reverse proxy written in rust: https://github.com/sozu-proxy/sozu
 - update dev proxy: https://github.com/chimurai/http-proxy-middleware
+- proxy tile requests through server thus effectively hiding the token ?
 
 # Goods / design
 

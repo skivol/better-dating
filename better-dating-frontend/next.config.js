@@ -45,6 +45,8 @@ module.exports = withPlugins(
         { source: encodeURI("/вход"), destination: "/login" },
         { source: encodeURI("/профиль"), destination: "/profile" },
         { source: encodeURI("/свидания"), destination: "/dating" },
+        { source: encodeURI("/добавление-места"), destination: "/add-location" },
+        { source: encodeURI("/проверка-места"), destination: "/check-location" },
         {
           source: encodeURI("/благодарности"),
           destination: "/acknowledgements",

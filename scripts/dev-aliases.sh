@@ -18,7 +18,7 @@ bd-ui-server() {
 }
 alias bd-ui-test='wd proj-ui && pnpm run test'
 bd-ui-build() {
-	wd proj-ui && NEXT_APP_UPDATED="$(date -u --iso-8601=seconds)" pnpm run build
+	wd proj-ui && export $(grep -v "^#" ../.env-dev | xargs) && NEXT_APP_UPDATED="$(date -u --iso-8601=seconds)" pnpm run build
 }
 alias bd-ui-docker-build='wd proj-ui && DOCKER_BUILDKIT=1 docker build -t skivol/better-dating-ui:latest . && docker image prune -f --filter label=stage=builder'
 alias bd-ui-docker-run='docker run --rm --name better-dating-ui -d -p 8080:80 skivol/better-dating-ui:latest'
@@ -54,6 +54,7 @@ bd-backend-server-impl() {
 							--spring.security.oauth2.client.registration.facebook.client-secret=$FACEBOOK_CLIENT_SECRET \
 							--spring.security.oauth2.client.registration.vk.client-id=$VK_CLIENT_ID \
 							--spring.security.oauth2.client.registration.vk.client-secret=$VK_CLIENT_SECRET \
+							--mapbox.access-token=$NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN \
 							--password-files.mail=$BD_MAIL_PASSWORD_FILE \
 							--datasource.username=$BD_DB_USER \
 							--password-files.db=$BD_DB_PASSWORD_FILE" | tr -d '\t'); # tabs really mess up spring args
@@ -89,7 +90,7 @@ alias docker-cleanup-everything='docker system prune --volumes --force'
 
 # https://hub.docker.com/_/postgres
 bd-db-run() {
-  docker run --name bd-db --publish 5432:5432 -e POSTGRES_PASSWORD=postgres -d $* postgres:alpine
+  docker run --name bd-db --publish 5432:5432 -e POSTGRES_PASSWORD=postgres -e PGDATA=/pgdata -d -v bd-db-data:/pgdata $* postgis/postgis:13-3.1-alpine
 }
 alias bd-db-run-rm='bd-db-run --rm'
 alias bd-db-stop='docker stop bd-db'
@@ -178,6 +179,11 @@ alias ggpush-fork='git push fork "$(git_current_branch)"'
 # Troubleshooting
 troubleshooting-logout() {
 	echo "Disable browser cache!"
+}
+troubleshooting-dns() {
+	local url="https://letsdebug.net/xn--h1aheckdj9e.xn--j1amh"
+	echo "Test on $url"
+	open-in-browser $url
 }
 
 # Api utils

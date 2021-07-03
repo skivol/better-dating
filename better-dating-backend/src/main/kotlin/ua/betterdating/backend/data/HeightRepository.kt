@@ -4,7 +4,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
-import ua.betterdating.backend.Height
 import java.util.*
 
 class HeightRepository(private val template: R2dbcEntityTemplate) {

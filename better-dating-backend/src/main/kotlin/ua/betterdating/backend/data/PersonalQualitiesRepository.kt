@@ -7,7 +7,6 @@ import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
 import org.springframework.r2dbc.core.DatabaseClient
 import reactor.core.publisher.Flux
-import ua.betterdating.backend.PersonalQuality
 import java.util.*
 
 class PersonalQualitiesRepository(private val client: DatabaseClient, private val template: R2dbcEntityTemplate) {

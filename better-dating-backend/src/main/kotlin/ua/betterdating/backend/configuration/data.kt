@@ -61,5 +61,6 @@ fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleReposi
         bean<PairsRepository>()
         bean<DatesRepository>()
         bean<LoginInformationRepository>()
+        bean<PlaceRepository>()
     }
 }

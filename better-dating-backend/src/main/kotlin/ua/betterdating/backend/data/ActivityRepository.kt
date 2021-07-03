@@ -4,7 +4,6 @@ import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
 import org.springframework.r2dbc.core.DatabaseClient
-import ua.betterdating.backend.Activity
 import ua.betterdating.backend.utils.toRecurrence
 import java.time.LocalDateTime
 import java.util.*

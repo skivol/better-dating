@@ -30,3 +30,7 @@ export const errorLogin = "Ошибка при попытке входа";
 
 export const successLogout = "Выход успешен!";
 export const errorLogout = oopsSomethingWentWrong;
+
+export const successAddingPlaceTheUserWasNotified = "Место встречи было создано и второй пользователь был оповещен об этом!";
+export const successApprovingThePlace = "Место встречи было подтверждено и вскоре будет организовано свидание!";
+

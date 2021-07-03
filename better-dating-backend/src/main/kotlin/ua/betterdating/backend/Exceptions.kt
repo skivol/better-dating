@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.*
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
@@ -17,8 +16,8 @@ import org.springframework.web.reactive.function.server.json
 import org.springframework.web.server.ServerWebInputException
 import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
+import ua.betterdating.backend.handlers.LatLng
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 val LOG: Logger = LoggerFactory.getLogger(ErrorResponseEntity::class.java)
 suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResponse {
@@ -41,34 +40,58 @@ suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResp
                 }
             }
         }
-        is ConstraintViolationException -> constraintViolationToResponse(e, request) // on manual validation of, for example, email from query
+        is ConstraintViolationException -> constraintViolationToResponse(
+            e,
+            request
+        ) // on manual validation of, for example, email from query
         is ServerWebInputException -> {
             val firstCause = e.cause
             val secondCause = firstCause?.cause
             val thirdCause = secondCause?.cause
 
-            // DecodingException -> ValueInstantiationException -> ConstraintViolationException (on valiktor validation failure while deserializing request body)
-            if (thirdCause is ConstraintViolationException) {
-                constraintViolationToResponse(thirdCause, request)
+            when {
+                // DecodingException -> ValueInstantiationException -> ConstraintViolationException (on valiktor validation failure while deserializing request body)
+                thirdCause is ConstraintViolationException -> {
+                    constraintViolationToResponse(thirdCause, request)
+                }
                 // DecodingException -> InvalidFormatException (on invalid enum/int value)
-            } else if (secondCause is InvalidFormatException) {
-                LOG.info("Deserialization error", secondCause)
-                ErrorResponseEntity(request, UNPROCESSABLE_ENTITY, secondCause.message ?: e.message)
+                secondCause is InvalidFormatException -> {
+                    LOG.info("Deserialization error", secondCause)
+                    ErrorResponseEntity(request, UNPROCESSABLE_ENTITY, secondCause.message ?: e.message)
+                }
                 // DecodingException -> MissingKotlinParameterException (when non-null value wasn't defined, hence - null)
-            } else if (secondCause is MissingKotlinParameterException) {
-                LOG.info("Deserialization error", firstCause)
-                ErrorResponseEntity(request, UNPROCESSABLE_ENTITY, secondCause.message ?: e.message)
+                secondCause is MissingKotlinParameterException -> {
+                    LOG.info("Deserialization error", firstCause)
+                    ErrorResponseEntity(request, UNPROCESSABLE_ENTITY, secondCause.message ?: e.message)
+                }
                 // DecodingException -> JsonParseException (on invalid json)
-            } else if (secondCause is JsonParseException) {
-                LOG.info("Deserialization error", firstCause)
-                ErrorResponseEntity(request, UNPROCESSABLE_ENTITY, secondCause.message ?: e.message)
-            } else {
-                ErrorResponseEntity(request, BAD_REQUEST, e.message)
+                secondCause is JsonParseException -> {
+                    LOG.info("Deserialization error", firstCause)
+                    ErrorResponseEntity(request, UNPROCESSABLE_ENTITY, secondCause.message ?: e.message)
+                }
+                else -> {
+                    ErrorResponseEntity(request, BAD_REQUEST, e.message)
+                }
             }
         }
         is AuthenticationException -> ErrorResponseEntity(request, UNAUTHORIZED, UNAUTHORIZED.reasonPhrase)
-        is AuthorNotFoundException -> ErrorResponseEntity(request, NOT_FOUND, "Author's profile was not found, try again later.")
-        is NotEligibleForSecondStageException -> ErrorResponseEntity(request, BAD_REQUEST, "Not eligible for second stage")
+        is AuthorNotFoundException -> ErrorResponseEntity(
+            request,
+            NOT_FOUND,
+            "Author's profile was not found, try again later."
+        )
+        is NotEligibleForSecondStageException -> ErrorResponseEntity(
+            request,
+            BAD_REQUEST,
+            "Not eligible for second stage"
+        )
+        is TooCloseToOtherPlacesException -> ErrorResponseEntity(
+            request,
+            BAD_REQUEST,
+            "Too close to other existing points",
+            mapOf("points" to e.points, "distance" to e.distance)
+        )
+        is NotInTargetPopulatedLocalityException -> ErrorResponseEntity(request, BAD_REQUEST, "Point doesn't seem to be in target populated locality", mapOf("locality" to e.placeName))
         else -> {
             LOG.error("Internal error", e)
             ErrorResponseEntity(request, INTERNAL_SERVER_ERROR, "Internal error")
@@ -77,23 +100,28 @@ suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResp
     return ServerResponse.status(errorEntity.status).json().bodyValueAndAwait(errorEntity)
 }
 
-private fun constraintViolationToResponse(thirdCause: ConstraintViolationException, request: ServerRequest): ErrorResponseEntity {
-    LOG.info("Validation error", thirdCause)
+private fun constraintViolationToResponse(
+    cause: ConstraintViolationException,
+    request: ServerRequest
+): ErrorResponseEntity {
+    LOG.debug("Validation error", cause)
     return ErrorResponseEntity(
-            path = request.path(), status = UNPROCESSABLE_ENTITY.value(),
-            error = UNPROCESSABLE_ENTITY.reasonPhrase, message = "Validation error",
-            details = thirdCause.constraintViolations.mapToMessage().map { it.property to it.message }.toMap()
+        request, UNPROCESSABLE_ENTITY,
+        "Validation error",
+        cause.constraintViolations.mapToMessage().associate { it.property to it.message }
     )
 }
 
 class ErrorResponseEntity(
-        val timestamp: LocalDateTime = now(),
-        val path: String,
-        val status: Int, val error: String, val message: String, val details: Map<String, String> = emptyMap()
+    request: ServerRequest,
+    status: HttpStatus,
+    val message: String,
+    val details: Map<String, Any> = emptyMap()
 ) {
-    constructor(request: ServerRequest, status: HttpStatus, message: String) : this(
-            path = request.path(), status = status.value(), error = status.reasonPhrase, message = message
-    )
+    val path = request.path()
+    val status = status.value()
+    val error = status.reasonPhrase
+    val timestamp: LocalDateTime = now()
 }
 
 class EmailNotFoundException : RuntimeException()
@@ -102,8 +130,12 @@ class ExpiredTokenException : RuntimeException()
 class InvalidTokenException : RuntimeException()
 
 class EmailWasNotProvidedException : AuthenticationException("Email was not provided from user info endpoint")
-class EmailNotRegisteredException(val email: String? = null) : AuthenticationException("Profile with this email is not registered")
+class EmailNotRegisteredException(val email: String? = null) :
+    AuthenticationException("Profile with this email is not registered")
 
 class AuthorNotFoundException : RuntimeException()
 
 class NotEligibleForSecondStageException : RuntimeException()
+
+class TooCloseToOtherPlacesException(val points: List<LatLng>, val distance: Double) : RuntimeException()
+class NotInTargetPopulatedLocalityException(val placeName: String) : RuntimeException()

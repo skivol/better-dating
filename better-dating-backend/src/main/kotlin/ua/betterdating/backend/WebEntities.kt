@@ -2,6 +2,10 @@ package ua.betterdating.backend
 
 import org.valiktor.functions.*
 import org.valiktor.validate
+import ua.betterdating.backend.data.Interest
+import ua.betterdating.backend.data.Language
+import ua.betterdating.backend.data.PersonalQuality
+import ua.betterdating.backend.data.PopulatedLocality
 import java.time.LocalDate
 import java.util.*
 
@@ -146,15 +150,15 @@ enum class EyeColor {
 }
 
 data class SecondStageData(
-        val goal: DatingGoal,
-        val populatedLocality: PopulatedLocality,
-        val nativeLanguages: List<Language>,
-        val appearanceType: AppearanceType,
-        val naturalHairColor: HairColor,
-        val eyeColor: EyeColor,
-        val interests: List<Interest>,
-        val likedPersonalQualities: List<PersonalQuality>,
-        val dislikedPersonalQualities: List<PersonalQuality>
+    val goal: DatingGoal,
+    val populatedLocality: PopulatedLocality,
+    val nativeLanguages: List<Language>,
+    val appearanceType: AppearanceType,
+    val naturalHairColor: HairColor,
+    val eyeColor: EyeColor,
+    val interests: List<Interest>,
+    val likedPersonalQualities: List<PersonalQuality>,
+    val dislikedPersonalQualities: List<PersonalQuality>
 ) {
     init {
         validate(this) {

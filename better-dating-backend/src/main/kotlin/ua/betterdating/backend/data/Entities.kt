@@ -1,6 +1,7 @@
-package ua.betterdating.backend
+package ua.betterdating.backend.data
 
 import org.springframework.data.annotation.Id
+import ua.betterdating.backend.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -25,7 +26,6 @@ enum class TokenType {
         ONE_TIME_PASSWORD,
         ACCOUNT_REMOVAL,
         VIEW_OTHER_USER_PROFILE,
-        ADD_PLACE,
 }
 
 class AcceptedTerms(

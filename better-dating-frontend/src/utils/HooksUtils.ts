@@ -4,14 +4,15 @@ import { useRouter } from "next/router";
 import { firstValueIfArray } from ".";
 import { BetterDatingStoreState } from "../configureStore";
 import { fetchUser } from "../actions";
-import { tokenName } from "../Messages";
+import { tokenName, dateIdName } from "../Messages";
 
-export const useUser = () => {
+export const useUser = (forceFetch = true) => {
   const user = useSelector((state: BetterDatingStoreState) => state.user);
   const dispatch = useDispatch();
   const store = useStore();
   useEffect(() => {
-    if (!store.getState().user.loading) {
+    const storedUser = store.getState().user;
+    if (!storedUser.loading && (forceFetch || storedUser.id === null)) {
       dispatch(fetchUser());
     }
   }, [dispatch]);
@@ -39,4 +40,10 @@ export const useToken = () => {
   const router = useRouter();
   const token = firstValueIfArray(router.query[tokenName]) as string;
   return token;
+};
+
+export const useDateId = () => {
+  const router = useRouter();
+  const dateId = firstValueIfArray(router.query[dateIdName]) as string;
+  return dateId;
 };

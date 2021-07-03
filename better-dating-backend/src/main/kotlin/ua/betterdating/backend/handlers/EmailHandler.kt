@@ -7,7 +7,7 @@ import org.springframework.web.reactive.function.server.*
 import org.springframework.web.reactive.function.server.ServerResponse.ok
 import ua.betterdating.backend.FreemarkerMailSender
 import ua.betterdating.backend.Token
-import ua.betterdating.backend.TokenType.EMAIL_VERIFICATION
+import ua.betterdating.backend.data.TokenType.EMAIL_VERIFICATION
 import ua.betterdating.backend.data.EmailRepository
 import ua.betterdating.backend.data.ExpiringTokenRepository
 import ua.betterdating.backend.throwNoSuchToken

@@ -1,10 +1,9 @@
 # https://docs.docker.com/compose/overview/
 # https://docs.docker.com/compose/compose-file/
 # https://dev.to/domysee/setting-up-a-reverse-proxy-with-nginx-and-docker-compose-29jg
-version: '3.6'
+version: "3.6"
 
 services:
-
   bd-redis:
     build: ./better-dating-caching
     image: skivol/better-dating-cache:latest
@@ -14,10 +13,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75'
+          cpus: "0.75"
           memory: 200M
         reservations:
-          cpus: '0.10'
+          cpus: "0.10"
           memory: 150M
       restart_policy:
         condition: any
@@ -40,10 +39,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75'
+          cpus: "0.75"
           memory: 256M
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 128M
       restart_policy:
         condition: any
@@ -68,6 +67,7 @@ services:
       FACEBOOK_CLIENT_SECRET: "${FACEBOOK_CLIENT_SECRET}"
       VK_CLIENT_ID: "${VK_CLIENT_ID}"
       VK_CLIENT_SECRET: "${VK_CLIENT_SECRET}"
+      NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: "${NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}"
     dns: 8.8.8.8
     depends_on:
       - bd-postgres
@@ -76,10 +76,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75'
+          cpus: "0.75"
           memory: 300M
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
       restart_policy:
         condition: any
@@ -99,10 +99,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75'
+          cpus: "0.75"
           memory: 250M
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 150M
       restart_policy:
         condition: any
@@ -125,10 +125,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75'
+          cpus: "0.75"
           memory: 50M
         reservations:
-          cpus: '0.10'
+          cpus: "0.10"
           memory: 20M
       restart_policy:
         condition: any

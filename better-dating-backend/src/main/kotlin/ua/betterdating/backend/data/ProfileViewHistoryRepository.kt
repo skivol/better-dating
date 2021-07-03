@@ -5,7 +5,6 @@ import org.springframework.data.r2dbc.core.insert
 import org.springframework.data.r2dbc.core.usingAndAwait
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitRowsUpdated
-import ua.betterdating.backend.ProfileViewHistory
 import java.util.*
 
 class ProfileViewHistoryRepository(private val template: R2dbcEntityTemplate, private val client: DatabaseClient) {

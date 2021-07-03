@@ -1,6 +1,7 @@
 package ua.betterdating.backend.utils
 
 import ua.betterdating.backend.*
+import ua.betterdating.backend.data.*
 
 fun toWebEntity(email: Email, profileInfo: ProfileInfo, height: Height, weight: Weight, activities: Map<String, Activity>, personalHealthEvaluation: ProfileEvaluation, secondStageProfileInformation: SecondStageData?): Profile {
     val eligibleForSecondStage = activities[ActivityType.intimateRelationsOutsideOfMarriage.name] !== null

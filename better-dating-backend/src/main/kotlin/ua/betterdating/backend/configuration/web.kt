@@ -49,6 +49,7 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
         bean<AdminHandler>()
         bean<AuthHandler>()
         bean<HealthHandler>()
+        bean<PlaceHandler>()
         bean(::routes)
 
         bean<PasswordEncoder> {
@@ -149,6 +150,9 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
 
                     // Dating
                     authorize("/api/user/dating/**", hasAuthority("ROLE_USER"))
+
+                    // Place
+                    authorize("/api/place/**", hasAuthority("ROLE_USER"))
 
                     // Administration
                     authorize("/api/admin/**", hasAuthority("ROLE_ADMIN"))

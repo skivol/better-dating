@@ -3,7 +3,6 @@ package ua.betterdating.backend.data
 import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
-import ua.betterdating.backend.AcceptedTerms
 import java.util.*
 
 class AcceptedTermsRepository(private val template: R2dbcEntityTemplate) {

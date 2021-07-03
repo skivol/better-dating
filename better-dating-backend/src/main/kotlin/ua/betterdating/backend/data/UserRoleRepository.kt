@@ -4,8 +4,6 @@ import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
-import ua.betterdating.backend.Role
-import ua.betterdating.backend.UserRole
 import java.util.*
 
 class UserRoleRepository(templateSupplier: Lazy<R2dbcEntityTemplate>) {

@@ -258,6 +258,53 @@ export const requestAnotherViewProfileToken = (
   }
 };
 
+export const addPlace = ({
+  dateId,
+  name,
+  lat,
+  lng,
+}: any): ThunkResult<void> => async (
+  dispatch: ThunkDispatch<any, any, Action>
+) => {
+  try {
+    await postData("/api/place/add", {
+      dateId,
+      name,
+      lat,
+      lng,
+    });
+    dispatch(
+      openSnackbar(
+        Messages.successAddingPlaceTheUserWasNotified,
+        SnackbarVariant.success
+      )
+    );
+  } catch (error) {
+    dispatch(
+      openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
+    );
+    throw error;
+  }
+};
+
+export const approvePlace = ({ dateId }: any): ThunkResult<void> => async (
+  dispatch: ThunkDispatch<any, any, Action>
+) => {
+  try {
+    await postData("/api/place/approve", {
+      dateId,
+    });
+    dispatch(
+      openSnackbar(Messages.successApprovingThePlace, SnackbarVariant.success)
+    );
+  } catch (error) {
+    dispatch(
+      openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
+    );
+    throw error;
+  }
+};
+
 export const fetchUser = (): ThunkResult<void> => async (
   dispatch: ThunkDispatch<any, any, Action>
 ) => {

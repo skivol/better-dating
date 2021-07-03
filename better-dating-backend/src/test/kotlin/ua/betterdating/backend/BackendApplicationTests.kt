@@ -14,8 +14,7 @@ import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.transaction.reactive.TransactionalOperator
-import ua.betterdating.backend.data.EmailRepository
-import ua.betterdating.backend.data.ExpiringTokenRepository
+import ua.betterdating.backend.data.*
 import java.time.LocalDate
 import java.util.*
 

@@ -6,7 +6,6 @@ import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
 import org.springframework.data.relational.core.query.Update
-import ua.betterdating.backend.Email
 import java.util.*
 
 class EmailRepository(templateSupplier: Lazy<R2dbcEntityTemplate>) {

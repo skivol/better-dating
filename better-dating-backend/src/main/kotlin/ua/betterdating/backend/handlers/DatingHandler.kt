@@ -2,21 +2,21 @@ package ua.betterdating.backend.handlers
 
 import org.springframework.web.reactive.function.server.*
 import org.springframework.web.reactive.function.server.ServerResponse.ok
-import ua.betterdating.backend.data.DatingPair
-import ua.betterdating.backend.data.DatingPairWithNicknames
-import ua.betterdating.backend.data.PairsRepository
+import ua.betterdating.backend.data.*
 import java.util.*
 
-// class DateWithPerson(dateTime: LocalDateTime /*place */)
-class DatingData(val pairs: List<DatingPairWithNicknames>/*, dates: List<DateWithPerson>*/)
+class DatingData(val pairs: List<DatingPairWithNicknames>, val dates: List<DateInfoWithPlace>)
 
 class DatingHandler(
     private val pairsRepository: PairsRepository,
+    private val datesRepository: DatesRepository,
 ) {
     suspend fun datingData(request: ServerRequest): ServerResponse {
         val user = request.awaitPrincipal()
-        val relevantPairs = pairsRepository.findRelevantPairs(UUID.fromString(user!!.name)).onEach { hideSnapshots(it.datingPair) }
-        return ok().json().bodyValueAndAwait(DatingData(relevantPairs))
+        val profileId = UUID.fromString(user!!.name)
+        val relevantPairs = pairsRepository.findRelevantPairs(profileId).onEach { hideSnapshots(it.datingPair) }
+        val relevantDates = datesRepository.findRelevantDates(profileId)
+        return ok().json().bodyValueAndAwait(DatingData(relevantPairs, relevantDates))
     }
 
     private fun hideSnapshots(datingPair: DatingPair) {

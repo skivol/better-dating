@@ -4,7 +4,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
-import ua.betterdating.backend.ProfileEvaluation
 import java.util.*
 
 class ProfileEvaluationRepository(private val template: R2dbcEntityTemplate) {

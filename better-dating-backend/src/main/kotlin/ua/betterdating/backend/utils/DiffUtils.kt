@@ -2,6 +2,7 @@ package ua.betterdating.backend.utils
 
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
+import ua.betterdating.backend.data.*
 
 fun changedHealthEvaluation(existingProfile: Profile, profile: Profile) = if (existingProfile.personalHealthEvaluation != profile.personalHealthEvaluation) {
     ProfileEvaluation(existingProfile.id!!, existingProfile.id!!, now(), profile.personalHealthEvaluation, null)
@@ -33,16 +34,16 @@ fun changedActivities(existing: Profile, updated: Profile): List<Activity> {
         changedActivities.add(Activity(profileId, haircut.name, now, updated.haircut))
     }
     if (existing.hairColoring != updated.hairColoring) {
-        changedActivities.add(Activity(profileId, ActivityType.hairColoring.name, now, updated.hairColoring))
+        changedActivities.add(Activity(profileId, hairColoring.name, now, updated.hairColoring))
     }
     if (existing.makeup != updated.makeup) {
-        changedActivities.add(Activity(profileId, ActivityType.makeup.name, now, updated.makeup))
+        changedActivities.add(Activity(profileId, makeup.name, now, updated.makeup))
     }
     if (updated.intimateRelationsOutsideOfMarriage != null && existing.intimateRelationsOutsideOfMarriage != updated.intimateRelationsOutsideOfMarriage) {
-        changedActivities.add(Activity(profileId, ActivityType.intimateRelationsOutsideOfMarriage.name, now, updated.intimateRelationsOutsideOfMarriage))
+        changedActivities.add(Activity(profileId, intimateRelationsOutsideOfMarriage.name, now, updated.intimateRelationsOutsideOfMarriage))
     }
     if (updated.pornographyWatching != null && existing.pornographyWatching != updated.pornographyWatching) {
-        changedActivities.add(Activity(profileId, ActivityType.pornographyWatching.name, now, updated.pornographyWatching))
+        changedActivities.add(Activity(profileId, pornographyWatching.name, now, updated.pornographyWatching))
     }
     return changedActivities
 }

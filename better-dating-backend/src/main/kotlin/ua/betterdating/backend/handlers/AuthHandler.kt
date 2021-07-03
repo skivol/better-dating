@@ -17,7 +17,7 @@ import org.springframework.web.reactive.function.server.ServerResponse.ok
 import org.springframework.web.reactive.function.server.awaitBody
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import ua.betterdating.backend.*
-import ua.betterdating.backend.TokenType.ONE_TIME_PASSWORD
+import ua.betterdating.backend.data.TokenType.ONE_TIME_PASSWORD
 import ua.betterdating.backend.data.*
 import ua.betterdating.backend.utils.okEmptyJsonObject
 import ua.betterdating.backend.utils.unicodeHostHeader

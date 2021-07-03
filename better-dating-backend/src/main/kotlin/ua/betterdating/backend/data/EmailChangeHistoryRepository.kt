@@ -5,7 +5,6 @@ import org.springframework.data.r2dbc.core.allAndAwait
 import org.springframework.data.r2dbc.core.delete
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
-import ua.betterdating.backend.EmailChangeHistory
 import java.util.*
 
 class EmailChangeHistoryRepository(private val template: R2dbcEntityTemplate) {

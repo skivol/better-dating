@@ -89,7 +89,7 @@ export const LoggedInUserMenu = ({ user }: Props) => {
             <ListItemIcon className="u-min-width-30px">
               <FontAwesomeIcon icon={faUserFriends} />
             </ListItemIcon>
-            <ListItemText>{Messages.Dating}</ListItemText>
+            <ListItemText>{Messages.PairsAndDates}</ListItemText>
           </MenuItemLink>
         )}
         {isAdmin && (

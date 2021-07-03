@@ -7,9 +7,8 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import ua.betterdating.backend.FreemarkerMailSender
-import ua.betterdating.backend.TokenType
 import ua.betterdating.backend.data.*
-import ua.betterdating.backend.utils.LoggerDelegate
+import ua.betterdating.backend.utils.*
 
 /**
  * Date status flow:
@@ -48,52 +47,58 @@ class DateOrganizingTask(
             // * lookup available place in that populated locality + free timeslot (for example, nearest saturday / sunday midday)
             val firstProfileSnapshot = it.firstProfileSnapshot!!
             val whenAndWhere = datesRepository.findAvailableDatingSpotsIn(firstProfileSnapshot.populatedLocality.id).firstOrNull()
+            val pairId = it.id
+            val firstProfileEmail = emailRepository.findById(it.firstProfileId)!!.email
+            val firstProfileLastHost = loginInformationRepository.find(it.firstProfileId).lastHost
             if (whenAndWhere == null) { // available place isn't found (we either don't have a place or it is already fully booked for next timeslots)
-                // send a letter asking user to help out (sending a token for adding "place" along the way)
-                val firstProfileEmail = emailRepository.findById(it.firstProfileId)!!
-                val firstProfileLastHost = loginInformationRepository.find(it.firstProfileId).lastHost
+                // send a letter asking user to help out
                 val subject = "Нужна помощь в выборе места для организации свидания"
-                val pairId = it.id
+                val dateInfo = DateInfo(
+                    pairId = pairId,
+                    status = DateStatus.waitingForPlace,
+                    placeId = null,
+                    whenScheduled = null,
+                    latitude = null,
+                    longitude = null
+                )
                 transactionalOperator.executeAndAwait {
-                    datesRepository.save(DateInfo(pairId = pairId, status = DateStatus.waitingForPlace, placeId = null, whenScheduled = null))
-
-                    mailSender.generateAndSendLinkWithToken(
-                        firstProfileEmail.id,
-                        TokenType.ADD_PLACE,
+                    datesRepository.upsert(dateInfo)
+                    mailSender.sendLink(
                         "HelpToChooseThePlace.ftlh",
-                        firstProfileEmail.email,
+                        firstProfileEmail,
                         subject,
                         firstProfileLastHost,
-                        "добавление-места",
-                        { }, // TODO save relevant pair id connected to token ?
-                        { link -> object {
+                        "добавление-места?свидание=${dateInfo.id}",
+                    ) { link ->
+                        object {
                             val title = subject
                             val actionLabel = "Предложить место встречи"
                             val actionUrl = link
-                        } }
-                    )
+                        }
+                    }
                 }
-
-                // * provide a ui for registering a place; selecting a point (Google Maps https://developers.google.com/maps/documentation/javascript/overview Billing https://cloud.google.com/maps-platform/pricing/sheet/ ?
-                //          / Leaflet https://leafletjs.com/ ?) "javascript select point on map"
-                //      + giving it a name
-                //      + providing short motivation for selection (monument / center / known building etc, close to walking places / cafe etc)
-                //      - ensure not too close to existing other points ? (50 m.)
-                // * asking other user to evaluate the suggested place (if approves, continue, else suggest own, else admin needs to sort it out ?)
             } else {
-                // TODO organize a date
-                log.debug("Organizing a date")
+                // organize a date directly
+                log.debug("Organizing a date (place & time is available)")
+                val dateInfo = DateInfo(
+                    pairId = pairId,
+                    status = DateStatus.scheduled,
+                    placeId = whenAndWhere.place.id,
+                    whenScheduled = whenAndWhere.timeAndDate,
+                    latitude = whenAndWhere.place.latitude,
+                    longitude = whenAndWhere.place.longitude
+                )
+                val secondProfileEmail = emailRepository.findById(it.secondProfileId)!!.email
+                val secondProfileLastHost = loginInformationRepository.find(it.secondProfileId).lastHost
+                val body = "$automaticPlaceDateAndTime $striveToComeToTheDate $beResponsibleAndAttentive $additionalInfoCanBeFoundOnSite"
+                transactionalOperator.executeAndAwait {
+                    datesRepository.upsert(dateInfo)
+                    mailSender.dateOrganizedMessage(firstProfileEmail, dateInfo, body, firstProfileLastHost)
+                    mailSender.dateOrganizedMessage(secondProfileEmail, dateInfo, body, secondProfileLastHost)
+                }
             }
         }
 
-        // Which data type for latitude and longitude? - https://stackoverflow.com/questions/8150721/which-data-type-for-latitude-and-longitude
-        // PostGIS ? "postgres longitude latitude"
-
-        // -- TODO place_rating (profile_id, place_id, score, motivation) ?
-        // -- (ease of communication / finding, publicity, near cafe / parks, other criteria ?)
-
-        // --INSERT INTO place (id, latitude, longitude, "name", "populated_locality_id")
-        // --VALUES ('9d1c3f1a-a6b4-466d-89f1-26a7bbb82a3f', 49.589497, 34.551087, 'Центр Полтавы. Монумент Славы', '9d1c3f1a-a6b4-466d-89f1-26a7bbb82a3f');
         log.debug("Done!")
     }
 }

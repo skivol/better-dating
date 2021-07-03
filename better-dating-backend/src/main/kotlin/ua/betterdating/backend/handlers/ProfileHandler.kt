@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.server.ServerResponse.ok
 import reactor.core.publisher.Mono
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
-import ua.betterdating.backend.TokenType.VIEW_OTHER_USER_PROFILE
+import ua.betterdating.backend.data.TokenType.VIEW_OTHER_USER_PROFILE
 import ua.betterdating.backend.data.*
 import ua.betterdating.backend.utils.*
 import java.util.*
@@ -322,8 +322,12 @@ class UserProfileHandler(
             userPopulatedLocalityRepository.save(UserPopulatedLocality(currentUserProfile.id!!, body.populatedLocality.id, 0))
             body.nativeLanguages.forEachIndexed { index, language -> userLanguageRepository.save(UserLanguage(currentUserProfile.id!!, language.id, index)) }
             body.interests.forEachIndexed { index, interest -> userInterestRepository.save(UserInterest(currentUserProfile.id!!, interest.id, index)) }
-            body.likedPersonalQualities.forEachIndexed { index, personalQuality -> userPersonalQualityRepository.save(UserPersonalQuality(currentUserProfile.id!!, personalQuality.id, Attitude.likes, index)) }
-            body.dislikedPersonalQualities.forEachIndexed { index, personalQuality -> userPersonalQualityRepository.save(UserPersonalQuality(currentUserProfile.id!!, personalQuality.id, Attitude.dislikes, index)) }
+            body.likedPersonalQualities.forEachIndexed { index, personalQuality -> userPersonalQualityRepository.save(
+                UserPersonalQuality(currentUserProfile.id!!, personalQuality.id, Attitude.likes, index)
+            ) }
+            body.dislikedPersonalQualities.forEachIndexed { index, personalQuality -> userPersonalQualityRepository.save(
+                UserPersonalQuality(currentUserProfile.id!!, personalQuality.id, Attitude.dislikes, index)
+            ) }
         }
         return okEmptyJsonObject()
     }

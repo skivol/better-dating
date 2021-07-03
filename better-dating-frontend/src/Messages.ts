@@ -2,6 +2,8 @@ export const successVerifyingEmailMessage =
   "Спасибо за подтверждение почтового адреса!";
 export const expiredTokenMessage = "Expired token";
 
+export const dateIdName = "свидание";
+
 export const tokenName = "токен";
 export const resolveTokenMessage = (message: string) => {
   switch (message) {

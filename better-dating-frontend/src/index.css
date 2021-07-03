@@ -194,9 +194,11 @@ input:-webkit-autofill {
   border-radius: 10px;
 }
 
-.c-pairs-table {
+.c-pairs-table,
+.c-dating-table {
   table-layout: auto;
 }
-.c-pairs-table th {
+.c-pairs-table th,
+.c-dating-table th {
   font-weight: bold;
 }

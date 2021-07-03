@@ -8,6 +8,7 @@ import org.springframework.web.reactive.function.server.json
 import ua.betterdating.backend.*
 import ua.betterdating.backend.data.EmailRepository
 import ua.betterdating.backend.data.StatisticsRepository
+import ua.betterdating.backend.data.UsageStats
 import ua.betterdating.backend.utils.okEmptyJsonObject
 
 class AdminHandler(

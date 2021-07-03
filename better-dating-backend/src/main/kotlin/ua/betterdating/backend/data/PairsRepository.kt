@@ -10,9 +10,8 @@ import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.withContext
 import org.springframework.data.annotation.Id
 import org.springframework.data.r2dbc.core.*
+import org.springframework.r2dbc.core.*
 import org.springframework.r2dbc.core.DatabaseClient
-import org.springframework.r2dbc.core.awaitOneOrNull
-import org.springframework.r2dbc.core.awaitRowsUpdated
 import reactor.core.publisher.Flux
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
@@ -304,6 +303,17 @@ class PairsRepository(
             """.trimIndent())
             .map { row, _ -> extractDatingPair(row)}
             .all().asFlow()
+
+    suspend fun findPairByDate(dateId: UUID): DatingPair =
+        client.sql(
+            """
+                SELECT dp.* FROM dating_pair dp
+                JOIN dates d ON d.pair_id = dp.id
+                WHERE d.id = :dateId
+            """.trimIndent()
+        ).bind("dateId", dateId)
+            .map { row, _ -> extractDatingPair(row)}
+            .awaitSingle()
 
     private fun extractDatingPair(row: Row): DatingPair = DatingPair(
         row["id"] as UUID,

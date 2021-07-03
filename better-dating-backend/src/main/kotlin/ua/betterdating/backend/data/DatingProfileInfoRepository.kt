@@ -5,7 +5,6 @@ import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
 import org.springframework.data.relational.core.query.Update
-import ua.betterdating.backend.DatingProfileInfo
 import java.util.*
 
 class DatingProfileInfoRepository(private val template: R2dbcEntityTemplate) {

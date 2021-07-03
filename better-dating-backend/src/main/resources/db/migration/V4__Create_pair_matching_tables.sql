@@ -23,15 +23,13 @@ CREATE TABLE dating_pair_lock (
     CONSTRAINT dating_pair_lock_fk FOREIGN KEY (profile_id) REFERENCES email (id)
 );
 
--- Places
--- https://www.latlong.net/
 CREATE TABLE place (
 	id uuid NOT NULL,
 	"name" varchar(255) NOT NULL,
-	latitude numeric(9,6) NOT NULL,
-	longitude numeric(9,6) NOT NULL,
+	location GEOGRAPHY(POINT,4326) NOT NULL,
 	populated_locality_id uuid NOT NULL,
 	suggested_by uuid NULL,
+	approved_by uuid NULL,
 	status varchar(20) NOT NULL,
 
 	CONSTRAINT place_pk PRIMARY KEY (id),
@@ -46,7 +44,7 @@ CREATE TABLE timeslot (
 	CONSTRAINT timeslot_pk PRIMARY KEY (time_of_day, day_of_week)
 );
 
-INSERT INTO timeslot (day_of_week, "time")
+INSERT INTO timeslot (day_of_week, time_of_day)
 VALUES (6, '11:00:00'),
         (6, '11:15:00'),
         (6, '11:30:00'),
@@ -63,6 +61,7 @@ CREATE TABLE dates (
 	pair_id uuid NOT NULL,
 	status varchar NOT NULL,
 	place_id uuid NULL,
+	location GEOGRAPHY(POINT,4326) NULL,
 	when_scheduled timestamp(0) NULL,
 	CONSTRAINT dates_pk PRIMARY KEY (id),
 	CONSTRAINT dates_fk FOREIGN KEY (pair_id) REFERENCES dating_pair(id),

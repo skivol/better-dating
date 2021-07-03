@@ -4,22 +4,12 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitSingle
 import reactor.core.publisher.Flux
-import ua.betterdating.backend.PopulatedLocality
 import java.util.*
 
-val regionToPopulatedLocality = """
-    WITH region_to_populated_locality AS (
-        SELECT region_id, populated_locality_id FROM populated_locality_region plr
-        UNION
-        SELECT region_id, id as "populated_locality_id" FROM populated_locality
-    )
-""".trimIndent()
 val selectFullPopulatedLocality = """
-    $regionToPopulatedLocality
     SELECT pl.id, pl."name", r."name" AS "region", c."name" AS "country"
     FROM populated_locality pl
-    JOIN region_to_populated_locality rtpl ON rtpl.populated_locality_id = pl.id
-    JOIN region r ON r.id = rtpl.region_id
+    JOIN region r ON r.id = pl.region_id
     JOIN country c ON c.id = r.country_id
 """.trimIndent()
 

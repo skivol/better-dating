@@ -4,8 +4,6 @@ import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
-import ua.betterdating.backend.Attitude
-import ua.betterdating.backend.UserPersonalQuality
 import java.util.*
 
 class UserPersonalQualityRepository(private val template: R2dbcEntityTemplate) {

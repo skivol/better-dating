@@ -4,7 +4,6 @@ import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
-import ua.betterdating.backend.UserLanguage
 import java.util.*
 
 class UserLanguageRepository(private val template: R2dbcEntityTemplate) {

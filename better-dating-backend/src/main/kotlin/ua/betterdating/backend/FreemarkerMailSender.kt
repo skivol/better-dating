@@ -6,9 +6,11 @@ import org.springframework.core.env.Environment
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean
 import org.springframework.web.reactive.function.server.ServerRequest
+import ua.betterdating.backend.data.DateInfo
+import ua.betterdating.backend.data.ExpiringToken
 import ua.betterdating.backend.data.ExpiringTokenRepository
-import ua.betterdating.backend.utils.renderTemplate
-import ua.betterdating.backend.utils.unicodeHostHeader
+import ua.betterdating.backend.data.TokenType
+import ua.betterdating.backend.utils.*
 import java.util.*
 
 /**
@@ -22,17 +24,17 @@ class FreemarkerMailSender(
         private val templateConfigurationFactory: FreeMarkerConfigurationFactoryBean
 ) {
     suspend fun generateAndSendLinkWithToken(
-            profileId: UUID, type: TokenType, templateName: String,
-            to: String, subject: String,
-            request: ServerRequest, urlPath: String,
-            templateParams: (link: String) -> Any
+        profileId: UUID, type: TokenType, templateName: String,
+        to: String, subject: String,
+        request: ServerRequest, urlPath: String,
+        templateParams: (link: String) -> Any
     ) = generateAndSendLinkWithToken(profileId, type, templateName, to, subject, request, urlPath, {}, templateParams)
 
     private suspend fun generateAndSendLinkWithToken(
-            profileId: UUID, type: TokenType, templateName: String,
-            to: String, subject: String,
-            request: ServerRequest, urlPath: String, saveExtraTokenData: suspend (token: ExpiringToken) -> Any,
-            templateParams: (link: String) -> Any
+        profileId: UUID, type: TokenType, templateName: String,
+        to: String, subject: String,
+        request: ServerRequest, urlPath: String, saveExtraTokenData: suspend (token: ExpiringToken) -> Any,
+        templateParams: (link: String) -> Any
     ) = generateAndSendLinkWithToken(profileId, type, templateName, to, subject, unicodeHostHeader(request), urlPath, saveExtraTokenData, templateParams)
 
     suspend fun generateAndSendLinkWithToken(
@@ -53,6 +55,16 @@ class FreemarkerMailSender(
         val link = "https://$unicodeHostHeader/$urlPath?токен=${encodeToken(expiringToken.id, token)}"
         val body = renderTemplate(templateConfigurationFactory, templateName, templateParams.invoke(link))
 
+        smotrinyMailSender.send(to = to, subject = subject, body = body)
+    }
+
+    suspend fun sendLink(templateName: String,
+                         to: String, subject: String,
+                         unicodeHostHeader: String, urlPath: String,
+                         templateParams: (link: String) -> Any
+    ) {
+        val link = "https://$unicodeHostHeader/$urlPath"
+        val body = renderTemplate(templateConfigurationFactory, templateName, templateParams.invoke(link))
         smotrinyMailSender.send(to = to, subject = subject, body = body)
     }
 
@@ -111,6 +123,22 @@ class FreemarkerMailSender(
                 val actionUrl = link
             }
         }
+    }
+
+    suspend fun dateOrganizedMessage(email: String, dateInfo: DateInfo, body: String, lastHost: String) {
+        val subject = "Организовано свидание ${formatDateTime(dateInfo.whenScheduled!!)}"
+        sendLink(
+            "TitleBodyAndLinkMessage.ftlh",
+            email,
+            subject,
+            lastHost,
+            "свидания"
+        ) { link -> object {
+            val title = subject
+            val actionLabel = "Посмотреть детали свидания"
+            val actionUrl = link
+            val body = body
+        }}
     }
 
     fun smotrinySender() = environment.getProperty("spring.mail.username")!!

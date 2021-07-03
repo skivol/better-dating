@@ -15,7 +15,8 @@ fun routes(
         personalQualitiesHandler: PersonalQualitiesHandler,
         authHandler: AuthHandler,
         adminHandler: AdminHandler,
-        healthHandler: HealthHandler
+        healthHandler: HealthHandler,
+        placeHandler: PlaceHandler,
 ) = coRouter {
     "/api/user/email".nest {
         POST("/verify", accept(APPLICATION_JSON), emailHandler::verifyEmail)
@@ -38,6 +39,13 @@ fun routes(
 
     "/api/user/dating".nest {
         GET("", datingHandler::datingData)
+    }
+
+    "/api/place".nest {
+        GET("/resolve-coordinates", placeHandler::resolvePopulatedLocalityCoordinatesForDate)
+        POST("/add", placeHandler::addPlace)
+        GET("", placeHandler::getPlaceData)
+        POST("/approve", placeHandler::approvePlace)
     }
 
     GET("/api/populated-localities/autocomplete", populatedLocalitiesHandler::autocomplete)

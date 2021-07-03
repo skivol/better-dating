@@ -12,6 +12,8 @@ import ua.betterdating.backend.AppearanceType
 import ua.betterdating.backend.Gender
 import ua.betterdating.backend.Recurrence
 import java.net.IDN
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 fun host(request: ServerRequest): String = request.uri().host
 fun unicodeHostHeader(request: ServerRequest): String = IDN.toUnicode(host(request))
@@ -28,3 +30,7 @@ suspend fun okEmptyJsonObject() = ServerResponse.ok().json().bodyValueAndAwait("
 fun String.toRecurrence(): Recurrence = Recurrence.valueOf(this)
 fun Any?.toGender(): Gender = Gender.valueOf(this as String)
 fun Any?.toAppearanceType(): AppearanceType = AppearanceType.valueOf(this as String)
+
+fun formatDateTime(localDateTime: LocalDateTime): String =
+    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(localDateTime)
+
