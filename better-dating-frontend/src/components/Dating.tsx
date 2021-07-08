@@ -19,7 +19,12 @@ import {
   Collapse,
   Box,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
 } from "@material-ui/core";
+import { Close } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -27,19 +32,20 @@ import {
   faUserFriends,
   faBinoculars,
   faMapMarkedAlt,
+  faInfoCircle,
 } from "@fortawesome/free-solid-svg-icons";
 
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 
-import { useUser, useDialog } from "../utils";
+import { useUser, useDialog, ReactMarkdownMaterialUi } from "../utils";
 import * as actions from "../actions";
 import * as Messages from "./Messages";
 import { dateIdName } from "../Messages";
 import { SpinnerAdornment as Spinner } from "./common";
 import { ViewOtherUserProfileConfirm } from "./profile";
 import * as SecondStageMessages from "./profile/second-stage/Messages";
-import { checkLocation } from "./navigation/NavigationUrls";
+import { checkLocation, viewLocation } from "./navigation/NavigationUrls";
 
 const PairsAndDates = ({ datingData, user }: any) => {
   const router = useRouter();
@@ -55,6 +61,8 @@ const PairsAndDates = ({ datingData, user }: any) => {
   };
 
   const { dialogIsOpen, openDialog, closeDialog } = useDialog();
+  const [dialogType, setDialogType] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [targetNicknameAndId, setTargetNicknameAndId] = useState({
     id: "",
@@ -69,6 +77,46 @@ const PairsAndDates = ({ datingData, user }: any) => {
       })
       .finally(() => setLoading(false));
   };
+  const dialog =
+    dialogIsOpen &&
+    (dialogType == "viewOtherUserProfile" ? (
+      <ViewOtherUserProfileConfirm
+        title={Messages.areYouSureThatWantToOtherUsersProfile(
+          targetNicknameAndId.nickname
+        )}
+        loading={loading}
+        dialogIsOpen
+        closeDialog={closeDialog}
+        onConfirm={onRequestViewOtherUserProfile}
+      />
+    ) : (
+      <Dialog
+        open
+        onClose={closeDialog}
+        scroll="body"
+        aria-describedby="scroll-dialog-description"
+        PaperProps={{ className: "u-max-width-800px" }}
+      >
+        <DialogContent dividers={false}>
+          <DialogTitle>
+            <Typography variant="h6">
+              {Messages.dateIsOrganizedWhatIsNextTitle}
+            </Typography>
+            <IconButton
+              aria-label="close"
+              style={{ position: "absolute", right: "10px", top: "10px" }}
+              onClick={closeDialog}
+            >
+              <Close />
+            </IconButton>
+          </DialogTitle>
+          <DialogContentText id="scroll-dialog-description" tabIndex={-1} />
+          <ReactMarkdownMaterialUi>
+            {Messages.dateIsOrganizedWhatIsNext}
+          </ReactMarkdownMaterialUi>
+        </DialogContent>
+      </Dialog>
+    ));
 
   return (
     <>
@@ -171,6 +219,7 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                   ? secondProfileNickname
                                   : firstProfileNickname,
                               });
+                              setDialogType("viewOtherUserProfile");
                               openDialog();
                             }}
                           >
@@ -202,13 +251,13 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                   <TableHead>
                                     <TableRow>
                                       <TableCell />
-                                      <TableCell style={{ width: "200px" }}>
+                                      <TableCell style={{ width: "300px" }}>
                                         {Messages.dateStatus}
                                       </TableCell>
                                       <TableCell style={{ width: "110px" }}>
                                         {Messages.where}
                                       </TableCell>
-                                      <TableCell style={{ width: "110px" }}>
+                                      <TableCell style={{ width: "200px" }}>
                                         {Messages.whenScheduled}
                                       </TableCell>
                                     </TableRow>
@@ -225,7 +274,10 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                             whenScheduled,
                                           },
                                           place: {
+                                            name,
                                             status: placeStatus,
+                                            latitude: placeLatitude,
+                                            longitude: placeLongitude,
                                             suggestedBy,
                                           },
                                         }: any,
@@ -237,6 +289,9 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                         const currentUserApproves =
                                           waitingForApproval &&
                                           suggestedBy !== user.id;
+                                        const originalPlaceWasNotChanged =
+                                          latitude === placeLatitude &&
+                                          longitude === placeLongitude;
                                         return (
                                           <TableRow key={i}>
                                             <TableCell>{i + 1}</TableCell>
@@ -253,12 +308,7 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                               >
                                                 {currentUserApproves ? (
                                                   <>
-                                                    <div
-                                                      style={{
-                                                        width: "200px",
-                                                        marginBottom: "10px",
-                                                      }}
-                                                    >
+                                                    <div className="u-margin-bottom-10px">
                                                       {
                                                         Messages.placeNeedsYourApproval
                                                       }
@@ -286,14 +336,71 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                                 ) : waitingForApproval ? (
                                                   Messages.placeIsWaitingForApprovalByOtherUser
                                                 ) : (
-                                                  Messages.dateIsScheduled
+                                                  <>
+                                                    <div className="u-margin-bottom-10px">
+                                                      {Messages.dateIsScheduled}
+                                                    </div>
+                                                    <Button
+                                                      color="secondary"
+                                                      onClick={() => {
+                                                        setDialogType(
+                                                          "advicesDialog"
+                                                        );
+                                                        openDialog();
+                                                      }}
+                                                      variant="contained"
+                                                      startIcon={
+                                                        <FontAwesomeIcon
+                                                          icon={faInfoCircle}
+                                                        />
+                                                      }
+                                                    >
+                                                      {Messages.whatIsNext}
+                                                    </Button>
+                                                  </>
                                                 )}
                                               </Alert>
                                             </TableCell>
                                             <TableCell>
-                                              {latitude
-                                                ? `${latitude},${longitude}`
-                                                : Messages.placeIsNotSettledYet}
+                                              {latitude ? (
+                                                <Tooltip
+                                                  arrow
+                                                  placement="top"
+                                                  title={
+                                                    <>
+                                                      {originalPlaceWasNotChanged && (
+                                                        <p>{name}</p>
+                                                      )}
+                                                      <p>{`${placeLatitude},${placeLongitude}`}</p>
+                                                      <p>
+                                                        {`(${Messages.latitudeLongitude})`}
+                                                      </p>
+                                                    </>
+                                                  }
+                                                >
+                                                  <IconButton
+                                                    color="secondary"
+                                                    aria-label={
+                                                      Messages.viewPlace
+                                                    }
+                                                    size="medium"
+                                                    onClick={() => {
+                                                      router.push({
+                                                        pathname: viewLocation,
+                                                        query: {
+                                                          [dateIdName]: dateId,
+                                                        },
+                                                      });
+                                                    }}
+                                                  >
+                                                    <FontAwesomeIcon
+                                                      icon={faMapMarkedAlt}
+                                                    />
+                                                  </IconButton>
+                                                </Tooltip>
+                                              ) : (
+                                                Messages.placeIsNotSettledYet
+                                              )}
                                             </TableCell>
                                             <TableCell>
                                               {whenScheduled
@@ -336,17 +443,7 @@ const PairsAndDates = ({ datingData, user }: any) => {
         onChangePage={handleChangePage}
         onChangeRowsPerPage={handleChangeRowsPerPage}
       />
-      {dialogIsOpen && (
-        <ViewOtherUserProfileConfirm
-          title={Messages.areYouSureThatWantToOtherUsersProfile(
-            targetNicknameAndId.nickname
-          )}
-          loading={loading}
-          dialogIsOpen
-          closeDialog={closeDialog}
-          onConfirm={onRequestViewOtherUserProfile}
-        />
-      )}
+      {dialog}
     </>
   );
 };

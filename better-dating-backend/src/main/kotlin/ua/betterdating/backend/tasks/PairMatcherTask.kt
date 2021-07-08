@@ -36,14 +36,14 @@ class PairMatcherTask(
     }
 
     private suspend fun doMatching() {
-        log.info("Matching pairs! :)")
+        log.debug("Matching pairs!")
 
         // users are processed in registration order
         pairsRepository.usersToFindMatchesFor()
             .asFlow()
             .collect(this::findMatches)
 
-        log.info("Done!")
+        log.debug("Done!")
     }
 
     private suspend fun findMatches(targetProfileWithEmail: ProfileMatchInformationWithEmail) {

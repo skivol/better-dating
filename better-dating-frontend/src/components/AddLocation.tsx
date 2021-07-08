@@ -15,7 +15,14 @@ import {
 
 import "leaflet/dist/leaflet.css";
 import * as L from "leaflet";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Circle,
+  Popup,
+  useMapEvents,
+} from "react-leaflet";
 
 import { dating } from "./navigation/NavigationUrls";
 import { useDateId, ReactMarkdownMaterialUi, required } from "../utils";
@@ -32,7 +39,36 @@ const icon = L.icon({
   shadowUrl: "/img/marker-shadow.png",
 });
 
-const DraggableMarker = ({ position, setPosition, disabled }: any) => {
+const DraggableMarkerWithState = (props: any) => {
+  const [position, setPosition] = useState({});
+  return (
+    <DraggableMarker position={position} setPosition={setPosition} {...props} />
+  );
+};
+const DraggableMarker = ({
+  position,
+  setPosition,
+  disabled,
+  reactsToUserLocation = true,
+  circleColor,
+  circleRadius = 10,
+  popupText,
+}: any) => {
+  const map = useMapEvents({
+    click(e) {
+      if (!disabled) {
+        setPosition(e.latlng);
+      }
+    },
+    locationfound(e) {
+      if (reactsToUserLocation) {
+        setPosition(e.latlng);
+      }
+      if (!disabled) {
+        map.flyTo(e.latlng, map.getZoom());
+      }
+    },
+  });
   const markerRef = useRef<L.Marker | null>(null);
   const eventHandlers = useMemo(
     () => ({
@@ -45,35 +81,41 @@ const DraggableMarker = ({ position, setPosition, disabled }: any) => {
     }),
     []
   );
-  const map = useMapEvents({
-    click(e) {
-      if (!disabled) {
-        setPosition(e.latlng);
-      }
-    },
-    locationfound(e) {
-      setPosition(e.latlng);
-      map.flyTo(e.latlng, map.getZoom());
-    },
-  });
 
   return position.lng && position.lat ? (
-    <Marker
-      draggable={!disabled}
-      eventHandlers={eventHandlers}
-      position={position}
-      ref={markerRef}
-      icon={icon}
-    />
+    <>
+      <Marker
+        draggable={!disabled}
+        eventHandlers={eventHandlers}
+        position={position}
+        ref={markerRef}
+        icon={icon}
+      >
+        {popupText && <Popup>{popupText}</Popup>}
+      </Marker>
+      {circleColor && (
+        <Circle
+          pathOptions={{ color: circleColor }}
+          center={position}
+          radius={circleRadius}
+        />
+      )}
+    </>
   ) : null;
 };
+
+export enum Mode {
+  add,
+  check,
+  view,
+}
 
 export const LocationForm = ({
   initialValues = {},
   center,
   zoom,
   onSubmitProp,
-  checking = false,
+  mode = Mode.add,
 }: any) => {
   const [saving, setSaving] = useState(false);
   let map: L.Map | null = null;
@@ -83,7 +125,14 @@ export const LocationForm = ({
     onSubmitProp(values).finally(() => setSaving(false));
   };
 
-  const adding = !checking;
+  const adding = mode === Mode.add;
+  const checking = mode === Mode.check;
+  const viewing = mode === Mode.view;
+  const title = adding
+    ? Messages.addLocation
+    : checking
+    ? Messages.checkLocation
+    : Messages.viewLocation;
 
   return (
     <Form
@@ -111,17 +160,19 @@ export const LocationForm = ({
                         size="sm"
                         className="u-right-margin-10px"
                       />
-                      {checking ? Messages.checkLocation : Messages.addLocation}
+                      {title}
                     </Typography>
                   </Paper>
                 </Grid>
-                <Grid item>
-                  <Alert severity="info" variant="outlined">
-                    <ReactMarkdownMaterialUi>
-                      {Messages.addPlaceInformation}
-                    </ReactMarkdownMaterialUi>
-                  </Alert>
-                </Grid>
+                {!viewing && (
+                  <Grid item>
+                    <Alert severity="info" variant="outlined">
+                      <ReactMarkdownMaterialUi>
+                        {Messages.addPlaceInformation}
+                      </ReactMarkdownMaterialUi>
+                    </Alert>
+                  </Grid>
+                )}
                 {adding && (
                   <>
                     <Grid item>
@@ -143,6 +194,11 @@ export const LocationForm = ({
 
                 <Grid item>
                   <MapContainer
+                    dragging={!viewing}
+                    doubleClickZoom={!viewing}
+                    minZoom={!viewing ? undefined : zoom - 1}
+                    maxZoom={!viewing ? undefined : zoom + 1}
+                    scrollWheelZoom={!viewing}
                     center={center}
                     zoom={zoom}
                     style={{ height: 360 }}
@@ -160,16 +216,30 @@ export const LocationForm = ({
                       id="skivol/ckpimp0lc0bme18pbwegnv6ih"
                     />
                     <DraggableMarker
-                      disabled={checking}
+                      disabled={!adding}
+                      reactsToUserLocation={adding}
                       position={{ lng: values.lng, lat: values.lat }}
                       setPosition={setPosition}
+                      circleColor={viewing ? "green" : undefined}
+                      popupText={
+                        viewing ? Messages.meetingPlacePopup : undefined
+                      }
                     />
+                    {viewing && (
+                      <DraggableMarkerWithState
+                        disabled
+                        reactsToUserLocation
+                        circleColor="blue"
+                        circleRadius="3"
+                        popupText={Messages.myLocationPopup}
+                      />
+                    )}
                   </MapContainer>
                 </Grid>
 
                 <Grid item>
                   <TextField
-                    disabled={checking}
+                    disabled={!adding}
                     name="name"
                     label={Messages.name}
                     variant="outlined"
@@ -179,7 +249,7 @@ export const LocationForm = ({
                 </Grid>
                 <Grid item>
                   <TextField
-                    disabled={checking}
+                    disabled={!adding}
                     required
                     name="lng"
                     label={Messages.longitude}
@@ -190,7 +260,7 @@ export const LocationForm = ({
                 </Grid>
                 <Grid item>
                   <TextField
-                    disabled={checking}
+                    disabled={!adding}
                     required
                     name="lat"
                     label={Messages.latitude}
@@ -210,7 +280,7 @@ export const LocationForm = ({
                 )}
                 <Grid item style={{ alignSelf: "center" }}>
                   <Grid container>
-                    {adding ? (
+                    {adding || viewing ? (
                       <Button
                         color="secondary"
                         variant="contained"
@@ -233,28 +303,34 @@ export const LocationForm = ({
                         {Messages.suggestOtherPlace}
                       </Button>
                     )}
-                    <Divider
-                      orientation="vertical"
-                      className="u-margin-10px"
-                      style={{ height: 25 }}
-                      flexItem
-                    />
-                    <Button
-                      color="primary"
-                      style={{ background: "green" }}
-                      type="submit"
-                      variant="contained"
-                      disabled={(adding && pristine) || saving}
-                      startIcon={
-                        saving ? (
-                          <SpinnerAdornment />
-                        ) : (
-                          <FontAwesomeIcon icon={checking ? faCheck : faSave} />
-                        )
-                      }
-                    >
-                      {checking ? Messages.approve : Messages.add}
-                    </Button>
+                    {!viewing && (
+                      <>
+                        <Divider
+                          orientation="vertical"
+                          className="u-margin-10px"
+                          style={{ height: 25 }}
+                          flexItem
+                        />
+                        <Button
+                          color="primary"
+                          style={{ background: "green" }}
+                          type="submit"
+                          variant="contained"
+                          disabled={(adding && pristine) || saving}
+                          startIcon={
+                            saving ? (
+                              <SpinnerAdornment />
+                            ) : (
+                              <FontAwesomeIcon
+                                icon={checking ? faCheck : faSave}
+                              />
+                            )
+                          }
+                        >
+                          {checking ? Messages.approve : Messages.add}
+                        </Button>
+                      </>
+                    )}
                   </Grid>
                 </Grid>
               </Grid>

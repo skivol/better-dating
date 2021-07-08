@@ -1,7 +1,9 @@
+- check-in на свидании (кнопку в меню **"Я на месте"**)
+- обратная связь после свидания (оценка правдивости данных профиля / предложения по улучшению / решение продолжать отношения или нет или не достаточно информации / впечатлений для принятия решения)
+
 - (AddLocation) approval flow - negative case - suggest new place
 - (AddLocation) handle "TooCloseToOtherPlacesException"
-- negative case - won't come to the date (specify reason)
-- provide possibility to view the place again after scheduling the date ?
+- negative case - won't come to the date (specify reason) (кнопка "Не получается прийти")
 - randomize time selection for higher security ;) ?
 
 - удаление пар / свиданий при удалении профилей обоих участников
@@ -10,17 +12,13 @@
 
 - credits to koatuu / leafletjs / react-leaflet / mapbox
 
-- советы перед походом на свидание организованное через интернет
-- check-in на свидании
-- обратная связь после свидания (оценка правдивости данных профиля / предложения по улучшению / решение продолжать отношения или нет или не достаточно информации / впечатлений для принятия решения)
-- TODO place_rating (profile_id, place_id, score, motivation) ? (ease of communication / finding, publicity, near cafe / parks, other criteria ?)
-
 - возможность де-активировать (приостановить участие в свиданиях - автоматически, чтобы параллельно не организовывалось несколько свиданий; по-желанию - если человек хочет по тем или иным причинам сделать перерыв), а также снова активировать;
 
 - активировать PostGIS на сервере ("CREATE EXTENSION postgis;" / https://github.com/postgis/docker-postgis/blob/master/13-3.1/update-postgis.sh)
 
 - Описать почему была сформирована пара
 - Демо-режим
+- place_rating (profile_id, place_id, score, motivation) ? (ease of communication / finding, publicity, near cafe / parks, other criteria ?)
 - Уточнения
   ** --> Естественность, осмысленность, целесообразность, целеустремленность ; трудная, но полноценная и осмысленная жизнь
   ** в описании сайта упомянуть "эффективные" / "результативные" свидания

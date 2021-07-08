@@ -135,7 +135,7 @@ class FreemarkerMailSender(
             "свидания"
         ) { link -> object {
             val title = subject
-            val actionLabel = "Посмотреть детали свидания"
+            val actionLabel = "Что дальше ?"
             val actionUrl = link
             val body = body
         }}

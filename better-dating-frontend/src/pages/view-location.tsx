@@ -3,8 +3,8 @@ import dynamic from "next/dynamic";
 import { getData, handleUnauthorized, headers } from "../utils";
 import { dateIdName } from "../Messages";
 
-const CheckLocationWithoutSsr = dynamic(
-  () => import("../components/CheckLocation"),
+const ViewLocationWithoutSsr = dynamic(
+  () => import("../components/location/ViewLocation"),
   { ssr: false }
 );
 
@@ -15,7 +15,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   try {
     const placeData = await getData(
       `${process.env.BACKEND_HOST}/api/place`,
-      { dateId: req.query[dateIdName], action: "check" },
+      { dateId: req.query[dateIdName], action: "view" },
       headers(req)
     );
     return { props: { placeData } };
@@ -28,4 +28,4 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 };
 
-export default CheckLocationWithoutSsr;
+export default ViewLocationWithoutSsr;

@@ -2,7 +2,7 @@ import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import { useDateId } from "../utils";
 import { approvePlace } from "../actions";
-import { LocationForm } from "./AddLocation";
+import { Mode, LocationForm } from "./AddLocation";
 import { dating } from "./navigation/NavigationUrls";
 
 type Place = {
@@ -27,7 +27,7 @@ const CheckLocation = ({ placeData }: Props) => {
 
   return (
     <LocationForm
-      checking
+      mode={Mode.check}
       initialValues={initialValues}
       center={center}
       zoom={17}

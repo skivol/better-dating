@@ -10,6 +10,7 @@ export const acknowledgements = "/благодарности";
 export const privacyPolicy = "/политика-конфиденциальности";
 export const userAgreement = "/пользовательское-соглашение";
 export const checkLocation = "/проверка-места";
+export const viewLocation = "/просмотр-места";
 
 export const fromPage = (actualPagePath: string) => {
   const mapping: { [index: string]: string } = {
@@ -23,7 +24,6 @@ export const fromPage = (actualPagePath: string) => {
     ["/privacy-policy"]: privacyPolicy,
     ["/user-agreement"]: userAgreement,
     ["/administration"]: administration,
-    ["/check-location"]: checkLocation
   };
   return mapping[actualPagePath];
 };

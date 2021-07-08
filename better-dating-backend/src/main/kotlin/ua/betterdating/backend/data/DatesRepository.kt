@@ -129,7 +129,7 @@ class DatesRepository(
     )
 
     suspend fun findById(dateId: UUID) = client.sql("""
-        SELECT d.*, ST_x(d.location::geometry) "longitude", ST_y(d.location::geometry) "latitude",
+        SELECT d.*, ST_x(d.location::geometry) "longitude", ST_y(d.location::geometry) "latitude"
         FROM dates d
         WHERE d.id = :dateId
     """.trimIndent())

@@ -88,21 +88,42 @@ class PlaceHandler(
         UUID.fromString(
             request.queryParam("dateId").orElseThrow { ServerWebInputException("no dateId parameter specified") })
 
-    private suspend fun ensureCan(placeAction: PlaceAction, request: ServerRequest, dateId: UUID): Pair<DateInfo, DatingPair> {
+    private suspend fun ensureCan(
+        placeAction: PlaceAction,
+        request: ServerRequest,
+        dateId: UUID
+    ): Pair<DateInfo, DatingPair> {
+        val dateAndPair = resolveDateAndPair(dateId)
+        val (relevantDate, relevantPair) = dateAndPair
+        val userId = UUID.fromString(request.awaitPrincipal()!!.name)
+        val error = when (placeAction) {
+            PlaceAction.AddPlace -> {
+                when {
+                    relevantDate.status != DateStatus.waitingForPlace -> "date does not need new place to be added"
+                    userId != relevantPair.firstProfileId -> "other user should be adding place suggestion"
+                    else -> null
+                }
+            }
+            PlaceAction.VerifyPlace -> {
+                when {
+                    relevantDate.status != DateStatus.placeSuggested -> "date does not need new place to be approved"
+                    userId != relevantPair.secondProfileId -> "other user should be checking place suggestion"
+                    else -> null
+                }
+            }
+            PlaceAction.ViewPlace -> {
+                if (relevantDate.status != DateStatus.scheduled) "date is not currently scheduled"
+                else null
+            }
+        }
+        if (error != null) throw ServerWebInputException(error)
+        return dateAndPair
+    }
+
+    private suspend fun resolveDateAndPair(dateId: UUID): Pair<DateInfo, DatingPair> {
         val relevantDate =
             datesRepository.findById(dateId) ?: throw ServerWebInputException("no date with provided id was found")
         val relevantPair = pairsRepository.findPairByDate(dateId)
-        val userId = UUID.fromString(request.awaitPrincipal()!!.name)
-        when (placeAction) {
-            PlaceAction.AddPlace -> {
-                if (relevantDate.status != DateStatus.waitingForPlace) throw ServerWebInputException("date does not need new place to be added")
-                if (userId != relevantPair.firstProfileId) throw ServerWebInputException("other user should be adding place suggestion")
-            }
-            PlaceAction.VerifyPlace -> {
-                if (relevantDate.status != DateStatus.placeSuggested) throw ServerWebInputException("date does not need new place to be approved")
-                if (userId != relevantPair.secondProfileId) throw ServerWebInputException("other user should be checking place suggestion")
-            }
-        }
         return Pair(relevantDate, relevantPair)
     }
 
@@ -250,15 +271,25 @@ class PlaceHandler(
     }
 
     private enum class PlaceAction {
-        AddPlace, VerifyPlace
+        AddPlace, VerifyPlace, ViewPlace
     }
 
     suspend fun getPlaceData(request: ServerRequest): ServerResponse {
-        val date = ensureCan(
-            PlaceAction.VerifyPlace, request, dateIdFromRequest(request)
-        ).first
+        val action = when (request.queryParam("action")
+            .orElseThrow { ServerWebInputException("'action' query parameter is missing") }) {
+            "check" -> PlaceAction.VerifyPlace
+            "view" -> PlaceAction.ViewPlace
+            else -> throw ServerWebInputException("'action' query param expected values are 'check'/'view'")
+        }
+
+        val date = ensureCan(action, request, dateIdFromRequest(request)).first
         val place = placeRepository.byId(date.placeId ?: throw ServerWebInputException("No place connected to the date"))
-        return ok().json().bodyValueAndAwait(place)
+        return ok().json().bodyValueAndAwait(
+            if (date.latitude == null || (date.latitude == place.latitude && date.longitude == place.longitude)) place else LatLng(
+                date.latitude,
+                date.longitude!!
+            )
+        )
     }
 
     private suspend fun checkTooClosePoints(place: Place, distance: Double) {
