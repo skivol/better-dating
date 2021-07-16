@@ -33,17 +33,26 @@ import {
   faBinoculars,
   faMapMarkedAlt,
   faInfoCircle,
+  faEllipsisV,
 } from "@fortawesome/free-solid-svg-icons";
 
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 
-import { useUser, useDialog, ReactMarkdownMaterialUi } from "../utils";
+import { SnackbarVariant } from "../types";
+import {
+  useUser,
+  useDialog,
+  useMenu,
+  ReactMarkdownMaterialUi,
+  showError,
+} from "../utils";
 import * as actions from "../actions";
 import * as Messages from "./Messages";
 import { dateIdName } from "../Messages";
 import { SpinnerAdornment as Spinner } from "./common";
 import { ViewOtherUserProfileConfirm } from "./profile";
+import { DateMenu } from "./dating/DateMenu";
 import * as SecondStageMessages from "./profile/second-stage/Messages";
 import { checkLocation, viewLocation } from "./navigation/NavigationUrls";
 
@@ -254,12 +263,11 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                       <TableCell style={{ width: "300px" }}>
                                         {Messages.dateStatus}
                                       </TableCell>
-                                      <TableCell style={{ width: "110px" }}>
-                                        {Messages.where}
-                                      </TableCell>
-                                      <TableCell style={{ width: "200px" }}>
+                                      <TableCell>{Messages.where}</TableCell>
+                                      <TableCell>
                                         {Messages.whenScheduled}
                                       </TableCell>
+                                      <TableCell />
                                     </TableRow>
                                   </TableHead>
                                   <TableBody>
@@ -283,6 +291,12 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                         }: any,
                                         i: number
                                       ) => {
+                                        const {
+                                          anchorEl,
+                                          menuIsOpen,
+                                          openMenu,
+                                          closeMenu,
+                                        } = useMenu();
                                         const waitingForApproval =
                                           dateStatus === "waitingForPlace" &&
                                           placeStatus === "waitingForApproval";
@@ -292,6 +306,10 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                         const originalPlaceWasNotChanged =
                                           latitude === placeLatitude &&
                                           longitude === placeLongitude;
+                                        const scheduled =
+                                          dateStatus === "scheduled";
+                                        const partialCheckIn =
+                                          dateStatus === "partialCheckIn";
                                         return (
                                           <TableRow key={i}>
                                             <TableCell>{i + 1}</TableCell>
@@ -338,7 +356,11 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                                 ) : (
                                                   <>
                                                     <div className="u-margin-bottom-10px">
-                                                      {Messages.dateIsScheduled}
+                                                      {scheduled
+                                                        ? Messages.dateIsScheduled
+                                                        : partialCheckIn
+                                                        ? Messages.partialCheckIn
+                                                        : Messages.fullCheckIn}
                                                     </div>
                                                     <Button
                                                       color="secondary"
@@ -355,7 +377,13 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                                         />
                                                       }
                                                     >
-                                                      {Messages.whatIsNext}
+                                                      <Typography
+                                                        style={{
+                                                          fontSize: "smaller",
+                                                        }}
+                                                      >
+                                                        {Messages.whatIsNext}
+                                                      </Typography>
                                                     </Button>
                                                   </>
                                                 )}
@@ -385,6 +413,13 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                                     }
                                                     size="medium"
                                                     onClick={() => {
+                                                      if (!scheduled) {
+                                                        showError(
+                                                          dispatch,
+                                                          Messages.canViewPlaceOnlyWhilePreparingToGoOnDate
+                                                        );
+                                                        return;
+                                                      }
                                                       router.push({
                                                         pathname: viewLocation,
                                                         query: {
@@ -414,6 +449,75 @@ const PairsAndDates = ({ datingData, user }: any) => {
                                                     }
                                                   )})`
                                                 : Messages.notYetScheduled}
+                                            </TableCell>
+                                            <TableCell>
+                                              <IconButton
+                                                color="secondary"
+                                                onClick={openMenu}
+                                              >
+                                                <FontAwesomeIcon
+                                                  icon={faEllipsisV}
+                                                  size="lg"
+                                                />
+                                              </IconButton>
+                                              <DateMenu
+                                                anchorEl={anchorEl}
+                                                menuIsOpen={menuIsOpen}
+                                                closeMenu={closeMenu}
+                                                onClick={() => {
+                                                  const showSnackbarError = () =>
+                                                    dispatch(
+                                                      actions.openSnackbar(
+                                                        Messages.geolocationNeeded,
+                                                        SnackbarVariant.error
+                                                      )
+                                                    );
+                                                  if (!navigator.geolocation) {
+                                                    showSnackbarError();
+                                                    return;
+                                                  }
+                                                  const peformCheckin = (
+                                                    position: any
+                                                  ) => {
+                                                    const {
+                                                      coords: {
+                                                        accuracy,
+                                                        latitude,
+                                                        longitude,
+                                                      },
+                                                      timestamp,
+                                                    } = position;
+                                                    // TODO const accuracyThreshold = 10;
+                                                    const accuracyThreshold = 200;
+                                                    if (
+                                                      accuracy >
+                                                      accuracyThreshold
+                                                    ) {
+                                                      dispatch(
+                                                        actions.openSnackbar(
+                                                          Messages.geolocationAccuracyIsPoor,
+                                                          SnackbarVariant.error
+                                                        )
+                                                      );
+                                                      return;
+                                                    }
+                                                    dispatch(
+                                                      actions.checkIn({
+                                                        dateId,
+                                                        latitude,
+                                                        longitude,
+                                                        timestamp: formatISO(
+                                                          new Date(timestamp)
+                                                        ),
+                                                      })
+                                                    );
+                                                  };
+                                                  navigator.geolocation.getCurrentPosition(
+                                                    peformCheckin,
+                                                    showSnackbarError
+                                                  );
+                                                }}
+                                              />
                                             </TableCell>
                                           </TableRow>
                                         );
@@ -454,7 +558,7 @@ type Props = {
 
 const toDate = (date: string) =>
   formatISO(parseISO(date), { representation: "date" });
-const toDateTime = (date: string) => format(parseISO(date), "yyyy-MM-dd hh:mm");
+const toDateTime = (date: string) => format(parseISO(date), "yyyy-MM-dd HH:mm");
 
 export const Dating = ({ datingData }: Props) => {
   const user = useUser();

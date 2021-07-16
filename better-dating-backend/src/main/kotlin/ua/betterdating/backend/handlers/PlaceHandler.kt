@@ -1,18 +1,15 @@
 package ua.betterdating.backend.handlers
 
-import kotlinx.coroutines.flow.toList
-import org.springframework.core.env.Environment
-import org.springframework.core.env.get
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBody
-import org.springframework.web.reactive.function.client.awaitExchange
 import org.springframework.web.reactive.function.server.*
 import org.springframework.web.reactive.function.server.ServerResponse.ok
 import org.springframework.web.server.ServerWebInputException
 import ua.betterdating.backend.*
 import ua.betterdating.backend.data.*
+import ua.betterdating.backend.external.GoogleTimeZoneApi
+import ua.betterdating.backend.external.MapboxApi
+import ua.betterdating.backend.tasks.findAvailableDatingSpotsIn
 import ua.betterdating.backend.utils.*
 import java.util.*
 
@@ -27,38 +24,18 @@ class Coordinates(
     val specific: Boolean
 ) : LatLng(lat, lng)
 
-class FeatureContext(
-    val text: String
-)
-class Feature(
-    val center: List<Double>,
-    val place_name: String,
-    val text: String,
-    val context: List<FeatureContext>?,
-    val relevance: Float
-)
-
-class MapboxGeocodingResponse(
-    val features: List<Feature>
-)
 
 class PlaceHandler(
+    private val mapboxApi: MapboxApi,
+    private val googleTimeZoneApi: GoogleTimeZoneApi,
     private val pairsRepository: PairsRepository,
     private val placeRepository: PlaceRepository,
     private val datesRepository: DatesRepository,
     private val emailRepository: EmailRepository,
     private val loginInformationRepository: LoginInformationRepository,
-    private val environment: Environment,
     private val transactionalOperator: TransactionalOperator,
     private val mailSender: FreemarkerMailSender,
 ) {
-    private val log by LoggerDelegate()
-    private val mapboxAccessToken: String
-        get() {
-            return environment["mapbox.access-token"]
-                ?: throw RuntimeException("Mapbox access token wasn't provided")
-        }
-
     suspend fun resolvePopulatedLocalityCoordinatesForDate(request: ServerRequest): ServerResponse {
         val dateId = ensureCan(
             PlaceAction.AddPlace, request, dateIdFromRequest(request)
@@ -69,7 +46,7 @@ class PlaceHandler(
             pairsRepository.findPairByDate(dateId).firstProfileSnapshot!!.populatedLocality
 
         // use mapbox geocoding for initial positioning
-        val coordinates = coordinatesFromMapboxGeocoding("${populatedLocality.name} ${populatedLocality.region}") ?: {
+        val coordinates = mapboxApi.forwardGeocoding("${populatedLocality.name} ${populatedLocality.region}") ?: {
             // or center of Ukraine/Russia/Belarus/Kazakhstan (or appropriate country in general) if couldn't find specific place coordinates
             val latLng = when (populatedLocality.country) {
                 "Россия" -> arrayOf(55.633315, 37.796245)
@@ -93,7 +70,7 @@ class PlaceHandler(
         request: ServerRequest,
         dateId: UUID
     ): Pair<DateInfo, DatingPair> {
-        val dateAndPair = resolveDateAndPair(dateId)
+        val dateAndPair = resolveDateAndPair(datesRepository, pairsRepository, dateId)
         val (relevantDate, relevantPair) = dateAndPair
         val userId = UUID.fromString(request.awaitPrincipal()!!.name)
         val error = when (placeAction) {
@@ -120,65 +97,6 @@ class PlaceHandler(
         return dateAndPair
     }
 
-    private suspend fun resolveDateAndPair(dateId: UUID): Pair<DateInfo, DatingPair> {
-        val relevantDate =
-            datesRepository.findById(dateId) ?: throw ServerWebInputException("no date with provided id was found")
-        val relevantPair = pairsRepository.findPairByDate(dateId)
-        return Pair(relevantDate, relevantPair)
-    }
-
-    // https://docs.mapbox.com/api/search/geocoding/#example-request-forward-geocoding
-    private suspend fun coordinatesFromMapboxGeocoding(placeName: String): Coordinates? {
-        return try {
-            WebClient.builder().build().get()
-                .uri("https://api.mapbox.com/geocoding/v5/mapbox.places/$placeName.json") {
-                    it.queryParam("access_token", mapboxAccessToken)
-                        .queryParam("language", "uk")
-                        .queryParam("types", "place,locality")
-                        .build()
-                }.awaitExchange<MapboxGeocodingResponse> {
-                    it.awaitBody()
-                }.let {
-                    if (it.features.isNotEmpty()) {
-                        val bestMatchFeature = it.features.maxByOrNull { f -> f.relevance } ?: return null
-                        val lat = bestMatchFeature.center[1]
-                        val lng = bestMatchFeature.center[0]
-                        Coordinates(lat, lng, true)
-                    } else null
-                }
-        } catch (e: Exception) {
-            log.warn("Error calling Mapbox geocoding api", e)
-            null
-        }
-    }
-
-    private suspend fun pointWithinPopulatedLocality(lat: Double, lng: Double, populatedLocality: PopulatedLocality): Boolean? {
-        val nameWithoutDetails = populatedLocality.name.substringBefore(" (")
-        val containsPlace = { text: String -> text.contains(nameWithoutDetails) }
-        return try {
-            WebClient.builder().build().get()
-                .uri("https://api.mapbox.com/geocoding/v5/mapbox.places/$lng,$lat.json") {
-                    it.queryParam("access_token", mapboxAccessToken)
-                        .queryParam("language", "uk")
-                        .queryParam("types", "place,locality")
-                        .build()
-                }.awaitExchange<MapboxGeocodingResponse> {
-                    it.awaitBody()
-                }.let {
-                    if (it.features.isNotEmpty()) {
-                        it.features.any {f ->
-                            containsPlace(f.text)
-                                    || containsPlace(f.place_name)
-                                    || (f.context?.any { c -> containsPlace(c.text) } ?: false)
-                        }
-                    } else false
-                }
-        } catch (e: Exception) {
-            log.warn("Error calling Mapbox geocoding api", e)
-            null
-        }
-    }
-
     private class AddPlaceRequest(
         val dateId: UUID,
         val name: String,
@@ -202,7 +120,7 @@ class PlaceHandler(
 
         // perform reverse geocoding to verify if selected point is within current populated locality
         val populatedLocality = pair.firstProfileSnapshot!!.populatedLocality
-        val withinLocality = pointWithinPopulatedLocality(addPlaceRequest.lat, addPlaceRequest.lng, populatedLocality)
+        val withinLocality = mapboxApi.pointWithinPopulatedLocality(addPlaceRequest.lat, addPlaceRequest.lng, populatedLocality)
         if (withinLocality == false) {
             throw NotInTargetPopulatedLocalityException(populatedLocality.name)
         }
@@ -247,11 +165,12 @@ class PlaceHandler(
 
         transactionalOperator.executeAndAwait {
             placeRepository.approve(dateInfo.placeId, pair.secondProfileId)
-            val spots = datesRepository.findAvailableDatingSpotsIn(pair.firstProfileSnapshot!!.populatedLocality.id).toList()
+            val spots = findAvailableDatingSpotsIn(datesRepository, googleTimeZoneApi, pair.firstProfileSnapshot!!.populatedLocality)
+            val whenAndWhere = spots.shuffled().first { it.place.id == dateInfo.placeId }
             val updatedDateInfo = dateInfo.copy(
                 latitude = place.latitude,
                 longitude = place.longitude,
-                whenScheduled = spots.first { it.place.id == dateInfo.placeId }.timeAndDate,
+                whenScheduled = whenAndWhere.timeAndDate,
                 status = DateStatus.scheduled
             )
             datesRepository.upsert(updatedDateInfo)
@@ -260,11 +179,11 @@ class PlaceHandler(
             val firstProfileEmail = emailRepository.findById(pair.firstProfileId)!!.email
             val firstProfileLastHost = loginInformationRepository.find(pair.firstProfileId).lastHost
             val body = "$automaticDateAndTime $striveToComeToTheDate $beResponsibleAndAttentive $additionalInfoCanBeFoundOnSite"
-            mailSender.dateOrganizedMessage(firstProfileEmail, dateInfo, body, firstProfileLastHost)
+            mailSender.dateOrganizedMessage(firstProfileEmail, whenAndWhere, body, firstProfileLastHost)
 
             val secondProfileEmail = emailRepository.findById(pair.secondProfileId)!!.email
             val secondProfileLastHost = loginInformationRepository.find(pair.secondProfileId).lastHost
-            mailSender.dateOrganizedMessage(secondProfileEmail, dateInfo, body, secondProfileLastHost)
+            mailSender.dateOrganizedMessage(secondProfileEmail, whenAndWhere, body, secondProfileLastHost)
         }
 
         return okEmptyJsonObject()
@@ -298,3 +217,11 @@ class PlaceHandler(
         throw TooCloseToOtherPlacesException(tooClosePoints, distance)
     }
 }
+
+suspend fun resolveDateAndPair(datesRepository: DatesRepository, pairsRepository: PairsRepository, dateId: UUID): Pair<DateInfo, DatingPair> {
+    val relevantDate =
+        datesRepository.findById(dateId) ?: throw ServerWebInputException("no date with provided id was found")
+    val relevantPair = pairsRepository.findPairByDate(dateId)
+    return Pair(relevantDate, relevantPair)
+}
+

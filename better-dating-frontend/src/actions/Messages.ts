@@ -34,3 +34,24 @@ export const errorLogout = oopsSomethingWentWrong;
 export const successAddingPlaceTheUserWasNotified = "Место встречи было создано и второй пользователь был оповещен об этом!";
 export const successApprovingThePlace = "Место встречи было подтверждено и вскоре будет организовано свидание!";
 
+export const successCheckIn = "Успешное прибытие на свидание!";
+export const secondUserHasAlreadyArrived = "А второй пользователь уже на месте!";
+
+export const resolveCheckInError = (error: any) => {
+  const { message, details } = error;
+  if ("too early to check in" === message) {
+    return "Слишком рано отмечаться о прибытии на свидание!";
+  } else if ("too late to check in" === message) {
+    return "Слишком поздно отмечаться о прибытии на свидание!";
+  } else if ("not close enough to check in" === message) {
+    return `Текущее положение слишком далеко от точки встречи (${details.currentDistance} метров, при максимально приемлимом отдалении ${details.distanceThreshold} метров)`;
+  } else if ("location data is too old" === message) {
+    return "Данные о расположении устарели, обновите страницу и попробуйте снова";
+  } else if ("already checked in" === message) {
+    return "Уже отметились о прибытии ;)";
+  } else if ("date is not in scheduled or partial check-in state" === message) {
+    return "Больше нельзя отмечаться о прибытии на это свидание";
+  }
+
+  return oopsSomethingWentWrong;
+}

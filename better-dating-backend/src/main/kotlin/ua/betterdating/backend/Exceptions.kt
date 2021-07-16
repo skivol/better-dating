@@ -89,9 +89,10 @@ suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResp
             request,
             BAD_REQUEST,
             "Too close to other existing points",
-            mapOf("points" to e.points, "distance" to e.distance)
+            details = mapOf("points" to e.points, "distance" to e.distance)
         )
-        is NotInTargetPopulatedLocalityException -> ErrorResponseEntity(request, BAD_REQUEST, "Point doesn't seem to be in target populated locality", mapOf("locality" to e.placeName))
+        is NotInTargetPopulatedLocalityException -> ErrorResponseEntity(request, BAD_REQUEST, "Point doesn't seem to be in target populated locality", details = mapOf("locality" to e.placeName))
+        is ApplicationException -> ErrorResponseEntity(request, e.status, e.message, e.code, details = e.details)
         else -> {
             LOG.error("Internal error", e)
             ErrorResponseEntity(request, INTERNAL_SERVER_ERROR, "Internal error")
@@ -108,7 +109,7 @@ private fun constraintViolationToResponse(
     return ErrorResponseEntity(
         request, UNPROCESSABLE_ENTITY,
         "Validation error",
-        cause.constraintViolations.mapToMessage().associate { it.property to it.message }
+        details = cause.constraintViolations.mapToMessage().associate { it.property to it.message }
     )
 }
 
@@ -116,6 +117,7 @@ class ErrorResponseEntity(
     request: ServerRequest,
     status: HttpStatus,
     val message: String,
+    val code: String? = message.toLowerCase().replace(" ", "."),
     val details: Map<String, Any> = emptyMap()
 ) {
     val path = request.path()
@@ -139,3 +141,6 @@ class NotEligibleForSecondStageException : RuntimeException()
 
 class TooCloseToOtherPlacesException(val points: List<LatLng>, val distance: Double) : RuntimeException()
 class NotInTargetPopulatedLocalityException(val placeName: String) : RuntimeException()
+
+class ApplicationException(val status: HttpStatus, override val message: String, val code: String? = null, val details: Map<String, Any> = emptyMap()) : RuntimeException(message)
+fun badRequestException(message: String) = ApplicationException(HttpStatus.BAD_REQUEST, message)

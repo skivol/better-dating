@@ -68,6 +68,7 @@ services:
       VK_CLIENT_ID: "${VK_CLIENT_ID}"
       VK_CLIENT_SECRET: "${VK_CLIENT_SECRET}"
       NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: "${NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}"
+      GOOGLE_ACCESS_TOKEN: "${GOOGLE_ACCESS_TOKEN}"
     dns: 8.8.8.8
     depends_on:
       - bd-postgres

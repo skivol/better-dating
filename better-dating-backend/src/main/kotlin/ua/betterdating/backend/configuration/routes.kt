@@ -39,6 +39,7 @@ fun routes(
 
     "/api/user/dating".nest {
         GET("", datingHandler::datingData)
+        POST("check-in", datingHandler::checkIn)
     }
 
     "/api/place".nest {

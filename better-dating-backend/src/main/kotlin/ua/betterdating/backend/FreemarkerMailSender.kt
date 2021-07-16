@@ -6,10 +6,7 @@ import org.springframework.core.env.Environment
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean
 import org.springframework.web.reactive.function.server.ServerRequest
-import ua.betterdating.backend.data.DateInfo
-import ua.betterdating.backend.data.ExpiringToken
-import ua.betterdating.backend.data.ExpiringTokenRepository
-import ua.betterdating.backend.data.TokenType
+import ua.betterdating.backend.data.*
 import ua.betterdating.backend.utils.*
 import java.util.*
 
@@ -125,8 +122,8 @@ class FreemarkerMailSender(
         }
     }
 
-    suspend fun dateOrganizedMessage(email: String, dateInfo: DateInfo, body: String, lastHost: String) {
-        val subject = "Организовано свидание ${formatDateTime(dateInfo.whenScheduled!!)}"
+    suspend fun dateOrganizedMessage(email: String, whenAndWhere: WhenAndWhere, body: String, lastHost: String) {
+        val subject = "Организовано свидание ${formatDateTime(whenAndWhere.timeAndDate.withZoneSameInstant(whenAndWhere.timeZone)!!)}"
         sendLink(
             "TitleBodyAndLinkMessage.ftlh",
             email,
@@ -139,6 +136,15 @@ class FreemarkerMailSender(
             val actionUrl = link
             val body = body
         }}
+    }
+
+    suspend fun sendSecondUserCheckedIn(to: String) {
+        val subject = "Второй пользователь отметился о прибытии на свидание !"
+        val body = renderTemplate(templateConfigurationFactory, "TitleBody.ftlh", object {
+            val title = subject
+            val body = ""
+        })
+        smotrinyMailSender.send(to = to, subject = subject, body = body)
     }
 
     fun smotrinySender() = environment.getProperty("spring.mail.username")!!

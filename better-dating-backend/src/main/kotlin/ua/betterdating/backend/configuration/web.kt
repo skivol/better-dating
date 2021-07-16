@@ -31,6 +31,8 @@ import org.springframework.web.server.adapter.ForwardedHeaderTransformer
 import reactor.core.publisher.Mono
 import ua.betterdating.backend.data.EmailRepository
 import ua.betterdating.backend.data.UserRoleRepository
+import ua.betterdating.backend.external.GoogleTimeZoneApi
+import ua.betterdating.backend.external.MapboxApi
 import ua.betterdating.backend.generateUrlSafeToken
 import ua.betterdating.backend.handlers.*
 
@@ -50,6 +52,8 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
         bean<AuthHandler>()
         bean<HealthHandler>()
         bean<PlaceHandler>()
+        bean<MapboxApi>()
+        bean<GoogleTimeZoneApi>()
         bean(::routes)
 
         bean<PasswordEncoder> {

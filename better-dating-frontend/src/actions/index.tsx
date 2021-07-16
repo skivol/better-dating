@@ -335,3 +335,28 @@ export const logout = (): any => async (
     dispatch(openSnackbar(Messages.errorLogout, SnackbarVariant.error));
   }
 };
+
+export const checkIn = (values: any): any => async (
+  dispatch: ThunkDispatch<any, any, Action>
+) => {
+  try {
+    const { secondUserAlreadyCheckedIn } = await postData(
+      "/api/user/dating/check-in",
+      values
+    );
+    dispatch(
+      openSnackbar(
+        `${Messages.successCheckIn}${
+          secondUserAlreadyCheckedIn
+            ? " " + Messages.secondUserHasAlreadyArrived
+            : ""
+        }`,
+        SnackbarVariant.success
+      )
+    );
+  } catch (error) {
+    dispatch(
+      openSnackbar(Messages.resolveCheckInError(error), SnackbarVariant.error)
+    );
+  }
+};

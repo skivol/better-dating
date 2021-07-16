@@ -55,6 +55,7 @@ bd-backend-server-impl() {
 							--spring.security.oauth2.client.registration.vk.client-id=$VK_CLIENT_ID \
 							--spring.security.oauth2.client.registration.vk.client-secret=$VK_CLIENT_SECRET \
 							--mapbox.access-token=$NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN \
+							--google.access-token=$GOOGLE_ACCESS_TOKEN \
 							--password-files.mail=$BD_MAIL_PASSWORD_FILE \
 							--datasource.username=$BD_DB_USER \
 							--password-files.db=$BD_DB_PASSWORD_FILE" | tr -d '\t'); # tabs really mess up spring args

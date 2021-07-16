@@ -62,9 +62,18 @@ CREATE TABLE dates (
 	status varchar NOT NULL,
 	place_id uuid NULL,
 	location GEOGRAPHY(POINT,4326) NULL,
-	when_scheduled timestamp(0) NULL,
+	when_scheduled timestamptz(0) NULL,
 	CONSTRAINT dates_pk PRIMARY KEY (id),
 	CONSTRAINT dates_fk FOREIGN KEY (pair_id) REFERENCES dating_pair(id),
 	CONSTRAINT dates_place_fk FOREIGN KEY (place_id) REFERENCES place(id),
 	CONSTRAINT dates_un UNIQUE (place_id, when_scheduled)
+);
+
+CREATE TABLE date_check_in (
+	date_id uuid NOT NULL,
+	profile_id uuid NOT NULL,
+	when_checked_in timestamptz(0) NOT NULL,
+	CONSTRAINT date_check_in_pk PRIMARY KEY (profile_id,date_id),
+	CONSTRAINT date_check_in_fk FOREIGN KEY (profile_id) REFERENCES profile_info(profile_id),
+	CONSTRAINT date_check_in_fk_1 FOREIGN KEY (date_id) REFERENCES dates(id)
 );

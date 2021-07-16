@@ -15,7 +15,7 @@ class DatingProfileInfoRepository(private val template: R2dbcEntityTemplate) {
             template.select<DatingProfileInfo>().matching(Query.query(Criteria.where("profile_id").`is`(profileId)))
                     .awaitFirstOrNull()
 
-    suspend fun update(updated: DatingProfileInfo) =
+    suspend fun update(updated: DatingProfileInfo): Int =
             template.update<DatingProfileInfo>()
                     .matching(Query.query(Criteria.where("profile_id").`is`(updated.profileId)))
                     .apply(Update.update("goal", updated.goal)

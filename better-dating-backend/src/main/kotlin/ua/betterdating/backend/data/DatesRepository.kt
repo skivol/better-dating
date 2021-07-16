@@ -8,21 +8,25 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
+import org.springframework.r2dbc.core.*
 import org.springframework.r2dbc.core.DatabaseClient
-import org.springframework.r2dbc.core.awaitRowsUpdated
-import org.springframework.r2dbc.core.awaitSingleOrNull
-import org.springframework.r2dbc.core.bind
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
+import ua.betterdating.backend.tasks.toUtc
+import java.time.*
 import java.util.*
 
 data class WhenAndWhere(
-    val timeAndDate: LocalDateTime,
+    val timeAndDate: ZonedDateTime,
     val place: Place,
+    val timeZone: ZoneId
+)
+
+data class Timeslot(
+    val dayOfWeek: DayOfWeek,
+    val time: LocalTime,
 )
 
 enum class DateStatus {
-    waitingForPlace, placeSuggested, scheduled
+    waitingForPlace, placeSuggested, scheduled, partialCheckIn, fullCheckIn
 }
 
 data class DateInfo(
@@ -30,7 +34,7 @@ data class DateInfo(
     val pairId: UUID,
     val status: DateStatus,
     val placeId: UUID?,
-    val whenScheduled: LocalDateTime?,
+    val whenScheduled: ZonedDateTime?,
     val latitude: Double?,
     val longitude: Double?,
 )
@@ -49,30 +53,33 @@ const val nearPlaces = """
 """
 class DatesRepository(
     private val client: DatabaseClient,
-    private val template: R2dbcEntityTemplate,
 ) {
-    fun findAvailableDatingSpotsIn(populatedLocalityId: UUID) =
+    suspend fun findAvailableDatingPlacesIn(populatedLocalityId: UUID): List<Place> =
         client.sql("""
-            WITH $nearPlaces, next_timeslots AS (
-                SELECT
-                    date_trunc('day', now()) + interval '1 day' * ((
-                        CASE WHEN (extract(isodow from now()) >= day_of_week)
-                        THEN day_of_week + 7
-                        ELSE day_of_week END
-                    ) - extract(isodow from now())) + "time_of_day" "scheduled_time",
-                    near_places.id "scheduled_place_id", near_places."name" "scheduled_place_name",
-                    ST_x(near_places.location::geometry) "scheduled_place_longitude", ST_y(near_places.location::geometry) "scheduled_place_latitude",
-                    near_places.populated_locality_id "scheduled_place_populated_locality_id", near_places.suggested_by "scheduled_place_suggested_by",
-                    near_places.status "scheduled_place_status"
-                FROM timeslot, near_places
-            )
-            SELECT nt.* FROM next_timeslots nt
-            LEFT JOIN dates d ON d.when_scheduled = scheduled_time AND d.place_id = scheduled_place_id
-            WHERE d.id IS NULL
-            """.trimIndent()
-        ).bind("populatedLocalityId", populatedLocalityId)
-            .map { row, _ -> extractWhenAndWhere(row)}
-            .all().asFlow()
+            WITH $nearPlaces
+            SELECT *,
+                ST_x(near_places.location::geometry) "longitude",
+                ST_y(near_places.location::geometry) "latitude"
+            FROM near_places
+        """.trimIndent())
+            .bind("populatedLocalityId", populatedLocalityId)
+            .map { row, _ -> extractPlace(row)}
+            .all().collectList().awaitFirst()
+    suspend fun findTimeslots(): List<Timeslot> = client.sql("""
+        SELECT * FROM timeslot
+    """.trimIndent())
+        .map { row, _ -> Timeslot(
+            DayOfWeek.of(row["day_of_week"] as Int),
+            row["time_of_day"] as LocalTime
+        )}.all().collectList().awaitFirst()
+    suspend fun findScheduledDatesIn(populatedLocalityId: UUID): List<DateInfo> = client.sql("""
+        SELECT d.* FROM dates d
+        JOIN place p ON p.id = d.place_id
+        WHERE d.status = 'scheduled' AND p.populated_locality_id = :populatedLocalityId
+    """.trimIndent())
+        .bind("populatedLocalityId", populatedLocalityId)
+        .map { row, _ -> extractDateInfo(row)}
+        .all().collectList().awaitFirst()
 
     suspend fun upsert(dateInfo: DateInfo): Int = client.sql(
         """
@@ -109,10 +116,6 @@ class DatesRepository(
         .map { row, _ -> extractDateInfoWithPlace(row)}
         .all().collectList().awaitFirst()
 
-    private fun extractWhenAndWhere(row: Row) = WhenAndWhere(
-        (row["scheduled_time"] as OffsetDateTime).toLocalDateTime(), extractPlace(row, "scheduled_place_")
-    )
-
     private fun extractDateInfoWithPlace(row: Row) = DateInfoWithPlace(
         extractDateInfo(row),
         if (row["place_id"] != null) extractPlace(row, "place_") else null
@@ -123,7 +126,7 @@ class DatesRepository(
         row["pair_id"] as UUID,
         DateStatus.valueOf(row["status"] as String),
         row["place_id"] as UUID?,
-        row["when_scheduled"] as LocalDateTime?,
+        (row["when_scheduled"] as OffsetDateTime?)?.toZonedDateTime()?.toUtc(),
         row["latitude"] as Double?,
         row["longitude"] as Double?,
     )
@@ -136,4 +139,15 @@ class DatesRepository(
         .bind("dateId", dateId)
         .map { row, _ -> extractDateInfo(row)}
         .awaitSingleOrNull()
+
+    suspend fun distanceToDateLocation(dateId: UUID, latitude: Double, longitude: Double): Double = client.sql("""
+        SELECT ST_Distance(d.location, ST_MakePoint(:longitude, :latitude)) "distance"
+        FROM dates d WHERE id = :dateId
+    """.trimIndent())
+        .bind("dateId", dateId)
+        .bind("latitude", latitude)
+        .bind("longitude", longitude)
+        .map { row, _ -> row["distance"] as Double}
+        .awaitSingle()
+
 }

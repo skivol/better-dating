@@ -1,16 +1,18 @@
-- check-in на свидании (кнопку в меню **"Я на месте"**)
+- токен для подтверждения встречи
 - обратная связь после свидания (оценка правдивости данных профиля / предложения по улучшению / решение продолжать отношения или нет или не достаточно информации / впечатлений для принятия решения)
+- дописать в "Что дальше?" использование токена для подтверждения встречи, несколько идей/тем для изучения ?
 
+- test real "coords.accuracy" values
 - (AddLocation) approval flow - negative case - suggest new place
 - (AddLocation) handle "TooCloseToOtherPlacesException"
 - negative case - won't come to the date (specify reason) (кнопка "Не получается прийти")
-- randomize time selection for higher security ;) ?
 
 - удаление пар / свиданий при удалении профилей обоих участников
 - история просмотров профилей
 - gracefull shutdown (handle it in tasks)
 
-- credits to koatuu / leafletjs / react-leaflet / mapbox
+- credits to koatuu / leafletjs / react-leaflet / mapbox / google timezone api
+- restrict mapbox token usage
 
 - возможность де-активировать (приостановить участие в свиданиях - автоматически, чтобы параллельно не организовывалось несколько свиданий; по-желанию - если человек хочет по тем или иным причинам сделать перерыв), а также снова активировать;
 
