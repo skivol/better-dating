@@ -5,14 +5,22 @@ export const expiredTokenMessage = "Expired token";
 export const dateIdName = "свидание";
 
 export const tokenName = "токен";
-export const resolveTokenMessage = (message: string) => {
+export const resolveTokenMessage = (
+  message: string,
+  expirationDuration: number = 1,
+  defaultMessage:
+    | string
+    | null = "Неизвестная ошибка. Попробуйте еще раз позже."
+) => {
   switch (message) {
     case "No such token":
       return "Токен не найден.";
     case expiredTokenMessage:
-      return "Токен просрочен. Запросите еще один и используйте его в течение 1 дня.";
+      const days =
+        expirationDuration == 1 ? "1 дня" : `${expirationDuration} дней`;
+      return `Токен просрочен. Запросите еще один и используйте его в течение ${days}.`;
     default:
-      return "Неизвестная ошибка. Попробуйте еще раз позже.";
+      return defaultMessage;
   }
 };
 

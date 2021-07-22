@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, CSSProperties } from "react";
 import { parseISO, formatISO, format, formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useDispatch } from "react-redux";
+import { Form } from "react-final-form";
 import { useRouter } from "next/router";
 import {
   Grid,
@@ -22,10 +23,10 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogContentText,
 } from "@material-ui/core";
 import { Close } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
+import { TextField } from "mui-rff";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -34,6 +35,7 @@ import {
   faMapMarkedAlt,
   faInfoCircle,
   faEllipsisV,
+  faCheckDouble,
 } from "@fortawesome/free-solid-svg-icons";
 
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
@@ -50,14 +52,373 @@ import {
 import * as actions from "../actions";
 import * as Messages from "./Messages";
 import { dateIdName } from "../Messages";
+import * as SecondStageMessages from "./profile/second-stage/Messages";
 import { SpinnerAdornment as Spinner } from "./common";
 import { ViewOtherUserProfileConfirm } from "./profile";
 import { DateMenu } from "./dating/DateMenu";
-import * as SecondStageMessages from "./profile/second-stage/Messages";
 import { checkLocation, viewLocation } from "./navigation/NavigationUrls";
 
-const PairsAndDates = ({ datingData, user }: any) => {
+const topRightPosition: CSSProperties = {
+  position: "absolute",
+  right: "10px",
+  top: "10px",
+};
+
+const DateRow = ({
+  user,
+  dateInfo: {
+    id: dateId,
+    status: dateStatus,
+    latitude,
+    longitude,
+    whenScheduled,
+  },
+  place: {
+    name,
+    status: placeStatus,
+    latitude: placeLatitude,
+    longitude: placeLongitude,
+    suggestedBy,
+  },
+  index,
+}: any) => {
   const router = useRouter();
+  const { dialogIsOpen, openDialog, closeDialog } = useDialog();
+  const [dialogType, setDialogType] = useState<string | null>(null);
+  const dispatch = useDispatch();
+  const { anchorEl, menuIsOpen, openMenu, closeMenu } = useMenu();
+
+  const [dateStatusState, setDateStatus] = useState<string>(dateStatus);
+  const [verifying, setVerifying] = useState(false);
+  const onVerify = ({ code }: any) => {
+    setVerifying(true);
+    dispatch(actions.verifyDate({ code, dateId }))
+      .then((status: string) => {
+        closeDialog();
+        closeMenu();
+        setDateStatus(status);
+      })
+      .finally(() => setVerifying(false));
+  };
+
+  const dialog =
+    dialogIsOpen &&
+    (dialogType === "advicesDialog" ? (
+      <Dialog
+        open
+        onClose={closeDialog}
+        scroll="body"
+        aria-describedby="scroll-dialog-description"
+        PaperProps={{ className: "u-max-width-800px" }}
+      >
+        <DialogContent dividers={false}>
+          <DialogTitle>
+            <Typography variant="h6">
+              {Messages.dateIsOrganizedWhatIsNextTitle}
+            </Typography>
+            <IconButton
+              aria-label="close"
+              style={topRightPosition}
+              onClick={closeDialog}
+            >
+              <Close />
+            </IconButton>
+          </DialogTitle>
+          <ReactMarkdownMaterialUi>
+            {Messages.dateIsOrganizedWhatIsNext}
+          </ReactMarkdownMaterialUi>
+        </DialogContent>
+      </Dialog>
+    ) : dialogType === "verifyDateDialog" ? (
+      <Dialog
+        open
+        onClose={closeDialog}
+        PaperProps={{ className: "u-min-width-450px" }}
+      >
+        <DialogContent dividers={false}>
+          <DialogTitle>
+            <IconButton
+              aria-label="close"
+              style={topRightPosition}
+              onClick={closeDialog}
+            >
+              <Close />
+            </IconButton>
+          </DialogTitle>
+          <Form
+            onSubmit={onVerify}
+            render={({ handleSubmit, pristine }) => {
+              return (
+                <form onSubmit={handleSubmit}>
+                  <Grid container>
+                    <TextField
+                      style={{ display: "flex" }}
+                      required
+                      name="code"
+                      label={Messages.code}
+                      variant="outlined"
+                      type="number"
+                      inputProps={{
+                        "aria-label": Messages.code,
+                      }}
+                    />
+                    <Button
+                      style={{ marginLeft: "auto" }}
+                      color="primary"
+                      type="submit"
+                      disabled={pristine || verifying}
+                      startIcon={
+                        verifying ? (
+                          <Spinner color="lightgray" />
+                        ) : (
+                          <FontAwesomeIcon icon={faCheckDouble} />
+                        )
+                      }
+                    >
+                      {Messages.verifyDate}
+                    </Button>
+                  </Grid>
+                </form>
+              );
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+    ) : null);
+
+  const waitingForApproval =
+    dateStatusState === "placeSuggested" &&
+    placeStatus === "waitingForApproval";
+  const currentUserApproves = waitingForApproval && suggestedBy !== user.id;
+  const originalPlaceWasNotChanged =
+    latitude === placeLatitude && longitude === placeLongitude;
+  const scheduled = dateStatusState === "scheduled";
+  const partialCheckIn = dateStatusState === "partialCheckIn";
+  const fullCheckIn = dateStatusState === "fullCheckIn";
+
+  const [checkingIn, setCheckingIn] = useState(false);
+  const handleCheckInAttempt = () => {
+    const showSnackbarError = () =>
+      dispatch(
+        actions.openSnackbar(Messages.geolocationNeeded, SnackbarVariant.error)
+      );
+    if (!navigator.geolocation) {
+      showSnackbarError();
+      return;
+    }
+    const peformCheckIn = (position: any) => {
+      const {
+        coords: { accuracy, latitude, longitude },
+        timestamp,
+      } = position;
+      // TODO const accuracyThreshold = 10;
+      const accuracyThreshold = 200;
+      if (accuracy > accuracyThreshold) {
+        dispatch(
+          actions.openSnackbar(
+            Messages.geolocationAccuracyIsPoor,
+            SnackbarVariant.error
+          )
+        );
+        return;
+      }
+      setCheckingIn(true);
+      dispatch(
+        actions.checkIn({
+          dateId,
+          latitude,
+          longitude,
+          timestamp: formatISO(new Date(timestamp)),
+        })
+      )
+        .then((status: string) => {
+          closeMenu();
+          setDateStatus(status);
+        })
+        .finally(() => setCheckingIn(false));
+    };
+    navigator.geolocation.getCurrentPosition(peformCheckIn, showSnackbarError);
+  };
+  return (
+    <TableRow key={index}>
+      <TableCell>{index + 1}</TableCell>
+      <TableCell>
+        <Alert
+          severity={
+            currentUserApproves
+              ? "warning"
+              : waitingForApproval
+              ? "info"
+              : "success"
+          }
+          variant="outlined"
+        >
+          {currentUserApproves ? (
+            <>
+              <div className="u-margin-bottom-10px">
+                {Messages.placeNeedsYourApproval}
+              </div>
+              <Button
+                color="secondary"
+                onClick={() => {
+                  router.push({
+                    pathname: checkLocation,
+                    query: {
+                      [dateIdName]: dateId,
+                    },
+                  });
+                }}
+                variant="contained"
+                startIcon={<FontAwesomeIcon icon={faMapMarkedAlt} />}
+              >
+                {Messages.checkPlace}
+              </Button>
+            </>
+          ) : waitingForApproval ? (
+            Messages.placeIsWaitingForApprovalByOtherUser
+          ) : (
+            <>
+              <div className="u-margin-bottom-10px">
+                {scheduled
+                  ? Messages.dateIsScheduled
+                  : partialCheckIn
+                  ? Messages.partialCheckIn
+                  : fullCheckIn
+                  ? Messages.fullCheckIn
+                  : Messages.verified}
+              </div>
+              <Button
+                color="secondary"
+                onClick={() => {
+                  setDialogType("advicesDialog");
+                  openDialog();
+                }}
+                variant="contained"
+                startIcon={<FontAwesomeIcon icon={faInfoCircle} />}
+              >
+                <Typography
+                  style={{
+                    fontSize: "smaller",
+                  }}
+                >
+                  {Messages.whatIsNext}
+                </Typography>
+              </Button>
+            </>
+          )}
+        </Alert>
+      </TableCell>
+      <TableCell>
+        {latitude ? (
+          <Tooltip
+            arrow
+            placement="top"
+            title={
+              <>
+                {originalPlaceWasNotChanged && <p>{name}</p>}
+                <p>{`${placeLatitude},${placeLongitude}`}</p>
+                <p>{`(${Messages.latitudeLongitude})`}</p>
+              </>
+            }
+          >
+            <IconButton
+              color="secondary"
+              aria-label={Messages.viewPlace}
+              size="medium"
+              onClick={() => {
+                if (!scheduled) {
+                  showError(
+                    dispatch,
+                    Messages.canViewPlaceOnlyWhilePreparingToGoOnDate
+                  );
+                  return;
+                }
+                router.push({
+                  pathname: viewLocation,
+                  query: {
+                    [dateIdName]: dateId,
+                  },
+                });
+              }}
+            >
+              <FontAwesomeIcon icon={faMapMarkedAlt} />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          Messages.placeIsNotSettledYet
+        )}
+      </TableCell>
+      <TableCell>
+        {whenScheduled
+          ? `${toDateTime(whenScheduled)} (${formatDistanceToNow(
+              parseISO(whenScheduled),
+              {
+                locale: ru,
+                addSuffix: true,
+              }
+            )})`
+          : Messages.notYetScheduled}
+      </TableCell>
+      <TableCell>
+        <IconButton color="secondary" onClick={openMenu}>
+          <FontAwesomeIcon icon={faEllipsisV} size="lg" />
+        </IconButton>
+        <DateMenu
+          anchorEl={anchorEl}
+          menuIsOpen={menuIsOpen}
+          closeMenu={closeMenu}
+          checkingIn={checkingIn}
+          onClick={(action: string) => {
+            if (action === "check-in") {
+              handleCheckInAttempt();
+            } else if (action === "verify-date") {
+              setDialogType("verifyDateDialog");
+              openDialog();
+            }
+          }}
+        />
+      </TableCell>
+      {dialog}
+    </TableRow>
+  );
+};
+
+const DatesTable = ({ user, dates }: any) => {
+  return (
+    <Box margin={1}>
+      <Typography variant="h6" gutterBottom component="div">
+        {Messages.dates}
+      </Typography>
+      <TableContainer component={Paper} className="u-margin-top-bottom-10px">
+        <Table size="medium" className="c-dating-table">
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              <TableCell style={{ width: "300px" }}>
+                {Messages.dateStatus}
+              </TableCell>
+              <TableCell>{Messages.where}</TableCell>
+              <TableCell>{Messages.whenScheduled}</TableCell>
+              <TableCell />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {dates.map(({ dateInfo, place }: any, i: number) => (
+              <DateRow
+                user={user}
+                dateInfo={dateInfo}
+                place={place}
+                index={i}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
+};
+
+const PairsAndDates = ({ datingData, user }: any) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const handleChangePage = (event: any, newPage: number) => {
@@ -98,34 +459,7 @@ const PairsAndDates = ({ datingData, user }: any) => {
         closeDialog={closeDialog}
         onConfirm={onRequestViewOtherUserProfile}
       />
-    ) : (
-      <Dialog
-        open
-        onClose={closeDialog}
-        scroll="body"
-        aria-describedby="scroll-dialog-description"
-        PaperProps={{ className: "u-max-width-800px" }}
-      >
-        <DialogContent dividers={false}>
-          <DialogTitle>
-            <Typography variant="h6">
-              {Messages.dateIsOrganizedWhatIsNextTitle}
-            </Typography>
-            <IconButton
-              aria-label="close"
-              style={{ position: "absolute", right: "10px", top: "10px" }}
-              onClick={closeDialog}
-            >
-              <Close />
-            </IconButton>
-          </DialogTitle>
-          <DialogContentText id="scroll-dialog-description" tabIndex={-1} />
-          <ReactMarkdownMaterialUi>
-            {Messages.dateIsOrganizedWhatIsNext}
-          </ReactMarkdownMaterialUi>
-        </DialogContent>
-      </Dialog>
-    ));
+    ) : null);
 
   return (
     <>
@@ -244,289 +578,7 @@ const PairsAndDates = ({ datingData, user }: any) => {
                           colSpan={8}
                         >
                           <Collapse in={open} timeout="auto" unmountOnExit>
-                            <Box margin={1}>
-                              <Typography
-                                variant="h6"
-                                gutterBottom
-                                component="div"
-                              >
-                                {Messages.dates}
-                              </Typography>
-                              <TableContainer
-                                component={Paper}
-                                className="u-margin-top-bottom-10px"
-                              >
-                                <Table size="medium" className="c-dating-table">
-                                  <TableHead>
-                                    <TableRow>
-                                      <TableCell />
-                                      <TableCell style={{ width: "300px" }}>
-                                        {Messages.dateStatus}
-                                      </TableCell>
-                                      <TableCell>{Messages.where}</TableCell>
-                                      <TableCell>
-                                        {Messages.whenScheduled}
-                                      </TableCell>
-                                      <TableCell />
-                                    </TableRow>
-                                  </TableHead>
-                                  <TableBody>
-                                    {visibleDates.map(
-                                      (
-                                        {
-                                          dateInfo: {
-                                            id: dateId,
-                                            status: dateStatus,
-                                            latitude,
-                                            longitude,
-                                            whenScheduled,
-                                          },
-                                          place: {
-                                            name,
-                                            status: placeStatus,
-                                            latitude: placeLatitude,
-                                            longitude: placeLongitude,
-                                            suggestedBy,
-                                          },
-                                        }: any,
-                                        i: number
-                                      ) => {
-                                        const {
-                                          anchorEl,
-                                          menuIsOpen,
-                                          openMenu,
-                                          closeMenu,
-                                        } = useMenu();
-                                        const waitingForApproval =
-                                          dateStatus === "waitingForPlace" &&
-                                          placeStatus === "waitingForApproval";
-                                        const currentUserApproves =
-                                          waitingForApproval &&
-                                          suggestedBy !== user.id;
-                                        const originalPlaceWasNotChanged =
-                                          latitude === placeLatitude &&
-                                          longitude === placeLongitude;
-                                        const scheduled =
-                                          dateStatus === "scheduled";
-                                        const partialCheckIn =
-                                          dateStatus === "partialCheckIn";
-                                        return (
-                                          <TableRow key={i}>
-                                            <TableCell>{i + 1}</TableCell>
-                                            <TableCell>
-                                              <Alert
-                                                severity={
-                                                  currentUserApproves
-                                                    ? "warning"
-                                                    : waitingForApproval
-                                                    ? "info"
-                                                    : "success"
-                                                }
-                                                variant="outlined"
-                                              >
-                                                {currentUserApproves ? (
-                                                  <>
-                                                    <div className="u-margin-bottom-10px">
-                                                      {
-                                                        Messages.placeNeedsYourApproval
-                                                      }
-                                                    </div>
-                                                    <Button
-                                                      color="secondary"
-                                                      onClick={() => {
-                                                        router.push({
-                                                          pathname: checkLocation,
-                                                          query: {
-                                                            [dateIdName]: dateId,
-                                                          },
-                                                        });
-                                                      }}
-                                                      variant="contained"
-                                                      startIcon={
-                                                        <FontAwesomeIcon
-                                                          icon={faMapMarkedAlt}
-                                                        />
-                                                      }
-                                                    >
-                                                      {Messages.checkPlace}
-                                                    </Button>
-                                                  </>
-                                                ) : waitingForApproval ? (
-                                                  Messages.placeIsWaitingForApprovalByOtherUser
-                                                ) : (
-                                                  <>
-                                                    <div className="u-margin-bottom-10px">
-                                                      {scheduled
-                                                        ? Messages.dateIsScheduled
-                                                        : partialCheckIn
-                                                        ? Messages.partialCheckIn
-                                                        : Messages.fullCheckIn}
-                                                    </div>
-                                                    <Button
-                                                      color="secondary"
-                                                      onClick={() => {
-                                                        setDialogType(
-                                                          "advicesDialog"
-                                                        );
-                                                        openDialog();
-                                                      }}
-                                                      variant="contained"
-                                                      startIcon={
-                                                        <FontAwesomeIcon
-                                                          icon={faInfoCircle}
-                                                        />
-                                                      }
-                                                    >
-                                                      <Typography
-                                                        style={{
-                                                          fontSize: "smaller",
-                                                        }}
-                                                      >
-                                                        {Messages.whatIsNext}
-                                                      </Typography>
-                                                    </Button>
-                                                  </>
-                                                )}
-                                              </Alert>
-                                            </TableCell>
-                                            <TableCell>
-                                              {latitude ? (
-                                                <Tooltip
-                                                  arrow
-                                                  placement="top"
-                                                  title={
-                                                    <>
-                                                      {originalPlaceWasNotChanged && (
-                                                        <p>{name}</p>
-                                                      )}
-                                                      <p>{`${placeLatitude},${placeLongitude}`}</p>
-                                                      <p>
-                                                        {`(${Messages.latitudeLongitude})`}
-                                                      </p>
-                                                    </>
-                                                  }
-                                                >
-                                                  <IconButton
-                                                    color="secondary"
-                                                    aria-label={
-                                                      Messages.viewPlace
-                                                    }
-                                                    size="medium"
-                                                    onClick={() => {
-                                                      if (!scheduled) {
-                                                        showError(
-                                                          dispatch,
-                                                          Messages.canViewPlaceOnlyWhilePreparingToGoOnDate
-                                                        );
-                                                        return;
-                                                      }
-                                                      router.push({
-                                                        pathname: viewLocation,
-                                                        query: {
-                                                          [dateIdName]: dateId,
-                                                        },
-                                                      });
-                                                    }}
-                                                  >
-                                                    <FontAwesomeIcon
-                                                      icon={faMapMarkedAlt}
-                                                    />
-                                                  </IconButton>
-                                                </Tooltip>
-                                              ) : (
-                                                Messages.placeIsNotSettledYet
-                                              )}
-                                            </TableCell>
-                                            <TableCell>
-                                              {whenScheduled
-                                                ? `${toDateTime(
-                                                    whenScheduled
-                                                  )} (${formatDistanceToNow(
-                                                    parseISO(whenScheduled),
-                                                    {
-                                                      locale: ru,
-                                                      addSuffix: true,
-                                                    }
-                                                  )})`
-                                                : Messages.notYetScheduled}
-                                            </TableCell>
-                                            <TableCell>
-                                              <IconButton
-                                                color="secondary"
-                                                onClick={openMenu}
-                                              >
-                                                <FontAwesomeIcon
-                                                  icon={faEllipsisV}
-                                                  size="lg"
-                                                />
-                                              </IconButton>
-                                              <DateMenu
-                                                anchorEl={anchorEl}
-                                                menuIsOpen={menuIsOpen}
-                                                closeMenu={closeMenu}
-                                                onClick={() => {
-                                                  const showSnackbarError = () =>
-                                                    dispatch(
-                                                      actions.openSnackbar(
-                                                        Messages.geolocationNeeded,
-                                                        SnackbarVariant.error
-                                                      )
-                                                    );
-                                                  if (!navigator.geolocation) {
-                                                    showSnackbarError();
-                                                    return;
-                                                  }
-                                                  const peformCheckin = (
-                                                    position: any
-                                                  ) => {
-                                                    const {
-                                                      coords: {
-                                                        accuracy,
-                                                        latitude,
-                                                        longitude,
-                                                      },
-                                                      timestamp,
-                                                    } = position;
-                                                    // TODO const accuracyThreshold = 10;
-                                                    const accuracyThreshold = 200;
-                                                    if (
-                                                      accuracy >
-                                                      accuracyThreshold
-                                                    ) {
-                                                      dispatch(
-                                                        actions.openSnackbar(
-                                                          Messages.geolocationAccuracyIsPoor,
-                                                          SnackbarVariant.error
-                                                        )
-                                                      );
-                                                      return;
-                                                    }
-                                                    dispatch(
-                                                      actions.checkIn({
-                                                        dateId,
-                                                        latitude,
-                                                        longitude,
-                                                        timestamp: formatISO(
-                                                          new Date(timestamp)
-                                                        ),
-                                                      })
-                                                    );
-                                                  };
-                                                  navigator.geolocation.getCurrentPosition(
-                                                    peformCheckin,
-                                                    showSnackbarError
-                                                  );
-                                                }}
-                                              />
-                                            </TableCell>
-                                          </TableRow>
-                                        );
-                                      }
-                                    )}
-                                  </TableBody>
-                                </Table>
-                              </TableContainer>
-                            </Box>
+                            <DatesTable user={user} dates={visibleDates} />
                           </Collapse>
                         </TableCell>
                       </TableRow>

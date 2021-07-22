@@ -340,23 +340,40 @@ export const checkIn = (values: any): any => async (
   dispatch: ThunkDispatch<any, any, Action>
 ) => {
   try {
-    const { secondUserAlreadyCheckedIn } = await postData(
-      "/api/user/dating/check-in",
-      values
-    );
+    const { dateStatus } = await postData("/api/user/dating/check-in", values);
     dispatch(
       openSnackbar(
         `${Messages.successCheckIn}${
-          secondUserAlreadyCheckedIn
+          dateStatus === "fullCheckIn"
             ? " " + Messages.secondUserHasAlreadyArrived
             : ""
         }`,
         SnackbarVariant.success
       )
     );
+    return dateStatus;
   } catch (error) {
     dispatch(
       openSnackbar(Messages.resolveCheckInError(error), SnackbarVariant.error)
+    );
+  }
+};
+
+export const verifyDate = (values: any): any => async (
+  dispatch: ThunkDispatch<any, any, Action>
+) => {
+  try {
+    const response = await postData("/api/user/dating/verify-date", values);
+    dispatch(
+      openSnackbar(Messages.successVerifyingDate, SnackbarVariant.success)
+    );
+    return response;
+  } catch (error) {
+    dispatch(
+      openSnackbar(
+        Messages.resolveVerifyDateError(error),
+        SnackbarVariant.error
+      )
     );
   }
 };

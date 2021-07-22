@@ -168,7 +168,8 @@ export const profileTabsAria = "Табы профиля";
 export const selfDevelopmentTab = "Саморазвитие";
 export const datingProfileTab = "Свидания (Второй этап)";
 
-export const matchedProfileTitle = "Профиль человека с которым была сформирована пара, поэтому рекомендуется внимательное ознакомление и проверка данных профиля при личной встрече. Доверяй, но проверяй :)";
+export const matchedProfileTitle =
+  "Профиль человека с которым была сформирована пара, поэтому рекомендуется внимательное ознакомление и проверка данных профиля при личной встрече. Доверяй, но проверяй :)";
 export const authorsProfileTitle = "Профиль автора сайта";
 
 export const pairsTab = "Пары";
@@ -180,7 +181,8 @@ export const whenMatched = "Дата";
 export const active = "Активна";
 export const inactive = "Неактивна";
 export const datingTableAria = "таблица пар";
-export const viewMatchedUserProfile = (nickname: string) => `Посмотреть профиль пользователя ${nickname}`;
+export const viewMatchedUserProfile = (nickname: string) =>
+  `Посмотреть профиль пользователя ${nickname}`;
 export const areYouSureThatWantToOtherUsersProfile = (nickname: string) =>
   `Выслать ссылку для просмотра профиля ${nickname}?`;
 
@@ -190,14 +192,18 @@ export const where = "Где ?";
 export const whenScheduled = "Когда ?";
 export const notYetScheduled = "Дата и время пока не запланированы";
 export const placeIsNotSettledYet = "Окончательное место пока не определено";
-export const placeNeedsYourApproval = "Вам нужно проверить предложенное место встречи";
-export const canViewPlaceOnlyWhilePreparingToGoOnDate = "Можно посмотреть место только во время подготовки к свиданию";
+export const placeNeedsYourApproval =
+  "Вам нужно проверить предложенное место встречи";
+export const canViewPlaceOnlyWhilePreparingToGoOnDate =
+  "Можно посмотреть место только во время подготовки к свиданию";
 export const showPlace = "Посмотреть предложенное место встречи";
 export const checkPlace = "Проверить";
-export const placeIsWaitingForApprovalByOtherUser = "Ожидается проверка места встречи другим пользователем";
+export const placeIsWaitingForApprovalByOtherUser =
+  "Ожидается проверка места встречи другим пользователем";
 export const dateIsScheduled = "Свидание запланировано!";
 export const partialCheckIn = "Часть пользователей прибыли на свидание!";
 export const fullCheckIn = "Все пользователи прибыли на свидание!";
+export const verified = "Свидание подтверждено!";
 
 export const addLocation = "Добавление места встречи";
 export const name = "Название места";
@@ -206,7 +212,7 @@ export const latitude = "Широта";
 export const add = "Предложить";
 export const myLocation = "Моё расположение";
 
-export const checkLocation = "Проверка места встречи"
+export const checkLocation = "Проверка места встречи";
 export const approve = "Подтвердить";
 export const suggestOtherPlace = "Предложить другое место";
 
@@ -248,7 +254,8 @@ export const whatIsNext = "Что дальше ?";
 export const viewPlace = "просмотр места";
 export const meetingPlacePopup = "Место встречи";
 export const myLocationPopup = "Моё расположение";
-export const dateIsOrganizedWhatIsNextTitle = "Свидание организовано, что теперь ?";
+export const dateIsOrganizedWhatIsNextTitle =
+  "Свидание организовано, что теперь ?";
 export const dateIsOrganizedWhatIsNext = `
 Следующий шаг - **прибыть вовремя на место встречи**, отметиться в системе (используя кнопку в меню **"Я на месте"** будучи вблизи точки встречи), **найти друг друга и общаться** :) (данные профиля о внешности и ник пользователя должны помочь в случае неопределенности - воспринимайте этот момент как игру ;) )
 
@@ -275,3 +282,5 @@ export const checkIn = "Я на месте";
 export const geolocationNeeded = "Нужен доступ к геолокации";
 export const geolocationAccuracyIsPoor = "Низкая точность геолокации";
 
+export const verifyDate = "Подтвердить свидание";
+export const code = "Код";

@@ -1,15 +1,19 @@
 package ua.betterdating.backend.tasks
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import ua.betterdating.backend.ApplicationException
 import ua.betterdating.backend.FreemarkerMailSender
 import ua.betterdating.backend.data.*
 import ua.betterdating.backend.external.GoogleTimeZoneApi
+import ua.betterdating.backend.lazyRandom
 import ua.betterdating.backend.utils.*
 import java.time.*
 import java.time.temporal.ChronoField
@@ -29,6 +33,9 @@ class DateOrganizingTask(
     private val datesRepository: DatesRepository,
     private val emailRepository: EmailRepository,
     private val loginInformationRepository: LoginInformationRepository,
+    private val expiringTokenRepository: ExpiringTokenRepository,
+    private val dateVerificationTokenDataRepository: DateVerificationTokenDataRepository,
+    private val passwordEncoder: PasswordEncoder,
     private val transactionalOperator: TransactionalOperator,
     private val mailSender: FreemarkerMailSender,
 ) {
@@ -51,7 +58,11 @@ class DateOrganizingTask(
 
             // * lookup available place in that populated locality + free timeslot (for example, nearest saturday / sunday midday)
             val firstProfileSnapshot = it.firstProfileSnapshot!!
-            val whenAndWhere = findAvailableDatingSpotsIn(datesRepository, googleTimeZoneApi, firstProfileSnapshot.populatedLocality).shuffled().firstOrNull()
+            val whenAndWhere = findAvailableDatingSpotsIn(
+                datesRepository,
+                googleTimeZoneApi,
+                firstProfileSnapshot.populatedLocality
+            ).shuffled().firstOrNull()
             val pairId = it.id
             val firstProfileEmail = emailRepository.findById(it.firstProfileId)!!.email
             val firstProfileLastHost = loginInformationRepository.find(it.firstProfileId).lastHost
@@ -85,6 +96,7 @@ class DateOrganizingTask(
             } else {
                 // organize a date directly
                 log.debug("Organizing a date (place & time is available)")
+
                 val dateInfo = DateInfo(
                     pairId = pairId,
                     status = DateStatus.scheduled,
@@ -93,13 +105,31 @@ class DateOrganizingTask(
                     latitude = whenAndWhere.place.latitude,
                     longitude = whenAndWhere.place.longitude
                 )
-                val secondProfileEmail = emailRepository.findById(it.secondProfileId)!!.email
+                val secondProfile = emailRepository.findById(it.secondProfileId)!!
+                val secondProfileEmail = secondProfile.email
                 val secondProfileLastHost = loginInformationRepository.find(it.secondProfileId).lastHost
-                val body = "$automaticPlaceDateAndTime $striveToComeToTheDate $beResponsibleAndAttentive $additionalInfoCanBeFoundOnSite"
+                val body =
+                    "$automaticPlaceDateAndTime $striveToComeToTheDate $beResponsibleAndAttentive $additionalInfoCanBeFoundOnSite"
                 transactionalOperator.executeAndAwait {
                     datesRepository.upsert(dateInfo)
-                    mailSender.dateOrganizedMessage(firstProfileEmail, whenAndWhere, body, firstProfileLastHost)
-                    mailSender.dateOrganizedMessage(secondProfileEmail, whenAndWhere, body, secondProfileLastHost)
+
+                    val dateVerificationToken =
+                        generateAndSaveDateVerificationToken(
+                            secondProfile.id,
+                            whenAndWhere.timeAndDate,
+                            dateInfo.id,
+                            passwordEncoder,
+                            expiringTokenRepository,
+                            dateVerificationTokenDataRepository
+                        )
+
+                    mailSender.dateOrganizedMessage(
+                        firstProfileEmail,
+                        whenAndWhere,
+                        bodyWithVerificationToken(body, dateVerificationToken),
+                        firstProfileLastHost
+                    )
+                    mailSender.dateOrganizedMessage(secondProfileEmail, whenAndWhere, bodyMentioningVerificationToken(body), secondProfileLastHost)
                 }
             }
         }
@@ -143,6 +173,26 @@ suspend fun findAvailableDatingSpotsIn(
         WhenAndWhere(time, place, timeZone)
     }.filter { slot -> scheduledDates.none { slot.place.id == it.placeId && slot.timeAndDate == it.whenScheduled } }
         .toList()
+}
+
+suspend fun generateAndSaveDateVerificationToken(
+    tokenUserProfileId: UUID,
+    scheduledDateTime: ZonedDateTime,
+    dateId: UUID,
+    passwordEncoder: PasswordEncoder,
+    expiringTokenRepository: ExpiringTokenRepository,
+    dateVerificationTokenDataRepository: DateVerificationTokenDataRepository,
+): String {
+    val dateVerificationToken =
+        withContext(Dispatchers.Default) { lazyRandom.nextInt(999_999_999).toString() }
+    val expiringToken = ExpiringToken(
+        profileId = tokenUserProfileId, expires = scheduledDateTime.plusDays(2).toLocalDateTime(),
+        encodedValue = passwordEncoder.encode(dateVerificationToken), type = TokenType.DATE_VERIFICATION
+    )
+    expiringTokenRepository.deleteByProfileIdAndTypeIfAny(tokenUserProfileId, TokenType.DATE_VERIFICATION)
+    expiringTokenRepository.save(expiringToken)
+    dateVerificationTokenDataRepository.save(DateVerificationTokenData(expiringToken.id, dateId))
+    return dateVerificationToken
 }
 
 fun resolveKnownTimezones(populatedLocality: PopulatedLocality) = when (populatedLocality.country) {

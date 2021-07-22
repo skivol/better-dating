@@ -1,3 +1,5 @@
+import { resolveTokenMessage } from "../Messages";
+
 export const successSubmittingProfileMessage =
   "Регистрация успешна! На указанный адрес было выслано письмо для проверки.";
 export const oopsSomethingWentWrong =
@@ -19,7 +21,8 @@ export const profileWasRemoved =
   "Профиль был успешно удален! Надеемся на скорое возвращение :)";
 export const linkForViewingAuthorsProfileWasSent =
   "Ссылка для просмотра профиля автора была выслана на почту.";
-export const linkForViewingUsersProfileWasSent = (nickname: string) => `Ссылка для просмотра профиля пользователя "${nickname}" была выслана на почту.`;
+export const linkForViewingUsersProfileWasSent = (nickname: string) =>
+  `Ссылка для просмотра профиля пользователя "${nickname}" была выслана на почту.`;
 export const secondStageEnabled = "Второй этап был активирован!";
 
 export const alreadyPresentEmail = "Такая почта уже существует";
@@ -31,11 +34,14 @@ export const errorLogin = "Ошибка при попытке входа";
 export const successLogout = "Выход успешен!";
 export const errorLogout = oopsSomethingWentWrong;
 
-export const successAddingPlaceTheUserWasNotified = "Место встречи было создано и второй пользователь был оповещен об этом!";
-export const successApprovingThePlace = "Место встречи было подтверждено и вскоре будет организовано свидание!";
+export const successAddingPlaceTheUserWasNotified =
+  "Место встречи было создано и второй пользователь был оповещен об этом!";
+export const successApprovingThePlace =
+  "Место встречи было подтверждено и вскоре будет организовано свидание!";
 
 export const successCheckIn = "Успешное прибытие на свидание!";
-export const secondUserHasAlreadyArrived = "А второй пользователь уже на месте!";
+export const secondUserHasAlreadyArrived =
+  "А второй пользователь уже на месте!";
 
 export const resolveCheckInError = (error: any) => {
   const { message, details } = error;
@@ -54,4 +60,28 @@ export const resolveCheckInError = (error: any) => {
   }
 
   return oopsSomethingWentWrong;
-}
+};
+
+export const successVerifyingDate = "Свидание успешно подтверждено !";
+export const errorVerifyingDate =
+  "Не получилось подтвердить свидание, попробуйте позже";
+export const resolveVerifyDateError = (error: any) => {
+  const { message } = error;
+  const resolvedMessage = resolveTokenMessage(message, 2, null);
+
+  if (resolvedMessage) {
+    return resolvedMessage;
+  }
+
+  if ("too early to verify the date" === message) {
+    return "Слишком рано подтверждать свидание!";
+  } else if ("other user should be verifying the date" === message) {
+    return "Другой пользователь должен подтвердить свидание с помощью кода!";
+  } else if (
+    "date is not in scheduled or partial/full check-in state" === message
+  ) {
+    return "Нельзя больше подтверждать это свидание!";
+  }
+
+  return errorVerifyingDate;
+};

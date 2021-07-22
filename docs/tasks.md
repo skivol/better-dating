@@ -6,6 +6,7 @@
 - (AddLocation) approval flow - negative case - suggest new place
 - (AddLocation) handle "TooCloseToOtherPlacesException"
 - negative case - won't come to the date (specify reason) (кнопка "Не получается прийти")
+- expired date verification token (provide way to generate new one?)
 
 - удаление пар / свиданий при удалении профилей обоих участников
 - история просмотров профилей
@@ -34,7 +35,7 @@
 - Дополнительные поля в профиле
   ** Возможность приехать в другой город для встречи
   ** Дополнительны(й/е) языки
-  ** наркотики ? болезни, состояние глаз/зубов?, страхи ? Комментарий к оценке ? Еда (повседневная, конфеты/сахар, ГМО?, кофе?...) ? Гигиена (душ, чистка зубов) ?, сон, психологический/эмоциональный стресс ? (вид упражнений: силовые со своим весом / растяжка / бег / спортзал ?)
+  ** наркотики ? болезни, состояние глаз/зубов?, страхи ? Комментарий к оценке ? Еда (повседневная, конфеты/сахар, ГМО?, кофе?, прививки?...) ? Гигиена (душ, чистка зубов) ?, сон, психологический/эмоциональный стресс ? (вид упражнений: силовые со своим весом / растяжка / бег / спортзал ?)
   ** Какие поля обязательны сразу ?
   ** (обратная связь) Причина почему не зарегистрировался/ася ?
   ** поля необязательных комментариев к действиям ?
@@ -115,7 +116,7 @@
 - Push notifications instead (or as an alternative?) of mail messages ? / Viber ?
 - consider using Docker Registry (https://hub.docker.com/)
 - consider registering Belarusian domain (.бел)
-- mail delivery service ? (e.g. https://pepipost.com/)
+- mail delivery service ? (e.g. https://pepipost.com/ or https://developers.sendinblue.com/docs/send-a-transactional-email (https://themeisle.com/blog/best-free-email-marketing-services/))
 
 # Optimise
 

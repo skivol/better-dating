@@ -1,5 +1,6 @@
 package ua.betterdating.backend.handlers
 
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import org.springframework.web.reactive.function.server.*
@@ -10,6 +11,7 @@ import ua.betterdating.backend.data.*
 import ua.betterdating.backend.external.GoogleTimeZoneApi
 import ua.betterdating.backend.external.MapboxApi
 import ua.betterdating.backend.tasks.findAvailableDatingSpotsIn
+import ua.betterdating.backend.tasks.generateAndSaveDateVerificationToken
 import ua.betterdating.backend.utils.*
 import java.util.*
 
@@ -33,6 +35,9 @@ class PlaceHandler(
     private val datesRepository: DatesRepository,
     private val emailRepository: EmailRepository,
     private val loginInformationRepository: LoginInformationRepository,
+    private val expiringTokenRepository: ExpiringTokenRepository,
+    private val dateVerificationTokenDataRepository: DateVerificationTokenDataRepository,
+    private val passwordEncoder: PasswordEncoder,
     private val transactionalOperator: TransactionalOperator,
     private val mailSender: FreemarkerMailSender,
 ) {
@@ -179,11 +184,20 @@ class PlaceHandler(
             val firstProfileEmail = emailRepository.findById(pair.firstProfileId)!!.email
             val firstProfileLastHost = loginInformationRepository.find(pair.firstProfileId).lastHost
             val body = "$automaticDateAndTime $striveToComeToTheDate $beResponsibleAndAttentive $additionalInfoCanBeFoundOnSite"
-            mailSender.dateOrganizedMessage(firstProfileEmail, whenAndWhere, body, firstProfileLastHost)
+            val secondProfile = emailRepository.findById(pair.secondProfileId)!!
+            val dateVerificationToken =
+                generateAndSaveDateVerificationToken(
+                    secondProfile.id,
+                    whenAndWhere.timeAndDate,
+                    dateInfo.id,
+                    passwordEncoder,
+                    expiringTokenRepository,
+                    dateVerificationTokenDataRepository
+                )
+            mailSender.dateOrganizedMessage(firstProfileEmail, whenAndWhere, bodyWithVerificationToken(body, dateVerificationToken), firstProfileLastHost)
 
-            val secondProfileEmail = emailRepository.findById(pair.secondProfileId)!!.email
             val secondProfileLastHost = loginInformationRepository.find(pair.secondProfileId).lastHost
-            mailSender.dateOrganizedMessage(secondProfileEmail, whenAndWhere, body, secondProfileLastHost)
+            mailSender.dateOrganizedMessage(secondProfile.email, whenAndWhere, bodyMentioningVerificationToken(body), secondProfileLastHost)
         }
 
         return okEmptyJsonObject()

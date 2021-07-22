@@ -26,7 +26,7 @@ data class Timeslot(
 )
 
 enum class DateStatus {
-    waitingForPlace, placeSuggested, scheduled, partialCheckIn, fullCheckIn
+    waitingForPlace, placeSuggested, scheduled, partialCheckIn, fullCheckIn, verified
 }
 
 data class DateInfo(

@@ -26,6 +26,7 @@ enum class TokenType {
         ONE_TIME_PASSWORD,
         ACCOUNT_REMOVAL,
         VIEW_OTHER_USER_PROFILE,
+        DATE_VERIFICATION,
 }
 
 class AcceptedTerms(

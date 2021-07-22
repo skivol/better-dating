@@ -28,7 +28,7 @@ class EmailHandler(
         val decodedToken = request.awaitBody<Token>().decode()
         val token = (expiringTokenRepository.findById(decodedToken.id) ?: throwNoSuchToken())
                 .also { dbToken ->
-                    dbToken.verify(decodedToken, EMAIL_VERIFICATION, passwordEncoder)
+                    dbToken.verify(decodedToken.tokenValue, EMAIL_VERIFICATION, passwordEncoder)
                 }
         val email = emailRepository.findById(token.profileId)!!
         email.verified = true

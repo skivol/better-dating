@@ -202,7 +202,7 @@ class UserProfileHandler(
         val dbToken = (expiringTokenRepository.findById(webToken.id) ?: throwNoSuchToken()).also {
             if (it.profileId != currentUserProfileId) throwNoSuchToken() // only own profile removal is allowed
         }
-        dbToken.verify(webToken, TokenType.ACCOUNT_REMOVAL, passwordEncoder)
+        dbToken.verify(webToken.tokenValue, TokenType.ACCOUNT_REMOVAL, passwordEncoder)
 
         transactionalOperator.executeAndAwait {
             // remove profile data
@@ -290,7 +290,7 @@ class UserProfileHandler(
     suspend fun viewOtherUserProfile(request: ServerRequest): ServerResponse {
         val webToken = request.awaitBody<Token>().decode()
         val dbToken = expiringTokenRepository.findById(webToken.id) ?: throwNoSuchToken()
-        dbToken.verify(webToken, VIEW_OTHER_USER_PROFILE, passwordEncoder)
+        dbToken.verify(webToken.tokenValue, VIEW_OTHER_USER_PROFILE, passwordEncoder)
 
         // prepare profile data view (without email)
         val tokenData = tokenDataRepository.find(dbToken.id)

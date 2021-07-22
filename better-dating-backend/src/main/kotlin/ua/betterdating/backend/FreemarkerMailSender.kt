@@ -34,7 +34,7 @@ class FreemarkerMailSender(
         templateParams: (link: String) -> Any
     ) = generateAndSendLinkWithToken(profileId, type, templateName, to, subject, unicodeHostHeader(request), urlPath, saveExtraTokenData, templateParams)
 
-    suspend fun generateAndSendLinkWithToken(
+    private suspend fun generateAndSendLinkWithToken(
         profileId: UUID, type: TokenType, templateName: String,
         to: String, subject: String,
         unicodeHostHeader: String, urlPath: String, saveExtraTokenData: suspend (token: ExpiringToken) -> Any,
@@ -140,6 +140,15 @@ class FreemarkerMailSender(
 
     suspend fun sendSecondUserCheckedIn(to: String) {
         val subject = "Второй пользователь отметился о прибытии на свидание !"
+        val body = renderTemplate(templateConfigurationFactory, "TitleBody.ftlh", object {
+            val title = subject
+            val body = ""
+        })
+        smotrinyMailSender.send(to = to, subject = subject, body = body)
+    }
+
+    suspend fun sendDateVerified(to: String, otherUserName: String) {
+        val subject = "Свидание с $otherUserName было подтверждено!"
         val body = renderTemplate(templateConfigurationFactory, "TitleBody.ftlh", object {
             val title = subject
             val body = ""

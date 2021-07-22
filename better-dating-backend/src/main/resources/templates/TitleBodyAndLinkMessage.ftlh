@@ -5,6 +5,7 @@
     <#include "/common/head.ftlh">
     <@common.body>
         <h1>${title}</h1>
-        <p>${body}</p>
+        <#-- https://freemarker.apache.org/docs/dgui_misc_autoescaping.html#dgui_misc_autoescaping_disableautoesc -->
+        <p>${body?no_esc}</p>
     </@common.body>
 </html>

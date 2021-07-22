@@ -1,13 +1,12 @@
 package ua.betterdating.backend.handlers
 
 import org.springframework.http.HttpStatus
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import org.springframework.web.reactive.function.server.*
 import org.springframework.web.reactive.function.server.ServerResponse.ok
-import ua.betterdating.backend.ApplicationException
-import ua.betterdating.backend.FreemarkerMailSender
-import ua.betterdating.backend.badRequestException
+import ua.betterdating.backend.*
 import ua.betterdating.backend.data.*
 import ua.betterdating.backend.tasks.toUtc
 import java.time.ZoneOffset.UTC
@@ -22,6 +21,10 @@ class DatingHandler(
     private val datesRepository: DatesRepository,
     private val checkInRepository: CheckInRepository,
     private val emailRepository: EmailRepository,
+    private val passwordEncoder: PasswordEncoder,
+    private val expiringTokenRepository: ExpiringTokenRepository,
+    private val dateVerificationTokenDataRepository: DateVerificationTokenDataRepository,
+    private val profileInfoRepository: ProfileInfoRepository,
     private val transactionalOperator: TransactionalOperator,
     private val mailSender: FreemarkerMailSender,
 ) {
@@ -82,9 +85,11 @@ class DatingHandler(
         if (userCheckIns.any { it.profileId == profileId }) throw badRequestException("already checked in")
 
         val secondUserAlreadyCheckedIn = userCheckIns.size == 1
+        val updatedDate =
+            date.copy(status = if (secondUserAlreadyCheckedIn) DateStatus.fullCheckIn else DateStatus.partialCheckIn)
         transactionalOperator.executeAndAwait {
             checkInRepository.save(date.id, profileId, ZonedDateTime.now(UTC))
-            datesRepository.upsert(date.copy(status = if (secondUserAlreadyCheckedIn) DateStatus.fullCheckIn else DateStatus.partialCheckIn))
+            datesRepository.upsert(updatedDate)
 
             if (secondUserAlreadyCheckedIn) {
                 val secondUserEmail = emailRepository.findById(userCheckIns[0].profileId)!!.email
@@ -94,7 +99,40 @@ class DatingHandler(
         }
 
         return ok().json().bodyValueAndAwait(object {
-            val secondUserAlreadyCheckedIn = secondUserAlreadyCheckedIn
+            val dateStatus = updatedDate.status
+        })
+    }
+
+    private data class VerifyDateRequest(val code: Int, val dateId: UUID)
+
+    suspend fun verifyDate(request: ServerRequest): ServerResponse {
+        val verifyDateRequest = request.awaitBody<VerifyDateRequest>()
+        val profileId = UUID.fromString(request.awaitPrincipal()!!.name)
+
+        val (date, pair) = resolveDateAndPair(datesRepository, pairsRepository, verifyDateRequest.dateId)
+        if (pair.firstProfileId != profileId && pair.secondProfileId != profileId) throw badRequestException("no date with provided id was found")
+        if (!setOf(DateStatus.scheduled, DateStatus.partialCheckIn, DateStatus.fullCheckIn).contains(date.status)) throw badRequestException("date is not in scheduled or partial/full check-in state")
+
+        val dateScheduledUtc = date.whenScheduled!!
+        if (ZonedDateTime.now(UTC).isBefore(dateScheduledUtc)) throw badRequestException("too early to verify the date")
+
+        val expiringToken =
+            (dateVerificationTokenDataRepository.findToken(verifyDateRequest.dateId) ?: throwNoSuchToken()).also {
+                if (it.profileId != profileId) throw badRequestException("other user should be verifying the date")
+                it.verify(verifyDateRequest.code.toString(), TokenType.DATE_VERIFICATION, passwordEncoder)
+            }
+
+        val userToNotify = emailRepository.findById(if (pair.firstProfileId == expiringToken.profileId) pair.secondProfileId else pair.firstProfileId)!!.email
+        val nameOfUserWhoVerifies = profileInfoRepository.findByProfileId(expiringToken.profileId)!!.nickname
+        val updatedDate = date.copy(status = DateStatus.verified)
+        transactionalOperator.executeAndAwait {
+            datesRepository.upsert(updatedDate)
+            expiringTokenRepository.delete(expiringToken)
+            mailSender.sendDateVerified(userToNotify, nameOfUserWhoVerifies)
+        }
+
+        return ok().json().bodyValueAndAwait(object {
+            val dateStatus = updatedDate.status
         })
     }
 

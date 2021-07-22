@@ -65,7 +65,7 @@ class AuthHandler(
     suspend fun login(request: ServerRequest): ServerResponse {
         val decodedToken = request.awaitBody<Token>().decode()
         expiringTokenRepository.findById(decodedToken.id)?.also { dbPassword ->
-            dbPassword.verify(decodedToken, ONE_TIME_PASSWORD, passwordEncoder)
+            dbPassword.verify(decodedToken.tokenValue, ONE_TIME_PASSWORD, passwordEncoder)
         } ?: throwBadCredentials()
         val profile = expiringTokenRepository.findEmailByTokenId(decodedToken.id)?.also { profile ->
             if (!profile.verified) throw DisabledException("1001")
