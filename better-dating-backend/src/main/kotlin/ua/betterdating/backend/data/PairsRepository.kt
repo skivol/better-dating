@@ -154,6 +154,7 @@ class PairsRepository(
             
             WHERE e.verified 
             AND dpl.profile_id IS NULL
+            AND dpi.participate_in_automated_pair_matching_and_date_organization
 
             ORDER BY pi.created_at ASC
             """.trimIndent()
@@ -215,6 +216,7 @@ class PairsRepository(
                 
                 AND dpl.profile_id IS NULL
                 AND dp.first_profile_id IS NULL
+                AND dpi.participate_in_automated_pair_matching_and_date_organization
 
             ORDER BY pi.created_at ASC
         """.trimIndent()

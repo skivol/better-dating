@@ -81,10 +81,19 @@ fun changedDatingProfileInfo(existing: Profile, updated: Profile): DatingProfile
     val updatedData = updated.secondStageData!!
 
     return if (existingData.goal != updatedData.goal
-            || existingData.appearanceType != updatedData.appearanceType
-            || existingData.naturalHairColor != updatedData.naturalHairColor
-            || existingData.eyeColor != updatedData.eyeColor) {
-        DatingProfileInfo(updated.id!!, updatedData.goal, updatedData.appearanceType, updatedData.naturalHairColor, updatedData.eyeColor)
+        || existingData.participateInAutomatedPairMatchingAndDateOrganization != updatedData.participateInAutomatedPairMatchingAndDateOrganization
+        || existingData.appearanceType != updatedData.appearanceType
+        || existingData.naturalHairColor != updatedData.naturalHairColor
+        || existingData.eyeColor != updatedData.eyeColor
+    ) {
+        DatingProfileInfo(
+            updated.id!!,
+            updatedData.goal,
+            updatedData.participateInAutomatedPairMatchingAndDateOrganization,
+            updatedData.appearanceType,
+            updatedData.naturalHairColor,
+            updatedData.eyeColor
+        )
     } else {
         null
     }

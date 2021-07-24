@@ -43,6 +43,11 @@ export const someProsOfKeepingGoodWeight = `
 * Хороший пример окружающим
 `;
 
+export const tipsOnHeightExercises = `
+При желании, рост также можно стимулировать правильным питанием и определенными физическими упражнениями
+(например, [Методика Лонского](https://yarasty.ru/58-uprazhneniya-metodika-uvelicheniya-rosta-lonskogo.html))
+`;
+
 export const physicalExerciseRecommendation = `
 Оптимальной частотой целенаправленных физических упражнений (с точки зрения системы),
 является не реже нескольких раз в неделю, так как в противном случае продвижение вперед

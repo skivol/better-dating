@@ -110,9 +110,18 @@ const analyzeBmi = (birthday: Date, height: number, weight: number) => {
           {Messages.bmiMotivation}
         </ReactMarkdownMaterialUi>
       </Alert>
-      <Alert severity="success" variant="outlined">
+      <Alert
+        severity="success"
+        variant="outlined"
+        className="u-margin-bottom-10px"
+      >
         <ReactMarkdownMaterialUi>
           {Messages.someProsOfKeepingGoodWeight}
+        </ReactMarkdownMaterialUi>
+      </Alert>
+      <Alert severity="info" variant="outlined">
+        <ReactMarkdownMaterialUi>
+          {Messages.tipsOnHeightExercises}
         </ReactMarkdownMaterialUi>
       </Alert>
     </>

@@ -318,7 +318,16 @@ class UserProfileHandler(
 
         val body = request.awaitBody<SecondStageData>()
         transactionalOperator.executeAndAwait {
-            datingProfileInfoRepository.save(DatingProfileInfo(currentUserProfile.id!!, body.goal, body.appearanceType, body.naturalHairColor, body.eyeColor))
+            datingProfileInfoRepository.save(
+                DatingProfileInfo(
+                    currentUserProfile.id!!,
+                    body.goal,
+                    body.participateInAutomatedPairMatchingAndDateOrganization,
+                    body.appearanceType,
+                    body.naturalHairColor,
+                    body.eyeColor
+                )
+            )
             userPopulatedLocalityRepository.save(UserPopulatedLocality(currentUserProfile.id!!, body.populatedLocality.id, 0))
             body.nativeLanguages.forEachIndexed { index, language -> userLanguageRepository.save(UserLanguage(currentUserProfile.id!!, language.id, index)) }
             body.interests.forEachIndexed { index, interest -> userInterestRepository.save(UserInterest(currentUserProfile.id!!, interest.id, index)) }
@@ -367,15 +376,16 @@ class UserProfileHandler(
         val dislikedPersonalQualities = personalQualitiesRepository.find(userDislikedPersonalQualities.map { it.personalQualityId })
 
         return SecondStageData(
-                datingProfileInfo.goal,
-                populatedLocality,
-                nativeLanguages,
-                datingProfileInfo.appearanceType,
-                datingProfileInfo.naturalHairColor,
-                datingProfileInfo.eyeColor,
-                interests,
-                likedPersonalQualities,
-                dislikedPersonalQualities
+            datingProfileInfo.goal,
+            datingProfileInfo.participateInAutomatedPairMatchingAndDateOrganization,
+            populatedLocality,
+            nativeLanguages,
+            datingProfileInfo.appearanceType,
+            datingProfileInfo.naturalHairColor,
+            datingProfileInfo.eyeColor,
+            interests,
+            likedPersonalQualities,
+            dislikedPersonalQualities
         )
     }
 }

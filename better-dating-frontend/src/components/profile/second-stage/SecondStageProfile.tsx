@@ -1,6 +1,7 @@
 import { Grid } from "@material-ui/core";
 import * as LocalMessages from "./Messages";
 import {
+  ParticipateInAutomatedPairMatchingAndDateOrganization,
   GoalSelect,
   MissingOptionsNotification,
   PopulatedLocalityAutocomplete,
@@ -26,6 +27,11 @@ export const SecondStageProfile = ({
   <Grid container direction="column" className="u-padding-10px" spacing={2}>
     {!readonly && <MissingOptionsNotification />}
     <GoalSelect nameAdjuster={nameAdjuster} />
+    {!readonly && (
+      <ParticipateInAutomatedPairMatchingAndDateOrganization
+        nameAdjuster={nameAdjuster}
+      />
+    )}
     <PopulatedLocalityAutocomplete
       readonly={readonly}
       nameAdjuster={nameAdjuster}

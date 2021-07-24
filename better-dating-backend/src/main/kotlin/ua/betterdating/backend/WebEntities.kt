@@ -151,6 +151,7 @@ enum class EyeColor {
 
 data class SecondStageData(
     val goal: DatingGoal,
+    val participateInAutomatedPairMatchingAndDateOrganization: Boolean,
     val populatedLocality: PopulatedLocality,
     val nativeLanguages: List<Language>,
     val appearanceType: AppearanceType,

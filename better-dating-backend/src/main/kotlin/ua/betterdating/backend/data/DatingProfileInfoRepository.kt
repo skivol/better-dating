@@ -16,13 +16,18 @@ class DatingProfileInfoRepository(private val template: R2dbcEntityTemplate) {
                     .awaitFirstOrNull()
 
     suspend fun update(updated: DatingProfileInfo): Int =
-            template.update<DatingProfileInfo>()
-                    .matching(Query.query(Criteria.where("profile_id").`is`(updated.profileId)))
-                    .apply(Update.update("goal", updated.goal)
-                            .set("appearance_type", updated.appearanceType)
-                            .set("natural_hair_color", updated.naturalHairColor)
-                            .set("eye_color", updated.eyeColor)
-                    ).awaitSingle()
+        template.update<DatingProfileInfo>()
+            .matching(Query.query(Criteria.where("profile_id").`is`(updated.profileId)))
+            .apply(
+                Update.update("goal", updated.goal)
+                    .set(
+                        "participate_in_automated_pair_matching_and_date_organization",
+                        updated.participateInAutomatedPairMatchingAndDateOrganization
+                    )
+                    .set("appearance_type", updated.appearanceType)
+                    .set("natural_hair_color", updated.naturalHairColor)
+                    .set("eye_color", updated.eyeColor)
+            ).awaitSingle()
 
     suspend fun delete(profileId: UUID) =
             template.delete<DatingProfileInfo>().matching(Query.query(Criteria.where("profile_id").`is`(profileId))).allAndAwait()

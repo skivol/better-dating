@@ -1,3 +1,4 @@
+export * from "./ParticipateInAutomatedPairMatchingAndDateOrganization";
 export * from "./GoalSelect";
 export * from "./MissingOptionsNotification";
 export * from "./PopulatedLocalityAutocomplete";
