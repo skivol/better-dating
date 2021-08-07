@@ -22,3 +22,6 @@ export function debounce(func: any, wait: number, immediate: boolean) {
     if (immediate && !timeout) func(...args);
   };
 }
+
+export const truncate = (input: string) =>
+  input.length > 10 ? `${input.substring(0, 10)}…` : input;

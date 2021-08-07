@@ -81,20 +81,20 @@ class PlaceHandler(
         val error = when (placeAction) {
             PlaceAction.AddPlace -> {
                 when {
-                    relevantDate.status != DateStatus.waitingForPlace -> "date does not need new place to be added"
+                    relevantDate.status != DateStatus.WaitingForPlace -> "date does not need new place to be added"
                     userId != relevantPair.firstProfileId -> "other user should be adding place suggestion"
                     else -> null
                 }
             }
             PlaceAction.VerifyPlace -> {
                 when {
-                    relevantDate.status != DateStatus.placeSuggested -> "date does not need new place to be approved"
+                    relevantDate.status != DateStatus.PlaceSuggested -> "date does not need new place to be approved"
                     userId != relevantPair.secondProfileId -> "other user should be checking place suggestion"
                     else -> null
                 }
             }
             PlaceAction.ViewPlace -> {
-                if (relevantDate.status != DateStatus.scheduled) "date is not currently scheduled"
+                if (relevantDate.status != DateStatus.Scheduled) "date is not currently scheduled"
                 else null
             }
         }
@@ -120,7 +120,7 @@ class PlaceHandler(
             longitude = addPlaceRequest.lng,
             populatedLocalityId = pair.firstProfileSnapshot!!.populatedLocality.id,
             suggestedBy = userId,
-            status = PlaceStatus.waitingForApproval
+            status = PlaceStatus.WaitingForApproval
         )
 
         // perform reverse geocoding to verify if selected point is within current populated locality
@@ -176,7 +176,7 @@ class PlaceHandler(
                 latitude = place.latitude,
                 longitude = place.longitude,
                 whenScheduled = whenAndWhere.timeAndDate,
-                status = DateStatus.scheduled
+                status = DateStatus.Scheduled
             )
             datesRepository.upsert(updatedDateInfo)
 

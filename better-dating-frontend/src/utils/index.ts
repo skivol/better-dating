@@ -11,3 +11,4 @@ export * from "./SnackbarUtils";
 export * from "./FunctionUtils";
 export * from "./TabUtils";
 export * from "./TokenUtils";
+export * from "./ViewUtils";

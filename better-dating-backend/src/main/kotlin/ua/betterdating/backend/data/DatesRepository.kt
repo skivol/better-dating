@@ -1,13 +1,8 @@
 package ua.betterdating.backend.data
 
 import io.r2dbc.spi.Row
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.data.annotation.Id
-import org.springframework.data.r2dbc.core.*
-import org.springframework.data.relational.core.query.Criteria
-import org.springframework.data.relational.core.query.Query
 import org.springframework.r2dbc.core.*
 import org.springframework.r2dbc.core.DatabaseClient
 import ua.betterdating.backend.tasks.toUtc
@@ -26,7 +21,7 @@ data class Timeslot(
 )
 
 enum class DateStatus {
-    waitingForPlace, placeSuggested, scheduled, partialCheckIn, fullCheckIn, verified
+    WaitingForPlace, PlaceSuggested, Scheduled, PartialCheckIn, FullCheckIn, Verified
 }
 
 data class DateInfo(
@@ -39,16 +34,20 @@ data class DateInfo(
     val longitude: Double?,
 )
 
-class DateInfoWithPlace(
+class FullDateInfo(
     val dateInfo: DateInfo,
-    val place: Place?
+    val place: Place?,
+    val credibility: ProfileCredibility?,
+    val improvement: ProfileImprovement?,
+    val otherCredibility: ProfileCredibility?,
+    val otherImprovement: ProfileImprovement?,
 )
 
 const val nearPlaces = """
     near_places AS (
         SELECT * FROM place
         WHERE populated_locality_id = :populatedLocalityId
-        AND status = 'approved'
+        AND status = 'Approved'
     )
 """
 class DatesRepository(
@@ -75,7 +74,7 @@ class DatesRepository(
     suspend fun findScheduledDatesIn(populatedLocalityId: UUID): List<DateInfo> = client.sql("""
         SELECT d.* FROM dates d
         JOIN place p ON p.id = d.place_id
-        WHERE d.status = 'scheduled' AND p.populated_locality_id = :populatedLocalityId
+        WHERE d.status = 'Scheduled' AND p.populated_locality_id = :populatedLocalityId
     """.trimIndent())
         .bind("populatedLocalityId", populatedLocalityId)
         .map { row, _ -> extractDateInfo(row)}
@@ -96,29 +95,72 @@ class DatesRepository(
         .fetch().awaitRowsUpdated()
 
     suspend fun linkWithPlace(dateId: UUID, placeId: UUID) = client.sql("""
-        UPDATE dates SET place_id = :placeId, status = 'placeSuggested' WHERE id = :dateId
+        UPDATE dates SET place_id = :placeId, status = 'PlaceSuggested' WHERE id = :dateId
     """.trimIndent())
         .bind("dateId", dateId)
         .bind("placeId", placeId)
         .fetch().awaitRowsUpdated()
 
-    suspend fun findRelevantDates(profileId: UUID): List<DateInfoWithPlace> = client.sql("""
+    suspend fun findRelevantDates(profileId: UUID): List<FullDateInfo> = client.sql("""
         SELECT d.*, ST_x(d.location::geometry) "longitude", ST_y(d.location::geometry) "latitude",
             p.name "place_name", ST_x(p.location::geometry) "place_longitude", ST_y(p.location::geometry) "place_latitude",
             p.populated_locality_id "place_populated_locality_id", p.suggested_by "place_suggested_by",
-            p.status "place_status"
+            p.status "place_status",
+            pc.date_id "credibility_date_id", pc.source_profile_id "credibility_source_profile_id", pc.target_profile_id "credibility_target_profile_id",
+            pc.category "credibility_category", pc.comment "credibility_comment", pc.created_at "credibility_created_at",
+            pi.date_id "improvement_date_id", pi.source_profile_id "improvement_source_profile_id", pi.target_profile_id "improvement_target_profile_id",
+            pi.category "improvement_category", pi.comment "improvement_comment", pi.created_at "improvement_created_at",
+            pc_other.date_id "other_credibility_date_id", pc_other.source_profile_id "other_credibility_source_profile_id", pc_other.target_profile_id "other_credibility_target_profile_id",
+            pc_other.category "other_credibility_category", pc_other.comment "other_credibility_comment", pc_other.created_at "other_credibility_created_at",
+            pi_other.date_id "other_improvement_date_id", pi_other.source_profile_id "other_improvement_source_profile_id", pi_other.target_profile_id "other_improvement_target_profile_id",
+            pi_other.category "other_improvement_category", pi_other.comment "other_improvement_comment", pi_other.created_at "other_improvement_created_at"
         FROM dates d
         JOIN dating_pair dp ON dp.id = d.pair_id
         LEFT JOIN place p ON p.id = d.place_id
+        LEFT JOIN profile_credibility pc ON pc.date_id = d.id AND pc.target_profile_id = :profileId
+        LEFT JOIN profile_improvement pi ON pi.date_id = d.id AND pi.target_profile_id = :profileId
+        LEFT JOIN profile_credibility pc_other ON pc_other.date_id = d.id AND pc_other.source_profile_id = :profileId
+        LEFT JOIN profile_improvement pi_other ON pi_other.date_id = d.id AND pi_other.source_profile_id = :profileId
         WHERE dp.first_profile_id = :profileId OR dp.second_profile_id = :profileId
     """.trimIndent())
         .bind("profileId", profileId)
         .map { row, _ -> extractDateInfoWithPlace(row)}
         .all().collectList().awaitFirst()
 
-    private fun extractDateInfoWithPlace(row: Row) = DateInfoWithPlace(
+    suspend fun findVerifiedByPairId(pairId: UUID): List<DateInfo> = client.sql("""
+        SELECT d.*, ST_x(d.location::geometry) "longitude", ST_y(d.location::geometry) "latitude"
+         FROM dates d
+        WHERE d.pair_id = :pairId AND d.status = 'Verified'
+    """.trimIndent())
+        .bind("pairId", pairId)
+        .map { row, _ -> extractDateInfo(row)}
+        .all().collectList().awaitFirst()
+
+    private fun extractDateInfoWithPlace(row: Row) = FullDateInfo(
         extractDateInfo(row),
-        if (row["place_id"] != null) extractPlace(row, "place_") else null
+        if (row["place_id"] != null) extractPlace(row, "place_") else null,
+        if (row["credibility_date_id"] != null) extractProfileCredibility(row, "credibility_") else null,
+        if (row["improvement_date_id"] != null) extractProfileImprovement(row, "improvement_") else null,
+        if (row["other_credibility_date_id"] != null) extractProfileCredibility(row, "other_credibility_") else null,
+        if (row["other_improvement_date_id"] != null) extractProfileImprovement(row, "other_improvement_") else null,
+    )
+
+    private fun extractProfileCredibility(row: Row, prefix: String) = ProfileCredibility(
+        row["${prefix}date_id"] as UUID,
+        row["${prefix}source_profile_id"] as UUID,
+        row["${prefix}target_profile_id"] as UUID,
+        CredibilityCategory.valueOf(row["${prefix}category"] as String),
+        row["${prefix}comment"] as String?,
+        (row["${prefix}created_at"] as OffsetDateTime).toInstant(),
+    )
+
+    private fun extractProfileImprovement(row: Row, prefix: String) = ProfileImprovement(
+        row["${prefix}date_id"] as UUID,
+        row["${prefix}source_profile_id"] as UUID,
+        row["${prefix}target_profile_id"] as UUID,
+        ImprovementCategory.valueOf(row["${prefix}category"] as String),
+        row["${prefix}comment"] as String?,
+        (row["${prefix}created_at"] as OffsetDateTime).toInstant(),
     )
 
     private fun extractDateInfo(row: Row) = DateInfo(

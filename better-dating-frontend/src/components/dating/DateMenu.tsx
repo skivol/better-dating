@@ -1,11 +1,12 @@
 import { Menu, MenuItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarCheck } from "@fortawesome/free-regular-svg-icons";
-import { faCheckDouble } from "@fortawesome/free-solid-svg-icons";
+import { faCalendarCheck, faEye } from "@fortawesome/free-regular-svg-icons";
+import { faCheckDouble, faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import { SpinnerAdornment as Spinner } from "../common";
 import * as Messages from "../Messages";
 
 export const DateMenu = ({
+  otherUserNickname,
   anchorEl,
   menuIsOpen,
   closeMenu,
@@ -42,6 +43,20 @@ export const DateMenu = ({
         <FontAwesomeIcon icon={faCheckDouble} />
       </ListItemIcon>
       <ListItemText>{Messages.verifyDate}</ListItemText>
+    </MenuItem>
+    <MenuItem onClick={() => onClick("evaluate-profile")}>
+      <ListItemIcon className="u-min-width-30px">
+        <FontAwesomeIcon icon={faUserCheck} />
+      </ListItemIcon>
+      <ListItemText>
+        {Messages.evaluateProfileMenu(otherUserNickname)}
+      </ListItemText>
+    </MenuItem>
+    <MenuItem onClick={() => onClick("view-profile-evaluation")}>
+      <ListItemIcon className="u-min-width-30px">
+        <FontAwesomeIcon icon={faEye} />
+      </ListItemIcon>
+      <ListItemText>{Messages.viewProfileEvaluationMenu}</ListItemText>
     </MenuItem>
   </Menu>
 );

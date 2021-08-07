@@ -85,3 +85,33 @@ export const resolveVerifyDateError = (error: any) => {
 
   return errorVerifyingDate;
 };
+
+export const successEvaluatingProfile =
+  "Оценка правдивости профиля и предложения по улучшению были успешно добавлены !";
+const errorEvaluatingProfile =
+  "Не получилось отправить оценку правдивости профиля и предложения по улучшению, попробуйте позже";
+export const resolveEvaluateProfileError = (error: any) => {
+  const { message } = error;
+  if ("date is not in verified state" === message) {
+    return "Свидание должно быть в подтвержденном состоянии для этого действия";
+  }
+  return errorEvaluatingProfile;
+};
+
+export const successSubmittingPairDecision = "Решение по паре было сохранено !";
+export const secondUserAlsoWantsToContinueRelationships =
+  "А второй пользователь тоже выразил стремление продолжить отношения ! :)";
+const errorSubmittingPairDecision =
+  "Не получилось отправить решение по паре, попробуйте позже";
+export const resolvePairDecisionSubmitError = (error: any) => {
+  const { message } = error;
+  if (
+    "pair should have at least one verified date to submit a decision" ===
+    message
+  ) {
+    return "Нужно хоть одно подтвержденное свидание для этого действия";
+  } else if ("already submitted a decision" === message) {
+    return "Решение уже отправлено";
+  }
+  return errorSubmittingPairDecision;
+};

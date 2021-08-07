@@ -4,6 +4,8 @@ export const automatedDatesExplained = `Включение данной опци
  Поэтому следует отключать эту опцию в случае, например, отсутствия в городе проживания или желании сделать перерыв во избежание невозможности прибыть на свидание.`;
 export const goal = "Цель встреч";
 export const findSoulMate = "Поиск второй половинки";
+export const haveSoulmateWantToCreateFamily =
+  "Есть вторая половинка, хотим создать семью";
 export const unknown = "Неизвестна";
 
 export const populatedLocalityWhereOneLives =

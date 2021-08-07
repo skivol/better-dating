@@ -71,7 +71,7 @@ class DateOrganizingTask(
                 val subject = "Нужна помощь в выборе места для организации свидания"
                 val dateInfo = DateInfo(
                     pairId = pairId,
-                    status = DateStatus.waitingForPlace,
+                    status = DateStatus.WaitingForPlace,
                     placeId = null,
                     whenScheduled = null,
                     latitude = null,
@@ -99,7 +99,7 @@ class DateOrganizingTask(
 
                 val dateInfo = DateInfo(
                     pairId = pairId,
-                    status = DateStatus.scheduled,
+                    status = DateStatus.Scheduled,
                     placeId = whenAndWhere.place.id,
                     whenScheduled = whenAndWhere.timeAndDate,
                     latitude = whenAndWhere.place.latitude,

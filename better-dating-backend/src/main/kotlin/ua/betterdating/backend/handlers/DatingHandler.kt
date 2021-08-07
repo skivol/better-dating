@@ -6,15 +6,18 @@ import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import org.springframework.web.reactive.function.server.*
 import org.springframework.web.reactive.function.server.ServerResponse.ok
+import org.valiktor.functions.hasSize
+import org.valiktor.validate
 import ua.betterdating.backend.*
 import ua.betterdating.backend.data.*
-import ua.betterdating.backend.tasks.toUtc
+import ua.betterdating.backend.utils.okEmptyJsonObject
+import java.time.Instant
 import java.time.ZoneOffset.UTC
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-class DatingData(val pairs: List<DatingPairWithNicknames>, val dates: List<DateInfoWithPlace>)
+class DatingData(val pairs: List<FullDatingPairInfo>, val dates: List<FullDateInfo>)
 
 class DatingHandler(
     private val pairsRepository: PairsRepository,
@@ -25,6 +28,9 @@ class DatingHandler(
     private val expiringTokenRepository: ExpiringTokenRepository,
     private val dateVerificationTokenDataRepository: DateVerificationTokenDataRepository,
     private val profileInfoRepository: ProfileInfoRepository,
+    private val profileCredibilityRepository: ProfileCredibilityRepository,
+    private val profileImprovementRepository: ProfileImprovementRepository,
+    private val loginInformationRepository: LoginInformationRepository,
     private val transactionalOperator: TransactionalOperator,
     private val mailSender: FreemarkerMailSender,
 ) {
@@ -49,14 +55,14 @@ class DatingHandler(
 
         val (date, pair) = resolveDateAndPair(datesRepository, pairsRepository, checkInRequest.dateId)
         if (pair.firstProfileId != profileId && pair.secondProfileId != profileId) throw badRequestException("no date with provided id was found")
-        if (date.status != DateStatus.scheduled && date.status != DateStatus.partialCheckIn) throw badRequestException("date is not in scheduled or partial check-in state")
+        if (date.status != DateStatus.Scheduled && date.status != DateStatus.PartialCheckIn) throw badRequestException("date is not in scheduled or partial check-in state")
 
-        val userLocationDataTimeUtc = checkInRequest.timestamp.toUtc()
-        val nowUtc = ZonedDateTime.now().toUtc()
-        if (userLocationDataTimeUtc.isBefore(nowUtc.minusMinutes(10))) throw badRequestException("location data is too old")
+        val userLocationDataTimeUtc = checkInRequest.timestamp.toInstant()
+        val nowUtc = Instant.now()
+        if (userLocationDataTimeUtc.isBefore(nowUtc.minus(10, ChronoUnit.MINUTES))) throw badRequestException("location data is too old")
         if (nowUtc.isBefore(userLocationDataTimeUtc)) throw badRequestException("user timestamp is from future")
 
-        val dateScheduledUtc = date.whenScheduled!!
+        val dateScheduledUtc = date.whenScheduled!!.toInstant()
         if (nowUtc.isBefore(
                 dateScheduledUtc.minus(
                     10,
@@ -86,7 +92,7 @@ class DatingHandler(
 
         val secondUserAlreadyCheckedIn = userCheckIns.size == 1
         val updatedDate =
-            date.copy(status = if (secondUserAlreadyCheckedIn) DateStatus.fullCheckIn else DateStatus.partialCheckIn)
+            date.copy(status = if (secondUserAlreadyCheckedIn) DateStatus.FullCheckIn else DateStatus.PartialCheckIn)
         transactionalOperator.executeAndAwait {
             checkInRepository.save(date.id, profileId, ZonedDateTime.now(UTC))
             datesRepository.upsert(updatedDate)
@@ -111,10 +117,10 @@ class DatingHandler(
 
         val (date, pair) = resolveDateAndPair(datesRepository, pairsRepository, verifyDateRequest.dateId)
         if (pair.firstProfileId != profileId && pair.secondProfileId != profileId) throw badRequestException("no date with provided id was found")
-        if (!setOf(DateStatus.scheduled, DateStatus.partialCheckIn, DateStatus.fullCheckIn).contains(date.status)) throw badRequestException("date is not in scheduled or partial/full check-in state")
+        if (!setOf(DateStatus.Scheduled, DateStatus.PartialCheckIn, DateStatus.FullCheckIn).contains(date.status)) throw badRequestException("date is not in scheduled or partial/full check-in state")
 
-        val dateScheduledUtc = date.whenScheduled!!
-        if (ZonedDateTime.now(UTC).isBefore(dateScheduledUtc)) throw badRequestException("too early to verify the date")
+        val dateScheduledUtc = date.whenScheduled!!.toInstant()
+        if (Instant.now().isBefore(dateScheduledUtc)) throw badRequestException("too early to verify the date")
 
         val expiringToken =
             (dateVerificationTokenDataRepository.findToken(verifyDateRequest.dateId) ?: throwNoSuchToken()).also {
@@ -124,7 +130,7 @@ class DatingHandler(
 
         val userToNotify = emailRepository.findById(if (pair.firstProfileId == expiringToken.profileId) pair.secondProfileId else pair.firstProfileId)!!.email
         val nameOfUserWhoVerifies = profileInfoRepository.findByProfileId(expiringToken.profileId)!!.nickname
-        val updatedDate = date.copy(status = DateStatus.verified)
+        val updatedDate = date.copy(status = DateStatus.Verified)
         transactionalOperator.executeAndAwait {
             datesRepository.upsert(updatedDate)
             expiringTokenRepository.delete(expiringToken)
@@ -134,6 +140,48 @@ class DatingHandler(
         return ok().json().bodyValueAndAwait(object {
             val dateStatus = updatedDate.status
         })
+    }
+
+    private data class EvaluateProfileRequest(
+        val dateId: UUID,
+        val credibilityCategory: CredibilityCategory, val credibilityExplanationComment: String?,
+        val improvementCategory: ImprovementCategory, val improvementExplanationComment: String?,
+    ) {
+        init {
+            validate(this) {
+                validate(EvaluateProfileRequest::credibilityExplanationComment).hasSize(max = 255)
+                validate(EvaluateProfileRequest::improvementExplanationComment).hasSize(max = 255)
+            }
+        }
+    }
+
+    suspend fun evaluateProfile(request: ServerRequest): ServerResponse {
+        val payload = request.awaitBody<EvaluateProfileRequest>()
+        val (date, pair) = resolveDateAndPair(datesRepository, pairsRepository, payload.dateId)
+        if (date.status != DateStatus.Verified) throw badRequestException("date is not in verified state")
+
+        val currentUserId = UUID.fromString(request.awaitPrincipal()!!.name)
+        val targetProfileId = if (pair.firstProfileId == currentUserId) pair.secondProfileId else pair.firstProfileId
+        val targetUserEmail = emailRepository.findById(targetProfileId)!!.email
+        val lastHost = loginInformationRepository.find(targetProfileId).lastHost
+        val currentUserName = profileInfoRepository.findByProfileId(currentUserId)!!.nickname
+
+        transactionalOperator.executeAndAwait {
+            val createdAt = Instant.now()
+            profileCredibilityRepository.save(ProfileCredibility(date.id, currentUserId, targetProfileId, payload.credibilityCategory, payload.credibilityExplanationComment, createdAt))
+            profileImprovementRepository.save(ProfileImprovement(date.id, currentUserId, targetProfileId, payload.improvementCategory, payload.improvementExplanationComment, createdAt))
+
+            val subject = "Пользователем $currentUserName добавлена оценка правдивости профиля и предложения по его улучшению"
+            mailSender.sendLink("TitleBodyAndLinkMessage.ftlh", targetUserEmail, subject, lastHost, "свидания") { link ->
+                object {
+                    val title = subject
+                    val actionLabel = "Свидания"
+                    val actionUrl = link
+                    val body = "Оценку можно посмотреть в меню соответствующего свидания."
+                }
+            }
+        }
+        return okEmptyJsonObject()
     }
 
     private fun hideSnapshots(datingPair: DatingPair) {

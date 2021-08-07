@@ -1,23 +1,26 @@
-- обратная связь после свидания (оценка правдивости данных профиля / предложения по улучшению / решение продолжать отношения или нет или не достаточно информации / впечатлений для принятия решения)
-
 - test real "coords.accuracy" values
 - (AddLocation) approval flow - negative case - suggest new place
 - (AddLocation) handle "TooCloseToOtherPlacesException"
 - negative case - won't come to the date (specify reason) (кнопка "Не получается прийти")
-- expired date verification token (provide way to generate new one?)
+- expired date verification token (provide way to generate new one?) (or better mark the date "overdue" and be done with it from system point of view) / limit number of verify attempts per minute or overall to block brute force attacks on the api, hm
 
 - удаление пар / свиданий при удалении профилей обоих участников
 - история просмотров профилей
 - gracefull shutdown (handle it in tasks)
+- instant / kotlin enum naming convention
 
 - credits to koatuu / leafletjs / react-leaflet / mapbox / google timezone api
 - restrict mapbox token usage
 
 - протестировать обновление
+- обновить README
 - активировать PostGIS на сервере ("CREATE EXTENSION postgis;" / https://github.com/postgis/docker-postgis/blob/master/13-3.1/update-postgis.sh)
 
 - Описать почему была сформирована пара
 - Демо-режим
+- учитывать наличие оценок правдивости профиля при организации свиданий;
+- добавить возможность отметить комментарий (о не соответствии профиля действительности) как исправленный; или предложение по улучшению - как принят к выполнению или отвергнут;
+- возможность обновлять свои комментарии к другим профилям ?
 - place_rating (profile_id, place_id, score, motivation) ? (ease of communication / finding, publicity, near cafe / parks, other criteria ?)
 - Уточнения
   ** --> Естественность, осмысленность, целесообразность, целеустремленность ; трудная, но полноценная и осмысленная жизнь

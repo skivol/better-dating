@@ -64,5 +64,9 @@ fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleReposi
         bean<PlaceRepository>()
         bean<CheckInRepository>()
         bean<DateVerificationTokenDataRepository>()
+        bean<ProfileCredibilityRepository>()
+        bean<ProfileImprovementRepository>()
+        bean<PairDecisionRepository>()
+        bean<PairLockRepository>()
     }
 }

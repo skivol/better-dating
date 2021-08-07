@@ -9,9 +9,12 @@ import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.withContext
 import org.springframework.data.annotation.Id
-import org.springframework.data.r2dbc.core.*
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
+import org.springframework.data.r2dbc.core.update
+import org.springframework.data.relational.core.query.Criteria.where
+import org.springframework.data.relational.core.query.Query
+import org.springframework.data.relational.core.query.Update
 import org.springframework.r2dbc.core.*
-import org.springframework.r2dbc.core.DatabaseClient
 import reactor.core.publisher.Flux
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
@@ -20,6 +23,7 @@ import ua.betterdating.backend.utils.toGender
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.*
 
 // Note, this entity resembles "Profile" from web entities
@@ -48,25 +52,22 @@ data class ProfileMatchInformationWithEmail(
     val profileMatchInformation: ProfileMatchInformation
 )
 
-class DatingPair(
+data class DatingPair(
     @Id val id: UUID = UUID.randomUUID(),
     val firstProfileId: UUID,
     val secondProfileId: UUID,
-    val goal: DatingGoal,
+    val goal: UsageGoal,
     val whenMatched: LocalDateTime,
     val active: Boolean,
     var firstProfileSnapshot: ProfileMatchInformation? = null,
     var secondProfileSnapshot: ProfileMatchInformation? = null,
 )
 
-class DatingPairWithNicknames(
+class FullDatingPairInfo(
     val firstProfileNickname: String?,
     val secondProfileNickname: String?,
-    val datingPair: DatingPair
-)
-
-class DatingPairLock(
-    @Id val profileId: UUID
+    val datingPair: DatingPair,
+    val pairDecision: PairDecision?,
 )
 
 val latestHeight = """
@@ -153,6 +154,7 @@ class PairsRepository(
             LEFT JOIN dating_pair_lock dpl ON dpl.profile_id = pi.profile_id
             
             WHERE e.verified 
+            AND dpi.goal = 'FindSoulMate'
             AND dpl.profile_id IS NULL
             AND dpi.participate_in_automated_pair_matching_and_date_organization
 
@@ -162,6 +164,7 @@ class PairsRepository(
 
     fun findCandidates(
         targetProfileId: UUID,
+        candidateUsageGoal: UsageGoal,
         candidateGender: Gender, candidateBmi: Int, candidateBirthdayFrom: LocalDate,
         candidateBirthdayTo: LocalDate, candidateHeightFrom: Float, candidateHeightTo: Float,
         candidateSmoking: List<Recurrence>, candidateAlcohol: List<Recurrence>,
@@ -202,6 +205,7 @@ class PairsRepository(
             )
             
             WHERE e.verified 
+                AND dpi.goal = '$candidateUsageGoal'
                 AND pi.gender = '$candidateGender'
                 AND bc.category = $candidateBmi
                 AND pi.birthday BETWEEN '$candidateBirthdayFrom' AND '$candidateBirthdayTo'
@@ -257,9 +261,6 @@ class PairsRepository(
             .fetch().awaitRowsUpdated()
     }
 
-    suspend fun save(pairLock: DatingPairLock): DatingPairLock =
-        template.insert<DatingPairLock>().usingAndAwait(pairLock)
-
     suspend fun findPair(one: UUID, other: UUID): DatingPair? =
         client.sql(
             """
@@ -276,22 +277,25 @@ class PairsRepository(
                 extractDatingPair(row)
             }.awaitOneOrNull()
 
-    suspend fun findRelevantPairs(profileId: UUID): List<DatingPairWithNicknames> =
+    suspend fun findRelevantPairs(profileId: UUID): List<FullDatingPairInfo> =
         client.sql(
             """
                 SELECT
-                    dp.*, pi1.nickname "first_nickname", pi2.nickname "second_nickname"
+                    dp.*, pi1.nickname "first_nickname", pi2.nickname "second_nickname",
+                    pd.*
                 FROM dating_pair dp
                 LEFT JOIN profile_info pi1 ON pi1.profile_id = dp.first_profile_id
                 LEFT JOIN profile_info pi2 ON pi2.profile_id = dp.second_profile_id
-                WHERE first_profile_id = :profile_id OR second_profile_id = :profile_id
+                LEFT JOIN pair_decision pd ON pd.pair_id = dp.id AND pd.profile_id = :profileId
+                WHERE first_profile_id = :profileId OR second_profile_id = :profileId
             """.trimIndent()
-        ).bind("profile_id", profileId)
+        ).bind("profileId", profileId)
             .map { row, _ ->
-                DatingPairWithNicknames(
+                FullDatingPairInfo(
                     row["first_nickname"] as String?,
                     row["second_nickname"] as String?,
-                    extractDatingPair(row)
+                    extractDatingPair(row),
+                    if (row["pair_id"] != null) extractPairDecision(row) else null,
                 )
             }.all().collectList().awaitSingle()
 
@@ -317,13 +321,28 @@ class PairsRepository(
             .map { row, _ -> extractDatingPair(row)}
             .awaitSingle()
 
+    suspend fun findPairById(pairId: UUID): DatingPair? = client.sql("""
+        SELECT * FROM dating_pair dp
+        WHERE dp.id = :pairId
+    """.trimIndent())
+        .bind("pairId", pairId)
+        .map { row, _ -> extractDatingPair(row) }
+        .awaitSingleOrNull()
+
     private fun extractDatingPair(row: Row): DatingPair = DatingPair(
         row["id"] as UUID,
         row["first_profile_id"] as UUID, row["second_profile_id"] as UUID,
-        DatingGoal.valueOf(row["goal"] as String), row["when_matched"] as LocalDateTime,
+        UsageGoal.valueOf(row["goal"] as String), row["when_matched"] as LocalDateTime,
         row["active"] as Boolean,
         row["first_profile_snapshot"]?.let { mapper.readValue((it as Json).asArray()) }, // TODO run this in Dispatchers.IO ?
         row["second_profile_snapshot"]?.let { mapper.readValue((it as Json).asArray()) }
+    )
+
+    private fun extractPairDecision(row: Row): PairDecision = PairDecision(
+        row["pair_id"] as UUID,
+        row["profile_id"] as UUID,
+        PairDecisionCategory.valueOf(row["decision"] as String),
+        (row["created_at"] as OffsetDateTime).toInstant(),
     )
 
     private fun extractProfileMatchInformationWithEmail(row: Row): ProfileMatchInformationWithEmail =
@@ -373,4 +392,10 @@ class PairsRepository(
 
     private fun recurrencesArray(recurrences: List<Recurrence>) =
         "array[${recurrences.joinToString(",") { "'$it'" }}]::varchar[]"
+
+    suspend fun update(updated: DatingPair): Int = template.update<DatingPair>()
+        .matching(Query.query(where("id").`is`(updated.id)))
+        .apply(
+            Update.update("active", updated.active)
+        ).awaitSingle()
 }

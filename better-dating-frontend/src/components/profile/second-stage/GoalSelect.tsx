@@ -5,7 +5,11 @@ import { PaperGrid } from "../../common";
 const goalOptions = [
   {
     label: Messages.findSoulMate,
-    value: "findSoulMate",
+    value: "FindSoulMate",
+  },
+  {
+    label: Messages.haveSoulmateWantToCreateFamily,
+    value: "HaveSoulmateWantToCreateFamily",
   },
 ];
 export const GoalSelect = ({ nameAdjuster }: any) => (
@@ -15,7 +19,6 @@ export const GoalSelect = ({ nameAdjuster }: any) => (
       required
       name={nameAdjuster("goal")}
       label={Messages.goal}
-      value="findSoulMate"
       data={goalOptions}
     />
   </PaperGrid>

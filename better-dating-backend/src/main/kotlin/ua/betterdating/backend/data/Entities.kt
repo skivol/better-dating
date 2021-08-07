@@ -131,13 +131,13 @@ data class PersonalQuality(
         val name: String
 )
 
-class DatingProfileInfo(
-        @Id val profileId: UUID,
-        val goal: DatingGoal,
-        val participateInAutomatedPairMatchingAndDateOrganization: Boolean,
-        val appearanceType: AppearanceType,
-        val naturalHairColor: HairColor,
-        val eyeColor: EyeColor
+data class DatingProfileInfo(
+    @Id val profileId: UUID,
+    val goal: UsageGoal,
+    val participateInAutomatedPairMatchingAndDateOrganization: Boolean,
+    val appearanceType: AppearanceType,
+    val naturalHairColor: HairColor,
+    val eyeColor: EyeColor
 )
 
 class UserPopulatedLocality(

@@ -377,3 +377,51 @@ export const verifyDate = (values: any): any => async (
     );
   }
 };
+
+export const evaluateProfile = (values: any) => async (
+  dispatch: ThunkDispatch<any, any, Action>
+) => {
+  try {
+    const response = await postData(
+      "/api/user/dating/evaluate-profile",
+      values
+    );
+    dispatch(
+      openSnackbar(Messages.successEvaluatingProfile, SnackbarVariant.success)
+    );
+    return response;
+  } catch (error) {
+    dispatch(
+      openSnackbar(
+        Messages.resolveEvaluateProfileError(error),
+        SnackbarVariant.error
+      )
+    );
+  }
+};
+
+export const submitPairDecision = (values: any) => async (
+  dispatch: ThunkDispatch<any, any, Action>
+) => {
+  try {
+    const response = await postData("/api/user/pairs/decision", values);
+    dispatch(
+      openSnackbar(
+        `${Messages.successSubmittingPairDecision}${
+          response.bothWantToContinue
+            ? " " + Messages.secondUserAlsoWantsToContinueRelationships
+            : ""
+        }`,
+        SnackbarVariant.success
+      )
+    );
+    return response;
+  } catch (error) {
+    dispatch(
+      openSnackbar(
+        Messages.resolvePairDecisionSubmitError(error),
+        SnackbarVariant.error
+      )
+    );
+  }
+};

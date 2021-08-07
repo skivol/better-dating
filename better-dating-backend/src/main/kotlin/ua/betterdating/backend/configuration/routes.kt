@@ -17,6 +17,7 @@ fun routes(
         adminHandler: AdminHandler,
         healthHandler: HealthHandler,
         placeHandler: PlaceHandler,
+        pairHandler: PairHandler,
 ) = coRouter {
     "/api/user/email".nest {
         POST("/verify", accept(APPLICATION_JSON), emailHandler::verifyEmail)
@@ -41,6 +42,11 @@ fun routes(
         GET("", datingHandler::datingData)
         POST("check-in", datingHandler::checkIn)
         POST("verify-date", datingHandler::verifyDate)
+        POST("evaluate-profile", datingHandler::evaluateProfile)
+    }
+
+    "/api/user/pairs".nest {
+        POST("decision", pairHandler::pairDecision)
     }
 
     "/api/place".nest {

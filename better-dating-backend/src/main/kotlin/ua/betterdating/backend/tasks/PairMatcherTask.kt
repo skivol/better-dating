@@ -19,6 +19,7 @@ val doing = listOf(coupleTimesInYearOrMoreSeldom, coupleTimesInYear, coupleTimes
 
 class PairMatcherTask(
     private val pairsRepository: PairsRepository,
+    private val pairLockRepository: PairLockRepository,
     private val tokenDataRepository: ViewOtherUserProfileTokenDataRepository,
     private val loginInformationRepository: LoginInformationRepository,
     private val transactionalOperator: TransactionalOperator,
@@ -73,7 +74,7 @@ class PairMatcherTask(
         val candidateHeightTo = targetProfile.height + (if (lookingForCandidatesForMaleUser) 5 else 25)
 
         // smoking, alcohol, pornography watching, intimate relationships -
-        // both should have corresponding intentions (for example, both are not going to do these things in future, or going to continue doing it to some extent).
+        // both should have corresponding intentions (for example, both are not going to do these things in the future, or going to continue doing it to some extent).
         // In case of those who haven't decided yet - they can be matched with everybody.
         val candidateSmoking = matchHabit(targetProfile.smoking)
         val candidateAlcohol = matchHabit(targetProfile.alcohol)
@@ -82,6 +83,7 @@ class PairMatcherTask(
 
         val matchedCandidateWithEmail = pairsRepository.findCandidates(
             targetProfile.id,
+            UsageGoal.FindSoulMate,
             // same weight category (bmi);
             candidateGender, targetProfile.bmiCategory,
             candidateBirthdayFrom, candidateBirthdayTo,
@@ -106,7 +108,7 @@ class PairMatcherTask(
                 DatingPair(
                     firstProfileId = targetProfile.id,
                     secondProfileId = matchedCandidate.id,
-                    goal = DatingGoal.findSoulMate,
+                    goal = UsageGoal.FindSoulMate,
                     whenMatched = LocalDateTime.now(),
                     active = true,
                     firstProfileSnapshot = targetProfile,
@@ -114,8 +116,8 @@ class PairMatcherTask(
                 )
             )
             // Allowing only 1 active pair per user on database level
-            pairsRepository.save(DatingPairLock(targetProfile.id))
-            pairsRepository.save(DatingPairLock(matchedCandidate.id))
+            pairLockRepository.save(DatingPairLock(targetProfile.id))
+            pairLockRepository.save(DatingPairLock(matchedCandidate.id))
 
             // Consider: move token generation / email sending to a different task if becomes too slow/unreliable
             val subject =

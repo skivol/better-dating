@@ -46,10 +46,10 @@ input:-webkit-autofill {
   min-width: 300px;
 }
 .u-min-width-450px {
-  width: 450px;
+  min-width: 450px;
 }
 .u-min-width-700px {
-  width: 700px !important;
+  min-width: 700px;
 }
 
 .u-margin-bottom-5px {

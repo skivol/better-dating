@@ -10,7 +10,7 @@ import ua.betterdating.backend.handlers.LatLng
 import java.util.*
 
 enum class PlaceStatus {
-    waitingForApproval, approved
+    WaitingForApproval, Approved
 }
 class Place(
     val id: UUID = UUID.randomUUID(),
@@ -68,7 +68,7 @@ class PlaceRepository(
         .awaitOne()
 
     suspend fun approve(placeId: UUID, approvedBy: UUID) = client.sql("""
-        UPDATE place SET status = 'approved', approved_by = :approvedBy WHERE id = :placeId
+        UPDATE place SET status = 'Approved', approved_by = :approvedBy WHERE id = :placeId
     """.trimIndent())
         .bind("placeId", placeId)
         .bind("approvedBy", approvedBy)

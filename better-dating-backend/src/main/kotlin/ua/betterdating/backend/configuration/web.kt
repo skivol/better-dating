@@ -54,6 +54,7 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
         bean<PlaceHandler>()
         bean<MapboxApi>()
         bean<GoogleTimeZoneApi>()
+        bean<PairHandler>()
         bean(::routes)
 
         bean<PasswordEncoder> {
@@ -154,6 +155,9 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
 
                     // Dating
                     authorize("/api/user/dating/**", hasAuthority("ROLE_USER"))
+
+                    // Pairs
+                    authorize("/api/user/pairs/**", hasAuthority("ROLE_USER"))
 
                     // Place
                     authorize("/api/place/**", hasAuthority("ROLE_USER"))

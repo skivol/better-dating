@@ -19,7 +19,7 @@ export const SecondStageEnableDialog = ({
   closeDialog,
   onEnableSecondStage,
 }: any) => {
-  const initialValues = { goal: "findSoulMate", ...storage.load() };
+  const initialValues = { goal: "FindSoulMate", ...storage.load() };
   const [formKey, setFormKey] = useState(currentTime());
   const reset = () => {
     storage.clear();

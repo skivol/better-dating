@@ -133,8 +133,8 @@ data class DeleteProfileData(val token: String, val reason: DeleteReason, val ex
     }
 }
 
-enum class DatingGoal {
-    findSoulMate
+enum class UsageGoal {
+    FindSoulMate, HaveSoulmateWantToCreateFamily
 }
 
 enum class AppearanceType {
@@ -150,7 +150,7 @@ enum class EyeColor {
 }
 
 data class SecondStageData(
-    val goal: DatingGoal,
+    val goal: UsageGoal,
     val participateInAutomatedPairMatchingAndDateOrganization: Boolean,
     val populatedLocality: PopulatedLocality,
     val nativeLanguages: List<Language>,

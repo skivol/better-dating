@@ -85,3 +85,39 @@ CREATE TABLE date_verification_token_data (
 	CONSTRAINT date_verification_token_data_fk FOREIGN KEY (token_id) REFERENCES expiring_token(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT date_verification_token_data_fk_1 FOREIGN KEY (date_id) REFERENCES dates(id)
 );
+
+CREATE TABLE profile_credibility (
+	date_id uuid NOT NULL,
+	source_profile_id uuid NOT NULL,
+	target_profile_id uuid NOT NULL,
+	category varchar NOT NULL,
+	"comment" varchar NULL,
+	created_at timestamptz(0) NOT NULL,
+	CONSTRAINT credibility_evaluation_pk PRIMARY KEY (date_id, source_profile_id, target_profile_id),
+	CONSTRAINT credibility_evaluation_fk FOREIGN KEY (target_profile_id) REFERENCES profile_info(profile_id),
+	CONSTRAINT credibility_evaluation_fk_1 FOREIGN KEY (source_profile_id) REFERENCES profile_info(profile_id),
+	CONSTRAINT credibility_evaluation_fk_2 FOREIGN KEY (date_id) REFERENCES dates(id)
+);
+
+CREATE TABLE profile_improvement (
+	date_id uuid NOT NULL,
+	source_profile_id uuid NOT NULL,
+	target_profile_id uuid NOT NULL,
+	category varchar NOT NULL,
+	"comment" varchar NULL,
+	created_at timestamptz(0) NOT NULL,
+	CONSTRAINT profile_improvement_pk PRIMARY KEY (date_id, source_profile_id, target_profile_id),
+	CONSTRAINT profile_improvement_fk FOREIGN KEY (target_profile_id) REFERENCES profile_info(profile_id),
+	CONSTRAINT profile_improvement_fk_1 FOREIGN KEY (source_profile_id) REFERENCES profile_info(profile_id),
+	CONSTRAINT profile_improvement_fk_2 FOREIGN KEY (date_id) REFERENCES dates(id)
+);
+
+CREATE TABLE pair_decision (
+	pair_id uuid NOT NULL,
+	profile_id uuid NOT NULL,
+	decision varchar(50) NOT NULL,
+	created_at timestamptz NOT NULL,
+	CONSTRAINT pair_decision_pk PRIMARY KEY (profile_id, pair_id),
+	CONSTRAINT pair_decision_fk FOREIGN KEY (pair_id) REFERENCES dating_pair(id),
+	CONSTRAINT pair_decision_fk_1 FOREIGN KEY (profile_id) REFERENCES email(id)
+);
