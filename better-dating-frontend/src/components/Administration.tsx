@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
+import { formatISO } from "date-fns";
 import { Button, Typography } from "@material-ui/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTools, faMailBulk } from "@fortawesome/free-solid-svg-icons";
+import {
+  faTools,
+  faMailBulk,
+  faMapMarkedAlt,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   getData,
   unauthorized,
@@ -42,6 +47,32 @@ const Administration = () => {
       .finally(() => setSending(false));
   };
 
+  const onTestGeolocation = () => {
+    const showSnackbarError = () =>
+      showError(dispatch, Messages.geolocationNeeded);
+    if (!navigator.geolocation) {
+      showSnackbarError();
+      return;
+    }
+    const showGeolocation = (position: any) => {
+      const {
+        coords: { accuracy, latitude, longitude },
+        timestamp,
+      } = position;
+      alert(`
+        широта: ${latitude},
+        долгота: ${longitude},
+        точность: ${accuracy},
+        время: ${formatISO(new Date(timestamp))}
+    `);
+    };
+    navigator.geolocation.getCurrentPosition(
+      showGeolocation,
+      showSnackbarError,
+      { enableHighAccuracy: true, maximumAge: 0 }
+    );
+  };
+
   if (!usageStats) {
     return <CenteredSpinner />;
   }
@@ -59,7 +90,7 @@ const Administration = () => {
       <div className="u-max-content u-center-horizontally u-margin-bottom-10px">
         {Messages.removedNumber(usageStats.removed)}
       </div>
-      <div className="u-max-content u-center-horizontally">
+      <div className="u-max-content u-center-horizontally u-margin-bottom-10px">
         <Button
           variant="contained"
           color="primary"
@@ -74,6 +105,16 @@ const Administration = () => {
           }
         >
           {Messages.testEmail}
+        </Button>
+      </div>
+      <div className="u-max-content u-center-horizontally">
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={onTestGeolocation}
+          startIcon={<FontAwesomeIcon icon={faMapMarkedAlt} />}
+        >
+          {Messages.testGeolocation}
         </Button>
       </div>
     </>

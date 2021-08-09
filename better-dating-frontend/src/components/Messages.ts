@@ -163,6 +163,7 @@ export const removedNumber = (number: any) =>
 export const unauthorized = "Не достаточно прав для просмотра этой страницы";
 export const testEmail = "Тестовое письмо";
 export const testEmailWasSent = "Тестовое письмо было отправлено";
+export const testGeolocation = "Проверить геолокацию";
 
 export const profileTabsAria = "Табы профиля";
 export const selfDevelopmentTab = "Саморазвитие";
