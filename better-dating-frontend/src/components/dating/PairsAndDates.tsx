@@ -134,7 +134,7 @@ export const PairsAndDates = ({ datingData, user }: any) => {
                     goal,
                     whenMatched,
                   },
-                  pairDecision: { decision = null } = {},
+                  pairDecision,
                 }: any,
                 i: number
               ) => {
@@ -202,7 +202,7 @@ export const PairsAndDates = ({ datingData, user }: any) => {
                           }}
                           onDecisionDialog={() => {
                             setTargetPairId(pairId);
-                            setDecision(decision);
+                            setDecision(pairDecision?.decision);
                             setDialogType("decisionDialog");
                             openDialog();
                           }}
