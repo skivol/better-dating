@@ -168,4 +168,7 @@ export const testEmail = "Тестовое письмо";
 export const testEmailWasSent = "Тестовое письмо было отправлено";
 
 export const testGeolocation = "Проверить геолокацию";
+export const refresh = "Обновить";
+export const timeout = "Время на локацию";
+export const timeoutHelperText = "миллисекунды, 10 000 по умолчанию";
 export const geolocationNeeded = "Нужен доступ к геолокации";

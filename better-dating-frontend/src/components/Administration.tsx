@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
-import { formatISO } from "date-fns";
 import { Button, Typography } from "@material-ui/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,10 +14,12 @@ import {
   showError,
   showSuccess,
   postData,
+  useDialog,
 } from "../utils";
 import * as ActionMessages from "../actions/Messages";
 import * as Messages from "./Messages";
 import { CenteredSpinner, SpinnerAdornment } from "./common";
+import { GeolocationDialog } from "./administration/GeolocationDialog";
 
 const Administration = () => {
   const [usageStats, setUsageStats] = React.useState<any>(null);
@@ -50,31 +51,7 @@ const Administration = () => {
       .finally(() => setSending(false));
   };
 
-  const onTestGeolocation = () => {
-    const showSnackbarError = () =>
-      showError(dispatch, Messages.geolocationNeeded);
-    if (!navigator.geolocation) {
-      showSnackbarError();
-      return;
-    }
-    const showGeolocation = (position: any) => {
-      const {
-        coords: { accuracy, latitude, longitude },
-        timestamp,
-      } = position;
-      alert(`
-        широта: ${latitude},
-        долгота: ${longitude},
-        точность: ${accuracy},
-        время: ${formatISO(new Date(timestamp))},
-    `);
-    };
-    navigator.geolocation.getCurrentPosition(
-      showGeolocation,
-      showSnackbarError,
-      { enableHighAccuracy: true, maximumAge: 0 }
-    );
-  };
+  const { dialogIsOpen, openDialog, closeDialog } = useDialog();
 
   if (!usageStats) {
     return <CenteredSpinner />;
@@ -114,12 +91,13 @@ const Administration = () => {
         <Button
           variant="contained"
           color="secondary"
-          onClick={onTestGeolocation}
+          onClick={() => openDialog()}
           startIcon={<FontAwesomeIcon icon={faMapMarkedAlt} />}
         >
           {Messages.testGeolocation}
         </Button>
       </div>
+      {dialogIsOpen && <GeolocationDialog closeDialog={closeDialog} />}
     </>
   );
 };
