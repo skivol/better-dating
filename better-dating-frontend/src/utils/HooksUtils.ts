@@ -47,3 +47,8 @@ export const useDateId = () => {
   const dateId = firstValueIfArray(router.query[dateIdName]) as string;
   return dateId;
 };
+
+export const useForceUpdate = () => {
+  const [state, setState] = useState<any>({});
+  return () => setState({});
+};
