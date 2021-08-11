@@ -27,10 +27,10 @@ const formatLocation = ({
         точность: ${accuracy},
         время: ${formatTime(timestamp)}
     `;
-const positionOptions = {
+export const positionOptions = {
   enableHighAccuracy: true,
   maximumAge: 0,
-  timeout: 5000,
+  timeout: 8000,
 };
 
 export const GeolocationDialog = ({ closeDialog }: any) => {

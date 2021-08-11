@@ -1,4 +1,3 @@
-- test real "coords.accuracy" values
 - (AddLocation) approval flow - negative case - suggest new place
 - (AddLocation) handle "TooCloseToOtherPlacesException"
 - negative case - won't come to the date (specify reason) (кнопка "Не получается прийти")

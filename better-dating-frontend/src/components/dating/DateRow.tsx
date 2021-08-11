@@ -30,6 +30,7 @@ import {
   DateMenu,
 } from ".";
 import { checkLocation, viewLocation } from "../navigation/NavigationUrls";
+import { positionOptions } from "../administration/GeolocationDialog";
 
 const toDateTime = (date: string) => format(parseISO(date), "yyyy-MM-dd HH:mm");
 
@@ -133,23 +134,20 @@ export const DateRow = ({
       showSnackbarError();
       return;
     }
+    const cleanup = () => {
+      navigator.geolocation.clearWatch(watchPositionId);
+      clearTimeout(timeoutId);
+      setCheckingIn(false);
+    };
     const peformCheckIn = (position: any) => {
       const {
         coords: { accuracy, latitude, longitude },
         timestamp,
       } = position;
-      // TODO const accuracyThreshold = 10;
-      const accuracyThreshold = 200;
+      const accuracyThreshold = 10;
       if (accuracy > accuracyThreshold) {
-        dispatch(
-          actions.openSnackbar(
-            Messages.geolocationAccuracyIsPoor,
-            SnackbarVariant.error
-          )
-        );
         return;
       }
-      setCheckingIn(true);
       dispatch(
         actions.checkIn({
           dateId,
@@ -162,9 +160,24 @@ export const DateRow = ({
           closeMenu();
           setDateStatus(status);
         })
-        .finally(() => setCheckingIn(false));
+        .finally(() => cleanup());
     };
-    navigator.geolocation.getCurrentPosition(peformCheckIn, showSnackbarError);
+
+    setCheckingIn(true);
+    const watchPositionId = navigator.geolocation.watchPosition(
+      peformCheckIn,
+      showSnackbarError,
+      positionOptions
+    );
+    const timeoutId = setTimeout(() => {
+      cleanup();
+      dispatch(
+        actions.openSnackbar(
+          Messages.geolocationAccuracyIsPoor,
+          SnackbarVariant.error
+        )
+      );
+    }, 10000);
   };
   return (
     <TableRow key={index}>
@@ -253,7 +266,7 @@ export const DateRow = ({
               aria-label={Messages.viewPlace}
               size="medium"
               onClick={() => {
-                if (!scheduled) {
+                if (!scheduled && !partialCheckIn) {
                   showError(
                     dispatch,
                     Messages.canViewPlaceOnlyWhilePreparingToGoOnDate
