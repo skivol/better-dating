@@ -126,18 +126,15 @@ export const DateRow = ({
 
   const [checkingIn, setCheckingIn] = useState(false);
   const handleCheckInAttempt = () => {
-    const showSnackbarError = () =>
-      dispatch(
-        actions.openSnackbar(Messages.geolocationNeeded, SnackbarVariant.error)
-      );
+    const showSnackbarError = (message = Messages.geolocationNeeded) =>
+      dispatch(actions.openSnackbar(message, SnackbarVariant.error));
     if (!navigator.geolocation) {
       showSnackbarError();
       return;
     }
-    const cleanup = () => {
+    const cleanupSubscriptions = () => {
       navigator.geolocation.clearWatch(watchPositionId);
       clearTimeout(timeoutId);
-      setCheckingIn(false);
     };
     const peformCheckIn = (position: any) => {
       const {
@@ -148,6 +145,8 @@ export const DateRow = ({
       if (accuracy > accuracyThreshold) {
         return;
       }
+      cleanupSubscriptions(); // to avoid doing parallel check-in attempts / timeout handling
+
       dispatch(
         actions.checkIn({
           dateId,
@@ -160,23 +159,23 @@ export const DateRow = ({
           closeMenu();
           setDateStatus(status);
         })
-        .finally(() => cleanup());
+        .finally(() => setCheckingIn(false));
     };
 
     setCheckingIn(true);
     const watchPositionId = navigator.geolocation.watchPosition(
       peformCheckIn,
-      showSnackbarError,
+      () => {
+        showSnackbarError();
+        cleanupSubscriptions();
+        setCheckingIn(false);
+      },
       positionOptions
     );
     const timeoutId = setTimeout(() => {
-      cleanup();
-      dispatch(
-        actions.openSnackbar(
-          Messages.geolocationAccuracyIsPoor,
-          SnackbarVariant.error
-        )
-      );
+      showSnackbarError(Messages.geolocationAccuracyIsPoor);
+      cleanupSubscriptions();
+      setCheckingIn(false);
     }, 10000);
   };
   return (
