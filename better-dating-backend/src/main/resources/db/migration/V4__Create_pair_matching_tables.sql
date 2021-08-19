@@ -25,16 +25,19 @@ CREATE TABLE dating_pair_lock (
 
 CREATE TABLE place (
 	id uuid NOT NULL,
+	version integer NOT NULL,
 	"name" varchar(255) NOT NULL,
 	location GEOGRAPHY(POINT,4326) NOT NULL,
 	populated_locality_id uuid NOT NULL,
-	suggested_by uuid NULL,
+	suggested_by uuid NOT NULL,
 	approved_by uuid NULL,
 	status varchar(20) NOT NULL,
+	created_at timestamptz NOT NULL,
 
-	CONSTRAINT place_pk PRIMARY KEY (id),
+	CONSTRAINT place_pk PRIMARY KEY (id, version),
 	CONSTRAINT place_fk FOREIGN KEY (populated_locality_id) REFERENCES populated_locality(id),
-	CONSTRAINT place_suggested_by_fk FOREIGN KEY (suggested_by) REFERENCES email(id)
+	CONSTRAINT place_suggested_by_fk FOREIGN KEY (suggested_by) REFERENCES email(id),
+	CONSTRAINT place_approved_by_fk FOREIGN KEY (approved_by) REFERENCES email(id)
 );
 CREATE INDEX place_populated_locality_id_idx ON place USING btree (populated_locality_id);
 
@@ -61,18 +64,18 @@ CREATE TABLE dates (
 	pair_id uuid NOT NULL,
 	status varchar NOT NULL,
 	place_id uuid NULL,
-	location GEOGRAPHY(POINT,4326) NULL,
-	when_scheduled timestamptz(0) NULL,
+	place_version integer NULL,
+	when_scheduled timestamptz NULL,
 	CONSTRAINT dates_pk PRIMARY KEY (id),
 	CONSTRAINT dates_fk FOREIGN KEY (pair_id) REFERENCES dating_pair(id),
-	CONSTRAINT dates_place_fk FOREIGN KEY (place_id) REFERENCES place(id),
+	CONSTRAINT dates_place_fk FOREIGN KEY (place_id,place_version) REFERENCES place(id,version),
 	CONSTRAINT dates_un UNIQUE (place_id, when_scheduled)
 );
 
 CREATE TABLE date_check_in (
 	date_id uuid NOT NULL,
 	profile_id uuid NOT NULL,
-	when_checked_in timestamptz(0) NOT NULL,
+	when_checked_in timestamptz NOT NULL,
 	CONSTRAINT date_check_in_pk PRIMARY KEY (profile_id,date_id),
 	CONSTRAINT date_check_in_fk FOREIGN KEY (profile_id) REFERENCES profile_info(profile_id),
 	CONSTRAINT date_check_in_fk_1 FOREIGN KEY (date_id) REFERENCES dates(id)

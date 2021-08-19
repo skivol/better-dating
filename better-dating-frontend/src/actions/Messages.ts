@@ -1,3 +1,5 @@
+import { formatDuration } from "date-fns";
+import { ru } from "date-fns/locale";
 import { resolveTokenMessage } from "../Messages";
 
 export const successSubmittingProfileMessage =
@@ -45,10 +47,23 @@ export const secondUserHasAlreadyArrived =
 
 export const resolveCheckInError = (error: any) => {
   const { message, details } = error;
+  const formatMinutes = (moreThan1MinutePrefix: string, minutes: number) =>
+    minutes > 0
+      ? `${moreThan1MinutePrefix} ${formatDuration(
+          { minutes },
+          { locale: ru }
+        )}`
+      : "меньше минуты";
   if ("too early to check in" === message) {
-    return "Слишком рано отмечаться о прибытии на свидание!";
+    return `Слишком рано отмечаться о прибытии на свидание! (${formatMinutes(
+      "еще",
+      details.minutesToGo
+    )} до открытия)`;
   } else if ("too late to check in" === message) {
-    return "Слишком поздно отмечаться о прибытии на свидание!";
+    return `Слишком поздно отмечаться о прибытии на свидание! (${formatMinutes(
+      "уже",
+      details.minutesOverdue
+    )} как функция закрылась)`;
   } else if ("not close enough to check in" === message) {
     return `Текущее положение слишком далеко от точки встречи (${details.currentDistance} метров, при максимально приемлимом отдалении ${details.distanceThreshold} метров)`;
   } else if ("location data is too old" === message) {

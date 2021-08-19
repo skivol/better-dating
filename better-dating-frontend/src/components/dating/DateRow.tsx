@@ -31,32 +31,39 @@ import {
 } from ".";
 import { checkLocation, viewLocation } from "../navigation/NavigationUrls";
 import { positionOptions } from "../administration/GeolocationDialog";
+import { AddLocationButton } from "../location";
 
 const toDateTime = (date: string) => format(parseISO(date), "yyyy-MM-dd HH:mm");
 
 export const DateRow = ({
   otherUserNickname,
   user,
-  dateInfo: {
-    id: dateId,
-    status: dateStatus,
-    latitude,
-    longitude,
-    whenScheduled,
-  },
-  place: {
-    name,
-    status: placeStatus,
-    latitude: placeLatitude,
-    longitude: placeLongitude,
-    suggestedBy,
-  },
+  currentUserIsFirstInPair,
+  dateInfo: { id: dateId, status: dateStatus, whenScheduled },
+  place,
+  unsettledPlaces,
   credibility,
   improvement,
   otherCredibility,
   otherImprovement,
   index,
 }: any) => {
+  const relevantUnsettledPlace = () => {
+    if (unsettledPlaces.length === 0) return {};
+    if (unsettledPlaces.length === 1) return unsettledPlaces[0];
+    const placeToApprove = unsettledPlaces.filter(
+      (p: any) => p.suggestedBy !== user.id
+    )[0];
+    return placeToApprove;
+  };
+  const {
+    name,
+    status: placeStatus,
+    latitude: placeLatitude,
+    longitude: placeLongitude,
+    suggestedBy,
+  } = place || relevantUnsettledPlace();
+
   const router = useRouter();
   const { dialogIsOpen, openDialog, closeDialog } = useDialog();
   const [dialogType, setDialogType] = useState<string | null>(null);
@@ -71,7 +78,7 @@ export const DateRow = ({
       .then((status: string) => {
         closeDialog();
         closeMenu();
-        setDateStatus(status);
+        status && setDateStatus(status);
       })
       .finally(() => setLoading(false));
   };
@@ -114,12 +121,11 @@ export const DateRow = ({
       />
     ) : null);
 
+  const waitingForPlace = dateStatus === "WaitingForPlace";
   const waitingForApproval =
-    dateStatusState === "PlaceSuggested" &&
+    dateStatusState === "WaitingForPlaceApproval" &&
     placeStatus === "WaitingForApproval";
   const currentUserApproves = waitingForApproval && suggestedBy !== user.id;
-  const originalPlaceWasNotChanged =
-    latitude === placeLatitude && longitude === placeLongitude;
   const scheduled = dateStatusState === "Scheduled";
   const partialCheckIn = dateStatusState === "PartialCheckIn";
   const fullCheckIn = dateStatusState === "FullCheckIn";
@@ -157,7 +163,8 @@ export const DateRow = ({
       )
         .then((status: string) => {
           closeMenu();
-          setDateStatus(status);
+          // think about error handling, currently we do not rethrow exception in from actions
+          status && setDateStatus(status);
         })
         .finally(() => setCheckingIn(false));
     };
@@ -184,7 +191,11 @@ export const DateRow = ({
       <TableCell>
         <Alert
           severity={
-            currentUserApproves
+            waitingForPlace
+              ? currentUserIsFirstInPair
+                ? "warning"
+                : "info"
+              : currentUserApproves
               ? "warning"
               : waitingForApproval
               ? "info"
@@ -192,7 +203,22 @@ export const DateRow = ({
           }
           variant="outlined"
         >
-          {currentUserApproves ? (
+          {waitingForPlace ? (
+            currentUserIsFirstInPair ? (
+              <>
+                <div className="u-margin-bottom-10px">
+                  {Messages.youNeedToSuggestAPlace}
+                </div>
+                <AddLocationButton
+                  dateId={dateId}
+                  title={Messages.addPlace}
+                  variant="contained"
+                />
+              </>
+            ) : (
+              Messages.otherUserShouldSuggestPlace
+            )
+          ) : currentUserApproves ? (
             <>
               <div className="u-margin-bottom-10px">
                 {Messages.placeNeedsYourApproval}
@@ -248,13 +274,13 @@ export const DateRow = ({
         </Alert>
       </TableCell>
       <TableCell>
-        {latitude ? (
+        {placeStatus === "Approved" ? (
           <Tooltip
             arrow
             placement="top"
             title={
               <>
-                {originalPlaceWasNotChanged && <p>{name}</p>}
+                {<p>{name}</p>}
                 <p>{`${placeLatitude},${placeLongitude}`}</p>
                 <p>{`(${Messages.latitudeLongitude})`}</p>
               </>

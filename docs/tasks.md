@@ -1,4 +1,3 @@
-- (AddLocation) approval flow - negative case - suggest new place
 - (AddLocation) handle "TooCloseToOtherPlacesException"
 - negative case - won't come to the date (specify reason) (кнопка "Не получается прийти")
 - expired date verification token (provide way to generate new one?) (or better mark the date "overdue" and be done with it from system point of view) / limit number of verify attempts per minute or overall to block brute force attacks on the api, hm

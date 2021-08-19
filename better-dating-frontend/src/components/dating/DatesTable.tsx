@@ -13,7 +13,12 @@ import {
 import * as Messages from "../Messages";
 import { DateRow } from ".";
 
-export const DatesTable = ({ user, dates, otherUserNickname }: any) => {
+export const DatesTable = ({
+  user,
+  currentUserIsFirstInPair,
+  dates,
+  otherUserNickname,
+}: any) => {
   return (
     <Box margin={1}>
       <Typography variant="h6" gutterBottom component="div">
@@ -38,6 +43,7 @@ export const DatesTable = ({ user, dates, otherUserNickname }: any) => {
                 {
                   dateInfo,
                   place,
+                  unsettledPlaces,
                   credibility,
                   improvement,
                   otherCredibility,
@@ -47,9 +53,11 @@ export const DatesTable = ({ user, dates, otherUserNickname }: any) => {
               ) => (
                 <DateRow
                   otherUserNickname={otherUserNickname}
+                  currentUserIsFirstInPair={currentUserIsFirstInPair}
                   user={user}
                   dateInfo={dateInfo}
                   place={place}
+                  unsettledPlaces={unsettledPlaces}
                   credibility={credibility}
                   improvement={improvement}
                   otherCredibility={otherCredibility}

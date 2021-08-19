@@ -44,7 +44,7 @@ class PlaceHandler(
     suspend fun resolvePopulatedLocalityCoordinatesForDate(request: ServerRequest): ServerResponse {
         val dateId = ensureCan(
             PlaceAction.AddPlace, request, dateIdFromRequest(request)
-        ).first.id
+        ).dateInfo.id
 
         // 1. resolve place from pair
         val populatedLocality =
@@ -70,26 +70,31 @@ class PlaceHandler(
         UUID.fromString(
             request.queryParam("dateId").orElseThrow { ServerWebInputException("no dateId parameter specified") })
 
+    private data class PlaceHandlerContext(val dateInfo: DateInfo, val datingPair: DatingPair, val relevantPlaces: List<Place>, val currentUserId: UUID)
     private suspend fun ensureCan(
         placeAction: PlaceAction,
         request: ServerRequest,
         dateId: UUID
-    ): Pair<DateInfo, DatingPair> {
+    ): PlaceHandlerContext {
         val dateAndPair = resolveDateAndPair(datesRepository, pairsRepository, dateId)
         val (relevantDate, relevantPair) = dateAndPair
         val userId = UUID.fromString(request.awaitPrincipal()!!.name)
+        val relevantDatingPlaces = if (relevantDate.placeId != null) placeRepository.allById(relevantDate.placeId) else emptyList()
+
         val error = when (placeAction) {
             PlaceAction.AddPlace -> {
+                val mostRecentPlaceSuggestedByCurrentUser = { relevantDatingPlaces.maxByOrNull { it.createdAt }?.let { it.suggestedBy == userId } ?: false }
                 when {
-                    relevantDate.status != DateStatus.WaitingForPlace -> "date does not need new place to be added"
-                    userId != relevantPair.firstProfileId -> "other user should be adding place suggestion"
+                    !setOf(DateStatus.WaitingForPlace, DateStatus.WaitingForPlaceApproval).contains(relevantDate.status)  -> "date does not need new place to be added"
+                    (relevantDatingPlaces.isEmpty() && userId != relevantPair.firstProfileId) || mostRecentPlaceSuggestedByCurrentUser() -> "other user should be adding place suggestion"
                     else -> null
                 }
             }
             PlaceAction.VerifyPlace -> {
+                val placeSuggestedByOtherUser = relevantDatingPlaces.firstOrNull { it.suggestedBy != userId }
                 when {
-                    relevantDate.status != DateStatus.PlaceSuggested -> "date does not need new place to be approved"
-                    userId != relevantPair.secondProfileId -> "other user should be checking place suggestion"
+                    relevantDate.status != DateStatus.WaitingForPlaceApproval -> "date does not need new place to be approved"
+                    placeSuggestedByOtherUser == null -> "no place suggested by other user that can be checked"
                     else -> null
                 }
             }
@@ -99,7 +104,7 @@ class PlaceHandler(
             }
         }
         if (error != null) throw ServerWebInputException(error)
-        return dateAndPair
+        return PlaceHandlerContext(relevantDate, relevantPair, relevantDatingPlaces, userId)
     }
 
     private class AddPlaceRequest(
@@ -110,37 +115,57 @@ class PlaceHandler(
     ) : LatLng(lat, lng)
     suspend fun addPlace(request: ServerRequest): ServerResponse {
         val addPlaceRequest = request.awaitBody<AddPlaceRequest>()
-        val dateId = ensureCan(PlaceAction.AddPlace, request, addPlaceRequest.dateId).first.id
-        val pair = pairsRepository.findPairByDate(dateId)
+        val (dateInfo, pair, relevantPlaces, currentUserId) = ensureCan(PlaceAction.AddPlace, request, addPlaceRequest.dateId)
+        val dateId = dateInfo.id
 
-        val userId = UUID.fromString(request.awaitPrincipal()!!.name)
+        val populatedLocality = pair.firstProfileSnapshot!!.populatedLocality
+        val firstRelevantPlace = relevantPlaces.firstOrNull()
+
+        // "version" selection logic covers more than is allowed currently
+        // to avoid accidentally updating the place suggested by other user at all costs
+        val version = when (relevantPlaces.size) {
+            0 -> 1
+            1 -> when {
+                firstRelevantPlace!!.suggestedBy == currentUserId -> firstRelevantPlace.version
+                firstRelevantPlace.version == 1 -> 2
+                else -> 1
+            }
+            // 2 unsettled places
+            else -> relevantPlaces.first { it.suggestedBy == currentUserId }.version
+        }
         val place = Place(
+            id = firstRelevantPlace?.id ?: UUID.randomUUID(),
             name = addPlaceRequest.name,
             latitude = addPlaceRequest.lat,
             longitude = addPlaceRequest.lng,
-            populatedLocalityId = pair.firstProfileSnapshot!!.populatedLocality.id,
-            suggestedBy = userId,
-            status = PlaceStatus.WaitingForApproval
+            populatedLocalityId = populatedLocality.id,
+            suggestedBy = currentUserId,
+            status = PlaceStatus.WaitingForApproval,
+            version = version
         )
 
         // perform reverse geocoding to verify if selected point is within current populated locality
-        val populatedLocality = pair.firstProfileSnapshot!!.populatedLocality
         val withinLocality = mapboxApi.pointWithinPopulatedLocality(addPlaceRequest.lat, addPlaceRequest.lng, populatedLocality)
         if (withinLocality == false) {
             throw NotInTargetPopulatedLocalityException(populatedLocality.name)
         }
 
-        val subject = "Нужно проверить место предложенное для организации свидания"
+        val suggestOtherPlaceFlow = relevantPlaces.size > 1
+        val subject = "Нужно проверить ${if (suggestOtherPlaceFlow) "новое " else ""}место предложенное для организации свидания"
         val secondProfileEmail = emailRepository.findById(pair.secondProfileId)!!.email
         val secondProfileLastHost = loginInformationRepository.find(pair.secondProfileId).lastHost
         transactionalOperator.executeAndAwait {
             // save while checking new point is not too close to existing other points
-            val distance = 30.0
-            val savedCount = placeRepository.save(place, distance)
-            if (savedCount == 0) {
+            val upsertCount = placeRepository.upsert(place, distance)
+            if (upsertCount == 0) {
                 checkTooClosePoints(place, distance)
             }
-            datesRepository.linkWithPlace(dateId, place.id)
+            datesRepository.upsert(
+                dateInfo.copy(
+                    status = DateStatus.WaitingForPlaceApproval,
+                    placeId = place.id,
+                )
+            )
 
             // send mail to the second user
             mailSender.sendLink(
@@ -164,21 +189,29 @@ class PlaceHandler(
     private class ApprovePlaceRequest(val dateId: UUID)
     suspend fun approvePlace(request: ServerRequest): ServerResponse {
         val approvePlaceRequest = request.awaitBody<ApprovePlaceRequest>()
-        val (dateInfo, pair) = ensureCan(PlaceAction.VerifyPlace, request, approvePlaceRequest.dateId)
-
-        val place = placeRepository.byId(dateInfo.placeId!!)
+        val (dateInfo, pair, relevantPlaces, currentUserId) = ensureCan(PlaceAction.VerifyPlace, request, approvePlaceRequest.dateId)
+        val placeToApprove = relevantPlaces.firstOrNull { it.suggestedBy != currentUserId } ?: throw badRequestException("no place to be approved by current user was found")
 
         transactionalOperator.executeAndAwait {
-            placeRepository.approve(dateInfo.placeId, pair.secondProfileId)
+            if (relevantPlaces.size > 1) { // we're having several place suggestions for one date (that is, in "suggest other place" flow)
+                placeRepository.deleteAllById(placeToApprove.id) // delete all, because we might be changing the version of approved place to "1" in the upsert below in this case
+                                                                // and we don't want the old version to hang around
+            }
+            val finalPlace = placeToApprove.copy(status = PlaceStatus.Approved, approvedBy = currentUserId, version = 1)
+            val upsertCount = placeRepository.upsert(finalPlace, distance)
+            if (upsertCount == 0) {
+                checkTooClosePoints(placeToApprove, distance)
+            }
             val spots = findAvailableDatingSpotsIn(datesRepository, googleTimeZoneApi, pair.firstProfileSnapshot!!.populatedLocality)
             val whenAndWhere = spots.shuffled().first { it.place.id == dateInfo.placeId }
-            val updatedDateInfo = dateInfo.copy(
-                latitude = place.latitude,
-                longitude = place.longitude,
-                whenScheduled = whenAndWhere.timeAndDate,
-                status = DateStatus.Scheduled
+            datesRepository.upsert(
+                dateInfo.copy(
+                    whenScheduled = whenAndWhere.timeAndDate,
+                    status = DateStatus.Scheduled,
+                    placeId = finalPlace.id,
+                    placeVersion = finalPlace.version,
+                )
             )
-            datesRepository.upsert(updatedDateInfo)
 
             // notify users about scheduled date
             val firstProfileEmail = emailRepository.findById(pair.firstProfileId)!!.email
@@ -208,21 +241,24 @@ class PlaceHandler(
     }
 
     suspend fun getPlaceData(request: ServerRequest): ServerResponse {
-        val action = when (request.queryParam("action")
-            .orElseThrow { ServerWebInputException("'action' query parameter is missing") }) {
+        val action = when (
+            request.queryParam("action").orElseThrow { ServerWebInputException("'action' query parameter is missing") }
+        ) {
             "check" -> PlaceAction.VerifyPlace
             "view" -> PlaceAction.ViewPlace
             else -> throw ServerWebInputException("'action' query param expected values are 'check'/'view'")
         }
 
-        val date = ensureCan(action, request, dateIdFromRequest(request)).first
-        val place = placeRepository.byId(date.placeId ?: throw ServerWebInputException("No place connected to the date"))
-        return ok().json().bodyValueAndAwait(
-            if (date.latitude == null || (date.latitude == place.latitude && date.longitude == place.longitude)) place else LatLng(
-                date.latitude,
-                date.longitude!!
-            )
-        )
+        val (date, _, places, currentUserId) = ensureCan(action, request, dateIdFromRequest(request))
+        if (places.isEmpty()) throw ServerWebInputException("No place connected to the date")
+
+        val result = when (action) {
+            PlaceAction.VerifyPlace -> places.first { it.suggestedBy != currentUserId }
+            // ViewPlace
+            else -> places.first { it.version == date.placeVersion }
+        }
+
+        return ok().json().bodyValueAndAwait(result)
     }
 
     private suspend fun checkTooClosePoints(place: Place, distance: Double) {

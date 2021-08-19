@@ -12,6 +12,7 @@
 #   proj-cache  ->  ~/projects/better-dating/better-dating-caching
 #
 # --> some of these aliases depend on extra variables, see .shell-variables-template
+# --> "WSL 2 consumes massive amounts of RAM and doesn't return it" https://github.com/microsoft/WSL/issues/4166#issuecomment-526725261
 
 bd-ui-server() {
 	wd proj-ui && export $(grep -v "^#" ../.env-dev | xargs) && NEXT_APP_UPDATED="$(date -u --iso-8601=seconds)" pnpm run dev

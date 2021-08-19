@@ -11,6 +11,7 @@ import org.valiktor.validate
 import ua.betterdating.backend.*
 import ua.betterdating.backend.data.*
 import ua.betterdating.backend.utils.okEmptyJsonObject
+import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset.UTC
 import java.time.ZonedDateTime
@@ -62,22 +63,6 @@ class DatingHandler(
         if (userLocationDataTimeUtc.isBefore(nowUtc.minus(10, ChronoUnit.MINUTES))) throw badRequestException("location data is too old")
         if (nowUtc.isBefore(userLocationDataTimeUtc)) throw badRequestException("user timestamp is from future")
 
-        val dateScheduledUtc = date.whenScheduled!!.toInstant()
-        if (nowUtc.isBefore(
-                dateScheduledUtc.minus(
-                    10,
-                    ChronoUnit.MINUTES
-                )
-            )
-        ) throw badRequestException("too early to check in")
-        if (nowUtc.isAfter(
-                dateScheduledUtc.plus(
-                    10,
-                    ChronoUnit.MINUTES
-                )
-            )
-        ) throw badRequestException("too late to check in")
-
         val distance =
             datesRepository.distanceToDateLocation(date.id, checkInRequest.latitude, checkInRequest.longitude)
         val distanceThreshold = 10
@@ -86,6 +71,18 @@ class DatingHandler(
             "not close enough to check in",
             details = mapOf("currentDistance" to distance, "distanceThreshold" to distanceThreshold)
         )
+
+        val dateScheduledUtc = date.whenScheduled!!.toInstant()
+        val checkInOpensAt = dateScheduledUtc.minus(10, ChronoUnit.MINUTES)
+        if (nowUtc.isBefore(checkInOpensAt)) throw ApplicationException(
+            HttpStatus.BAD_REQUEST, "too early to check in", details = mapOf(
+                "minutesToGo" to Duration.ofMillis(checkInOpensAt.toEpochMilli() - nowUtc.toEpochMilli()).toMinutes()
+            )
+        )
+        val checkInClosesAt = dateScheduledUtc.plus(10, ChronoUnit.MINUTES)
+        if (nowUtc.isAfter(checkInClosesAt)) throw ApplicationException(HttpStatus.BAD_REQUEST, "too late to check in", details = mapOf(
+            "minutesOverdue" to Duration.ofMillis(nowUtc.toEpochMilli() - checkInClosesAt.toEpochMilli()).toMinutes()
+        ))
 
         val userCheckIns = checkInRepository.fetch(date.id)
         if (userCheckIns.any { it.profileId == profileId }) throw badRequestException("already checked in")

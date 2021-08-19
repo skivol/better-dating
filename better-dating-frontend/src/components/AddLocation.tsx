@@ -24,6 +24,7 @@ import {
   useMapEvents,
 } from "react-leaflet";
 
+import { AddLocationButton } from "./location";
 import { dating } from "./navigation/NavigationUrls";
 import { useDateId, ReactMarkdownMaterialUi, required } from "../utils";
 import { mapboxToken } from "../constants";
@@ -117,6 +118,8 @@ export const LocationForm = ({
   onSubmitProp,
   mode = Mode.add,
 }: any) => {
+  const dateId = useDateId();
+
   const [saving, setSaving] = useState(false);
   let map: L.Map | null = null;
 
@@ -143,6 +146,7 @@ export const LocationForm = ({
           form.change("lat", value.lat);
           form.change("lng", value.lng);
         };
+        const saveButtonDisabled = (adding && pristine) || saving;
         return (
           <form onSubmit={handleSubmit}>
             <Paper elevation={1} className="u-padding-10px">
@@ -290,18 +294,12 @@ export const LocationForm = ({
                         {Messages.myLocation}
                       </Button>
                     ) : (
-                      <Button
-                        color="secondary"
-                        style={{ color: "red" }}
+                      <AddLocationButton
+                        dateId={dateId}
+                        title={Messages.suggestOtherPlace}
                         variant="outlined"
-                        onClick={() =>
-                          // TODO
-                          alert("TODO: implement suggesting other place")
-                        }
-                        startIcon={<FontAwesomeIcon icon={faMapMarkerAlt} />}
-                      >
-                        {Messages.suggestOtherPlace}
-                      </Button>
+                        color="red"
+                      />
                     )}
                     {!viewing && (
                       <>
@@ -313,10 +311,12 @@ export const LocationForm = ({
                         />
                         <Button
                           color="primary"
-                          style={{ background: "green" }}
+                          style={
+                            saveButtonDisabled ? {} : { background: "green" }
+                          }
                           type="submit"
                           variant="contained"
-                          disabled={(adding && pristine) || saving}
+                          disabled={saveButtonDisabled}
                           startIcon={
                             saving ? (
                               <SpinnerAdornment />

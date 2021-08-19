@@ -9,6 +9,7 @@ export const administration = "/администрирование";
 export const acknowledgements = "/благодарности";
 export const privacyPolicy = "/политика-конфиденциальности";
 export const userAgreement = "/пользовательское-соглашение";
+export const addLocation = "/добавление-места";
 export const checkLocation = "/проверка-места";
 export const viewLocation = "/просмотр-места";
 

@@ -148,7 +148,7 @@ export const PairsAndDates = ({ datingData, user }: any) => {
                 const [open, setOpen] = useState(active);
                 const { anchorEl, menuIsOpen, openMenu, closeMenu } = useMenu();
                 const visibleDates = datingData.dates.filter(
-                  (d: any) => d.dateInfo.pairId === pairId && d.place
+                  (d: any) => d.dateInfo.pairId === pairId
                 );
                 const hasSomeDates = visibleDates.length > 0;
                 return (
@@ -217,6 +217,9 @@ export const PairsAndDates = ({ datingData, user }: any) => {
                         >
                           <Collapse in={open} timeout="auto" unmountOnExit>
                             <DatesTable
+                              currentUserIsFirstInPair={
+                                currentUserIsFirstInPair
+                              }
                               user={user}
                               dates={visibleDates}
                               otherUserNickname={otherUserNickname}

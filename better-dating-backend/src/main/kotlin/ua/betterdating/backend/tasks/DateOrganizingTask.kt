@@ -41,6 +41,7 @@ class DateOrganizingTask(
 ) {
     private val log by LoggerDelegate()
 
+    @Suppress("unused")
     @Scheduled(fixedDelayString = "PT5m") // run constantly with 5 minutes pause
     fun organizeDates() {
         runBlocking {
@@ -73,9 +74,8 @@ class DateOrganizingTask(
                     pairId = pairId,
                     status = DateStatus.WaitingForPlace,
                     placeId = null,
+                    placeVersion = null,
                     whenScheduled = null,
-                    latitude = null,
-                    longitude = null
                 )
                 transactionalOperator.executeAndAwait {
                     datesRepository.upsert(dateInfo)
@@ -101,9 +101,8 @@ class DateOrganizingTask(
                     pairId = pairId,
                     status = DateStatus.Scheduled,
                     placeId = whenAndWhere.place.id,
+                    placeVersion = whenAndWhere.place.version,
                     whenScheduled = whenAndWhere.timeAndDate,
-                    latitude = whenAndWhere.place.latitude,
-                    longitude = whenAndWhere.place.longitude
                 )
                 val secondProfile = emailRepository.findById(it.secondProfileId)!!
                 val secondProfileEmail = secondProfile.email
