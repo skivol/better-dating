@@ -10,6 +10,8 @@ import {
   putData,
   deleteData,
   toBackendProfileValues,
+  showError,
+  showSuccess,
 } from "../utils";
 import * as Messages from "./Messages";
 import { resolveTokenMessage } from "../Messages";
@@ -273,16 +275,9 @@ export const addPlace = ({
       lat,
       lng,
     });
-    dispatch(
-      openSnackbar(
-        Messages.successAddingPlaceTheUserWasNotified,
-        SnackbarVariant.success
-      )
-    );
+    showSuccess(dispatch, Messages.successAddingPlaceTheUserWasNotified);
   } catch (error) {
-    dispatch(
-      openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
-    );
+    showError(dispatch, Messages.resolveAddPlaceError(error));
     throw error;
   }
 };
@@ -294,13 +289,9 @@ export const approvePlace = ({ dateId }: any): ThunkResult<void> => async (
     await postData("/api/place/approve", {
       dateId,
     });
-    dispatch(
-      openSnackbar(Messages.successApprovingThePlace, SnackbarVariant.success)
-    );
+    showSuccess(dispatch, Messages.successApprovingThePlace);
   } catch (error) {
-    dispatch(
-      openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
-    );
+    showError(dispatch, Messages.resolveAddPlaceError(error));
     throw error;
   }
 };

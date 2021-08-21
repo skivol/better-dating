@@ -1,4 +1,4 @@
-- (AddLocation) handle "TooCloseToOtherPlacesException"
+- introduce "history" table (track close points errors; migrate email change, profile view) id, type, user, timestamp, payload
 - negative case - won't come to the date (specify reason) (кнопка "Не получается прийти")
 - expired date verification token (provide way to generate new one?) (or better mark the date "overdue" and be done with it from system point of view) / limit number of verify attempts per minute or overall to block brute force attacks on the api, hm
 
@@ -48,7 +48,7 @@
   ** Пластическая хирургия
   ...
 
-- Добавить дату удаления профиля ?
+- Добавить дату удаления профиля ? / не удалять сразу, давать 30 дней на отмену решения ?
 
 - Улучшить внешний вид
 - визуализировать этапы пользования системой с помощью timeline ? (https://material-ui.com/ru/components/timeline/)

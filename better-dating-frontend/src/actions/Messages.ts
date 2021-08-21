@@ -40,6 +40,13 @@ export const successAddingPlaceTheUserWasNotified =
   "Место встречи было создано и второй пользователь был оповещен об этом!";
 export const successApprovingThePlace =
   "Место встречи было подтверждено и вскоре будет организовано свидание!";
+export const resolveAddPlaceError = (error: any) => {
+  const { message } = error;
+  if ("Too close to other existing points" === message) {
+    return "Предложение слишком близко к существующим точкам, предложите другое";
+  }
+  return oopsSomethingWentWrong;
+};
 
 export const successCheckIn = "Успешное прибытие на свидание!";
 export const secondUserHasAlreadyArrived =

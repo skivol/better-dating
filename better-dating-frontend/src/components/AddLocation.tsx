@@ -120,12 +120,20 @@ export const LocationForm = ({
 }: any) => {
   const dateId = useDateId();
 
+  const [closePointsError, setClosePointsError] = useState<any>(null);
+
   const [saving, setSaving] = useState(false);
   let map: L.Map | null = null;
 
   const onSubmit = (values: any) => {
     setSaving(true);
-    onSubmitProp(values).finally(() => setSaving(false));
+    onSubmitProp(values)
+      .catch((e: any) => {
+        if ("Too close to other existing points" === e.message) {
+          setClosePointsError(e.details);
+        }
+      })
+      .finally(() => setSaving(false));
   };
 
   const adding = mode === Mode.add;
@@ -238,6 +246,14 @@ export const LocationForm = ({
                         popupText={Messages.myLocationPopup}
                       />
                     )}
+                    {closePointsError?.points &&
+                      closePointsError.points.map((p: any) => (
+                        <Circle
+                          center={p}
+                          radius={closePointsError.distance}
+                          pathOptions={{ color: "red" }}
+                        />
+                      ))}
                   </MapContainer>
                 </Grid>
 
