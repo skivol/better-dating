@@ -46,7 +46,7 @@ fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleReposi
         bean<EmailChangeHistoryRepository>()
         bean<ProfileDeletionFeedbackRepository>()
         bean<ViewOtherUserProfileTokenDataRepository>()
-        bean<ProfileViewHistoryRepository>()
+        bean<HistoryRepository>()
         bean<StatisticsRepository>()
         bean<PopulatedLocalitiesRepository>()
         bean<LanguagesRepository>()

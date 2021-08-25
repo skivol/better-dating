@@ -16,6 +16,7 @@ import org.springframework.web.reactive.function.server.json
 import org.springframework.web.server.ServerWebInputException
 import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
+import ua.betterdating.backend.data.Place
 import ua.betterdating.backend.handlers.LatLng
 import java.time.LocalDateTime
 
@@ -89,7 +90,7 @@ suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResp
             request,
             BAD_REQUEST,
             "Too close to other existing points",
-            details = mapOf("points" to e.points, "distance" to e.distance)
+            details = mapOf("points" to e.points.map { LatLng(it.latitude, it.longitude) }, "distance" to e.distance)
         )
         is NotInTargetPopulatedLocalityException -> ErrorResponseEntity(request, BAD_REQUEST, "Point doesn't seem to be in target populated locality", details = mapOf("locality" to e.placeName))
         is ApplicationException -> ErrorResponseEntity(request, e.status, e.message, e.code, details = e.details)
@@ -139,7 +140,7 @@ class AuthorNotFoundException : RuntimeException()
 
 class NotEligibleForSecondStageException : RuntimeException()
 
-class TooCloseToOtherPlacesException(val points: List<LatLng>, val distance: Double) : RuntimeException()
+class TooCloseToOtherPlacesException(val points: List<Place>, val distance: Double) : RuntimeException()
 class NotInTargetPopulatedLocalityException(val placeName: String) : RuntimeException()
 
 class ApplicationException(val status: HttpStatus, override val message: String, val code: String? = null, val details: Map<String, Any> = emptyMap()) : RuntimeException(message)

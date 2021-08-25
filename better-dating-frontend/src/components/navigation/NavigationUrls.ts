@@ -6,6 +6,7 @@ export const login = "/вход";
 export const profile = "/профиль";
 export const dating = "/свидания";
 export const administration = "/администрирование";
+export const events = "/события";
 export const acknowledgements = "/благодарности";
 export const privacyPolicy = "/политика-конфиденциальности";
 export const userAgreement = "/пользовательское-соглашение";

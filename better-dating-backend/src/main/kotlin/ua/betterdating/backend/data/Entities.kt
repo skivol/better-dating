@@ -6,7 +6,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-// TODO check if @Id annotation is still needed
 class Email(
         var email: String,
         var verified: Boolean,
@@ -96,12 +95,6 @@ class UserRole(
 class ViewOtherUserProfileTokenData(
         @Id val tokenId: UUID,
         val targetProfileId: UUID
-)
-
-class ProfileViewHistory(
-        @Id val viewerProfileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
-        val targetProfileId: UUID,
-        val date: LocalDateTime
 )
 
 class UsageStats(

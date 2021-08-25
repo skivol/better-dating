@@ -37,6 +37,7 @@ class PlaceHandler(
     private val loginInformationRepository: LoginInformationRepository,
     private val expiringTokenRepository: ExpiringTokenRepository,
     private val dateVerificationTokenDataRepository: DateVerificationTokenDataRepository,
+    private val historyRepository: HistoryRepository,
     private val passwordEncoder: PasswordEncoder,
     private val transactionalOperator: TransactionalOperator,
     private val mailSender: FreemarkerMailSender,
@@ -154,31 +155,33 @@ class PlaceHandler(
         val subject = "Нужно проверить ${if (suggestOtherPlaceFlow) "новое " else ""}место предложенное для организации свидания"
         val secondProfileEmail = emailRepository.findById(pair.secondProfileId)!!.email
         val secondProfileLastHost = loginInformationRepository.find(pair.secondProfileId).lastHost
-        transactionalOperator.executeAndAwait {
-            // save while checking new point is not too close to existing other points
-            val upsertCount = placeRepository.upsert(place, distance)
-            if (upsertCount == 0) {
-                checkTooClosePoints(place, distance)
-            }
-            datesRepository.upsert(
-                dateInfo.copy(
-                    status = DateStatus.WaitingForPlaceApproval,
-                    placeId = place.id,
+        trackingTooCloseToOtherPlacesException(currentUserId) {
+            transactionalOperator.executeAndAwait {
+                // save while checking new point is not too close to existing other points
+                val upsertCount = placeRepository.upsert(place, distance)
+                if (upsertCount == 0) {
+                    checkTooClosePoints(place, distance)
+                }
+                datesRepository.upsert(
+                    dateInfo.copy(
+                        status = DateStatus.WaitingForPlaceApproval,
+                        placeId = place.id,
+                    )
                 )
-            )
 
-            // send mail to the second user
-            mailSender.sendLink(
-                "HelpToChooseThePlace.ftlh",
-                secondProfileEmail,
-                subject,
-                secondProfileLastHost,
-                "проверка-места?свидание=${dateId}",
-            ) { link ->
-                object {
-                    val title = subject
-                    val actionLabel = "Посмотреть место встречи"
-                    val actionUrl = link
+                // send mail to the second user
+                mailSender.sendLink(
+                    "HelpToChooseThePlace.ftlh",
+                    secondProfileEmail,
+                    subject,
+                    secondProfileLastHost,
+                    "проверка-места?свидание=${dateId}",
+                ) { link ->
+                    object {
+                        val title = subject
+                        val actionLabel = "Посмотреть место встречи"
+                        val actionUrl = link
+                    }
                 }
             }
         }
@@ -192,45 +195,64 @@ class PlaceHandler(
         val (dateInfo, pair, relevantPlaces, currentUserId) = ensureCan(PlaceAction.VerifyPlace, request, approvePlaceRequest.dateId)
         val placeToApprove = relevantPlaces.firstOrNull { it.suggestedBy != currentUserId } ?: throw badRequestException("no place to be approved by current user was found")
 
-        transactionalOperator.executeAndAwait {
-            if (relevantPlaces.size > 1) { // we're having several place suggestions for one date (that is, in "suggest other place" flow)
-                placeRepository.deleteAllById(placeToApprove.id) // delete all, because we might be changing the version of approved place to "1" in the upsert below in this case
-                                                                // and we don't want the old version to hang around
-            }
-            val finalPlace = placeToApprove.copy(status = PlaceStatus.Approved, approvedBy = currentUserId, version = 1)
-            val upsertCount = placeRepository.upsert(finalPlace, distance)
-            if (upsertCount == 0) {
-                checkTooClosePoints(placeToApprove, distance)
-            }
-            val spots = findAvailableDatingSpotsIn(datesRepository, googleTimeZoneApi, pair.firstProfileSnapshot!!.populatedLocality)
-            val whenAndWhere = spots.shuffled().first { it.place.id == dateInfo.placeId }
-            datesRepository.upsert(
-                dateInfo.copy(
-                    whenScheduled = whenAndWhere.timeAndDate,
-                    status = DateStatus.Scheduled,
-                    placeId = finalPlace.id,
-                    placeVersion = finalPlace.version,
+        trackingTooCloseToOtherPlacesException(currentUserId) {
+            transactionalOperator.executeAndAwait {
+                if (relevantPlaces.size > 1) { // we're having several place suggestions for one date (that is, in "suggest other place" flow)
+                    // delete all, because we might be changing the version of approved place to "1" in the upsert below in this case
+                    // and we don't want the old version to hang around
+                    placeRepository.deleteAllById(placeToApprove.id)
+                }
+                val finalPlace =
+                    placeToApprove.copy(status = PlaceStatus.Approved, approvedBy = currentUserId, version = 1)
+                val upsertCount = placeRepository.upsert(finalPlace, distance)
+                if (upsertCount == 0) {
+                    checkTooClosePoints(placeToApprove, distance)
+                }
+                val spots = findAvailableDatingSpotsIn(
+                    datesRepository,
+                    googleTimeZoneApi,
+                    pair.firstProfileSnapshot!!.populatedLocality
                 )
-            )
-
-            // notify users about scheduled date
-            val firstProfileEmail = emailRepository.findById(pair.firstProfileId)!!.email
-            val firstProfileLastHost = loginInformationRepository.find(pair.firstProfileId).lastHost
-            val body = "$automaticDateAndTime $striveToComeToTheDate $beResponsibleAndAttentive $additionalInfoCanBeFoundOnSite"
-            val secondProfile = emailRepository.findById(pair.secondProfileId)!!
-            val dateVerificationToken =
-                generateAndSaveDateVerificationToken(
-                    secondProfile.id,
-                    whenAndWhere.timeAndDate,
-                    dateInfo.id,
-                    passwordEncoder,
-                    expiringTokenRepository,
-                    dateVerificationTokenDataRepository
+                val whenAndWhere = spots.shuffled().first { it.place.id == dateInfo.placeId }
+                datesRepository.upsert(
+                    dateInfo.copy(
+                        whenScheduled = whenAndWhere.timeAndDate,
+                        status = DateStatus.Scheduled,
+                        placeId = finalPlace.id,
+                        placeVersion = finalPlace.version,
+                    )
                 )
-            mailSender.dateOrganizedMessage(firstProfileEmail, whenAndWhere, bodyWithVerificationToken(body, dateVerificationToken), firstProfileLastHost)
 
-            val secondProfileLastHost = loginInformationRepository.find(pair.secondProfileId).lastHost
-            mailSender.dateOrganizedMessage(secondProfile.email, whenAndWhere, bodyMentioningVerificationToken(body), secondProfileLastHost)
+                // notify users about scheduled date
+                val firstProfileEmail = emailRepository.findById(pair.firstProfileId)!!.email
+                val firstProfileLastHost = loginInformationRepository.find(pair.firstProfileId).lastHost
+                val body =
+                    "$automaticDateAndTime $striveToComeToTheDate $beResponsibleAndAttentive $additionalInfoCanBeFoundOnSite"
+                val secondProfile = emailRepository.findById(pair.secondProfileId)!!
+                val dateVerificationToken =
+                    generateAndSaveDateVerificationToken(
+                        secondProfile.id,
+                        whenAndWhere.timeAndDate,
+                        dateInfo.id,
+                        passwordEncoder,
+                        expiringTokenRepository,
+                        dateVerificationTokenDataRepository
+                    )
+                mailSender.dateOrganizedMessage(
+                    firstProfileEmail,
+                    whenAndWhere,
+                    bodyWithVerificationToken(body, dateVerificationToken),
+                    firstProfileLastHost
+                )
+
+                val secondProfileLastHost = loginInformationRepository.find(pair.secondProfileId).lastHost
+                mailSender.dateOrganizedMessage(
+                    secondProfile.email,
+                    whenAndWhere,
+                    bodyMentioningVerificationToken(body),
+                    secondProfileLastHost
+                )
+            }
         }
 
         return okEmptyJsonObject()
@@ -261,9 +283,18 @@ class PlaceHandler(
         return ok().json().bodyValueAndAwait(result)
     }
 
+    private suspend fun trackingTooCloseToOtherPlacesException(currentUserId: UUID, transaction: suspend () -> Unit) {
+        try {
+            transaction.invoke()
+        } catch (e: TooCloseToOtherPlacesException) {
+            historyRepository.trackTooCloseToOtherPlacesException(currentUserId, e)
+            throw e
+        }
+    }
+
     private suspend fun checkTooClosePoints(place: Place, distance: Double) {
         val tooClosePoints =
-            placeRepository.fetchTooClosePoints(place.populatedLocalityId, place.longitude, place.latitude, distance)
+            placeRepository.fetchTooClosePlaces(place.populatedLocalityId, place.longitude, place.latitude, distance)
         throw TooCloseToOtherPlacesException(tooClosePoints, distance)
     }
 }

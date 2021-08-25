@@ -20,6 +20,7 @@ export const Registration = "Регистрация";
 export const Profile = "Профиль";
 export const PairsAndDates = "Пары и Свидания";
 export const Administration = "Администрирование";
+export const Events = "События";
 export const Technologies = "Технологии";
 export const logoTooltip = "Смотрины.укр & Смотрины.рус логотип";
 export const email = "Почта";
@@ -336,3 +337,41 @@ export const viewProfileEvaluation =
 
 export const evaluationIsNotYetAddedByOtherUser =
   "Оценка пока не добавлена другим пользователем";
+
+export const history = "События";
+export const emailChanged = "Почта была изменена";
+export const profileViewedByOtherUser =
+  "Профиль был просмотрен другим пользователем";
+export const tooCloseToOtherPlacesExceptionHappened =
+  "Произошла ошибка при добавлении нового места (слишком близко к существующему)";
+export const formatEmailChangedPayload = (payload: any) =>
+  `Предыдущая почта была - ${payload.old_email}`;
+export const formatProfileViewedByOtherUserPayload = (
+  payload: any,
+  relevantUsers: any
+) => {
+  const viewerNickname = relevantUsers[payload.viewer_profile_id];
+  const nicknameToShow =
+    viewerNickname ??
+    `пользователь с идентификатором ${payload.viewer_profile_id}`;
+  return `Пользователь просматривавший профиль - ${nicknameToShow}`;
+};
+export const formatTooCloseToOtherPlacesExceptionHappenedPayload = (
+  payload: any
+) =>
+  `Существующие места и их версии, что стали причиной: ${payload.places
+    .map((p: any) => `${p.id} - версия ${p.version}`)
+    .join(", ")}`;
+
+export const dateTime = "Дата / Время";
+export const type = "Тип";
+export const details = "Детали";
+export const typeSelect = "Тип события";
+export const users = "Пользователь";
+export const search = "Поиск";
+
+export const typeAll = "Все";
+export const typeProfileViews = "Просмотры профиля";
+export const typeEmailChange = "Изменения почты";
+export const typeTooCloseToExistingPlacesException =
+  "Ошибка при добавлении места (близко к существующим)";

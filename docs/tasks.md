@@ -1,9 +1,7 @@
-- introduce "history" table (track close points errors; migrate email change, profile view) id, type, user, timestamp, payload
 - negative case - won't come to the date (specify reason) (кнопка "Не получается прийти")
 - expired date verification token (provide way to generate new one?) (or better mark the date "overdue" and be done with it from system point of view) / limit number of verify attempts per minute or overall to block brute force attacks on the api, hm
 
 - удаление пар / свиданий при удалении профилей обоих участников
-- история просмотров профилей
 - gracefull shutdown (handle it in tasks)
 - instant / kotlin enum naming convention
 
@@ -20,6 +18,7 @@
 - добавить возможность отметить комментарий (о не соответствии профиля действительности) как исправленный; или предложение по улучшению - как принят к выполнению или отвергнут;
 - возможность обновлять свои комментарии к другим профилям ?
 - place_rating (profile_id, place_id, score, motivation) ? (ease of communication / finding, publicity, near cafe / parks, other criteria ?)
+- возможность обновления (например, уточнение места или названия) существующих мест встречи;
 - Уточнения
   ** --> Естественность, осмысленность, целесообразность, целеустремленность ; трудная, но полноценная и осмысленная жизнь
   ** в описании сайта упомянуть "эффективные" / "результативные" свидания

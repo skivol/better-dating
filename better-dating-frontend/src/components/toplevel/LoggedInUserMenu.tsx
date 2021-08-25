@@ -17,9 +17,15 @@ import {
   faUserFriends,
   faTools,
   faSignOutAlt,
+  faHistory,
 } from "@fortawesome/free-solid-svg-icons";
-import { profile, dating, administration } from "../navigation/NavigationUrls";
-import { useMenu } from "../../utils";
+import {
+  profile,
+  dating,
+  administration,
+  events,
+} from "../navigation/NavigationUrls";
+import { useMenu, isAdmin } from "../../utils";
 import { UserState } from "../../types";
 import * as actions from "../../actions";
 import * as Messages from "../Messages";
@@ -49,7 +55,6 @@ export const LoggedInUserMenu = ({ user }: Props) => {
     closeMenu();
     dispatch(actions.logout()).then(() => router.push("/"));
   };
-  const isAdmin = user.roles.includes("ROLE_ADMIN");
   const secondStageEnabled = user.secondStageEnabled;
 
   return (
@@ -92,7 +97,7 @@ export const LoggedInUserMenu = ({ user }: Props) => {
             <ListItemText>{Messages.PairsAndDates}</ListItemText>
           </MenuItemLink>
         )}
-        {isAdmin && (
+        {isAdmin(user) && (
           <MenuItemLink onClick={closeMenu} href={administration}>
             <ListItemIcon className="u-min-width-30px">
               <FontAwesomeIcon icon={faTools} />
@@ -100,6 +105,12 @@ export const LoggedInUserMenu = ({ user }: Props) => {
             <ListItemText>{Messages.Administration}</ListItemText>
           </MenuItemLink>
         )}
+        <MenuItemLink onClick={closeMenu} href={events}>
+          <ListItemIcon className="u-min-width-30px">
+            <FontAwesomeIcon icon={faHistory} />
+          </ListItemIcon>
+          <ListItemText>{Messages.Events}</ListItemText>
+        </MenuItemLink>
         <MenuItem onClick={onLogoutClick}>
           <ListItemIcon className="u-min-width-30px">
             <FontAwesomeIcon icon={faSignOutAlt} />

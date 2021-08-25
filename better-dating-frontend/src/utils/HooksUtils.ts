@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { firstValueIfArray } from ".";
 import { BetterDatingStoreState } from "../configureStore";
 import { fetchUser } from "../actions";
+import { UserState } from "../types";
 import { tokenName, dateIdName } from "../Messages";
 
 export const useUser = (forceFetch = true) => {
@@ -18,6 +19,9 @@ export const useUser = (forceFetch = true) => {
   }, [dispatch]);
   return user;
 };
+
+export const isAdmin = (user: UserState) =>
+  user.roles?.includes("ROLE_ADMIN") ?? false;
 
 export const useMenu = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

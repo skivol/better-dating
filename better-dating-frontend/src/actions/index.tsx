@@ -58,361 +58,364 @@ const resolveProfileError = (
   alreadyRegisteredEmail(error) ||
   alreadyRegisteredNickname(error) ||
   genericErrorMessage;
-export const createAccount = (values: any): any => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    await postData("/api/user/profile", toBackendProfileValues(values));
-    dispatch(
-      openSnackbar(
-        Messages.successSubmittingProfileMessage,
-        SnackbarVariant.success
-      )
-    );
-  } catch (error) {
-    const message = resolveProfileError(
-      error,
-      Messages.errorSubmittingProfileMessage
-    );
-    dispatch(openSnackbar(message, SnackbarVariant.error));
-    throw error;
-  }
-};
-
-export const requestLogin = (email: string): ThunkResult<void> => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    await postData("/api/auth/login-link", { email });
-    dispatch(openSnackbar(Messages.loginLinkWasSent, SnackbarVariant.info));
-  } catch (error) {
-    dispatch(
-      openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
-    );
-  }
-};
-
-export const performLogin = (token: string): any => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    await postData("/api/auth/login", { token });
-  } catch (error) {
-    dispatch(
-      openSnackbar(
-        `${Messages.errorLogin}: ${resolveTokenMessage(error)}`,
-        SnackbarVariant.error
-      )
-    );
-    throw error;
-  }
-};
-
-export const updateAccount = (
-  values: any,
-  emailChanged: boolean | undefined
-): any => async (dispatch: ThunkDispatch<any, any, Action>) => {
-  try {
-    const response = await putData(
-      `/api/user/profile`,
-      toBackendProfileValues(values)
-    );
-
-    const successMessage = emailChanged
-      ? Messages.successUpdatingProfileAndChangingEmailMessage
-      : Messages.successUpdatingProfileMessage;
-    dispatch(openSnackbar(successMessage, SnackbarVariant.success));
-
-    return response;
-  } catch (error) {
-    const message = resolveProfileError(
-      error,
-      Messages.errorUpdatingProfileMessage
-    );
-    dispatch(openSnackbar(message, SnackbarVariant.error));
-    throw error;
-  }
-};
-
-export const requestAccountRemoval = (): any => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    await postData("/api/user/profile/request-removal");
-    dispatch(
-      openSnackbar(Messages.linkForRemovingProfileWasSent, SnackbarVariant.info)
-    );
-  } catch (error) {
-    dispatch(
-      openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
-    );
-    throw error;
-  }
-};
-
-export const removeAccount = (
-  token: string,
-  reason: string,
-  explanationComment: string
-): any => async (dispatch: ThunkDispatch<any, any, Action>) => {
-  try {
-    await deleteData("/api/user/profile", {
-      token,
-      reason,
-      explanationComment,
-    });
-    dispatch(openSnackbar(Messages.profileWasRemoved, SnackbarVariant.info));
-    dispatch(user(constants.emptyUser));
-  } catch (error) {
-    dispatch(openSnackbar(resolveTokenMessage(error), SnackbarVariant.error));
-  }
-};
-
-export const viewAuthorsProfile = (): any => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    await postData("/api/user/profile/authors-profile");
-    dispatch(
-      openSnackbar(
-        Messages.linkForViewingAuthorsProfileWasSent,
-        SnackbarVariant.info
-      )
-    );
-  } catch (error) {
-    dispatch(
-      openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
-    );
-    throw error;
-  }
-};
-
-export const viewOtherUserProfile = ({ id, nickname }: any): any => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    await postData("/api/user/profile/user-profile", { targetId: id });
-    dispatch(
-      openSnackbar(
-        Messages.linkForViewingUsersProfileWasSent(nickname),
-        SnackbarVariant.info
-      )
-    );
-  } catch (error) {
-    dispatch(
-      openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
-    );
-    throw error;
-  }
-};
-
-export const activateSecondStage = (values: any): any => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    await postData("/api/user/profile/activate-second-stage", values);
-    dispatch(openSnackbar(Messages.secondStageEnabled, SnackbarVariant.info));
-  } catch (error) {
-    dispatch(
-      openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
-    );
-    throw error;
-  }
-};
-
-export const requestAnotherValidationToken = (
-  previousToken: string
-): ThunkResult<void> => async (dispatch: ThunkDispatch<any, any, Action>) => {
-  try {
-    await postData("/api/user/email/new-verification", {
-      token: previousToken,
-    });
-    dispatch(
-      openSnackbar(
-        Messages.successTriggeringNewVerificationMessage,
-        SnackbarVariant.success
-      )
-    );
-  } catch (error) {
-    dispatch(
-      openSnackbar(resolveTokenMessage(error.message), SnackbarVariant.error)
-    );
-  }
-};
-
-export const requestAnotherViewProfileToken = (
-  previousToken: string
-): ThunkResult<void> => async (dispatch: ThunkDispatch<any, any, Action>) => {
-  try {
-    await postData("/api/user/profile/new-view-user-profile", {
-      token: previousToken,
-    });
-    dispatch(
-      openSnackbar(
-        Messages.successRequestingNewProfileViewMessage,
-        SnackbarVariant.success
-      )
-    );
-  } catch (error) {
-    dispatch(
-      openSnackbar(resolveTokenMessage(error.message), SnackbarVariant.error)
-    );
-  }
-};
-
-export const addPlace = ({
-  dateId,
-  name,
-  lat,
-  lng,
-}: any): ThunkResult<void> => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    await postData("/api/place/add", {
-      dateId,
-      name,
-      lat,
-      lng,
-    });
-    showSuccess(dispatch, Messages.successAddingPlaceTheUserWasNotified);
-  } catch (error) {
-    showError(dispatch, Messages.resolveAddPlaceError(error));
-    throw error;
-  }
-};
-
-export const approvePlace = ({ dateId }: any): ThunkResult<void> => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    await postData("/api/place/approve", {
-      dateId,
-    });
-    showSuccess(dispatch, Messages.successApprovingThePlace);
-  } catch (error) {
-    showError(dispatch, Messages.resolveAddPlaceError(error));
-    throw error;
-  }
-};
-
-export const fetchUser = (): ThunkResult<void> => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  if (browser()) {
-    dispatch(user({ ...constants.emptyUser, loading: true }));
+export const createAccount =
+  (values: any): any =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
-      const response = await getData("/api/auth/me");
-      dispatch(user({ ...constants.emptyUser, ...response }));
-    } catch (e) {
-      dispatch(user({ ...constants.emptyUser, loadError: e }));
+      await postData("/api/user/profile", toBackendProfileValues(values));
+      dispatch(
+        openSnackbar(
+          Messages.successSubmittingProfileMessage,
+          SnackbarVariant.success
+        )
+      );
+    } catch (error) {
+      const message = resolveProfileError(
+        error,
+        Messages.errorSubmittingProfileMessage
+      );
+      dispatch(openSnackbar(message, SnackbarVariant.error));
+      throw error;
     }
-  }
-};
+  };
+
+export const requestLogin =
+  (email: string): ThunkResult<void> =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      await postData("/api/auth/login-link", { email });
+      dispatch(openSnackbar(Messages.loginLinkWasSent, SnackbarVariant.info));
+    } catch (error) {
+      dispatch(
+        openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
+      );
+    }
+  };
+
+export const performLogin =
+  (token: string): any =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      await postData("/api/auth/login", { token });
+    } catch (error) {
+      dispatch(
+        openSnackbar(
+          `${Messages.errorLogin}: ${resolveTokenMessage(error)}`,
+          SnackbarVariant.error
+        )
+      );
+      throw error;
+    }
+  };
+
+export const updateAccount =
+  (values: any, emailChanged: boolean | undefined): any =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      const response = await putData(
+        `/api/user/profile`,
+        toBackendProfileValues(values)
+      );
+
+      const successMessage = emailChanged
+        ? Messages.successUpdatingProfileAndChangingEmailMessage
+        : Messages.successUpdatingProfileMessage;
+      dispatch(openSnackbar(successMessage, SnackbarVariant.success));
+
+      return response;
+    } catch (error) {
+      const message = resolveProfileError(
+        error,
+        Messages.errorUpdatingProfileMessage
+      );
+      dispatch(openSnackbar(message, SnackbarVariant.error));
+      throw error;
+    }
+  };
+
+export const requestAccountRemoval =
+  (): any => async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      await postData("/api/user/profile/request-removal");
+      dispatch(
+        openSnackbar(
+          Messages.linkForRemovingProfileWasSent,
+          SnackbarVariant.info
+        )
+      );
+    } catch (error) {
+      dispatch(
+        openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
+      );
+      throw error;
+    }
+  };
+
+export const removeAccount =
+  (token: string, reason: string, explanationComment: string): any =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      await deleteData("/api/user/profile", {
+        token,
+        reason,
+        explanationComment,
+      });
+      dispatch(openSnackbar(Messages.profileWasRemoved, SnackbarVariant.info));
+      dispatch(user(constants.emptyUser));
+    } catch (error) {
+      dispatch(openSnackbar(resolveTokenMessage(error), SnackbarVariant.error));
+    }
+  };
+
+export const viewAuthorsProfile =
+  (): any => async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      await postData("/api/user/profile/authors-profile");
+      dispatch(
+        openSnackbar(
+          Messages.linkForViewingAuthorsProfileWasSent,
+          SnackbarVariant.info
+        )
+      );
+    } catch (error) {
+      dispatch(
+        openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
+      );
+      throw error;
+    }
+  };
+
+export const viewOtherUserProfile =
+  ({ id, nickname }: any): any =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      await postData("/api/user/profile/user-profile", { targetId: id });
+      dispatch(
+        openSnackbar(
+          Messages.linkForViewingUsersProfileWasSent(nickname),
+          SnackbarVariant.info
+        )
+      );
+    } catch (error) {
+      dispatch(
+        openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
+      );
+      throw error;
+    }
+  };
+
+export const activateSecondStage =
+  (values: any): any =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      await postData("/api/user/profile/activate-second-stage", values);
+      dispatch(openSnackbar(Messages.secondStageEnabled, SnackbarVariant.info));
+    } catch (error) {
+      dispatch(
+        openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
+      );
+      throw error;
+    }
+  };
+
+export const requestAnotherValidationToken =
+  (previousToken: string): ThunkResult<void> =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      await postData("/api/user/email/new-verification", {
+        token: previousToken,
+      });
+      dispatch(
+        openSnackbar(
+          Messages.successTriggeringNewVerificationMessage,
+          SnackbarVariant.success
+        )
+      );
+    } catch (error) {
+      dispatch(
+        openSnackbar(resolveTokenMessage(error.message), SnackbarVariant.error)
+      );
+    }
+  };
+
+export const requestAnotherViewProfileToken =
+  (previousToken: string): ThunkResult<void> =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      await postData("/api/user/profile/new-view-user-profile", {
+        token: previousToken,
+      });
+      dispatch(
+        openSnackbar(
+          Messages.successRequestingNewProfileViewMessage,
+          SnackbarVariant.success
+        )
+      );
+    } catch (error) {
+      dispatch(
+        openSnackbar(resolveTokenMessage(error.message), SnackbarVariant.error)
+      );
+    }
+  };
+
+export const addPlace =
+  ({ dateId, name, lat, lng }: any): ThunkResult<void> =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      await postData("/api/place/add", {
+        dateId,
+        name,
+        lat,
+        lng,
+      });
+      showSuccess(dispatch, Messages.successAddingPlaceTheUserWasNotified);
+    } catch (error) {
+      showError(dispatch, Messages.resolveAddPlaceError(error));
+      throw error;
+    }
+  };
+
+export const approvePlace =
+  ({ dateId }: any): ThunkResult<void> =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      await postData("/api/place/approve", {
+        dateId,
+      });
+      showSuccess(dispatch, Messages.successApprovingThePlace);
+    } catch (error) {
+      showError(dispatch, Messages.resolveAddPlaceError(error));
+      throw error;
+    }
+  };
+
+export const fetchUser =
+  (): ThunkResult<void> =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    if (browser()) {
+      dispatch(user({ ...constants.emptyUser, loading: true }));
+      try {
+        const response = await getData("/api/auth/me");
+        dispatch(user({ ...constants.emptyUser, ...response }));
+      } catch (e) {
+        dispatch(user({ ...constants.emptyUser, loadError: e }));
+      }
+    }
+  };
 
 export const user = (user: any) => ({
   type: constants.USER,
   user,
 });
 
-export const logout = (): any => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    await postData("/api/auth/logout");
-    dispatch(openSnackbar(Messages.successLogout, SnackbarVariant.success));
-    dispatch(user(constants.emptyUser));
-  } catch (error) {
-    dispatch(openSnackbar(Messages.errorLogout, SnackbarVariant.error));
-  }
-};
+export const logout =
+  (): any => async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      await postData("/api/auth/logout");
+      dispatch(openSnackbar(Messages.successLogout, SnackbarVariant.success));
+      dispatch(user(constants.emptyUser));
+    } catch (error) {
+      dispatch(openSnackbar(Messages.errorLogout, SnackbarVariant.error));
+    }
+  };
 
-export const checkIn = (values: any): any => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    const { dateStatus } = await postData("/api/user/dating/check-in", values);
-    dispatch(
-      openSnackbar(
-        `${Messages.successCheckIn}${
-          dateStatus === "fullCheckIn"
-            ? " " + Messages.secondUserHasAlreadyArrived
-            : ""
-        }`,
-        SnackbarVariant.success
-      )
-    );
-    return dateStatus;
-  } catch (error) {
-    dispatch(
-      openSnackbar(Messages.resolveCheckInError(error), SnackbarVariant.error)
-    );
-  }
-};
+export const checkIn =
+  (values: any): any =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      const { dateStatus } = await postData(
+        "/api/user/dating/check-in",
+        values
+      );
+      dispatch(
+        openSnackbar(
+          `${Messages.successCheckIn}${
+            dateStatus === "fullCheckIn"
+              ? " " + Messages.secondUserHasAlreadyArrived
+              : ""
+          }`,
+          SnackbarVariant.success
+        )
+      );
+      return dateStatus;
+    } catch (error) {
+      dispatch(
+        openSnackbar(Messages.resolveCheckInError(error), SnackbarVariant.error)
+      );
+    }
+  };
 
-export const verifyDate = (values: any): any => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    const response = await postData("/api/user/dating/verify-date", values);
-    dispatch(
-      openSnackbar(Messages.successVerifyingDate, SnackbarVariant.success)
-    );
-    return response;
-  } catch (error) {
-    dispatch(
-      openSnackbar(
-        Messages.resolveVerifyDateError(error),
-        SnackbarVariant.error
-      )
-    );
-  }
-};
+export const verifyDate =
+  (values: any): any =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      const response = await postData("/api/user/dating/verify-date", values);
+      dispatch(
+        openSnackbar(Messages.successVerifyingDate, SnackbarVariant.success)
+      );
+      return response;
+    } catch (error) {
+      dispatch(
+        openSnackbar(
+          Messages.resolveVerifyDateError(error),
+          SnackbarVariant.error
+        )
+      );
+    }
+  };
 
-export const evaluateProfile = (values: any) => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    const response = await postData(
-      "/api/user/dating/evaluate-profile",
-      values
-    );
-    dispatch(
-      openSnackbar(Messages.successEvaluatingProfile, SnackbarVariant.success)
-    );
-    return response;
-  } catch (error) {
-    dispatch(
-      openSnackbar(
-        Messages.resolveEvaluateProfileError(error),
-        SnackbarVariant.error
-      )
-    );
-  }
-};
+export const evaluateProfile =
+  (values: any) => async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      const response = await postData(
+        "/api/user/dating/evaluate-profile",
+        values
+      );
+      dispatch(
+        openSnackbar(Messages.successEvaluatingProfile, SnackbarVariant.success)
+      );
+      return response;
+    } catch (error) {
+      dispatch(
+        openSnackbar(
+          Messages.resolveEvaluateProfileError(error),
+          SnackbarVariant.error
+        )
+      );
+    }
+  };
 
-export const submitPairDecision = (values: any) => async (
-  dispatch: ThunkDispatch<any, any, Action>
-) => {
-  try {
-    const response = await postData("/api/user/pairs/decision", values);
-    dispatch(
-      openSnackbar(
-        `${Messages.successSubmittingPairDecision}${
-          response.bothWantToContinue
-            ? " " + Messages.secondUserAlsoWantsToContinueRelationships
-            : ""
-        }`,
-        SnackbarVariant.success
-      )
-    );
-    return response;
-  } catch (error) {
-    dispatch(
-      openSnackbar(
-        Messages.resolvePairDecisionSubmitError(error),
-        SnackbarVariant.error
-      )
-    );
-  }
-};
+export const submitPairDecision =
+  (values: any) => async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      const response = await postData("/api/user/pairs/decision", values);
+      dispatch(
+        openSnackbar(
+          `${Messages.successSubmittingPairDecision}${
+            response.bothWantToContinue
+              ? " " + Messages.secondUserAlsoWantsToContinueRelationships
+              : ""
+          }`,
+          SnackbarVariant.success
+        )
+      );
+      return response;
+    } catch (error) {
+      dispatch(
+        openSnackbar(
+          Messages.resolvePairDecisionSubmitError(error),
+          SnackbarVariant.error
+        )
+      );
+    }
+  };
+
+export const fetchHistory =
+  (values: any) => async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      const response = await getData("/api/history", values);
+      return response;
+    } catch (error) {
+      showError(dispatch, Messages.oopsSomethingWentWrong);
+    }
+  };

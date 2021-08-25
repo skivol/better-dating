@@ -121,117 +121,121 @@ export const PairsAndDates = ({ datingData, user }: any) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {datingData.pairs.map(
-              (
-                {
-                  firstProfileNickname,
-                  secondProfileNickname,
-                  datingPair: {
-                    id: pairId,
-                    firstProfileId,
-                    secondProfileId,
-                    active,
-                    goal,
-                    whenMatched,
-                  },
-                  pairDecision,
-                }: any,
-                i: number
-              ) => {
-                const currentUserIsFirstInPair = user.id === firstProfileId;
-                const otherUserNickname = currentUserIsFirstInPair
-                  ? secondProfileNickname
-                  : firstProfileNickname;
-                const viewMatchedUserProfile = Messages.viewMatchedUserProfile(
-                  truncate(otherUserNickname)
-                );
-                const [open, setOpen] = useState(active);
-                const { anchorEl, menuIsOpen, openMenu, closeMenu } = useMenu();
-                const visibleDates = datingData.dates.filter(
-                  (d: any) => d.dateInfo.pairId === pairId
-                );
-                const hasSomeDates = visibleDates.length > 0;
-                return (
-                  <>
-                    <TableRow key={i}>
-                      {hasSomeDates && (
+            {datingData.pairs
+              .slice(page * rowsPerPage, (page + 1) * rowsPerPage)
+              .map(
+                (
+                  {
+                    firstProfileNickname,
+                    secondProfileNickname,
+                    datingPair: {
+                      id: pairId,
+                      firstProfileId,
+                      secondProfileId,
+                      active,
+                      goal,
+                      whenMatched,
+                    },
+                    pairDecision,
+                  }: any,
+                  i: number
+                ) => {
+                  const currentUserIsFirstInPair = user.id === firstProfileId;
+                  const otherUserNickname = currentUserIsFirstInPair
+                    ? secondProfileNickname
+                    : firstProfileNickname;
+                  const viewMatchedUserProfile =
+                    Messages.viewMatchedUserProfile(
+                      truncate(otherUserNickname)
+                    );
+                  const [open, setOpen] = useState(active);
+                  const { anchorEl, menuIsOpen, openMenu, closeMenu } =
+                    useMenu();
+                  const visibleDates = datingData.dates.filter(
+                    (d: any) => d.dateInfo.pairId === pairId
+                  );
+                  const hasSomeDates = visibleDates.length > 0;
+                  return (
+                    <>
+                      <TableRow key={i}>
+                        {hasSomeDates && (
+                          <TableCell>
+                            <IconButton
+                              aria-label="expand row"
+                              size="small"
+                              onClick={() => setOpen(!open)}
+                            >
+                              {open ? (
+                                <KeyboardArrowUpIcon />
+                              ) : (
+                                <KeyboardArrowDownIcon />
+                              )}
+                            </IconButton>
+                          </TableCell>
+                        )}
+                        <TableCell>{i + 1}</TableCell>
+                        <TableCell>{firstProfileNickname}</TableCell>
+                        <TableCell>{secondProfileNickname}</TableCell>
                         <TableCell>
-                          <IconButton
-                            aria-label="expand row"
-                            size="small"
-                            onClick={() => setOpen(!open)}
-                          >
-                            {open ? (
-                              <KeyboardArrowUpIcon />
-                            ) : (
-                              <KeyboardArrowDownIcon />
-                            )}
-                          </IconButton>
+                          {active ? Messages.active : Messages.inactive}
                         </TableCell>
-                      )}
-                      <TableCell>{i + 1}</TableCell>
-                      <TableCell>{firstProfileNickname}</TableCell>
-                      <TableCell>{secondProfileNickname}</TableCell>
-                      <TableCell>
-                        {active ? Messages.active : Messages.inactive}
-                      </TableCell>
-                      <TableCell>
-                        {goal === "FindSoulMate"
-                          ? SecondStageMessages.findSoulMate
-                          : SecondStageMessages.unknown}
-                      </TableCell>
-                      <TableCell>{toDate(whenMatched)}</TableCell>
-                      <TableCell>
-                        <IconButton color="secondary" onClick={openMenu}>
-                          <FontAwesomeIcon icon={faEllipsisV} size="lg" />
-                        </IconButton>
-                        <PairMenu
-                          anchorEl={anchorEl}
-                          menuIsOpen={menuIsOpen}
-                          closeMenu={closeMenu}
-                          viewOtherUserProfileTitle={viewMatchedUserProfile}
-                          onViewOtherUserProfile={() => {
-                            setTargetNicknameAndId({
-                              id: currentUserIsFirstInPair
-                                ? secondProfileId
-                                : firstProfileId,
-                              nickname: otherUserNickname,
-                            });
-                            setDialogType("viewOtherUserProfile");
-                            openDialog();
-                          }}
-                          onDecisionDialog={() => {
-                            setTargetPairId(pairId);
-                            setDecision(pairDecision?.decision);
-                            setDialogType("decisionDialog");
-                            openDialog();
-                          }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                    {hasSomeDates && (
-                      <TableRow>
-                        <TableCell
-                          style={{ paddingBottom: 0, paddingTop: 0 }}
-                          colSpan={8}
-                        >
-                          <Collapse in={open} timeout="auto" unmountOnExit>
-                            <DatesTable
-                              currentUserIsFirstInPair={
-                                currentUserIsFirstInPair
-                              }
-                              user={user}
-                              dates={visibleDates}
-                              otherUserNickname={otherUserNickname}
-                            />
-                          </Collapse>
+                        <TableCell>
+                          {goal === "FindSoulMate"
+                            ? SecondStageMessages.findSoulMate
+                            : SecondStageMessages.unknown}
+                        </TableCell>
+                        <TableCell>{toDate(whenMatched)}</TableCell>
+                        <TableCell>
+                          <IconButton color="secondary" onClick={openMenu}>
+                            <FontAwesomeIcon icon={faEllipsisV} size="lg" />
+                          </IconButton>
+                          <PairMenu
+                            anchorEl={anchorEl}
+                            menuIsOpen={menuIsOpen}
+                            closeMenu={closeMenu}
+                            viewOtherUserProfileTitle={viewMatchedUserProfile}
+                            onViewOtherUserProfile={() => {
+                              setTargetNicknameAndId({
+                                id: currentUserIsFirstInPair
+                                  ? secondProfileId
+                                  : firstProfileId,
+                                nickname: otherUserNickname,
+                              });
+                              setDialogType("viewOtherUserProfile");
+                              openDialog();
+                            }}
+                            onDecisionDialog={() => {
+                              setTargetPairId(pairId);
+                              setDecision(pairDecision?.decision);
+                              setDialogType("decisionDialog");
+                              openDialog();
+                            }}
+                          />
                         </TableCell>
                       </TableRow>
-                    )}
-                  </>
-                );
-              }
-            )}
+                      {hasSomeDates && (
+                        <TableRow>
+                          <TableCell
+                            style={{ paddingBottom: 0, paddingTop: 0 }}
+                            colSpan={8}
+                          >
+                            <Collapse in={open} timeout="auto" unmountOnExit>
+                              <DatesTable
+                                currentUserIsFirstInPair={
+                                  currentUserIsFirstInPair
+                                }
+                                user={user}
+                                dates={visibleDates}
+                                otherUserNickname={otherUserNickname}
+                              />
+                            </Collapse>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </>
+                  );
+                }
+              )}
           </TableBody>
         </Table>
       </TableContainer>

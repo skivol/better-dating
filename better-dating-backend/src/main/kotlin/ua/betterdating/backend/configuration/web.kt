@@ -55,6 +55,7 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
         bean<MapboxApi>()
         bean<GoogleTimeZoneApi>()
         bean<PairHandler>()
+        bean<HistoryHandler>()
         bean(::routes)
 
         bean<PasswordEncoder> {
@@ -162,7 +163,11 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
                     // Place
                     authorize("/api/place/**", hasAuthority("ROLE_USER"))
 
+                    // History
+                    authorize("/api/history/**", hasAnyAuthority("ROLE_USER", "ROLE_ADMIN"))
+
                     // Administration
+                    authorize("/api/users/autocomplete", hasAuthority("ROLE_ADMIN"))
                     authorize("/api/admin/**", hasAuthority("ROLE_ADMIN"))
 
                     // Deny rest

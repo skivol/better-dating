@@ -18,6 +18,7 @@
     "@material-ui/pickers": "3.3.10",
     "clsx": "1.1.1",
     "date-fns": "2.14.0",
+    "date-fns-tz": "1.1.6",
     "express": "4.17.1",
     "final-form": "4.20.2",
     "leaflet": "1.7.1",

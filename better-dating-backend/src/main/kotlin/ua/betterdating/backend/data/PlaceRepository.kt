@@ -36,16 +36,16 @@ class PlaceRepository(
     private val client: DatabaseClient,
     private val template: R2dbcEntityTemplate,
 ) {
-    suspend fun fetchTooClosePoints(populatedLocalityId: UUID, longitude: Double, latitude: Double, distance: Double): List<LatLng> = client.sql("""
+    suspend fun fetchTooClosePlaces(populatedLocalityId: UUID, longitude: Double, latitude: Double, distance: Double): List<Place> = client.sql("""
         WITH $nearPlaces
-        SELECT ST_x(location::geometry) "longitude", ST_y(location::geometry) "latitude"
+        SELECT *, ST_x(location::geometry) "longitude", ST_y(location::geometry) "latitude"
         FROM near_places nps WHERE ST_DWithin(nps.location, ST_MakePoint(:longitude, :latitude), :distance)
     """.trimIndent())
         .bind("populatedLocalityId", populatedLocalityId)
         .bind("longitude", longitude)
         .bind("latitude", latitude)
         .bind("distance", distance)
-        .map {row, _ -> LatLng(row["latitude"] as Double, row["longitude"] as Double)}
+        .map {row, _ -> extractPlace(row)}
         .all().collectList().awaitSingle()
 
     suspend fun upsert(place: Place, distance: Double): Int = client.sql("""

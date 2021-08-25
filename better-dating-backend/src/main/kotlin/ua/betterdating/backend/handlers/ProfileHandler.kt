@@ -31,7 +31,7 @@ class UserProfileHandler(
     private val profileDeletionFeedbackRepository: ProfileDeletionFeedbackRepository,
     private val userRoleRepository: UserRoleRepository,
     private val tokenDataRepository: ViewOtherUserProfileTokenDataRepository,
-    private val profileViewHistoryRepository: ProfileViewHistoryRepository,
+    private val historyRepository: HistoryRepository,
     private val datingProfileInfoRepository: DatingProfileInfoRepository,
     private val userPopulatedLocalityRepository: UserPopulatedLocalityRepository,
     private val populatedLocalitiesRepository: PopulatedLocalitiesRepository,
@@ -117,6 +117,7 @@ class UserProfileHandler(
         transactionalOperator.executeAndAwait {
             changedEmail?.let {
                 emailRepository.update(it)
+                historyRepository.trackEmailChange(existing.id!!, existing.email)
                 freemarkerMailSender.sendChangeMailNotificationToOldAddress(existing.email)
                 val subject = "Подтверждение новой почты"
                 freemarkerMailSender.generateAndSendEmailVerificationToken(
@@ -215,7 +216,7 @@ class UserProfileHandler(
 
             expiringTokenRepository.deleteByProfileId(currentUserProfileId)
             userRoleRepository.delete(currentUserProfileId)
-            profileViewHistoryRepository.delete(currentUserProfileId)
+            historyRepository.deleteRelatedProfileViewsWhereBothUsersAreDeleted(currentUserProfileId)
 
             // remove second stage profile data
             datingProfileInfoRepository.delete(currentUserProfileId)
@@ -303,7 +304,7 @@ class UserProfileHandler(
 
         transactionalOperator.executeAndAwait {
             // track who viewed whose profile
-            profileViewHistoryRepository.save(ProfileViewHistory(dbToken.profileId, tokenData.targetProfileId, now()))
+            historyRepository.trackProfileView(dbToken.profileId, tokenData.targetProfileId)
             // remove token (as it is one time only)
             expiringTokenRepository.delete(dbToken)
         }
