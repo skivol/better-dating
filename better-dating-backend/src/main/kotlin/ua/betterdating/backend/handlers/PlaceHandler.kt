@@ -100,7 +100,7 @@ class PlaceHandler(
                 }
             }
             PlaceAction.ViewPlace -> {
-                if (!setOf(DateStatus.Scheduled, DateStatus.PartialCheckIn).contains(relevantDate.status)) "date is not currently scheduled or in partial check-in state"
+                if (!setOf(DateStatus.Scheduled, DateStatus.Rescheduled, DateStatus.PartialCheckIn).contains(relevantDate.status)) "date is not currently scheduled or in partial check-in state"
                 else null
             }
         }

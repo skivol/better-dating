@@ -30,7 +30,12 @@ import { PairMenu, DatesTable, DecisionDialog } from ".";
 const toDate = (date: string) =>
   formatISO(parseISO(date), { representation: "date" });
 
-export const PairsAndDates = ({ datingData, user }: any) => {
+export const PairsAndDates = ({
+  datingData,
+  user,
+  setPairActive,
+  setDate,
+}: any) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const handleChangePage = (event: any, newPage: number) => {
@@ -59,11 +64,14 @@ export const PairsAndDates = ({ datingData, user }: any) => {
       })
       .finally(() => setLoading(false));
   };
+
   const [targetPairId, setTargetPairId] = useState<string | null>(null);
   const onDecide = ({ decision }: any) => {
     setLoading(true);
     dispatch(actions.submitPairDecision({ decision, pairId: targetPairId }))
-      .then(() => {
+      .then((response: any) => {
+        const { pairActive } = response || {};
+        pairActive !== undefined && setPairActive(targetPairId, pairActive);
         closeDialog();
       })
       .finally(() => setLoading(false));
@@ -148,7 +156,7 @@ export const PairsAndDates = ({ datingData, user }: any) => {
                     Messages.viewMatchedUserProfile(
                       truncate(otherUserNickname)
                     );
-                  const [open, setOpen] = useState(active);
+                  const [open, setOpen] = useState<boolean>(active);
                   const { anchorEl, menuIsOpen, openMenu, closeMenu } =
                     useMenu();
                   const visibleDates = datingData.dates.filter(
@@ -227,6 +235,10 @@ export const PairsAndDates = ({ datingData, user }: any) => {
                                 user={user}
                                 dates={visibleDates}
                                 otherUserNickname={otherUserNickname}
+                                setPairActive={(active: boolean) => {
+                                  setPairActive(pairId, active);
+                                }}
+                                setDate={setDate}
                               />
                             </Collapse>
                           </TableCell>

@@ -216,7 +216,7 @@ class PairsRepository(
                 AND array_position(${recurrencesArray(candidateIntimateRelationsOutsideOfMarriage)}, la.activity_recurrences[array_position(la.activity_names, 'intimateRelationsOutsideOfMarriage')]) IS NOT NULL
                 AND dpi.appearance_type = '$appearanceType'
                 AND upl.populated_locality_id = '$populatedLocalityId'
-                AND ul.language_ids::uuid[] && ${uuidArray(nativeLanguages)}
+                AND ul.language_ids::uuid[] && ${uuidArray(nativeLanguages.map { it.id })}
                 
                 AND dpl.profile_id IS NULL
                 AND dp.first_profile_id IS NULL
@@ -388,10 +388,7 @@ class PairsRepository(
         return Recurrence.valueOf(recurrences[names.indexOf(type.toString())])
     }
 
-    private fun uuidArray(languages: List<Language>) = "array[${languages.joinToString(",") { "'${it.id}'" }}]::uuid[]"
-
-    private fun recurrencesArray(recurrences: List<Recurrence>) =
-        "array[${recurrences.joinToString(",") { "'$it'" }}]::varchar[]"
+    private fun recurrencesArray(recurrences: List<Recurrence>) = formatArray(recurrences, "varchar")
 
     suspend fun update(updated: DatingPair): Int = template.update<DatingPair>()
         .matching(Query.query(where("id").`is`(updated.id)))
@@ -399,3 +396,6 @@ class PairsRepository(
             Update.update("active", updated.active)
         ).awaitSingle()
 }
+
+fun uuidArray(uuids: List<UUID>) = formatArray(uuids, "uuid")
+fun <T> formatArray(values: List<T>, type: String) = "array[${values.joinToString(",") { "'${it}'" }}]::$type[]"

@@ -1,4 +1,3 @@
-- negative case - won't come to the date (specify reason) (кнопка "Не получается прийти")
 - expired date verification token (provide way to generate new one?) (or better mark the date "overdue" and be done with it from system point of view) / limit number of verify attempts per minute or overall to block brute force attacks on the api, hm
 
 - удаление пар / свиданий при удалении профилей обоих участников
@@ -11,14 +10,17 @@
 - протестировать обновление
 - обновить README
 - активировать PostGIS на сервере ("CREATE EXTENSION postgis;" / https://github.com/postgis/docker-postgis/blob/master/13-3.1/update-postgis.sh)
+- сделать выпуск v2.0 с начальной версией второго этапа
 
 - Описать почему была сформирована пара
 - Демо-режим
 - учитывать наличие оценок правдивости профиля при организации свиданий;
 - добавить возможность отметить комментарий (о не соответствии профиля действительности) как исправленный; или предложение по улучшению - как принят к выполнению или отвергнут;
 - возможность обновлять свои комментарии к другим профилям ?
-- place_rating (profile_id, place_id, score, motivation) ? (ease of communication / finding, publicity, near cafe / parks, other criteria ?)
-- возможность обновления (например, уточнение места или названия) существующих мест встречи;
+- (отмена свидания, продолжение) возможность предложить организацию нового свидания в текущей паре позже;
+- place_rating (profile_id, place_id, score, motivation) ? (ease of communication / finding, publicity, near cafe / parks, other criteria ?) / возможность сообщить о проблеме (flag) связанной с местом
+- возможность обновления (например, уточнение места или названия) существующих мест встречи (расположение имеет смысл менять только незначительно, если это версии одного и того же места);
+- напоминания (нужно добавить/проверить место, скоро свидание и т.д.)
 - Уточнения
   ** --> Естественность, осмысленность, целесообразность, целеустремленность ; трудная, но полноценная и осмысленная жизнь
   ** в описании сайта упомянуть "эффективные" / "результативные" свидания

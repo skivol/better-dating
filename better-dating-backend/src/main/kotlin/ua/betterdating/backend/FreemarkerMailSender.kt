@@ -123,7 +123,7 @@ class FreemarkerMailSender(
     }
 
     suspend fun dateOrganizedMessage(email: String, whenAndWhere: WhenAndWhere, body: String, lastHost: String) {
-        val subject = "Организовано свидание ${formatDateTime(whenAndWhere.timeAndDate.withZoneSameInstant(whenAndWhere.timeZone)!!)}"
+        val subject = "Организовано свидание ${formatDateTime(whenAndWhere.timeAndDate.withZoneSameInstant(whenAndWhere.timeZone))}"
         sendLink(
             "TitleBodyAndLinkMessage.ftlh",
             email,
@@ -152,6 +152,15 @@ class FreemarkerMailSender(
         val body = renderTemplate(templateConfigurationFactory, "TitleBody.ftlh", object {
             val title = subject
             val body = ""
+        })
+        smotrinyMailSender.send(to = to, subject = subject, body = body)
+    }
+
+    suspend fun sendSecondUserCancelledDate(nickname: String, to: String) {
+        val subject = "$nickname пользователь отменил свидание !"
+        val body = renderTemplate(templateConfigurationFactory, "TitleBody.ftlh", object {
+            val title = subject
+            val body = "В этом случае Вы можете продолжить участие в автоматизированном подборе пар, а пользователь, что отменил свидание будет иметь возможность предложить организацию нового свидания в текущей паре позже."
         })
         smotrinyMailSender.send(to = to, subject = subject, body = body)
     }

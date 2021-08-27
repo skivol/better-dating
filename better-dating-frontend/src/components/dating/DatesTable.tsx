@@ -18,6 +18,8 @@ export const DatesTable = ({
   currentUserIsFirstInPair,
   dates,
   otherUserNickname,
+  setPairActive,
+  setDate,
 }: any) => {
   return (
     <Box margin={1}>
@@ -63,6 +65,8 @@ export const DatesTable = ({
                   otherCredibility={otherCredibility}
                   otherImprovement={otherImprovement}
                   index={i}
+                  setPairActive={setPairActive}
+                  setDate={setDate}
                 />
               )
             )}

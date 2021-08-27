@@ -66,9 +66,12 @@ CREATE TABLE dates (
 	place_id uuid NULL,
 	place_version integer NULL,
 	when_scheduled timestamptz NULL,
+	cancelled_by uuid NULL,
+	rescheduled_by _uuid NULL,
 	CONSTRAINT dates_pk PRIMARY KEY (id),
 	CONSTRAINT dates_fk FOREIGN KEY (pair_id) REFERENCES dating_pair(id),
 	CONSTRAINT dates_place_fk FOREIGN KEY (place_id,place_version) REFERENCES place(id,version),
+	CONSTRAINT dates_cancelled_by_fk FOREIGN KEY (cancelled_by) REFERENCES email(id),
 	CONSTRAINT dates_un UNIQUE (place_id, when_scheduled)
 );
 

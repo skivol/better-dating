@@ -208,6 +208,9 @@ export const placeIsWaitingForApprovalByOtherUser =
 export const dateIsScheduled = "Свидание запланировано!";
 export const partialCheckIn = "Часть пользователей прибыли на свидание!";
 export const fullCheckIn = "Все пользователи прибыли на свидание!";
+export const rescheduled =
+  "Свидание было перенесено! (текущие время и место отображены в строке)";
+export const cancelled = "Свидание отменено!";
 export const verified = "Свидание подтверждено!";
 
 export const youNeedToSuggestAPlace = "Вам нужно предложить место встречи";
@@ -284,6 +287,8 @@ export const dateIsOrganizedWhatIsNext = `
 
 Дальнейшие свидания *могут* организовываться с помощью системы, но пользователи свободны самостоятельно продолжать общение друг с другом.
 
+Есть возможность *перенести* или *отменить свидание* (детали в соответствующем диалоге) на случай отсутствия возможности прибыть на свидание, но желательно ими пользоваться только при крайней необходимости.
+
 #### Дополнительные задания/идеи:
 * познакомьтесь и обменяйтесь контактными данными;
 * сделайте совместное фото;
@@ -337,6 +342,8 @@ export const viewProfileEvaluation =
 
 export const evaluationIsNotYetAddedByOtherUser =
   "Оценка пока не добавлена другим пользователем";
+
+export const cancelOrRescheduleDateMenu = "Не получается прийти";
 
 export const history = "События";
 export const emailChanged = "Почта была изменена";

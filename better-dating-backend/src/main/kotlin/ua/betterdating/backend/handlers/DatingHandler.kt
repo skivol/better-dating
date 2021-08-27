@@ -10,21 +10,27 @@ import org.valiktor.functions.hasSize
 import org.valiktor.validate
 import ua.betterdating.backend.*
 import ua.betterdating.backend.data.*
+import ua.betterdating.backend.external.GoogleTimeZoneApi
+import ua.betterdating.backend.tasks.findAvailableDatingSpotsIn
+import ua.betterdating.backend.utils.formatDateTime
 import ua.betterdating.backend.utils.okEmptyJsonObject
-import java.time.Duration
-import java.time.Instant
+import java.time.*
 import java.time.ZoneOffset.UTC
-import java.time.ZonedDateTime
+import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalField
 import java.util.*
 
 class DatingData(val pairs: List<FullDatingPairInfo>, val dates: List<FullDateInfo>)
 
 class DatingHandler(
+    private val googleTimeZoneApi: GoogleTimeZoneApi,
     private val pairsRepository: PairsRepository,
+    private val pairLockRepository: PairLockRepository,
     private val datesRepository: DatesRepository,
     private val checkInRepository: CheckInRepository,
     private val emailRepository: EmailRepository,
+    private val placeRepository: PlaceRepository,
     private val passwordEncoder: PasswordEncoder,
     private val expiringTokenRepository: ExpiringTokenRepository,
     private val dateVerificationTokenDataRepository: DateVerificationTokenDataRepository,
@@ -73,7 +79,7 @@ class DatingHandler(
         )
 
         val dateScheduledUtc = date.whenScheduled!!.toInstant()
-        val checkInOpensAt = dateScheduledUtc.minus(10, ChronoUnit.MINUTES)
+        val checkInOpensAt = checkInOpensAt(dateScheduledUtc)
         if (nowUtc.isBefore(checkInOpensAt)) throw ApplicationException(
             HttpStatus.BAD_REQUEST, "too early to check in", details = mapOf(
                 "minutesToGo" to Duration.ofMillis(checkInOpensAt.toEpochMilli() - nowUtc.toEpochMilli()).toMinutes()
@@ -105,6 +111,8 @@ class DatingHandler(
             val dateStatus = updatedDate.status
         })
     }
+
+    private fun checkInOpensAt(dateScheduledUtc: Instant) = dateScheduledUtc.minus(10, ChronoUnit.MINUTES)
 
     private data class VerifyDateRequest(val code: Int, val dateId: UUID)
 
@@ -179,6 +187,97 @@ class DatingHandler(
             }
         }
         return okEmptyJsonObject()
+    }
+
+    class RescheduleDatePayload(val dateId: UUID)
+    suspend fun rescheduleDate(request: ServerRequest): ServerResponse {
+        val payload = request.awaitBody<RescheduleDatePayload>()
+        val currentUserId = UUID.fromString(request.awaitPrincipal()!!.name)
+        val (date, pair) = resolveDateAndPair(datesRepository, pairsRepository, payload.dateId)
+
+        if (!setOf(DateStatus.Scheduled, DateStatus.Rescheduled).contains(date.status)) throw badRequestException("date is not in scheduled state")
+        if (checkInOpensAt(date.whenScheduled!!.toInstant()).isBefore(Instant.now())) throw badRequestException("cannot reschedule when check in was already opened")
+        if (date.rescheduledBy?.contains(currentUserId) == true) throw badRequestException("you already rescheduled once")
+
+        val nextWeekMonday = { zoneId: ZoneId -> LocalDate.now(zoneId).plusWeeks(1).with(ChronoField.DAY_OF_WEEK, DayOfWeek.MONDAY.value.toLong()) }
+        val spots = findAvailableDatingSpotsIn(datesRepository, googleTimeZoneApi, pair.firstProfileSnapshot!!.populatedLocality, nextWeekMonday)
+        if (spots.isEmpty()) throw badRequestException("no dating spots available at the moment") // won't start "add location" flow here for now
+
+        // prefer same place & other time if available
+        val spotsShuffled = spots.shuffled()
+        val newSpot = spotsShuffled.firstOrNull { it.place.id == date.placeId && it.timeAndDate != date.whenScheduled }
+            ?: spotsShuffled.firstOrNull { it.timeAndDate != date.whenScheduled }
+            ?: spotsShuffled.first()
+
+        val targetProfileId = if (pair.firstProfileId == currentUserId) pair.secondProfileId else pair.firstProfileId
+        val targetUserEmail = emailRepository.findById(targetProfileId)!!.email
+        val lastHost = loginInformationRepository.find(targetProfileId).lastHost
+        val currentUserName = profileInfoRepository.findByProfileId(currentUserId)!!.nickname
+
+        val updatedDate = date.copy(
+            status = DateStatus.Rescheduled,
+            rescheduledBy = (date.rescheduledBy ?: arrayOf()) + currentUserId,
+            placeId = newSpot.place.id,
+            placeVersion = newSpot.place.version,
+            whenScheduled = newSpot.timeAndDate,
+        )
+        val placeChanged = date.placeId != updatedDate.placeId
+        val place = if (placeChanged) placeRepository.allById(updatedDate.placeId!!).maxByOrNull { it.version } else null
+        transactionalOperator.executeAndAwait {
+            datesRepository.upsert(updatedDate)
+
+            // notify other user about rescheduling
+            val subject = "Пользователь $currentUserName перенес свидание !${if (placeChanged) " Внимание! Место встречи также изменилось!" else ""}"
+            mailSender.sendLink("TitleBodyAndLinkMessage.ftlh", targetUserEmail, subject, lastHost, "свидания") { link ->
+                object {
+                    val title = subject
+                    val actionLabel = "Свидания"
+                    val actionUrl = link
+                    val body = "Свидание теперь запланировано на ${formatDateTime(newSpot)} (предыдущее время было - ${formatDateTime(date.whenScheduled.withZoneSameInstant(newSpot.timeZone))})." +
+                            if (placeChanged) " Подробности о новом месте встречи можно найти на сайте." else ""
+                }
+            }
+        }
+
+        return ok().json().bodyValueAndAwait(object {
+            val date = updatedDate
+            val place = place
+        })
+    }
+
+    class CancelDatePayload(val dateId: UUID)
+    suspend fun cancelDate(request: ServerRequest): ServerResponse {
+        val payload = request.awaitBody<CancelDatePayload>()
+        val currentUserId = UUID.fromString(request.awaitPrincipal()!!.name)
+        val (date, pair) = resolveDateAndPair(datesRepository, pairsRepository, payload.dateId)
+
+        if (date.status != DateStatus.Scheduled) throw badRequestException("date is not in scheduled state")
+        if (checkInOpensAt(date.whenScheduled!!.toInstant()).isBefore(Instant.now())) throw badRequestException("cannot cancel when check in was already opened")
+
+        val updatedDate = date.copy(status = DateStatus.Cancelled, cancelledBy = currentUserId)
+        val otherUserId = if (pair.firstProfileId == currentUserId) pair.secondProfileId else pair.firstProfileId
+        val otherUserEmail = emailRepository.findById(otherUserId)!!.email
+        val currentUserNickname = profileInfoRepository.findByProfileId(currentUserId)!!.nickname
+
+        val updatedPair = pair.copy(active = false)
+
+        transactionalOperator.executeAndAwait {
+            // cancel the date and track who did that
+            datesRepository.upsert(updatedDate)
+
+            // make it possible for other user to participate in pair matching again
+            pairLockRepository.delete(DatingPairLock(otherUserId)) // unlock for further participation in pair matching if needed
+            // make pair inactive
+            pairsRepository.update(updatedPair)
+
+            // notify other user
+            mailSender.sendSecondUserCancelledDate(currentUserNickname, otherUserEmail)
+        }
+
+        return ok().json().bodyValueAndAwait(object {
+            val dateStatus = updatedDate.status
+            val pairActive = updatedPair.active
+        })
     }
 
     private fun hideSnapshots(datingPair: DatingPair) {

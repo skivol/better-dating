@@ -1,6 +1,10 @@
 import { Menu, MenuItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarCheck, faEye } from "@fortawesome/free-regular-svg-icons";
+import {
+  faCalendarCheck,
+  faEye,
+  faCalendarTimes,
+} from "@fortawesome/free-regular-svg-icons";
 import { faCheckDouble, faUserCheck } from "@fortawesome/free-solid-svg-icons";
 import { SpinnerAdornment as Spinner } from "../common";
 import * as Messages from "../Messages";
@@ -57,6 +61,12 @@ export const DateMenu = ({
         <FontAwesomeIcon icon={faEye} />
       </ListItemIcon>
       <ListItemText>{Messages.viewProfileEvaluationMenu}</ListItemText>
+    </MenuItem>
+    <MenuItem onClick={() => onClick("cancel-or-reschedule")}>
+      <ListItemIcon className="u-min-width-30px">
+        <FontAwesomeIcon icon={faCalendarTimes} />
+      </ListItemIcon>
+      <ListItemText>{Messages.cancelOrRescheduleDateMenu}</ListItemText>
     </MenuItem>
   </Menu>
 );

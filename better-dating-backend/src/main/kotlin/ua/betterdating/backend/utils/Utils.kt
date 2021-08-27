@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.server.json
 import ua.betterdating.backend.AppearanceType
 import ua.betterdating.backend.Gender
 import ua.betterdating.backend.Recurrence
+import ua.betterdating.backend.data.WhenAndWhere
 import java.net.IDN
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -32,6 +33,7 @@ fun String.toRecurrence(): Recurrence = Recurrence.valueOf(this)
 fun Any?.toGender(): Gender = Gender.valueOf(this as String)
 fun Any?.toAppearanceType(): AppearanceType = AppearanceType.valueOf(this as String)
 
+fun formatDateTime(whenAndWhere: WhenAndWhere): String = formatDateTime(whenAndWhere.timeAndDate.withZoneSameInstant(whenAndWhere.timeZone))
 fun formatDateTime(localDateTime: ZonedDateTime): String =
     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm z").format(localDateTime)
 

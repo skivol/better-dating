@@ -7,3 +7,4 @@ export * from "./DateRow";
 export * from "./DatesTable";
 export * from "./PairsAndDates";
 export * from "./DecisionDialog";
+export * from "./CancelOrRescheduleDialog";

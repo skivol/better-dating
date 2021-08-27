@@ -73,9 +73,6 @@ class DateOrganizingTask(
                 val dateInfo = DateInfo(
                     pairId = pairId,
                     status = DateStatus.WaitingForPlace,
-                    placeId = null,
-                    placeVersion = null,
-                    whenScheduled = null,
                 )
                 transactionalOperator.executeAndAwait {
                     datesRepository.upsert(dateInfo)
@@ -140,7 +137,8 @@ class DateOrganizingTask(
 suspend fun findAvailableDatingSpotsIn(
     datesRepository: DatesRepository,
     googleTimeZoneApi: GoogleTimeZoneApi,
-    populatedLocality: PopulatedLocality
+    populatedLocality: PopulatedLocality,
+    afterDate: (t: ZoneId) -> LocalDate? = { null }
 ): List<WhenAndWhere> {
     val populatedLocalityId = populatedLocality.id
     val availableDatingPlaces = datesRepository.findAvailableDatingPlacesIn(populatedLocalityId)
@@ -157,10 +155,10 @@ suspend fun findAvailableDatingSpotsIn(
             )
     )
 
-    val localizedNow = LocalDate.now(timeZone)
+    val afterDateLocalized = afterDate(timeZone) ?: LocalDate.now(timeZone)
     val utcTimeSlots = timeslots.map {
         ZonedDateTime.of(
-            localizedNow.plusWeeks(if (localizedNow.dayOfWeek >= it.dayOfWeek) 1 else 0)
+            afterDateLocalized.plusWeeks(if (afterDateLocalized.dayOfWeek >= it.dayOfWeek) 1 else 0)
                 .with(ChronoField.DAY_OF_WEEK, it.dayOfWeek.value.toLong()),
             it.time,
             timeZone

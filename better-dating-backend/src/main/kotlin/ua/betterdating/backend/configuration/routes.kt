@@ -44,6 +44,8 @@ fun routes(
         POST("check-in", datingHandler::checkIn)
         POST("verify-date", datingHandler::verifyDate)
         POST("evaluate-profile", datingHandler::evaluateProfile)
+        POST("reschedule-date", datingHandler::rescheduleDate)
+        POST("cancel-date", datingHandler::cancelDate)
     }
 
     "/api/user/pairs".nest {

@@ -21,16 +21,18 @@ data class Timeslot(
 )
 
 enum class DateStatus {
-    WaitingForPlace, WaitingForPlaceApproval, Scheduled, PartialCheckIn, FullCheckIn, Verified
+    WaitingForPlace, WaitingForPlaceApproval, Scheduled, PartialCheckIn, FullCheckIn, Verified, Cancelled, Rescheduled
 }
 
 data class DateInfo(
     @Id val id: UUID = UUID.randomUUID(),
     val pairId: UUID,
     val status: DateStatus,
-    val placeId: UUID?,
-    val placeVersion: Int?,
-    val whenScheduled: ZonedDateTime?,
+    val placeId: UUID? = null,
+    val placeVersion: Int? = null,
+    val whenScheduled: ZonedDateTime? = null,
+    val cancelledBy: UUID? = null,
+    val rescheduledBy: Array<UUID>? = null,
 )
 
 data class FullDateInfo(
@@ -88,12 +90,13 @@ class DatesRepository(
 
     suspend fun upsert(dateInfo: DateInfo): Int = client.sql(
         """
-            INSERT INTO dates(id, pair_id, status, place_id, place_version, when_scheduled)
-            VALUES(:id, :pairId, :status, :placeId, :placeVersion, :whenScheduled)
+            INSERT INTO dates(id, pair_id, status, place_id, place_version, when_scheduled, cancelled_by, rescheduled_by)
+            VALUES(:id, :pairId, :status, :placeId, :placeVersion, :whenScheduled, :cancelledBy, :rescheduledBy)
             ON CONFLICT (id) DO UPDATE SET
                 pair_id = EXCLUDED.pair_id, status = EXCLUDED.status,
                 place_id = EXCLUDED.place_id, place_version = EXCLUDED.place_version,
-                when_scheduled = EXCLUDED.when_scheduled
+                when_scheduled = EXCLUDED.when_scheduled, cancelled_by = EXCLUDED.cancelled_by,
+                rescheduled_by = EXCLUDED.rescheduled_by
         """.trimIndent()
     ).bind("id", dateInfo.id)
         .bind("pairId", dateInfo.pairId)
@@ -101,6 +104,8 @@ class DatesRepository(
         .bind("placeId", dateInfo.placeId)
         .bind("placeVersion", dateInfo.placeVersion)
         .bind("whenScheduled", dateInfo.whenScheduled)
+        .bind("cancelledBy", dateInfo.cancelledBy)
+        .bind("rescheduledBy", dateInfo.rescheduledBy)
         .fetch().awaitRowsUpdated()
 
     suspend fun findRelevantDates(profileId: UUID): List<FullDateInfo> = client.sql("""
@@ -206,6 +211,8 @@ class DatesRepository(
         row["place_id"] as UUID?,
         row["place_version"] as Int?,
         (row["when_scheduled"] as OffsetDateTime?)?.toZonedDateTime()?.toUtc(),
+        row["cancelled_by"] as UUID?,
+        row["rescheduled_by"] as Array<UUID>?,
     )
 
     suspend fun findById(dateId: UUID) = client.sql("""

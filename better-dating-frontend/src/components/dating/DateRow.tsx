@@ -27,6 +27,7 @@ import {
   AdvicesDialog,
   VerifyDateDialog,
   EvaluateProfileDialog,
+  CancelOrRescheduleDialog,
   DateMenu,
 } from ".";
 import { checkLocation, viewLocation } from "../navigation/NavigationUrls";
@@ -39,7 +40,7 @@ export const DateRow = ({
   otherUserNickname,
   user,
   currentUserIsFirstInPair,
-  dateInfo: { id: dateId, status: dateStatus, whenScheduled },
+  dateInfo: { id: dateId, status: dateStatus, whenScheduled, placeId },
   place,
   unsettledPlaces,
   credibility,
@@ -47,6 +48,8 @@ export const DateRow = ({
   otherCredibility,
   otherImprovement,
   index,
+  setPairActive,
+  setDate,
 }: any) => {
   const relevantUnsettledPlace = () => {
     if (unsettledPlaces.length === 0) return {};
@@ -70,7 +73,6 @@ export const DateRow = ({
   const dispatch = useDispatch();
   const { anchorEl, menuIsOpen, openMenu, closeMenu } = useMenu();
 
-  const [dateStatusState, setDateStatus] = useState<string>(dateStatus);
   const [loading, setLoading] = useState(false);
   const onVerify = ({ code }: any) => {
     setLoading(true);
@@ -78,7 +80,7 @@ export const DateRow = ({
       .then((status: string) => {
         closeDialog();
         closeMenu();
-        status && setDateStatus(status);
+        status && setDate(dateId, { status });
       })
       .finally(() => setLoading(false));
   };
@@ -119,16 +121,45 @@ export const DateRow = ({
         onEvaluate={onEvaluateProfile}
         evaluating={loading}
       />
+    ) : dialogType === "cancelOrRescheduleDialog" ? (
+      <CancelOrRescheduleDialog
+        closeDialog={closeDialog}
+        onCancelDate={() => {
+          return dispatch(actions.cancelDate({ dateId })).then(
+            (response: any) => {
+              const { dateStatus, pairActive } = response || {};
+              closeDialog();
+              closeMenu();
+              // think about error handling, currently we do not rethrow exception in from actions
+              dateStatus && setDate(dateId, { status: dateStatus });
+              pairActive !== undefined && setPairActive(pairActive);
+            }
+          );
+        }}
+        onRescheduleDate={() => {
+          return dispatch(actions.rescheduleDate({ dateId }, placeId)).then(
+            (response: any) => {
+              const { date, place } = response || {};
+              closeDialog();
+              closeMenu();
+              // think about error handling, currently we do not rethrow exception in from actions
+              date && setDate(dateId, date, place);
+            }
+          );
+        }}
+      />
     ) : null);
 
   const waitingForPlace = dateStatus === "WaitingForPlace";
   const waitingForApproval =
-    dateStatusState === "WaitingForPlaceApproval" &&
+    dateStatus === "WaitingForPlaceApproval" &&
     placeStatus === "WaitingForApproval";
   const currentUserApproves = waitingForApproval && suggestedBy !== user.id;
-  const scheduled = dateStatusState === "Scheduled";
-  const partialCheckIn = dateStatusState === "PartialCheckIn";
-  const fullCheckIn = dateStatusState === "FullCheckIn";
+  const scheduled = dateStatus === "Scheduled";
+  const partialCheckIn = dateStatus === "PartialCheckIn";
+  const fullCheckIn = dateStatus === "FullCheckIn";
+  const cancelled = dateStatus === "Cancelled";
+  const rescheduled = dateStatus === "Rescheduled";
 
   const [checkingIn, setCheckingIn] = useState(false);
   const handleCheckInAttempt = () => {
@@ -164,7 +195,7 @@ export const DateRow = ({
         .then((status: string) => {
           closeMenu();
           // think about error handling, currently we do not rethrow exception in from actions
-          status && setDateStatus(status);
+          status && setDate(dateId, { status });
         })
         .finally(() => setCheckingIn(false));
     };
@@ -199,6 +230,10 @@ export const DateRow = ({
               ? "warning"
               : waitingForApproval
               ? "info"
+              : cancelled
+              ? "error"
+              : rescheduled
+              ? "warning"
               : "success"
           }
           variant="outlined"
@@ -246,6 +281,10 @@ export const DateRow = ({
               <div className="u-margin-bottom-10px">
                 {scheduled
                   ? Messages.dateIsScheduled
+                  : cancelled
+                  ? Messages.cancelled
+                  : rescheduled
+                  ? Messages.rescheduled
                   : partialCheckIn
                   ? Messages.partialCheckIn
                   : fullCheckIn
@@ -291,7 +330,7 @@ export const DateRow = ({
               aria-label={Messages.viewPlace}
               size="medium"
               onClick={() => {
-                if (!scheduled && !partialCheckIn) {
+                if (!scheduled && !rescheduled && !partialCheckIn) {
                   showError(
                     dispatch,
                     Messages.canViewPlaceOnlyWhilePreparingToGoOnDate
@@ -353,6 +392,9 @@ export const DateRow = ({
                 setDialogType("viewPofileEvaluationDialog");
                 openDialog();
               }
+            } else if (action === "cancel-or-reschedule") {
+              setDialogType("cancelOrRescheduleDialog");
+              openDialog();
             }
           }}
         />

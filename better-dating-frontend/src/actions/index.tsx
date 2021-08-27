@@ -12,6 +12,7 @@ import {
   toBackendProfileValues,
   showError,
   showSuccess,
+  showWarning,
 } from "../utils";
 import * as Messages from "./Messages";
 import { resolveTokenMessage } from "../Messages";
@@ -389,24 +390,54 @@ export const submitPairDecision =
   (values: any) => async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       const response = await postData("/api/user/pairs/decision", values);
-      dispatch(
-        openSnackbar(
-          `${Messages.successSubmittingPairDecision}${
-            response.bothWantToContinue
-              ? " " + Messages.secondUserAlsoWantsToContinueRelationships
-              : ""
-          }`,
-          SnackbarVariant.success
-        )
+      showSuccess(
+        dispatch,
+        `${Messages.successSubmittingPairDecision}${
+          response.bothWantToContinue
+            ? " " + Messages.secondUserAlsoWantsToContinueRelationships
+            : ""
+        }`
       );
       return response;
     } catch (error) {
-      dispatch(
-        openSnackbar(
-          Messages.resolvePairDecisionSubmitError(error),
-          SnackbarVariant.error
-        )
+      showError(dispatch, Messages.resolvePairDecisionSubmitError(error));
+    }
+  };
+
+export const rescheduleDate =
+  (values: any, currentPlaceId: string) =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      const response = await postData(
+        "/api/user/dating/reschedule-date",
+        values
       );
+      const placeChanged = response.date.placeId !== currentPlaceId;
+      console.log({
+        currentPlaceId,
+        responsePlaceId: response.date.placeId,
+        placeChanged,
+      });
+      (placeChanged ? showWarning : showSuccess)(
+        dispatch,
+        `${Messages.dateIsRescheduledAndOtherUserIsNotified}${
+          placeChanged ? " " + "Внимание! Место также изменилось!" : ""
+        }`
+      );
+      return response;
+    } catch (error) {
+      showError(dispatch, Messages.resolveRescheduleDateError(error));
+    }
+  };
+
+export const cancelDate =
+  (values: any) => async (dispatch: ThunkDispatch<any, any, Action>) => {
+    try {
+      const response = await postData("/api/user/dating/cancel-date", values);
+      showWarning(dispatch, Messages.dateIsCancelledAndOtherUserIsNotified);
+      return response;
+    } catch (error) {
+      showError(dispatch, Messages.resolveCancelDateError(error));
     }
   };
 

@@ -48,6 +48,11 @@ export const resolveAddPlaceError = (error: any) => {
   return oopsSomethingWentWrong;
 };
 
+export const dateIsRescheduledAndOtherUserIsNotified =
+  "Свидание перенесено и второй пользователь оповещен об этом!";
+export const dateIsCancelledAndOtherUserIsNotified =
+  "Свидание отменено и второй пользователь оповещен об этом!";
+
 export const successCheckIn = "Успешное прибытие на свидание!";
 export const secondUserHasAlreadyArrived =
   "А второй пользователь уже на месте!";
@@ -136,4 +141,32 @@ export const resolvePairDecisionSubmitError = (error: any) => {
     return "Решение уже отправлено";
   }
   return errorSubmittingPairDecision;
+};
+
+const errorReschedullingDate =
+  "Не получилось перенести свидание, попробуйте позже";
+export const resolveRescheduleDateError = (error: any) => {
+  const result =
+    {
+      "date is not in scheduled state":
+        "Свидание должно быть запланированным для этого действия",
+      "cannot reschedule when check in was already opened":
+        "Нельзя перенести свидание когда уже была открыта возможность отметиться о прибытии на него",
+      "you already rescheduled once":
+        "Нельзя переносить свидание более одного раза",
+      "no dating spots available at the moment":
+        "Сейчас нет доступных мест и времени для переноса свидания",
+    }[error.message as string] || errorReschedullingDate;
+  return result;
+};
+
+const errorCancellingDate = "Не получилось отменить свидание, попробуйте позже";
+export const resolveCancelDateError = (error: any) => {
+  const { message } = error;
+  if ("date is not in scheduled state" === message) {
+    return "Свидание должно быть запланированным для этого действия";
+  } else if ("cannot cancel when check in was already opened" === message) {
+    return "Нельзя отменить свидание когда уже была открыта возможность отметиться о прибытии на него";
+  }
+  return errorCancellingDate;
 };

@@ -31,7 +31,7 @@ class PairHandler(
         val payload = request.awaitBody<PairDecisionRequest>()
         val profileId = UUID.fromString(request.awaitPrincipal()!!.name)
 
-        val pair = pairsRepository.findPairById(payload.pairId) ?: throw badRequestException("pair with this id not found")
+        var pair = pairsRepository.findPairById(payload.pairId) ?: throw badRequestException("pair with this id not found")
         val verifiedDates = datesRepository.findVerifiedByPairId(pair.id)
         if (verifiedDates.isEmpty()) throw badRequestException("pair should have at least one verified date to submit a decision")
 
@@ -71,12 +71,14 @@ class PairHandler(
                 switchToFamilyCreationGoal(otherUserProfileId)
             } else if (otherUserAlreadySubmittedDecision) {
                 // deactivate pair for now (as both submitted decisions, but not both want to continue)
-                pairsRepository.update(pair.copy(active = false))
+                pair = pair.copy(active = false)
+                pairsRepository.update(pair)
             }
         }
 
         return ok().json().bodyValueAndAwait(object {
             val bothWantToContinue = bothWantToContinue
+            val pairActive = pair.active
         })
     }
 
