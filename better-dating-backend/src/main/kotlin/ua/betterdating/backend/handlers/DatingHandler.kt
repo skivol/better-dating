@@ -62,7 +62,7 @@ class DatingHandler(
 
         val (date, pair) = resolveDateAndPair(datesRepository, pairsRepository, checkInRequest.dateId)
         if (pair.firstProfileId != profileId && pair.secondProfileId != profileId) throw badRequestException("no date with provided id was found")
-        if (date.status != DateStatus.Scheduled && date.status != DateStatus.PartialCheckIn) throw badRequestException("date is not in scheduled or partial check-in state")
+        if (!setOf(DateStatus.Scheduled, DateStatus.Rescheduled, DateStatus.PartialCheckIn).contains(date.status)) throw badRequestException("date is not in scheduled or partial check-in state")
 
         val userLocationDataTimeUtc = checkInRequest.timestamp.toInstant()
         val nowUtc = Instant.now()
@@ -122,16 +122,18 @@ class DatingHandler(
 
         val (date, pair) = resolveDateAndPair(datesRepository, pairsRepository, verifyDateRequest.dateId)
         if (pair.firstProfileId != profileId && pair.secondProfileId != profileId) throw badRequestException("no date with provided id was found")
-        if (!setOf(DateStatus.Scheduled, DateStatus.PartialCheckIn, DateStatus.FullCheckIn).contains(date.status)) throw badRequestException("date is not in scheduled or partial/full check-in state")
+        if (!setOf(DateStatus.Scheduled, DateStatus.Rescheduled, DateStatus.PartialCheckIn, DateStatus.FullCheckIn).contains(date.status)) throw badRequestException("date is not in scheduled or partial/full check-in state")
 
         val dateScheduledUtc = date.whenScheduled!!.toInstant()
         if (Instant.now().isBefore(dateScheduledUtc)) throw badRequestException("too early to verify the date")
 
-        val expiringToken =
-            (dateVerificationTokenDataRepository.findToken(verifyDateRequest.dateId) ?: throwNoSuchToken()).also {
-                if (it.profileId != profileId) throw badRequestException("other user should be verifying the date")
-                it.verify(verifyDateRequest.code.toString(), TokenType.DATE_VERIFICATION, passwordEncoder)
-            }
+        val (dateVerificationTokenData, expiringToken) = dateVerificationTokenDataRepository.findToken(verifyDateRequest.dateId) ?: throwNoSuchToken()
+        if (dateVerificationTokenData.verificationAttempts >= 100) throw badRequestException("verification attempts limit exceeded")
+        dateVerificationTokenDataRepository.update(dateVerificationTokenData.copy(verificationAttempts = dateVerificationTokenData.verificationAttempts + 1))
+        expiringToken.also {
+            if (it.profileId != profileId) throw badRequestException("other user should be verifying the date")
+            it.verify(verifyDateRequest.code.toString(), TokenType.DATE_VERIFICATION, passwordEncoder)
+        }
 
         val userToNotify = emailRepository.findById(if (pair.firstProfileId == expiringToken.profileId) pair.secondProfileId else pair.firstProfileId)!!.email
         val nameOfUserWhoVerifies = profileInfoRepository.findByProfileId(expiringToken.profileId)!!.nickname
@@ -251,7 +253,7 @@ class DatingHandler(
         val currentUserId = UUID.fromString(request.awaitPrincipal()!!.name)
         val (date, pair) = resolveDateAndPair(datesRepository, pairsRepository, payload.dateId)
 
-        if (date.status != DateStatus.Scheduled) throw badRequestException("date is not in scheduled state")
+        if (!setOf(DateStatus.Scheduled, DateStatus.Rescheduled).contains(date.status)) throw badRequestException("date is not in scheduled state")
         if (checkInOpensAt(date.whenScheduled!!.toInstant()).isBefore(Instant.now())) throw badRequestException("cannot cancel when check in was already opened")
 
         val updatedDate = date.copy(status = DateStatus.Cancelled, cancelledBy = currentUserId)

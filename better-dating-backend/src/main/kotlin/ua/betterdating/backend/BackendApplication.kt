@@ -12,6 +12,7 @@ import ua.betterdating.backend.configuration.webConfig
 import ua.betterdating.backend.data.EmailRepository
 import ua.betterdating.backend.data.UserRoleRepository
 import ua.betterdating.backend.tasks.DateOrganizingTask
+import ua.betterdating.backend.tasks.OverdueDateHandlerTask
 import ua.betterdating.backend.tasks.PairMatcherTask
 import java.util.concurrent.Executors
 
@@ -26,11 +27,12 @@ val app = reactiveWebApplication {
 	enable(loggingConfig())
 
 	scheduling {
-		taskScheduler = ConcurrentTaskScheduler(Executors.newScheduledThreadPool(2))
+		taskScheduler = ConcurrentTaskScheduler(Executors.newScheduledThreadPool(3))
 	}
     beans {
 		bean<PairMatcherTask>()
 		bean<DateOrganizingTask>()
+		bean<OverdueDateHandlerTask>()
 	}
 }
 

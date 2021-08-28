@@ -2,11 +2,11 @@ package ua.betterdating.backend.data
 
 import io.r2dbc.spi.Row
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.data.annotation.Id
 import org.springframework.r2dbc.core.*
 import ua.betterdating.backend.tasks.toUtc
 import java.time.*
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 data class WhenAndWhere(
@@ -21,7 +21,7 @@ data class Timeslot(
 )
 
 enum class DateStatus {
-    WaitingForPlace, WaitingForPlaceApproval, Scheduled, PartialCheckIn, FullCheckIn, Verified, Cancelled, Rescheduled
+    WaitingForPlace, WaitingForPlaceApproval, Scheduled, PartialCheckIn, FullCheckIn, Verified, Cancelled, Rescheduled, Overdue
 }
 
 data class DateInfo(
@@ -234,4 +234,15 @@ class DatesRepository(
         .map { row, _ -> row["distance"] as Double}
         .awaitSingle()
 
+    suspend fun markScheduledButNotVerifiedDatesAsOverdue(daysBack: Int): List<UUID> = client.sql("""
+        UPDATE dates SET status = :status
+        WHERE status IN (:targetStatuses)
+        AND when_scheduled < now() - (:days || ' days')::interval
+        RETURNING id
+    """.trimIndent())
+        .bind("status", DateStatus.Overdue.toString())
+        .bind("targetStatuses", listOf(DateStatus.Scheduled, DateStatus.Rescheduled, DateStatus.PartialCheckIn, DateStatus.FullCheckIn).map { it.toString() })
+        .bind("days", daysBack)
+        .map { row, _ -> row["id"] as UUID }
+        .all().collectList().awaitSingle()
 }

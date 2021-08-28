@@ -138,6 +138,8 @@ export const haircutInfo = `
 * волосы имеют разную ограниченную наибольшую естественную длину на разных участках тела;
 * некоторое количество волос выпадает ежедневно и это нормально;
 * скорость роста волос у мужчин и женщин разная ([познавательная статья](https://expertpovolosam.com/uhod/rost/ckorost))
+
+Дополнительное [видео](https://www.youtube.com/watch?v=AsshZeEc7tY) по теме.
 `;
 
 export const hairColoringWarning = `
@@ -163,6 +165,8 @@ export const makeupInfo = `
 Интересно, что во время овуляции:
 * кожа у девушек и женщин становится гладкой, бархатистой, матовой ([источник](https://aif.ru/health/secrets/1156713))
 * губы полнее, само лицо розовее ([источник](https://trv-science.ru/2016/05/31/obraz-ovulyacii/))
+
+[Рекомендуемое видео](https://www.youtube.com/watch?v=elNpRyjfRgg) также затрагивающее данную тематику.
 `;
 
 export const intimateRelationsOutsideOfMarriageWarning = `

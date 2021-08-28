@@ -50,6 +50,7 @@ export const resolveAddPlaceError = (error: any) => {
 
 export const dateIsRescheduledAndOtherUserIsNotified =
   "Свидание перенесено и второй пользователь оповещен об этом!";
+export const placeChanged = "Внимание! Место также изменилось!";
 export const dateIsCancelledAndOtherUserIsNotified =
   "Свидание отменено и второй пользователь оповещен об этом!";
 
@@ -100,17 +101,17 @@ export const resolveVerifyDateError = (error: any) => {
     return resolvedMessage;
   }
 
-  if ("too early to verify the date" === message) {
-    return "Слишком рано подтверждать свидание!";
-  } else if ("other user should be verifying the date" === message) {
-    return "Другой пользователь должен подтвердить свидание с помощью кода!";
-  } else if (
-    "date is not in scheduled or partial/full check-in state" === message
-  ) {
-    return "Нельзя больше подтверждать это свидание!";
-  }
-
-  return errorVerifyingDate;
+  return (
+    {
+      "too early to verify the date": "Слишком рано подтверждать свидание!",
+      "other user should be verifying the date":
+        "Другой пользователь должен подтвердить свидание с помощью кода!",
+      "date is not in scheduled or partial/full check-in state":
+        "Нельзя больше подтверждать это свидание!",
+      "verification attempts limit exceeded":
+        "Превышено количество попыток подтверждения свидания !",
+    }[message as string] || errorVerifyingDate
+  );
 };
 
 export const successEvaluatingProfile =

@@ -22,10 +22,14 @@ import java.util.*
 /**
  * Date status flow:
  * * waiting_for_place (after mail was sent),
- * * place_suggested (after place addition by one user),
+ * * waiting_for_place_approval (after place addition by one user),
  * * scheduled (place & time were settled),
- * * paused/cancelled (should it be possible for user to steer that ? for example, place change ?),
- * * finished (feedback was provided by participants)
+ * * rescheduled (user asked for date rescheduling)
+ * * partial/full check-in (some/all users came to the date)
+ * * cancelled (one user cancelled the date),
+ * * verified (one user gave the date verification code to the other and the latter verified the date)
+ * * overdue (week passed after time of the date without date verification thus it was marked as overdue by the system)
+ * (feedback was provided by participants)
  */
 class DateOrganizingTask(
     private val googleTimeZoneApi: GoogleTimeZoneApi,
@@ -188,7 +192,7 @@ suspend fun generateAndSaveDateVerificationToken(
     )
     expiringTokenRepository.deleteByProfileIdAndTypeIfAny(tokenUserProfileId, TokenType.DATE_VERIFICATION)
     expiringTokenRepository.save(expiringToken)
-    dateVerificationTokenDataRepository.save(DateVerificationTokenData(expiringToken.id, dateId))
+    dateVerificationTokenDataRepository.save(DateVerificationTokenData(expiringToken.id, dateId, 0))
     return dateVerificationToken
 }
 

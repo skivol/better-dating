@@ -87,6 +87,7 @@ CREATE TABLE date_check_in (
 CREATE TABLE date_verification_token_data (
 	token_id uuid NOT NULL,
 	date_id uuid NOT NULL,
+	verification_attempts integer NOT NULL,
 	CONSTRAINT date_verification_token_data_pk PRIMARY KEY (token_id),
 	CONSTRAINT date_verification_token_data_fk FOREIGN KEY (token_id) REFERENCES expiring_token(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT date_verification_token_data_fk_1 FOREIGN KEY (date_id) REFERENCES dates(id)

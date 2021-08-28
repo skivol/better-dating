@@ -413,15 +413,10 @@ export const rescheduleDate =
         values
       );
       const placeChanged = response.date.placeId !== currentPlaceId;
-      console.log({
-        currentPlaceId,
-        responsePlaceId: response.date.placeId,
-        placeChanged,
-      });
       (placeChanged ? showWarning : showSuccess)(
         dispatch,
         `${Messages.dateIsRescheduledAndOtherUserIsNotified}${
-          placeChanged ? " " + "Внимание! Место также изменилось!" : ""
+          placeChanged ? " " + Messages.placeChanged : ""
         }`
       );
       return response;

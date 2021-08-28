@@ -5,6 +5,7 @@ import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitOneOrNull
+import org.springframework.r2dbc.core.awaitRowsUpdated
 import java.util.*
 
 class ExpiringTokenRepository(private val template: R2dbcEntityTemplate, private val client: DatabaseClient) {
@@ -30,4 +31,15 @@ class ExpiringTokenRepository(private val template: R2dbcEntityTemplate, private
 
     suspend fun findById(id: UUID): ExpiringToken? =
             template.select<ExpiringToken>().matching(Query.query(Criteria.where("id").`is`(id))).awaitOneOrNull()
+
+    suspend fun deleteByDateIds(dateIds: List<UUID>): Int = client.sql("""
+        DELETE FROM expiring_token et
+        WHERE et.id IN (
+            SELECT token_id
+            FROM date_verification_token_data dvtd
+            WHERE dvtd.date_id IN (:dateIds)
+        )
+    """.trimIndent())
+        .bind("dateIds", dateIds)
+        .fetch().awaitRowsUpdated()
 }

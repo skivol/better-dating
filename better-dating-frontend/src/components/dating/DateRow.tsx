@@ -160,6 +160,7 @@ export const DateRow = ({
   const fullCheckIn = dateStatus === "FullCheckIn";
   const cancelled = dateStatus === "Cancelled";
   const rescheduled = dateStatus === "Rescheduled";
+  const overdue = dateStatus === "Overdue";
 
   const [checkingIn, setCheckingIn] = useState(false);
   const handleCheckInAttempt = () => {
@@ -234,6 +235,8 @@ export const DateRow = ({
               ? "error"
               : rescheduled
               ? "warning"
+              : overdue
+              ? "error"
               : "success"
           }
           variant="outlined"
@@ -289,6 +292,8 @@ export const DateRow = ({
                   ? Messages.partialCheckIn
                   : fullCheckIn
                   ? Messages.fullCheckIn
+                  : overdue
+                  ? Messages.overdue
                   : Messages.verified}
               </div>
               <Button
