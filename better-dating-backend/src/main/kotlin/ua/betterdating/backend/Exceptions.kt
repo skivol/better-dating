@@ -35,6 +35,9 @@ suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResp
                 e.message?.contains("duplicate key value violates unique constraint \"profile_info_nickname_key\"") == true -> {
                     ErrorResponseEntity(request, BAD_REQUEST, "Nickname already registered")
                 }
+                e.message?.contains("duplicate key value violates unique constraint \"credibility_evaluation_pk\"") == true -> {
+                    ErrorResponseEntity(request, BAD_REQUEST, "Profile credibility already submitted")
+                }
                 else -> {
                     LOG.error("Unexpected database error", e)
                     ErrorResponseEntity(request, BAD_REQUEST, "Unknown error")

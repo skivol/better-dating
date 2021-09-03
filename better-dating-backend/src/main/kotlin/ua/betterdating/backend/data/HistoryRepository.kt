@@ -6,10 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.data.annotation.Id
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
-import org.springframework.data.r2dbc.core.insert
-import org.springframework.data.r2dbc.core.select
-import org.springframework.data.r2dbc.core.usingAndAwait
+import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria.empty
 import org.springframework.data.relational.core.query.Criteria.where
 import org.springframework.data.relational.core.query.Query
@@ -17,6 +14,7 @@ import org.springframework.data.relational.core.query.isIn
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitRowsUpdated
 import reactor.core.publisher.Flux
+import ua.betterdating.backend.DeleteReason
 import ua.betterdating.backend.TooCloseToOtherPlacesException
 import java.time.Instant
 import java.time.Instant.now
@@ -26,6 +24,7 @@ enum class HistoryType {
     ProfileViewedByOtherUser,
     EmailChanged,
     TooCloseToOtherPlacesExceptionHappened,
+    ProfileRemoved,
 }
 class History(
     @Id val profileId: UUID, // real id is "id", but entity template then fails with java.lang.UnsupportedOperationException: Kotlin class ua.betterdating.backend.data.History has no .copy(…) method for property id!
@@ -60,13 +59,16 @@ class HistoryRepository(
             client.sql("""DELETE FROM history h WHERE
                     h.type = :type
                     -- deleting view history where current user viewed already removed profile
-                    ((h.payload ->> 'viewer_profile_id')::uuid = :profileId AND NOT EXISTS (
-                      SELECT id FROM email e WHERE e.id = h.profile_id
-                    ))
-                    -- or current user was viewed by the user whose profile was already removed
-                    OR (h.profile_id = :profileId AND NOT EXISTS
-                      SELECT id FROM email e WHERE e.id = (h.payload ->> 'viewer_profile_id')::uuid
-                    ))""".trimIndent())
+                    AND (
+                        ((h.payload ->> 'viewer_profile_id')::uuid = :profileId AND h.profile_id NOT IN (
+                          SELECT id FROM email e
+                        ))
+                        OR
+                        -- or current user was viewed by the user whose profile was already removed
+                        (h.profile_id = :profileId AND (h.payload ->> 'viewer_profile_id')::uuid NOT IN (
+                          SELECT id FROM email e
+                        ))
+                    )""".trimIndent())
                     .bind("profileId", profileId)
                 .bind("type", HistoryType.ProfileViewedByOtherUser.toString())
                 .fetch().awaitRowsUpdated()
@@ -79,6 +81,16 @@ class HistoryRepository(
                 mapOf("places" to e.points.map { mapOf("id" to it.id, "version" to it.version) })
             )
         )
+
+    suspend fun trackProfileRemovalFeedback(currentUserId: UUID, reason: DeleteReason, explanationComment: String): History =
+        template.insert<History>().usingAndAwait(
+            historyOf(
+                currentUserId,
+                HistoryType.TooCloseToOtherPlacesExceptionHappened,
+                mapOf("reason" to reason.toString(), "explanation_comment" to explanationComment)
+            )
+        )
+
 
     fun get(profileId: UUID?, types: List<String>): Flow<History> = template.select<History>()
         .matching(Query.query((profileId?.let { where("profile_id").`is`(it) } ?: empty()).and(
@@ -105,4 +117,12 @@ class HistoryRepository(
         .bind("profileId", currentProfileId)
         .map { row, _ -> (row["id"] as UUID) to (row["nickname"] as String) }
         .all().collectList().map { it.toMap() }.awaitSingle()
+
+    suspend fun deleteEmailChangedEvents(currentUserProfileId: UUID) = template.delete<History>()
+        .matching(
+            Query.query(
+                where("profile_id").`is`(currentUserProfileId)
+                    .and("type").`is`(HistoryType.EmailChanged.toString())
+            )
+        ).allAndAwait()
 }

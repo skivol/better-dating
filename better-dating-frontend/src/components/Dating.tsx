@@ -14,19 +14,40 @@ type Props = {
 
 export const Dating = ({ datingData }: Props) => {
   const forceUpdate = useForceUpdate();
-  const setPairActive = (pairId: string, active: boolean) => {
-    const pair = datingData.pairs.find((p: any) => p.datingPair.id === pairId);
-    pair.datingPair.active = active;
-    forceUpdate();
-  };
-  const setDate = (dateId: string, dateUpdate: any, placeUpdate: any) => {
-    const date = datingData.dates.find((d: any) => d.dateInfo.id === dateId);
-    date.dateInfo = { ...date.dateInfo, ...dateUpdate };
-    console.log({ date, dateUpdate, placeUpdate });
-    if (placeUpdate) {
-      date.place = placeUpdate;
-    }
-    forceUpdate();
+  const pairById = (pairId: string) =>
+    datingData.pairs.find((p: any) => p.datingPair.id === pairId);
+  const dateById = (dateId: string) =>
+    datingData.dates.find((d: any) => d.dateInfo.id === dateId);
+  const dataUpdater = {
+    setPairActive: (pairId: string, active: boolean) => {
+      const pair = pairById(pairId);
+      pair.datingPair.active = active;
+      forceUpdate();
+    },
+    setDate: (dateId: string, dateUpdate: any, placeUpdate: any) => {
+      const date = dateById(dateId);
+      date.dateInfo = { ...date.dateInfo, ...dateUpdate };
+      if (placeUpdate) {
+        date.place = placeUpdate;
+      }
+      forceUpdate();
+    },
+    setCredibilityAndImprovement: (
+      dateId: string,
+      credibilityAndImprovement: any
+    ) => {
+      const { otherCredibility, otherImprovement } =
+        credibilityAndImprovement || {};
+      const date = dateById(dateId);
+      date.otherCredibility = otherCredibility;
+      date.otherImprovement = otherImprovement;
+      forceUpdate();
+    },
+    setDecision: (pairId: string, pairDecision: any) => {
+      const pair = pairById(pairId);
+      pair.pairDecision = pairDecision;
+      forceUpdate();
+    },
   };
 
   const user = useUser();
@@ -55,8 +76,7 @@ export const Dating = ({ datingData }: Props) => {
           <PairsAndDates
             datingData={datingData}
             user={user}
-            setPairActive={setPairActive}
-            setDate={setDate}
+            dataUpdater={dataUpdater}
           />
         </Paper>
       </Grid>

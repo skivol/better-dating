@@ -48,8 +48,8 @@ export const DateRow = ({
   otherCredibility,
   otherImprovement,
   index,
-  setPairActive,
-  setDate,
+  dataUpdater,
+  pairId,
 }: any) => {
   const relevantUnsettledPlace = () => {
     if (unsettledPlaces.length === 0) return {};
@@ -80,7 +80,7 @@ export const DateRow = ({
       .then((status: string) => {
         closeDialog();
         closeMenu();
-        status && setDate(dateId, { status });
+        status && dataUpdater.setDate(dateId, { status });
       })
       .finally(() => setLoading(false));
   };
@@ -88,7 +88,8 @@ export const DateRow = ({
   const onEvaluateProfile = (values: any) => {
     setLoading(true);
     dispatch(actions.evaluateProfile({ dateId, ...values }))
-      .then(() => {
+      .then((response) => {
+        dataUpdater.setCredibilityAndImprovement(dateId, response);
         closeDialog();
         closeMenu();
       })
@@ -131,8 +132,9 @@ export const DateRow = ({
               closeDialog();
               closeMenu();
               // think about error handling, currently we do not rethrow exception in from actions
-              dateStatus && setDate(dateId, { status: dateStatus });
-              pairActive !== undefined && setPairActive(pairActive);
+              dateStatus && dataUpdater.setDate(dateId, { status: dateStatus });
+              pairActive !== undefined &&
+                dataUpdater.setPairActive(pairId, pairActive);
             }
           );
         }}
@@ -143,7 +145,7 @@ export const DateRow = ({
               closeDialog();
               closeMenu();
               // think about error handling, currently we do not rethrow exception in from actions
-              date && setDate(dateId, date, place);
+              date && dataUpdater.setDate(dateId, date, place);
             }
           );
         }}

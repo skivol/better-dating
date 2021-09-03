@@ -27,8 +27,6 @@ class UserProfileHandler(
     private val activityRepository: ActivityRepository,
     private val profileEvaluationRepository: ProfileEvaluationRepository,
     private val expiringTokenRepository: ExpiringTokenRepository,
-    private val emailChangeHistoryRepository: EmailChangeHistoryRepository,
-    private val profileDeletionFeedbackRepository: ProfileDeletionFeedbackRepository,
     private val userRoleRepository: UserRoleRepository,
     private val tokenDataRepository: ViewOtherUserProfileTokenDataRepository,
     private val historyRepository: HistoryRepository,
@@ -42,7 +40,6 @@ class UserProfileHandler(
     private val userPersonalQualityRepository: UserPersonalQualityRepository,
     private val personalQualitiesRepository: PersonalQualitiesRepository,
     private val pairsRepository: PairsRepository,
-    private val logoutHandler: DelegatingServerLogoutHandler,
     private val passwordEncoder: PasswordEncoder,
     private val transactionalOperator: TransactionalOperator,
     private val freemarkerMailSender: FreemarkerMailSender
@@ -174,70 +171,6 @@ class UserProfileHandler(
         return ok().json().bodyValueAndAwait(currentUserProfile(request))
     }
 
-    suspend fun requestRemoval(request: ServerRequest): ServerResponse {
-        val profile = currentUserEmail(emailRepository, request)
-        val subject = "Запрос на удаление профиля на сайте смотрины.укр & смотрины.рус"
-        transactionalOperator.executeAndAwait {
-            freemarkerMailSender.generateAndSendLinkWithToken(
-                    profile.id, TokenType.ACCOUNT_REMOVAL, "LinkToRemoveAccount.ftlh",
-                    profile.email, subject, request, "удаление-профиля"
-            ) { link ->
-                object {
-                    val title = subject
-                    val actionLabel = "Удаление профиля"
-                    val actionUrl = link
-                    val message = "Обратите внимание! Это действие нельзя будет отменить!"
-                }
-            }
-        }
-        return okEmptyJsonObject()
-    }
-
-    suspend fun removeProfile(request: ServerRequest): ServerResponse {
-        val deleteProfileData = request.awaitBody<DeleteProfileData>()
-        val principal = request.awaitPrincipal()
-
-        // verify token
-        val currentUserProfileId = UUID.fromString(principal!!.name)
-        val webToken = Token(deleteProfileData.token).decode()
-        val dbToken = (expiringTokenRepository.findById(webToken.id) ?: throwNoSuchToken()).also {
-            if (it.profileId != currentUserProfileId) throwNoSuchToken() // only own profile removal is allowed
-        }
-        dbToken.verify(webToken.tokenValue, TokenType.ACCOUNT_REMOVAL, passwordEncoder)
-
-        transactionalOperator.executeAndAwait {
-            // remove profile data
-            profileEvaluationRepository.delete(currentUserProfileId)
-            activityRepository.delete(currentUserProfileId)
-            weightRepository.delete(currentUserProfileId)
-            heightRepository.delete(currentUserProfileId)
-            profileInfoRepository.delete(currentUserProfileId)
-            acceptedTermsRepository.delete(currentUserProfileId)
-
-            expiringTokenRepository.deleteByProfileId(currentUserProfileId)
-            userRoleRepository.delete(currentUserProfileId)
-            historyRepository.deleteRelatedProfileViewsWhereBothUsersAreDeleted(currentUserProfileId)
-
-            // remove second stage profile data
-            datingProfileInfoRepository.delete(currentUserProfileId)
-            userPopulatedLocalityRepository.delete(currentUserProfileId)
-            userLanguageRepository.delete(currentUserProfileId)
-            userInterestRepository.delete(currentUserProfileId)
-            userPersonalQualityRepository.delete(currentUserProfileId, Attitude.likes)
-            userPersonalQualityRepository.delete(currentUserProfileId, Attitude.dislikes)
-
-            emailRepository.delete(currentUserProfileId)
-            emailChangeHistoryRepository.delete(currentUserProfileId)
-
-            // + save feedback
-            profileDeletionFeedbackRepository.save(ProfileDeletionFeedback(currentUserProfileId, deleteProfileData.reason, deleteProfileData.explanationComment))
-        }
-        // perform logout
-        logoutHandler.logout(WebFilterExchange(request.exchange()) { Mono.empty() }, principal as Authentication).awaitFirstOrNull()
-
-        return okEmptyJsonObject()
-    }
-
     suspend fun requestViewOfAuthorsProfile(request: ServerRequest): ServerResponse {
         // find out who is admin
         val adminProfileId = (userRoleRepository.findAdmin() ?: throw AuthorNotFoundException()).profileId
@@ -266,7 +199,7 @@ class UserProfileHandler(
         // verify that user is allowed to do that (that is, there is or was a pair)
         val currentUserId = UUID.fromString(request.awaitPrincipal()!!.name)
         pairsRepository.findPair(currentUserId, targetId) ?: throwBadCredentials()
-        val targetNickname = (profileInfoRepository.findByProfileId(targetId) ?: throwBadCredentials()).nickname
+        val targetNickname = (profileInfoRepository.findByProfileId(targetId) ?: throw badRequestException("user is not found")).nickname
 
         val currentUserEmail = currentUserEmail(emailRepository, request)
 

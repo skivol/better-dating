@@ -21,6 +21,7 @@ import ua.betterdating.backend.ActivityType.*
 import ua.betterdating.backend.utils.toAppearanceType
 import ua.betterdating.backend.utils.toGender
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -57,7 +58,7 @@ data class DatingPair(
     val firstProfileId: UUID,
     val secondProfileId: UUID,
     val goal: UsageGoal,
-    val whenMatched: LocalDateTime,
+    val whenMatched: Instant,
     val active: Boolean,
     var firstProfileSnapshot: ProfileMatchInformation? = null,
     var secondProfileSnapshot: ProfileMatchInformation? = null,
@@ -288,6 +289,7 @@ class PairsRepository(
                 LEFT JOIN profile_info pi2 ON pi2.profile_id = dp.second_profile_id
                 LEFT JOIN pair_decision pd ON pd.pair_id = dp.id AND pd.profile_id = :profileId
                 WHERE first_profile_id = :profileId OR second_profile_id = :profileId
+                ORDER BY when_matched
             """.trimIndent()
         ).bind("profileId", profileId)
             .map { row, _ ->
@@ -332,7 +334,7 @@ class PairsRepository(
     private fun extractDatingPair(row: Row): DatingPair = DatingPair(
         row["id"] as UUID,
         row["first_profile_id"] as UUID, row["second_profile_id"] as UUID,
-        UsageGoal.valueOf(row["goal"] as String), row["when_matched"] as LocalDateTime,
+        UsageGoal.valueOf(row["goal"] as String), (row["when_matched"] as OffsetDateTime).toInstant(),
         row["active"] as Boolean,
         row["first_profile_snapshot"]?.let { mapper.readValue((it as Json).asArray()) }, // TODO run this in Dispatchers.IO ?
         row["second_profile_snapshot"]?.let { mapper.readValue((it as Json).asArray()) }
@@ -395,6 +397,31 @@ class PairsRepository(
         .apply(
             Update.update("active", updated.active)
         ).awaitSingle()
+
+    suspend fun deleteWhereSecondUserIsAlreadyRemoved(currentUserProfileId: UUID) = client.sql("""
+       WITH $datingPairsToRemove
+       DELETE FROM dating_pair dp
+       WHERE dp.id IN (SELECT * FROM dating_pairs_to_remove)
+    """.trimIndent())
+        .bind("profileId", currentUserProfileId)
+        .fetch().awaitRowsUpdated()
+
+    suspend fun deactivateWhereParticipates(profileId: UUID) = client.sql("""
+        UPDATE dating_pair SET active = false
+        WHERE first_profile_id = :profileId OR second_profile_id = :profileId
+    """.trimIndent())
+        .bind("profileId", profileId)
+        .fetch().awaitRowsUpdated()
+
+    suspend fun unlockOtherUser(profileId: UUID) = client.sql("""
+        DELETE FROM dating_pair_lock WHERE profile_id IN (
+            SELECT CASE WHEN first_profile_id = :profileId THEN second_profile_id ELSE first_profile_id END
+            FROM dating_pair dp
+            WHERE (first_profile_id = :profileId OR second_profile_id = :profileId) AND dp.active
+        )
+    """.trimIndent())
+        .bind("profileId", profileId)
+        .fetch().awaitRowsUpdated()
 }
 
 fun uuidArray(uuids: List<UUID>) = formatArray(uuids, "uuid")

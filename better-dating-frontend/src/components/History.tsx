@@ -42,6 +42,7 @@ const formatType = (type: EventType) =>
     ProfileViewedByOtherUser: Messages.profileViewedByOtherUser,
     TooCloseToOtherPlacesExceptionHappened:
       Messages.tooCloseToOtherPlacesExceptionHappened,
+    ProfileRemoved: Messages.profileRemoved,
   }[type]);
 const formatPayload = (type: EventType, payload: any, relevantUsers: any) =>
   ({
@@ -49,6 +50,7 @@ const formatPayload = (type: EventType, payload: any, relevantUsers: any) =>
     ProfileViewedByOtherUser: Messages.formatProfileViewedByOtherUserPayload,
     TooCloseToOtherPlacesExceptionHappened:
       Messages.formatTooCloseToOtherPlacesExceptionHappenedPayload,
+    ProfileRemoved: Messages.formatProfileRemoved,
   }[type](payload, relevantUsers));
 
 const typeOptions = (isAdmin: boolean) => [
@@ -62,13 +64,17 @@ const typeOptions = (isAdmin: boolean) => [
   },
   {
     label: Messages.typeEmailChange,
-    value: "EmailChange",
+    value: "EmailChanged",
   },
   ...(isAdmin
     ? [
         {
           label: Messages.typeTooCloseToExistingPlacesException,
           value: "TooCloseToOtherPlacesExceptionHappened",
+        },
+        {
+          label: Messages.profileRemoved,
+          value: "ProfileRemoved",
         },
       ]
     : []),
@@ -154,7 +160,7 @@ const UsersAutocomplete = () => {
 };
 
 export const parseHistoryData = (data: any) =>
-  data.map((d: any) => ({ ...d, payload: JSON.parse(d.payload) }));
+  (data || []).map((d: any) => ({ ...d, payload: JSON.parse(d.payload) }));
 
 export const History = ({ initialHistoryData, relevantUsers }: any) => {
   const [historyData, setHistoryData] = useState<any>(initialHistoryData || []);
@@ -253,6 +259,11 @@ export const History = ({ initialHistoryData, relevantUsers }: any) => {
                         <TableCell style={{ width: "150px" }}>
                           {Messages.dateTime}
                         </TableCell>
+                        {isAdmin(user) && (
+                          <TableCell style={{ width: "150px" }}>
+                            {Messages.user}
+                          </TableCell>
+                        )}
                         <TableCell style={{ width: "175px" }}>
                           {Messages.type}
                         </TableCell>
@@ -267,9 +278,14 @@ export const History = ({ initialHistoryData, relevantUsers }: any) => {
                           values.type === "All" ? true : type === values.type
                         )
                         .slice(page * rowsPerPage, (page + 1) * rowsPerPage)
-                        .map(({ timestamp, type, payload }: any) => (
+                        .map(({ profileId, timestamp, type, payload }: any) => (
                           <TableRow>
                             <TableCell>{formatTimestamp(timestamp)}</TableCell>
+                            {isAdmin(user) && (
+                              <TableCell style={{ width: "150px" }}>
+                                {profileId}
+                              </TableCell>
+                            )}
                             <TableCell>
                               {formatType(type as EventType)}
                             </TableCell>

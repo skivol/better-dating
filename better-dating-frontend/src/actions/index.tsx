@@ -11,6 +11,7 @@ import {
   deleteData,
   toBackendProfileValues,
   showError,
+  showInfo,
   showSuccess,
   showWarning,
 } from "../utils";
@@ -64,18 +65,12 @@ export const createAccount =
   async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       await postData("/api/user/profile", toBackendProfileValues(values));
-      dispatch(
-        openSnackbar(
-          Messages.successSubmittingProfileMessage,
-          SnackbarVariant.success
-        )
-      );
+      showSuccess(dispatch, Messages.successSubmittingProfileMessage);
     } catch (error) {
-      const message = resolveProfileError(
-        error,
-        Messages.errorSubmittingProfileMessage
+      showError(
+        dispatch,
+        resolveProfileError(error, Messages.errorSubmittingProfileMessage)
       );
-      dispatch(openSnackbar(message, SnackbarVariant.error));
       throw error;
     }
   };
@@ -85,11 +80,9 @@ export const requestLogin =
   async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       await postData("/api/auth/login-link", { email });
-      dispatch(openSnackbar(Messages.loginLinkWasSent, SnackbarVariant.info));
+      showInfo(dispatch, Messages.loginLinkWasSent);
     } catch (error) {
-      dispatch(
-        openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
-      );
+      showError(dispatch, Messages.oopsSomethingWentWrong);
     }
   };
 
@@ -99,11 +92,9 @@ export const performLogin =
     try {
       await postData("/api/auth/login", { token });
     } catch (error) {
-      dispatch(
-        openSnackbar(
-          `${Messages.errorLogin}: ${resolveTokenMessage(error)}`,
-          SnackbarVariant.error
-        )
+      showError(
+        dispatch,
+        `${Messages.errorLogin}: ${resolveTokenMessage(error)}`
       );
       throw error;
     }
@@ -121,15 +112,14 @@ export const updateAccount =
       const successMessage = emailChanged
         ? Messages.successUpdatingProfileAndChangingEmailMessage
         : Messages.successUpdatingProfileMessage;
-      dispatch(openSnackbar(successMessage, SnackbarVariant.success));
+      showSuccess(dispatch, successMessage);
 
       return response;
     } catch (error) {
-      const message = resolveProfileError(
-        error,
-        Messages.errorUpdatingProfileMessage
+      showError(
+        dispatch,
+        resolveProfileError(error, Messages.errorUpdatingProfileMessage)
       );
-      dispatch(openSnackbar(message, SnackbarVariant.error));
       throw error;
     }
   };
@@ -138,16 +128,9 @@ export const requestAccountRemoval =
   (): any => async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       await postData("/api/user/profile/request-removal");
-      dispatch(
-        openSnackbar(
-          Messages.linkForRemovingProfileWasSent,
-          SnackbarVariant.info
-        )
-      );
+      showInfo(dispatch, Messages.linkForRemovingProfileWasSent);
     } catch (error) {
-      dispatch(
-        openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
-      );
+      showError(dispatch, Messages.oopsSomethingWentWrong);
       throw error;
     }
   };
@@ -161,10 +144,10 @@ export const removeAccount =
         reason,
         explanationComment,
       });
-      dispatch(openSnackbar(Messages.profileWasRemoved, SnackbarVariant.info));
+      showInfo(dispatch, Messages.profileWasRemoved);
       dispatch(user(constants.emptyUser));
     } catch (error) {
-      dispatch(openSnackbar(resolveTokenMessage(error), SnackbarVariant.error));
+      showError(dispatch, resolveTokenMessage(error.message));
     }
   };
 
@@ -172,16 +155,9 @@ export const viewAuthorsProfile =
   (): any => async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       await postData("/api/user/profile/authors-profile");
-      dispatch(
-        openSnackbar(
-          Messages.linkForViewingAuthorsProfileWasSent,
-          SnackbarVariant.info
-        )
-      );
+      showInfo(dispatch, Messages.linkForViewingAuthorsProfileWasSent);
     } catch (error) {
-      dispatch(
-        openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
-      );
+      showError(dispatch, Messages.oopsSomethingWentWrong);
       throw error;
     }
   };
@@ -191,16 +167,9 @@ export const viewOtherUserProfile =
   async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       await postData("/api/user/profile/user-profile", { targetId: id });
-      dispatch(
-        openSnackbar(
-          Messages.linkForViewingUsersProfileWasSent(nickname),
-          SnackbarVariant.info
-        )
-      );
+      showInfo(dispatch, Messages.linkForViewingUsersProfileWasSent(nickname));
     } catch (error) {
-      dispatch(
-        openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
-      );
+      showError(dispatch, Messages.resolveViewOtherUserProfileError(error));
       throw error;
     }
   };
@@ -210,11 +179,9 @@ export const activateSecondStage =
   async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       await postData("/api/user/profile/activate-second-stage", values);
-      dispatch(openSnackbar(Messages.secondStageEnabled, SnackbarVariant.info));
+      showInfo(dispatch, Messages.secondStageEnabled);
     } catch (error) {
-      dispatch(
-        openSnackbar(Messages.oopsSomethingWentWrong, SnackbarVariant.error)
-      );
+      showError(dispatch, Messages.oopsSomethingWentWrong);
       throw error;
     }
   };
@@ -226,16 +193,9 @@ export const requestAnotherValidationToken =
       await postData("/api/user/email/new-verification", {
         token: previousToken,
       });
-      dispatch(
-        openSnackbar(
-          Messages.successTriggeringNewVerificationMessage,
-          SnackbarVariant.success
-        )
-      );
+      showSuccess(dispatch, Messages.successTriggeringNewVerificationMessage);
     } catch (error) {
-      dispatch(
-        openSnackbar(resolveTokenMessage(error.message), SnackbarVariant.error)
-      );
+      showError(dispatch, resolveTokenMessage(error.message));
     }
   };
 
@@ -246,16 +206,9 @@ export const requestAnotherViewProfileToken =
       await postData("/api/user/profile/new-view-user-profile", {
         token: previousToken,
       });
-      dispatch(
-        openSnackbar(
-          Messages.successRequestingNewProfileViewMessage,
-          SnackbarVariant.success
-        )
-      );
+      showSuccess(dispatch, Messages.successRequestingNewProfileViewMessage);
     } catch (error) {
-      dispatch(
-        openSnackbar(resolveTokenMessage(error.message), SnackbarVariant.error)
-      );
+      showError(dispatch, resolveTokenMessage(error.message));
     }
   };
 
@@ -313,10 +266,10 @@ export const logout =
   (): any => async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       await postData("/api/auth/logout");
-      dispatch(openSnackbar(Messages.successLogout, SnackbarVariant.success));
+      showSuccess(dispatch, Messages.successLogout);
       dispatch(user(constants.emptyUser));
     } catch (error) {
-      dispatch(openSnackbar(Messages.errorLogout, SnackbarVariant.error));
+      showError(dispatch, Messages.errorLogout);
     }
   };
 
@@ -328,21 +281,17 @@ export const checkIn =
         "/api/user/dating/check-in",
         values
       );
-      dispatch(
-        openSnackbar(
-          `${Messages.successCheckIn}${
-            dateStatus === "fullCheckIn"
-              ? " " + Messages.secondUserHasAlreadyArrived
-              : ""
-          }`,
-          SnackbarVariant.success
-        )
+      showSuccess(
+        dispatch,
+        `${Messages.successCheckIn}${
+          dateStatus === "fullCheckIn"
+            ? " " + Messages.secondUserHasAlreadyArrived
+            : ""
+        }`
       );
       return dateStatus;
     } catch (error) {
-      dispatch(
-        openSnackbar(Messages.resolveCheckInError(error), SnackbarVariant.error)
-      );
+      showError(dispatch, Messages.resolveCheckInError(error));
     }
   };
 
@@ -351,17 +300,10 @@ export const verifyDate =
   async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       const response = await postData("/api/user/dating/verify-date", values);
-      dispatch(
-        openSnackbar(Messages.successVerifyingDate, SnackbarVariant.success)
-      );
+      showSuccess(dispatch, Messages.successVerifyingDate);
       return response;
     } catch (error) {
-      dispatch(
-        openSnackbar(
-          Messages.resolveVerifyDateError(error),
-          SnackbarVariant.error
-        )
-      );
+      showError(dispatch, Messages.resolveVerifyDateError(error));
     }
   };
 
@@ -372,17 +314,10 @@ export const evaluateProfile =
         "/api/user/dating/evaluate-profile",
         values
       );
-      dispatch(
-        openSnackbar(Messages.successEvaluatingProfile, SnackbarVariant.success)
-      );
+      showSuccess(dispatch, Messages.successEvaluatingProfile);
       return response;
     } catch (error) {
-      dispatch(
-        openSnackbar(
-          Messages.resolveEvaluateProfileError(error),
-          SnackbarVariant.error
-        )
-      );
+      showError(dispatch, Messages.resolveEvaluateProfileError(error));
     }
   };
 

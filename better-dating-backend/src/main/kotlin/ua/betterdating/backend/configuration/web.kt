@@ -43,6 +43,7 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
     beans {
         bean<EmailHandler>()
         bean<UserProfileHandler>()
+        bean<ProfileRemovalHandler>()
         bean<DatingHandler>()
         bean<PopulatedLocalitiesHandler>()
         bean<LanguagesHandler>()

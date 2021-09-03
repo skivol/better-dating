@@ -18,20 +18,6 @@ import * as Messages from "./Messages";
 import * as ProfileMessages from "./profile/Messages";
 import { CenteredSpinner, SpinnerAdornment } from "./common";
 
-const removalReasonOptions = [
-  {
-    label: Messages.expectedSomethingElse,
-    value: "expectedSomethingElse",
-  },
-  {
-    label: Messages.tooComplicated,
-    value: "tooComplicated",
-  },
-  {
-    label: Messages.other,
-    value: "other",
-  },
-];
 export const RemoveProfile = () => {
   const user = useUser();
   const token = useToken();
@@ -79,7 +65,7 @@ export const RemoveProfile = () => {
                     required
                     label={Messages.reasonToRemove}
                     name="reason"
-                    data={removalReasonOptions}
+                    data={Messages.removalReasonOptions}
                     fieldProps={{ validate: required }}
                   />
                 </Grid>

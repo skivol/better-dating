@@ -10,7 +10,7 @@ CREATE TABLE dating_pair (
 	first_profile_id uuid NOT NULL,
 	second_profile_id uuid NOT NULL,
 	goal varchar(64) NOT NULL,
-	when_matched timestamp(0) NOT NULL,
+	when_matched timestamptz NOT NULL,
 	active bool NOT NULL,
 	first_profile_snapshot json NOT NULL,
 	second_profile_snapshot json NOT NULL,
@@ -35,9 +35,7 @@ CREATE TABLE place (
 	created_at timestamptz NOT NULL,
 
 	CONSTRAINT place_pk PRIMARY KEY (id, version),
-	CONSTRAINT place_fk FOREIGN KEY (populated_locality_id) REFERENCES populated_locality(id),
-	CONSTRAINT place_suggested_by_fk FOREIGN KEY (suggested_by) REFERENCES email(id),
-	CONSTRAINT place_approved_by_fk FOREIGN KEY (approved_by) REFERENCES email(id)
+	CONSTRAINT place_fk FOREIGN KEY (populated_locality_id) REFERENCES populated_locality(id)
 );
 CREATE INDEX place_populated_locality_id_idx ON place USING btree (populated_locality_id);
 
@@ -80,7 +78,7 @@ CREATE TABLE date_check_in (
 	profile_id uuid NOT NULL,
 	when_checked_in timestamptz NOT NULL,
 	CONSTRAINT date_check_in_pk PRIMARY KEY (profile_id,date_id),
-	CONSTRAINT date_check_in_fk FOREIGN KEY (profile_id) REFERENCES profile_info(profile_id),
+	CONSTRAINT date_check_in_fk FOREIGN KEY (profile_id) REFERENCES email(id),
 	CONSTRAINT date_check_in_fk_1 FOREIGN KEY (date_id) REFERENCES dates(id)
 );
 
@@ -99,11 +97,9 @@ CREATE TABLE profile_credibility (
 	target_profile_id uuid NOT NULL,
 	category varchar NOT NULL,
 	"comment" varchar NULL,
-	created_at timestamptz(0) NOT NULL,
-	CONSTRAINT credibility_evaluation_pk PRIMARY KEY (date_id, source_profile_id, target_profile_id),
-	CONSTRAINT credibility_evaluation_fk FOREIGN KEY (target_profile_id) REFERENCES profile_info(profile_id),
-	CONSTRAINT credibility_evaluation_fk_1 FOREIGN KEY (source_profile_id) REFERENCES profile_info(profile_id),
-	CONSTRAINT credibility_evaluation_fk_2 FOREIGN KEY (date_id) REFERENCES dates(id)
+	created_at timestamptz NOT NULL,
+	CONSTRAINT profile_credibility_pk PRIMARY KEY (date_id, source_profile_id, target_profile_id),
+	CONSTRAINT profile_credibility_fk FOREIGN KEY (date_id) REFERENCES dates(id)
 );
 
 CREATE TABLE profile_improvement (
@@ -112,11 +108,9 @@ CREATE TABLE profile_improvement (
 	target_profile_id uuid NOT NULL,
 	category varchar NOT NULL,
 	"comment" varchar NULL,
-	created_at timestamptz(0) NOT NULL,
+	created_at timestamptz NOT NULL,
 	CONSTRAINT profile_improvement_pk PRIMARY KEY (date_id, source_profile_id, target_profile_id),
-	CONSTRAINT profile_improvement_fk FOREIGN KEY (target_profile_id) REFERENCES profile_info(profile_id),
-	CONSTRAINT profile_improvement_fk_1 FOREIGN KEY (source_profile_id) REFERENCES profile_info(profile_id),
-	CONSTRAINT profile_improvement_fk_2 FOREIGN KEY (date_id) REFERENCES dates(id)
+	CONSTRAINT profile_improvement_fk FOREIGN KEY (date_id) REFERENCES dates(id)
 );
 
 CREATE TABLE pair_decision (

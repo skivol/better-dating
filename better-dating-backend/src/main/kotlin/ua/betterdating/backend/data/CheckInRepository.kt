@@ -24,4 +24,8 @@ class CheckInRepository(
         .matching(Query.query(where("date_id").`is`(dateId)))
         .all().collectList()
         .awaitFirst()
+
+    suspend fun delete(profileId: UUID) = template.delete<DateCheckIn>()
+        .matching(Query.query(where("profile_id").`is`(profileId)))
+        .allAndAwait()
 }

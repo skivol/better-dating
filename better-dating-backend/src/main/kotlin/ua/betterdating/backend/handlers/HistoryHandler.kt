@@ -32,12 +32,13 @@ class HistoryHandler(
         val isAdmin = principal.authorities.any { it.authority == "ROLE_ADMIN" }
         val userId = request.queryParam("userId").orElse("null").let { if (it == "null") null else it }
         val targetProfileId = if (isAdmin) userId?.let { UUID.fromString(it) } else UUID.fromString(principal.name)
+        val canAllBeFetchedByAdmin = setOf(HistoryType.TooCloseToOtherPlacesExceptionHappened, HistoryType.ProfileRemoved)
         val types = (type?.let { listOf(it) } ?: HistoryType.values().filter {
-            isAdmin || it != HistoryType.TooCloseToOtherPlacesExceptionHappened
+            isAdmin || !canAllBeFetchedByAdmin.contains(it)
         }.toList()).map { it.toString() }
 
         // allow fetching all history only for TooCloseToOtherPlacesExceptionHappened event type or only when targeting single user
-        val fetchHistory = targetProfileId != null || type == HistoryType.TooCloseToOtherPlacesExceptionHappened
+        val fetchHistory = targetProfileId != null || canAllBeFetchedByAdmin.contains(type)
         val historyFlow = if (fetchHistory) historyRepository.get(
             targetProfileId,
             types

@@ -278,7 +278,8 @@ api-user-profile-activate-second-stage() {
 	  likedPersonalQualities:=$7 \
 	  dislikedPersonalQualities:=$8 \
 	  appearanceType=$9 \
-	  naturalHairColor=${10}
+	  naturalHairColor=${10} \
+	  participateInAutomatedPairMatchingAndDateOrganization=${11}
 }
 
 api-user-profile() {

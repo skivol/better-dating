@@ -11,6 +11,7 @@ import ua.betterdating.backend.*
 import ua.betterdating.backend.Recurrence.*
 import ua.betterdating.backend.data.*
 import ua.betterdating.backend.utils.LoggerDelegate
+import java.time.Instant
 import java.time.LocalDateTime
 
 val abstaining = listOf(neverDidAndNotGoingInFuture, didBeforeNotGoingInFuture)
@@ -109,7 +110,7 @@ class PairMatcherTask(
                     firstProfileId = targetProfile.id,
                     secondProfileId = matchedCandidate.id,
                     goal = UsageGoal.FindSoulMate,
-                    whenMatched = LocalDateTime.now(),
+                    whenMatched = Instant.now(),
                     active = true,
                     firstProfileSnapshot = targetProfile,
                     secondProfileSnapshot = matchedCandidate

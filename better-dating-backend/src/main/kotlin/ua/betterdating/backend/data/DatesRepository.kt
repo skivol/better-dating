@@ -245,4 +245,23 @@ class DatesRepository(
         .bind("days", daysBack)
         .map { row, _ -> row["id"] as UUID }
         .all().collectList().awaitSingle()
+
+    suspend fun deleteWhereSecondUserIsAlreadyRemoved(currentUserProfileId: UUID) = client.sql("""
+        WITH $datingPairsToRemove
+        DELETE FROM dates d
+        WHERE d.id IN (
+            SELECT d1.id FROM dates d1
+            JOIN dating_pairs_to_remove dptr ON d1.pair_id = dptr.id
+        )
+    """.trimIndent())
+        .bind("profileId", currentUserProfileId)
+        .fetch().awaitRowsUpdated()
 }
+const val datingPairsToRemove = """dating_pairs_to_remove AS (
+    SELECT id FROM dating_pair dp
+    WHERE (dp.first_profile_id = :profileId AND dp.second_profile_id NOT IN (
+        SELECT id FROM email
+    )) OR (dp.second_profile_id = :profileId and dp.first_profile_id NOT IN (
+        SELECT id FROM email
+    ))
+)"""

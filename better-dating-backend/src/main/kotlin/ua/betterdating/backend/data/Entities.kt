@@ -69,19 +69,6 @@ class ProfileEvaluation(
         val comment: String?
 )
 
-class EmailChangeHistory(
-        @Id val id: Long,
-        val profileId: UUID,
-        val email: String,
-        val changeOn: LocalDateTime
-)
-
-class ProfileDeletionFeedback(
-        @Id val profileId: UUID,
-        val reason: DeleteReason,
-        val explanationComment: String
-)
-
 enum class Role {
     ROLE_USER,
     ROLE_ADMIN

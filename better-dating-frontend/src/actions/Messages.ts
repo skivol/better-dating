@@ -25,6 +25,13 @@ export const linkForViewingAuthorsProfileWasSent =
   "Ссылка для просмотра профиля автора была выслана на почту.";
 export const linkForViewingUsersProfileWasSent = (nickname: string) =>
   `Ссылка для просмотра профиля пользователя "${nickname}" была выслана на почту.`;
+export const resolveViewOtherUserProfileError = (error: any) => {
+  return (
+    {
+      "user is not found": "Пользователь не найден",
+    }[error.message as string] || oopsSomethingWentWrong
+  );
+};
 export const secondStageEnabled = "Второй этап был активирован!";
 
 export const alreadyPresentEmail = "Такая почта уже существует";
@@ -119,11 +126,13 @@ export const successEvaluatingProfile =
 const errorEvaluatingProfile =
   "Не получилось отправить оценку правдивости профиля и предложения по улучшению, попробуйте позже";
 export const resolveEvaluateProfileError = (error: any) => {
-  const { message } = error;
-  if ("date is not in verified state" === message) {
-    return "Свидание должно быть в подтвержденном состоянии для этого действия";
-  }
-  return errorEvaluatingProfile;
+  return (
+    {
+      "date is not in verified state":
+        "Свидание должно быть в подтвержденном состоянии для этого действия",
+      "Profile credibility already submitted": "Оценка уже добавлена!",
+    }[error.message as string] || errorEvaluatingProfile
+  );
 };
 
 export const successSubmittingPairDecision = "Решение по паре было сохранено !";

@@ -42,8 +42,9 @@ class PairHandler(
         val bothWantToContinue =
             otherUserAlreadySubmittedDecision && setOf(payload.decision, pairDecisions[0].decision).all { it == PairDecisionCategory.WantToContinueRelationshipsAndCreateFamily }
 
+        val pairDecision = PairDecision(pair.id, profileId, payload.decision, Instant.now())
         transactionalOperator.executeAndAwait {
-            pairDecisionRepository.save(PairDecision(pair.id, profileId, payload.decision, Instant.now()))
+            pairDecisionRepository.save(pairDecision)
             pairLockRepository.delete(DatingPairLock(profileId)) // unlock for further participation in pair matching if needed
 
             val otherUserProfileId = if (pair.firstProfileId == profileId) pair.secondProfileId else pair.firstProfileId
@@ -79,6 +80,7 @@ class PairHandler(
         return ok().json().bodyValueAndAwait(object {
             val bothWantToContinue = bothWantToContinue
             val pairActive = pair.active
+            val pairDecision = pairDecision
         })
     }
 

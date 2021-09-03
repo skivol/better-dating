@@ -379,7 +379,26 @@ export const formatTooCloseToOtherPlacesExceptionHappenedPayload = (
   `Существующие места и их версии, что стали причиной: ${payload.places
     .map((p: any) => `${p.id} - версия ${p.version}`)
     .join(", ")}`;
+export const formatProfileRemoved = (payload: any) =>
+  `Причина - '${
+    removalReasonOptions.find((o) => o.value === payload.reason)?.label
+  }', комментарий - '${payload.explanation_comment}'`;
+export const removalReasonOptions = [
+  {
+    label: expectedSomethingElse,
+    value: "expectedSomethingElse",
+  },
+  {
+    label: tooComplicated,
+    value: "tooComplicated",
+  },
+  {
+    label: other,
+    value: "other",
+  },
+];
 
+export const user = "Пользователь";
 export const dateTime = "Дата / Время";
 export const type = "Тип";
 export const details = "Детали";
@@ -392,3 +411,4 @@ export const typeProfileViews = "Просмотры профиля";
 export const typeEmailChange = "Изменения почты";
 export const typeTooCloseToExistingPlacesException =
   "Ошибка при добавлении места (близко к существующим)";
+export const profileRemoved = "Профиль был удален";

@@ -173,10 +173,26 @@ class DatingHandler(
         val lastHost = loginInformationRepository.find(targetProfileId).lastHost
         val currentUserName = profileInfoRepository.findByProfileId(currentUserId)!!.nickname
 
+        val createdAt = Instant.now()
+        val profileCredibility = ProfileCredibility(
+            date.id,
+            currentUserId,
+            targetProfileId,
+            payload.credibilityCategory,
+            payload.credibilityExplanationComment,
+            createdAt
+        )
+        val profileImprovement = ProfileImprovement(
+            date.id,
+            currentUserId,
+            targetProfileId,
+            payload.improvementCategory,
+            payload.improvementExplanationComment,
+            createdAt
+        )
         transactionalOperator.executeAndAwait {
-            val createdAt = Instant.now()
-            profileCredibilityRepository.save(ProfileCredibility(date.id, currentUserId, targetProfileId, payload.credibilityCategory, payload.credibilityExplanationComment, createdAt))
-            profileImprovementRepository.save(ProfileImprovement(date.id, currentUserId, targetProfileId, payload.improvementCategory, payload.improvementExplanationComment, createdAt))
+            profileCredibilityRepository.save(profileCredibility)
+            profileImprovementRepository.save(profileImprovement)
 
             val subject = "Пользователем $currentUserName добавлена оценка правдивости профиля и предложения по его улучшению"
             mailSender.sendLink("TitleBodyAndLinkMessage.ftlh", targetUserEmail, subject, lastHost, "свидания") { link ->
@@ -188,7 +204,10 @@ class DatingHandler(
                 }
             }
         }
-        return okEmptyJsonObject()
+        return ok().json().bodyValueAndAwait(object {
+            val otherCredibility = profileCredibility
+            val otherImprovement = profileImprovement
+        })
     }
 
     class RescheduleDatePayload(val dateId: UUID)

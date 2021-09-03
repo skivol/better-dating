@@ -1,9 +1,7 @@
 package ua.betterdating.backend.data
 
 import kotlinx.coroutines.reactive.awaitSingle
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
-import org.springframework.data.r2dbc.core.awaitFirst
-import org.springframework.data.r2dbc.core.select
+import org.springframework.data.r2dbc.core.*
 import org.springframework.data.relational.core.query.Criteria.where
 import org.springframework.data.relational.core.query.Query.query
 import org.springframework.r2dbc.core.DatabaseClient
@@ -31,4 +29,8 @@ class LoginInformationRepository(
         template.select<LoginInformation>()
             .matching(query(where("profile_id").`is`(profileId)))
             .awaitFirst()
+
+    suspend fun delete(currentUserProfileId: UUID) = template.delete<LoginInformation>()
+        .matching(query(where("profile_id").`is`(currentUserProfileId)))
+        .allAndAwait()
 }

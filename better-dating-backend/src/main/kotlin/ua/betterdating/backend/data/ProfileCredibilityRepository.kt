@@ -1,9 +1,9 @@
 package ua.betterdating.backend.data
 
 import org.springframework.data.annotation.Id
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
-import org.springframework.data.r2dbc.core.insert
-import org.springframework.data.r2dbc.core.usingAndAwait
+import org.springframework.data.r2dbc.core.*
+import org.springframework.data.relational.core.query.Criteria
+import org.springframework.data.relational.core.query.Query
 import java.time.Instant
 import java.util.*
 
@@ -20,4 +20,8 @@ class ProfileCredibility(
 )
 class ProfileCredibilityRepository(private val template: R2dbcEntityTemplate) {
     suspend fun save(profileCredibility: ProfileCredibility): ProfileCredibility = template.insert<ProfileCredibility>().usingAndAwait(profileCredibility)
+
+    suspend fun delete(profileId: UUID) = template.delete<ProfileCredibility>()
+        .matching(Query.query(Criteria.where("source_profile_id").`is`(profileId)))
+        .allAndAwait()
 }

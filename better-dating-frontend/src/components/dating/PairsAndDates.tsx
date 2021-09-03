@@ -30,12 +30,7 @@ import { PairMenu, DatesTable, DecisionDialog } from ".";
 const toDate = (date: string) =>
   formatISO(parseISO(date), { representation: "date" });
 
-export const PairsAndDates = ({
-  datingData,
-  user,
-  setPairActive,
-  setDate,
-}: any) => {
+export const PairsAndDates = ({ datingData, user, dataUpdater }: any) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const handleChangePage = (event: any, newPage: number) => {
@@ -70,8 +65,10 @@ export const PairsAndDates = ({
     setLoading(true);
     dispatch(actions.submitPairDecision({ decision, pairId: targetPairId }))
       .then((response: any) => {
-        const { pairActive } = response || {};
-        pairActive !== undefined && setPairActive(targetPairId, pairActive);
+        const { pairActive, pairDecision } = response || {};
+        pairActive !== undefined &&
+          dataUpdater.setPairActive(targetPairId, pairActive);
+        pairDecision && dataUpdater.setDecision(targetPairId, pairDecision);
         closeDialog();
       })
       .finally(() => setLoading(false));
@@ -149,9 +146,13 @@ export const PairsAndDates = ({
                   i: number
                 ) => {
                   const currentUserIsFirstInPair = user.id === firstProfileId;
+                  const firstNicknameOrId =
+                    firstProfileNickname ?? firstProfileId;
+                  const secondNicknameOrId =
+                    secondProfileNickname ?? secondProfileId;
                   const otherUserNickname = currentUserIsFirstInPair
-                    ? secondProfileNickname
-                    : firstProfileNickname;
+                    ? secondNicknameOrId
+                    : firstNicknameOrId;
                   const viewMatchedUserProfile =
                     Messages.viewMatchedUserProfile(
                       truncate(otherUserNickname)
@@ -166,7 +167,7 @@ export const PairsAndDates = ({
                   return (
                     <>
                       <TableRow key={i}>
-                        {hasSomeDates && (
+                        {hasSomeDates ? (
                           <TableCell>
                             <IconButton
                               aria-label="expand row"
@@ -180,10 +181,12 @@ export const PairsAndDates = ({
                               )}
                             </IconButton>
                           </TableCell>
+                        ) : (
+                          <TableCell />
                         )}
                         <TableCell>{i + 1}</TableCell>
-                        <TableCell>{firstProfileNickname}</TableCell>
-                        <TableCell>{secondProfileNickname}</TableCell>
+                        <TableCell>{firstNicknameOrId}</TableCell>
+                        <TableCell>{secondNicknameOrId}</TableCell>
                         <TableCell>
                           {active ? Messages.active : Messages.inactive}
                         </TableCell>
@@ -235,10 +238,8 @@ export const PairsAndDates = ({
                                 user={user}
                                 dates={visibleDates}
                                 otherUserNickname={otherUserNickname}
-                                setPairActive={(active: boolean) => {
-                                  setPairActive(pairId, active);
-                                }}
-                                setDate={setDate}
+                                dataUpdater={dataUpdater}
+                                pairId={pairId}
                               />
                             </Collapse>
                           </TableCell>
