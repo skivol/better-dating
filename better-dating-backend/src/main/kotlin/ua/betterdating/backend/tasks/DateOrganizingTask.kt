@@ -2,7 +2,6 @@ package ua.betterdating.backend.tasks
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Scheduled
@@ -15,7 +14,10 @@ import ua.betterdating.backend.data.*
 import ua.betterdating.backend.external.GoogleTimeZoneApi
 import ua.betterdating.backend.lazyRandom
 import ua.betterdating.backend.utils.*
-import java.time.*
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoField
 import java.util.*
 
@@ -42,13 +44,13 @@ class DateOrganizingTask(
     private val passwordEncoder: PasswordEncoder,
     private val transactionalOperator: TransactionalOperator,
     private val mailSender: FreemarkerMailSender,
-) {
+): CancellableTask() {
     private val log by LoggerDelegate()
 
     @Suppress("unused")
     @Scheduled(fixedDelayString = "PT5m") // run constantly with 5 minutes pause
     fun organizeDates() {
-        runBlocking {
+        runTask {
             doOrganize()
         }
     }

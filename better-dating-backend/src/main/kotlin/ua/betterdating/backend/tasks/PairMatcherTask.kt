@@ -3,16 +3,17 @@ package ua.betterdating.backend.tasks
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.runBlocking
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
-import ua.betterdating.backend.*
+import ua.betterdating.backend.FreemarkerMailSender
+import ua.betterdating.backend.Gender
+import ua.betterdating.backend.Recurrence
 import ua.betterdating.backend.Recurrence.*
+import ua.betterdating.backend.UsageGoal
 import ua.betterdating.backend.data.*
 import ua.betterdating.backend.utils.LoggerDelegate
 import java.time.Instant
-import java.time.LocalDateTime
 
 val abstaining = listOf(neverDidAndNotGoingInFuture, didBeforeNotGoingInFuture)
 val undecided = listOf(neverDidButDoNotKnowIfGoingToDoInFuture, didBeforeButDoNotKnowIfGoingToDoInFuture)
@@ -25,12 +26,12 @@ class PairMatcherTask(
     private val loginInformationRepository: LoginInformationRepository,
     private val transactionalOperator: TransactionalOperator,
     private val mailSender: FreemarkerMailSender
-) {
+): CancellableTask() {
     private val log by LoggerDelegate()
 
     @Scheduled(fixedDelayString = "PT5m") // run constantly with 5 minutes pause
     fun match() {
-        runBlocking { // https://kotlinlang.org/docs/coroutine-context-and-dispatchers.html
+        runTask {
             doMatching()
         }
 

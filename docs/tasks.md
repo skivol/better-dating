@@ -1,4 +1,3 @@
-- gracefull shutdown (handle it in tasks)
 - instant / kotlin enum naming convention
 
 - credits to koatuu / leafletjs / react-leaflet / mapbox / google timezone api

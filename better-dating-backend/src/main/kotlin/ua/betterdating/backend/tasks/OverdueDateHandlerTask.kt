@@ -1,6 +1,5 @@
 package ua.betterdating.backend.tasks
 
-import kotlinx.coroutines.runBlocking
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
@@ -12,13 +11,13 @@ class OverdueDateHandlerTask(
     private val datesRepository: DatesRepository,
     private val expiringTokenRepository: ExpiringTokenRepository,
     private val transactionalOperator: TransactionalOperator,
-) {
+): CancellableTask() {
     private val log by LoggerDelegate()
 
     @Suppress("unused")
     @Scheduled(fixedDelayString = "PT12h") // run couple times a day
     fun markOverdueDates() {
-        runBlocking {
+        runTask {
             doMarkOverdueDates()
         }
     }
