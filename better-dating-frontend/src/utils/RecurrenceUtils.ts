@@ -1,61 +1,61 @@
 import * as Messages from "../Messages";
 
 export type Recurrence =
-  | "neverPurposefully"
-  | "neverDidButDoNotKnowIfGoingToDoInFuture"
-  | "neverDidAndNotGoingInFuture"
-  | "didBeforeButDoNotKnowIfGoingToDoInFuture"
-  | "didBeforeNotGoingInFuture"
-  | "coupleTimesInYearOrMoreSeldom"
-  | "coupleTimesInYear"
-  | "coupleTimesInMonth"
-  | "coupleTimesInWeek"
-  | "everyDay"
-  | "severalTimesInDay";
+  | "NeverPurposefully"
+  | "NeverDidButDoNotKnowIfGoingToDoInFuture"
+  | "NeverDidAndNotGoingInFuture"
+  | "DidBeforeButDoNotKnowIfGoingToDoInFuture"
+  | "DidBeforeNotGoingInFuture"
+  | "CoupleTimesInYearOrMoreSeldom"
+  | "CoupleTimesInYear"
+  | "CoupleTimesInMonth"
+  | "CoupleTimesInWeek"
+  | "EveryDay"
+  | "SeveralTimesInDay";
 
 const neverPurposefully = {
   label: Messages.neverPurposefully,
-  value: "neverPurposefully",
+  value: "NeverPurposefully",
 };
 const neverDidAndNotGoingInFuture = {
   label: Messages.neverDidAndNotGoingInFuture,
-  value: "neverDidAndNotGoingInFuture",
+  value: "NeverDidAndNotGoingInFuture",
 };
 const neverDidButDoNotKnowIfGoingToDoInFuture = {
   label: Messages.neverDidButDoNotKnowIfGoingToDoInFuture,
-  value: "neverDidButDoNotKnowIfGoingToDoInFuture",
+  value: "NeverDidButDoNotKnowIfGoingToDoInFuture",
 };
 const didBeforeButDoNotKnowIfGoingToDoInFuture = {
   label: Messages.didBeforeButDoNotKnowIfGoingToDoInFuture,
-  value: "didBeforeButDoNotKnowIfGoingToDoInFuture",
+  value: "DidBeforeButDoNotKnowIfGoingToDoInFuture",
 };
 const didBeforeNotGoingInFuture = {
   label: Messages.didBeforeNotGoingInFuture,
-  value: "didBeforeNotGoingInFuture",
+  value: "DidBeforeNotGoingInFuture",
 };
 const coupleTimesInYear = {
   label: Messages.coupleTimesInYear,
-  value: "coupleTimesInYear",
+  value: "CoupleTimesInYear",
 };
 const coupleTimesInMonth = {
   label: Messages.coupleTimesInMonth,
-  value: "coupleTimesInMonth",
+  value: "CoupleTimesInMonth",
 };
 const coupleTimesInWeek = {
   label: Messages.coupleTimesInWeek,
-  value: "coupleTimesInWeek",
+  value: "CoupleTimesInWeek",
 };
 const everyDay = {
   label: Messages.everyDay,
-  value: "everyDay",
+  value: "EveryDay",
 };
 const severalTimesInDay = {
   label: Messages.severalTimesInDay,
-  value: "severalTimesInDay",
+  value: "SeveralTimesInDay",
 };
 const coupleTimesInYearOrMoreSeldom = {
   label: Messages.coupleTimesInYearOrMoreSeldom,
-  value: "coupleTimesInYearOrMoreSeldom",
+  value: "CoupleTimesInYearOrMoreSeldom",
 };
 
 const defaultOptions = [

@@ -13,12 +13,10 @@ import ua.betterdating.backend.data.*
 import ua.betterdating.backend.external.GoogleTimeZoneApi
 import ua.betterdating.backend.tasks.findAvailableDatingSpotsIn
 import ua.betterdating.backend.utils.formatDateTime
-import ua.betterdating.backend.utils.okEmptyJsonObject
 import java.time.*
 import java.time.ZoneOffset.UTC
 import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalField
 import java.util.*
 
 class DatingData(val pairs: List<FullDatingPairInfo>, val dates: List<FullDateInfo>)

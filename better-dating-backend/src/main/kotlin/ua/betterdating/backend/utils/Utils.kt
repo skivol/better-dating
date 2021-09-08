@@ -13,7 +13,6 @@ import ua.betterdating.backend.Gender
 import ua.betterdating.backend.Recurrence
 import ua.betterdating.backend.data.WhenAndWhere
 import java.net.IDN
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -34,8 +33,8 @@ fun Any?.toGender(): Gender = Gender.valueOf(this as String)
 fun Any?.toAppearanceType(): AppearanceType = AppearanceType.valueOf(this as String)
 
 fun formatDateTime(whenAndWhere: WhenAndWhere): String = formatDateTime(whenAndWhere.timeAndDate.withZoneSameInstant(whenAndWhere.timeZone))
-fun formatDateTime(localDateTime: ZonedDateTime): String =
-    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm z").format(localDateTime)
+fun formatDateTime(zonedDateTime: ZonedDateTime): String =
+    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm z").format(zonedDateTime)
 
 // https://stackoverflow.com/a/48133200
 fun <T, S, V> Collection<T>.cartesianProduct(other: Iterable<S>, transformer: (first: T, second: S) -> V): List<V> {

@@ -95,8 +95,8 @@ class ProfileRemovalHandler(
             userPopulatedLocalityRepository.delete(currentUserProfileId)
             userLanguageRepository.delete(currentUserProfileId)
             userInterestRepository.delete(currentUserProfileId)
-            userPersonalQualityRepository.delete(currentUserProfileId, Attitude.likes)
-            userPersonalQualityRepository.delete(currentUserProfileId, Attitude.dislikes)
+            userPersonalQualityRepository.delete(currentUserProfileId, Attitude.Likes)
+            userPersonalQualityRepository.delete(currentUserProfileId, Attitude.Dislikes)
 
             checkInRepository.delete(currentUserProfileId)
             decisionRepository.delete(currentUserProfileId)

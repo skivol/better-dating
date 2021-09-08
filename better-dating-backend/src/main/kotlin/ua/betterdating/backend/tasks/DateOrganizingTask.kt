@@ -189,7 +189,7 @@ suspend fun generateAndSaveDateVerificationToken(
     val dateVerificationToken =
         withContext(Dispatchers.Default) { lazyRandom.nextInt(999_999_999).toString() }
     val expiringToken = ExpiringToken(
-        profileId = tokenUserProfileId, expires = scheduledDateTime.plusDays(2).toLocalDateTime(),
+        profileId = tokenUserProfileId, expires = scheduledDateTime.plusDays(2).toInstant(),
         encodedValue = passwordEncoder.encode(dateVerificationToken), type = TokenType.DATE_VERIFICATION
     )
     expiringTokenRepository.deleteByProfileIdAndTypeIfAny(tokenUserProfileId, TokenType.DATE_VERIFICATION)

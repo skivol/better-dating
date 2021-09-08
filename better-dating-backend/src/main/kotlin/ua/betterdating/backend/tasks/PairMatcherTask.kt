@@ -15,9 +15,9 @@ import ua.betterdating.backend.data.*
 import ua.betterdating.backend.utils.LoggerDelegate
 import java.time.Instant
 
-val abstaining = listOf(neverDidAndNotGoingInFuture, didBeforeNotGoingInFuture)
-val undecided = listOf(neverDidButDoNotKnowIfGoingToDoInFuture, didBeforeButDoNotKnowIfGoingToDoInFuture)
-val doing = listOf(coupleTimesInYearOrMoreSeldom, coupleTimesInYear, coupleTimesInMonth, coupleTimesInWeek, everyDay, severalTimesInDay)
+val abstaining = listOf(NeverDidAndNotGoingInFuture, DidBeforeNotGoingInFuture)
+val undecided = listOf(NeverDidButDoNotKnowIfGoingToDoInFuture, DidBeforeButDoNotKnowIfGoingToDoInFuture)
+val doing = listOf(CoupleTimesInYearOrMoreSeldom, CoupleTimesInYear, CoupleTimesInMonth, CoupleTimesInWeek, EveryDay, SeveralTimesInDay)
 
 class PairMatcherTask(
     private val pairsRepository: PairsRepository,
@@ -51,8 +51,8 @@ class PairMatcherTask(
 
     private suspend fun findMatches(targetProfileWithEmail: ProfileMatchInformationWithEmail) {
         val targetProfile = targetProfileWithEmail.profileMatchInformation
-        val lookingForCandidatesForMaleUser = targetProfile.gender == Gender.male
-        val candidateGender = if (lookingForCandidatesForMaleUser) Gender.female else Gender.male
+        val lookingForCandidatesForMaleUser = targetProfile.gender == Gender.Male
+        val candidateGender = if (lookingForCandidatesForMaleUser) Gender.Female else Gender.Male
 
         // age - male either a bit younger than female (within 2 years)
         val candidateBirthdayFrom = targetProfile.birthday.minusYears(

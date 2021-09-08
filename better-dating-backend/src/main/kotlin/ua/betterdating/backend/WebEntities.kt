@@ -83,7 +83,7 @@ open class Profile(
 }
 
 enum class Relation {
-    matchedProfile, authorsProfile
+    MatchedProfile, AuthorsProfile
 }
 class ProfileViewData(
     val profile: Profile,
@@ -91,38 +91,38 @@ class ProfileViewData(
 )
 
 enum class Gender {
-    female, male
+    Female, Male
 }
 
 enum class ActivityType {
-    physicalExercise,
-    smoking,
-    alcohol,
-    computerGames,
-    gambling,
-    haircut,
-    hairColoring,
-    makeup,
-    intimateRelationsOutsideOfMarriage,
-    pornographyWatching
+    PhysicalExercise,
+    Smoking,
+    Alcohol,
+    ComputerGames,
+    Gambling,
+    Haircut,
+    HairColoring,
+    Makeup,
+    IntimateRelationsOutsideOfMarriage,
+    PornographyWatching
 }
 
 enum class Recurrence {
-    neverPurposefully,
-    neverDidButDoNotKnowIfGoingToDoInFuture,
-    neverDidAndNotGoingInFuture,
-    didBeforeButDoNotKnowIfGoingToDoInFuture,
-    didBeforeNotGoingInFuture,
-    coupleTimesInYearOrMoreSeldom,
-    coupleTimesInYear,
-    coupleTimesInMonth,
-    coupleTimesInWeek,
-    everyDay,
-    severalTimesInDay
+    NeverPurposefully,
+    NeverDidButDoNotKnowIfGoingToDoInFuture,
+    NeverDidAndNotGoingInFuture,
+    DidBeforeButDoNotKnowIfGoingToDoInFuture,
+    DidBeforeNotGoingInFuture,
+    CoupleTimesInYearOrMoreSeldom,
+    CoupleTimesInYear,
+    CoupleTimesInMonth,
+    CoupleTimesInWeek,
+    EveryDay,
+    SeveralTimesInDay
 }
 
 enum class DeleteReason {
-    expectedSomethingElse, tooComplicated, other
+    ExpectedSomethingElse, TooComplicated, Other
 }
 
 data class DeleteProfileData(val token: String, val reason: DeleteReason, val explanationComment: String) {
@@ -138,15 +138,15 @@ enum class UsageGoal {
 }
 
 enum class AppearanceType {
-    european, oriental, caucasian, indian, darkSkinned, hispanic, middleEastern, american, mixed
+    European, Oriental, Caucasian, Indian, DarkSkinned, Hispanic, MiddleEastern, American, Mixed
 }
 
 enum class HairColor {
-    black, ginger, blond, brown, fair, gray
+    Black, Ginger, Blond, Brown, Fair, Gray
 }
 
 enum class EyeColor {
-    darkBlue, blue, gray, green, amber, olive, brown, black, yellow
+    DarkBlue, Blue, Gray, Green, Amber, Olive, Brown, Black, Yellow
 }
 
 data class SecondStageData(

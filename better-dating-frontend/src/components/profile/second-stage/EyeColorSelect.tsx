@@ -7,39 +7,39 @@ import * as Messages from "./Messages";
 const eyeColorOptions = [
   {
     label: Messages.darkBlue,
-    value: "darkBlue",
+    value: "DarkBlue",
   },
   {
     label: Messages.blue,
-    value: "blue",
+    value: "Blue",
   },
   {
     label: Messages.grayEyeColor,
-    value: "gray",
+    value: "Gray",
   },
   {
     label: Messages.green,
-    value: "green",
+    value: "Green",
   },
   {
     label: Messages.amber,
-    value: "amber",
+    value: "Amber",
   },
   {
     label: Messages.olive,
-    value: "olive",
+    value: "Olive",
   },
   {
     label: Messages.brownEyeColor,
-    value: "brown",
+    value: "Brown",
   },
   {
     label: Messages.blackEyeColor,
-    value: "black",
+    value: "Black",
   },
   {
     label: Messages.yellow,
-    value: "yellow",
+    value: "Yellow",
   },
 ].sort((a, b) => (a.label > b.label ? 1 : 0));
 

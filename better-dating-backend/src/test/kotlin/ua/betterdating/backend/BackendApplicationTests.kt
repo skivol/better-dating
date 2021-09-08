@@ -15,7 +15,9 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.transaction.reactive.TransactionalOperator
 import ua.betterdating.backend.data.*
+import java.time.Instant
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 // https://mockk.io
@@ -65,12 +67,12 @@ class BackendApplicationTests {
 
     private fun createProfileRequest(email: String): CreateProfileRequest {
         return CreateProfileRequest(
-                acceptTerms = true, email = email, gender = Gender.male, nickname = "skivol",
+                acceptTerms = true, email = email, gender = Gender.Male, nickname = "skivol",
                 birthday = LocalDate.now().minusYears(21), height = 180f, weight = 70f,
-                physicalExercise = Recurrence.everyDay, smoking = Recurrence.didBeforeNotGoingInFuture,
-                alcohol = Recurrence.didBeforeNotGoingInFuture, computerGames = Recurrence.coupleTimesInYearOrMoreSeldom,
-                gambling = Recurrence.neverDidAndNotGoingInFuture, haircut = Recurrence.coupleTimesInYear, hairColoring = Recurrence.neverDidAndNotGoingInFuture,
-                makeup = Recurrence.neverDidAndNotGoingInFuture, intimateRelationsOutsideOfMarriage = Recurrence.neverDidAndNotGoingInFuture, pornographyWatching = Recurrence.didBeforeNotGoingInFuture,
+                physicalExercise = Recurrence.EveryDay, smoking = Recurrence.DidBeforeNotGoingInFuture,
+                alcohol = Recurrence.DidBeforeNotGoingInFuture, computerGames = Recurrence.CoupleTimesInYearOrMoreSeldom,
+                gambling = Recurrence.NeverDidAndNotGoingInFuture, haircut = Recurrence.CoupleTimesInYear, hairColoring = Recurrence.NeverDidAndNotGoingInFuture,
+                makeup = Recurrence.NeverDidAndNotGoingInFuture, intimateRelationsOutsideOfMarriage = Recurrence.NeverDidAndNotGoingInFuture, pornographyWatching = Recurrence.DidBeforeNotGoingInFuture,
                 personalHealthEvaluation = 8
         )
     }
@@ -120,7 +122,7 @@ class BackendApplicationTests {
 
     private fun givenExistingToken(id: UUID, email: Email): ExpiringToken {
         // Given
-        val token = ExpiringToken(type = TokenType.EMAIL_VERIFICATION, profileId = email.id, expires = now().plusMinutes(5), encodedValue = id.toString())
+        val token = ExpiringToken(type = TokenType.EMAIL_VERIFICATION, profileId = email.id, expires = Instant.now().plus(5, ChronoUnit.MINUTES), encodedValue = id.toString())
         coEvery { emailVerificationTokenRepository.findById(eq(id)) } returns token
         return token
     }

@@ -23,7 +23,6 @@ import ua.betterdating.backend.utils.toGender
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -102,7 +101,7 @@ val userLanguages = """
         GROUP BY profile_id
      )
 """.trimIndent()
-const val bmiValue = "(lw.weight / (lh.height * lh.height / 10000))";
+const val bmiValue = "(lw.weight / (lh.height * lh.height / 10000))"
 val bmiCategory = """
     bmi_category AS (
         SELECT lh.profile_id,
@@ -211,10 +210,10 @@ class PairsRepository(
                 AND bc.category = $candidateBmi
                 AND pi.birthday BETWEEN '$candidateBirthdayFrom' AND '$candidateBirthdayTo'
                 AND lh.height BETWEEN $candidateHeightFrom AND $candidateHeightTo
-                AND array_position(${recurrencesArray(candidateSmoking)}, la.activity_recurrences[array_position(la.activity_names, 'smoking')]) IS NOT NULL
-                AND array_position(${recurrencesArray(candidateAlcohol)}, la.activity_recurrences[array_position(la.activity_names, 'alcohol')]) IS NOT NULL
-                AND array_position(${recurrencesArray(candidatePornographyWatching)}, la.activity_recurrences[array_position(la.activity_names, 'pornographyWatching')]) IS NOT NULL
-                AND array_position(${recurrencesArray(candidateIntimateRelationsOutsideOfMarriage)}, la.activity_recurrences[array_position(la.activity_names, 'intimateRelationsOutsideOfMarriage')]) IS NOT NULL
+                AND array_position(${recurrencesArray(candidateSmoking)}, la.activity_recurrences[array_position(la.activity_names, '${Smoking}')]) IS NOT NULL
+                AND array_position(${recurrencesArray(candidateAlcohol)}, la.activity_recurrences[array_position(la.activity_names, '${Alcohol}')]) IS NOT NULL
+                AND array_position(${recurrencesArray(candidatePornographyWatching)}, la.activity_recurrences[array_position(la.activity_names, '${PornographyWatching}')]) IS NOT NULL
+                AND array_position(${recurrencesArray(candidateIntimateRelationsOutsideOfMarriage)}, la.activity_recurrences[array_position(la.activity_names, '${IntimateRelationsOutsideOfMarriage}')]) IS NOT NULL
                 AND dpi.appearance_type = '$appearanceType'
                 AND upl.populated_locality_id = '$populatedLocalityId'
                 AND ul.language_ids::uuid[] && ${uuidArray(nativeLanguages.map { it.id })}
@@ -360,10 +359,10 @@ class PairsRepository(
 
                 row["bmi_category"] as Int,
 
-                extractActivity(row, smoking),
-                extractActivity(row, alcohol),
-                extractActivity(row, intimateRelationsOutsideOfMarriage),
-                extractActivity(row, pornographyWatching),
+                extractActivity(row, Smoking),
+                extractActivity(row, Alcohol),
+                extractActivity(row, IntimateRelationsOutsideOfMarriage),
+                extractActivity(row, PornographyWatching),
 
                 PopulatedLocality(
                     row["populated_locality_id"] as UUID,

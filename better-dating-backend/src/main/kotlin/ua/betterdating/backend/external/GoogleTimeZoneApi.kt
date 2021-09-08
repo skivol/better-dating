@@ -6,8 +6,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.awaitExchange
 import ua.betterdating.backend.utils.LoggerDelegate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.time.ZonedDateTime
 
 /**

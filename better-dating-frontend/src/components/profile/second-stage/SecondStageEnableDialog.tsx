@@ -39,7 +39,9 @@ export const SecondStageEnableDialog = ({
       <Form
         key={formKey}
         initialValues={initialValues}
-        onSubmit={onEnableSecondStage}
+        onSubmit={(values) =>
+          onEnableSecondStage(values).then(() => storage.clear())
+        }
         render={({ handleSubmit }) => {
           const storedData = storage.load();
           const hasData = Object.keys(storedData).length > 1;

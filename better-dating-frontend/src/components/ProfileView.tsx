@@ -5,7 +5,7 @@ import { Profile } from "./Profile";
 import { ProfileFormData } from "./profile";
 import * as Messages from "./Messages";
 
-type ProfileViewRelation = "authorsProfile" | "matchedProfile";
+type ProfileViewRelation = "AuthorsProfile" | "MatchedProfile";
 
 type ViewProfileData = {
   profile: ProfileFormData;
@@ -16,7 +16,7 @@ const ProfileView = () => {
   const dispatch = useDispatch();
   const onSuccess = (profileData: ViewProfileData) => {
     const message =
-      profileData.relation === "matchedProfile"
+      profileData.relation === "MatchedProfile"
         ? Messages.matchedProfileTitle
         : Messages.authorsProfileTitle;
     return (

@@ -6,39 +6,39 @@ import * as Messages from "./Messages";
 const appearanceOptions = [
   {
     label: Messages.european,
-    value: "european",
+    value: "European",
   },
   {
     label: Messages.oriental,
-    value: "oriental",
+    value: "Oriental",
   },
   {
     label: Messages.caucasian,
-    value: "caucasian",
+    value: "Caucasian",
   },
   {
     label: Messages.indian,
-    value: "indian",
+    value: "Indian",
   },
   {
     label: Messages.darkSkinned,
-    value: "darkSkinned",
+    value: "DarkSkinned",
   },
   {
     label: Messages.hispanic,
-    value: "hispanic",
+    value: "Hispanic",
   },
   {
     label: Messages.middleEastern,
-    value: "middleEastern",
+    value: "MiddleEastern",
   },
   {
     label: Messages.american,
-    value: "american",
+    value: "American",
   },
   {
     label: Messages.mixed,
-    value: "mixed",
+    value: "Mixed",
   },
 ].sort((a, b) => (a.label > b.label ? 1 : 0));
 

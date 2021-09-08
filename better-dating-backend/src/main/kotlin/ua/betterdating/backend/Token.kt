@@ -6,8 +6,8 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import ua.betterdating.backend.data.ExpiringToken
 import ua.betterdating.backend.data.TokenType
 import java.security.SecureRandom
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 // Tokens handling
@@ -54,6 +54,5 @@ fun generateUrlSafeToken(): String {
 
 suspend fun randomDelay(min: Long, maxExtra: Int) = delay(min + lazyRandom.nextInt(maxExtra))
 
-fun now(): LocalDateTime = LocalDateTime.now(ZoneOffset.UTC)
-fun expiresValue(): LocalDateTime = now().plusDays(1)
-fun ExpiringToken.expired() = expires.isBefore(now())
+fun expiresValue(): Instant = Instant.now().plus(1, ChronoUnit.DAYS)
+fun ExpiringToken.expired() = expires.isBefore(Instant.now())

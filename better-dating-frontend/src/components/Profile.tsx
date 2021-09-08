@@ -16,6 +16,7 @@ import {
   useDialog,
   fromBackendProfileValues,
   TabPanel,
+  useUser,
 } from "../utils";
 import * as Messages from "./Messages";
 import {
@@ -85,19 +86,28 @@ export const Profile = ({
       })
       .finally(() => setLoading(false));
   };
+
+  const classes = useStyles();
+  const profileDataWithDate = fromBackendProfileValues(profileData);
+  const [initialValues, setInitialValues] = useState(profileDataWithDate);
+
+  const user = useUser();
   const onSecondStageActivationRequest = (values: any) => {
     setLoading(true);
-    dispatch(actions.activateSecondStage(values))
-      .then(() => {
+    return dispatch(actions.activateSecondStage(values))
+      .then((response: any) => {
+        const { secondStageData } = response || {};
+        if (secondStageData) {
+          setInitialValues({ ...initialValues, secondStageData });
+          dispatch(actions.user({ ...user, secondStageEnabled: true })); // to update menu
+        }
+
         closeDialog();
         setDialogType(null);
       })
       .finally(() => setLoading(false));
   };
 
-  const classes = useStyles();
-  const profileDataWithDate = fromBackendProfileValues(profileData);
-  const [initialValues, setInitialValues] = useState(profileDataWithDate);
   const [showAnalysis, setShowAnalysis] = useState(false);
 
   useEffect(() => {

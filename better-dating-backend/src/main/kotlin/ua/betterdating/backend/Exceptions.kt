@@ -18,7 +18,7 @@ import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
 import ua.betterdating.backend.data.Place
 import ua.betterdating.backend.handlers.LatLng
-import java.time.LocalDateTime
+import java.time.Instant
 
 val LOG: Logger = LoggerFactory.getLogger(ErrorResponseEntity::class.java)
 suspend fun mapErrorToResponse(e: Throwable, request: ServerRequest): ServerResponse {
@@ -127,7 +127,7 @@ class ErrorResponseEntity(
     val path = request.path()
     val status = status.value()
     val error = status.reasonPhrase
-    val timestamp: LocalDateTime = now()
+    val timestamp: Instant = Instant.now()
 }
 
 class EmailNotFoundException : RuntimeException()

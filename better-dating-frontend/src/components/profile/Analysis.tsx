@@ -129,17 +129,17 @@ const analyzeBmi = (birthday: Date, height: number, weight: number) => {
 };
 
 const goodHabitSeverity = (recurrence: Recurrence) =>
-  ["coupleTimesInWeek", "everyDay", "severalTimesInDay"].includes(recurrence)
+  ["CoupleTimesInWeek", "EveryDay", "SeveralTimesInDay"].includes(recurrence)
     ? "success"
     : "warning";
 const badHabitSeverity = (recurrence: Recurrence) =>
-  ["neverDidAndNotGoingInFuture", "didBeforeNotGoingInFuture"].includes(
+  ["NeverDidAndNotGoingInFuture", "DidBeforeNotGoingInFuture"].includes(
     recurrence
   )
     ? "success"
     : "warning";
 const neutralHabitSeverity = (recurrence: Recurrence) =>
-  ["everyDay", "severalTimesInDay"].includes(recurrence)
+  ["EveryDay", "SeveralTimesInDay"].includes(recurrence)
     ? "warning"
     : "success";
 

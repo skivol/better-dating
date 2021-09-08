@@ -85,9 +85,9 @@ export const EvaluateProfileDialog = ({
           credibility
             ? {
                 credibilityCategory: credibility.category,
-                credibilityComment: credibility.comment,
+                credibilityExplanationComment: credibility.comment,
                 improvementCategory: improvement.category,
-                improvementComment: improvement.comment,
+                improvementExplanationComment: improvement.comment,
               }
             : null
         }

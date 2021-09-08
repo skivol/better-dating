@@ -1,21 +1,17 @@
 package ua.betterdating.backend.handlers
 
 import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactive.awaitFirstOrNull
-import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.web.server.WebFilterExchange
-import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import org.springframework.web.reactive.function.server.*
 import org.springframework.web.reactive.function.server.ServerResponse.ok
-import reactor.core.publisher.Mono
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
 import ua.betterdating.backend.data.TokenType.VIEW_OTHER_USER_PROFILE
 import ua.betterdating.backend.data.*
 import ua.betterdating.backend.utils.*
+import java.time.Instant
 import java.util.*
 
 class UserProfileHandler(
@@ -49,7 +45,7 @@ class UserProfileHandler(
         val email = Email(email = validCreateProfileRequest.email, verified = false)
         val profileId = email.id
         validCreateProfileRequest.id = profileId
-        val now = now()
+        val now = Instant.now()
         val acceptedTerms = AcceptedTerms(profileId = profileId, lastDateAccepted = now)
         val profileInfo = ProfileInfo(
                 profileId = profileId, nickname = validCreateProfileRequest.nickname,
@@ -59,23 +55,23 @@ class UserProfileHandler(
         val height = Height(profileId = profileId, date = now, height = validCreateProfileRequest.height)
         val weight = Weight(profileId = profileId, date = now, weight = validCreateProfileRequest.weight)
         val activities = mutableListOf(
-                Activity(profileId = profileId, name = physicalExercise.name, date = now, recurrence = validCreateProfileRequest.physicalExercise),
-                Activity(profileId = profileId, name = smoking.name, date = now, recurrence = validCreateProfileRequest.smoking),
-                Activity(profileId = profileId, name = alcohol.name, date = now, recurrence = validCreateProfileRequest.alcohol),
-                Activity(profileId = profileId, name = computerGames.name, date = now, recurrence = validCreateProfileRequest.computerGames),
-                Activity(profileId = profileId, name = gambling.name, date = now, recurrence = validCreateProfileRequest.gambling),
-                Activity(profileId = profileId, name = haircut.name, date = now, recurrence = validCreateProfileRequest.haircut),
-                Activity(profileId = profileId, name = hairColoring.name, date = now, recurrence = validCreateProfileRequest.hairColoring),
-                Activity(profileId = profileId, name = makeup.name, date = now, recurrence = validCreateProfileRequest.makeup)
+                Activity(profileId = profileId, name = PhysicalExercise.name, date = now, recurrence = validCreateProfileRequest.physicalExercise),
+                Activity(profileId = profileId, name = Smoking.name, date = now, recurrence = validCreateProfileRequest.smoking),
+                Activity(profileId = profileId, name = Alcohol.name, date = now, recurrence = validCreateProfileRequest.alcohol),
+                Activity(profileId = profileId, name = ComputerGames.name, date = now, recurrence = validCreateProfileRequest.computerGames),
+                Activity(profileId = profileId, name = Gambling.name, date = now, recurrence = validCreateProfileRequest.gambling),
+                Activity(profileId = profileId, name = Haircut.name, date = now, recurrence = validCreateProfileRequest.haircut),
+                Activity(profileId = profileId, name = HairColoring.name, date = now, recurrence = validCreateProfileRequest.hairColoring),
+                Activity(profileId = profileId, name = Makeup.name, date = now, recurrence = validCreateProfileRequest.makeup)
         )
         validCreateProfileRequest.intimateRelationsOutsideOfMarriage?.let {
             activities.add(
-                    Activity(profileId = profileId, name = intimateRelationsOutsideOfMarriage.name, date = now, recurrence = it)
+                    Activity(profileId = profileId, name = IntimateRelationsOutsideOfMarriage.name, date = now, recurrence = it)
             )
         }
         validCreateProfileRequest.pornographyWatching?.let {
             activities.add(
-                    Activity(profileId = profileId, name = pornographyWatching.name, date = now, recurrence = it)
+                    Activity(profileId = profileId, name = PornographyWatching.name, date = now, recurrence = it)
             )
         }
         val profileEvaluation = ProfileEvaluation(
@@ -156,13 +152,13 @@ class UserProfileHandler(
 
                 val changedLikedPersonalQualities = changedLikedPersonalQualities(existing, updated)
                 changedLikedPersonalQualities?.let {
-                    userPersonalQualityRepository.delete(existing.id!!, Attitude.likes)
+                    userPersonalQualityRepository.delete(existing.id!!, Attitude.Likes)
                     it.forEach { likedQuality -> userPersonalQualityRepository.save(likedQuality) }
                 }
 
                 val changedDislikedPersonalQualities = changedDislikedPersonalQualities(existing, updated)
                 changedDislikedPersonalQualities?.let {
-                    userPersonalQualityRepository.delete(existing.id!!, Attitude.dislikes)
+                    userPersonalQualityRepository.delete(existing.id!!, Attitude.Dislikes)
                     it.forEach { dislikedQuality -> userPersonalQualityRepository.save(dislikedQuality) }
                 }
             }
@@ -232,7 +228,7 @@ class UserProfileHandler(
             it.email = "" // we're not revealing target user email here
         }
         val activePair = pairsRepository.findPair(dbToken.profileId, tokenData.targetProfileId)
-        val relation = if (activePair == null) Relation.authorsProfile else Relation.matchedProfile
+        val relation = if (activePair == null) Relation.AuthorsProfile else Relation.MatchedProfile
         val profileViewData = ProfileViewData(targetProfileData, relation)
 
         transactionalOperator.executeAndAwait {
@@ -266,13 +262,16 @@ class UserProfileHandler(
             body.nativeLanguages.forEachIndexed { index, language -> userLanguageRepository.save(UserLanguage(currentUserProfile.id!!, language.id, index)) }
             body.interests.forEachIndexed { index, interest -> userInterestRepository.save(UserInterest(currentUserProfile.id!!, interest.id, index)) }
             body.likedPersonalQualities.forEachIndexed { index, personalQuality -> userPersonalQualityRepository.save(
-                UserPersonalQuality(currentUserProfile.id!!, personalQuality.id, Attitude.likes, index)
+                UserPersonalQuality(currentUserProfile.id!!, personalQuality.id, Attitude.Likes, index)
             ) }
             body.dislikedPersonalQualities.forEachIndexed { index, personalQuality -> userPersonalQualityRepository.save(
-                UserPersonalQuality(currentUserProfile.id!!, personalQuality.id, Attitude.dislikes, index)
+                UserPersonalQuality(currentUserProfile.id!!, personalQuality.id, Attitude.Dislikes, index)
             ) }
         }
-        return okEmptyJsonObject()
+        val secondStageData = secondStageProfileInformation(currentUserProfile.id!!)
+        return ok().json().bodyValueAndAwait(object {
+            val secondStageData = secondStageData
+        })
     }
 
     private suspend fun currentUserProfile(request: ServerRequest): Profile {
@@ -286,10 +285,10 @@ class UserProfileHandler(
         val height = heightRepository.findLatestByProfileId(profileId)
         val weight = weightRepository.findLatestByProfileId(profileId)
         val activityNames = listOf(
-                physicalExercise.name, smoking.name, alcohol.name,
-                computerGames.name, gambling.name, haircut.name,
-                hairColoring.name, makeup.name, intimateRelationsOutsideOfMarriage.name,
-                pornographyWatching.name
+                PhysicalExercise.name, Smoking.name, Alcohol.name,
+                ComputerGames.name, Gambling.name, Haircut.name,
+                HairColoring.name, Makeup.name, IntimateRelationsOutsideOfMarriage.name,
+                PornographyWatching.name
         )
         val activities = activityRepository.findLatestByProfileId(profileId, activityNames).collectMap { it.name }.awaitFirst()
         val personalHealthEvaluation = profileEvaluationRepository.findLatestHealthEvaluationByProfileId(profileId)
@@ -304,9 +303,9 @@ class UserProfileHandler(
         val nativeLanguages = languagesRepository.findAll(userLanguages.map { it.languageId })
         val userInterests = userInterestRepository.find(profileId)
         val interests = interestsRepository.findAll(userInterests.map { it.interestId })
-        val userLikedPersonalQualities = userPersonalQualityRepository.find(profileId, Attitude.likes)
+        val userLikedPersonalQualities = userPersonalQualityRepository.find(profileId, Attitude.Likes)
         val likedPersonalQualities = personalQualitiesRepository.find(userLikedPersonalQualities.map { it.personalQualityId })
-        val userDislikedPersonalQualities = userPersonalQualityRepository.find(profileId, Attitude.dislikes)
+        val userDislikedPersonalQualities = userPersonalQualityRepository.find(profileId, Attitude.Dislikes)
         val dislikedPersonalQualities = personalQualitiesRepository.find(userDislikedPersonalQualities.map { it.personalQualityId })
 
         return SecondStageData(

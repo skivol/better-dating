@@ -2,13 +2,16 @@ package ua.betterdating.backend.data
 
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.data.annotation.Id
-import org.springframework.data.r2dbc.core.*
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
+import org.springframework.data.r2dbc.core.insert
+import org.springframework.data.r2dbc.core.update
+import org.springframework.data.r2dbc.core.usingAndAwait
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
 import org.springframework.data.relational.core.query.Update
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitOneOrNull
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.*
 
 data class DateVerificationTokenData(
@@ -45,7 +48,7 @@ class DateVerificationTokenDataRepository(
                     row["id"] as UUID,
                     row["profile_id"] as UUID,
                     TokenType.valueOf(row["type"] as String),
-                    row["expires"] as LocalDateTime,
+                    (row["expires"] as OffsetDateTime).toInstant(),
                     row["encoded_value"] as String
                 ))
             }

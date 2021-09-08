@@ -178,8 +178,12 @@ export const activateSecondStage =
   (values: any): any =>
   async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
-      await postData("/api/user/profile/activate-second-stage", values);
+      const response = await postData(
+        "/api/user/profile/activate-second-stage",
+        values
+      );
       showInfo(dispatch, Messages.secondStageEnabled);
+      return response;
     } catch (error) {
       showError(dispatch, Messages.oopsSomethingWentWrong);
       throw error;

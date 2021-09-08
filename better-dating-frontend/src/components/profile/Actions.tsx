@@ -101,34 +101,29 @@ const actions = [
 ];
 
 // eslint-disable-next-line react/display-name
-const actionSelect = (values: any, showAnalysis = false, readonly = false) => ({
-  analysisType,
-  validate,
-  required,
-  name,
-  label,
-  data,
-  helperText,
-}: any) => (
-  <AnalyzedSection
-    key={name}
-    values={values}
-    visible={showAnalysis}
-    type={analysisType}
-  >
-    <PaperGrid>
-      <Select
-        disabled={readonly}
-        required={required}
-        fieldProps={{ validate }}
-        name={name}
-        label={label}
-        data={data}
-        helperText={helperText}
-      />
-    </PaperGrid>
-  </AnalyzedSection>
-);
+const actionSelect =
+  (values: any, showAnalysis = false, readonly = false) =>
+  ({ analysisType, validate, required, name, label, data, helperText }: any) =>
+    (
+      <AnalyzedSection
+        key={name}
+        values={values}
+        visible={showAnalysis}
+        type={analysisType}
+      >
+        <PaperGrid>
+          <Select
+            disabled={readonly}
+            required={required}
+            fieldProps={{ validate }}
+            name={name}
+            label={label}
+            data={data}
+            helperText={helperText}
+          />
+        </PaperGrid>
+      </AnalyzedSection>
+    );
 
 export const renderActions = (
   values: any,

@@ -2,8 +2,8 @@ package ua.betterdating.backend.data
 
 import org.springframework.data.annotation.Id
 import ua.betterdating.backend.*
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class Email(
@@ -16,7 +16,7 @@ class ExpiringToken(
         @Id val id: UUID = UUID.randomUUID(),
         val profileId: UUID,
         val type: TokenType,
-        val expires: LocalDateTime,
+        val expires: Instant,
         val encodedValue: String
 )
 
@@ -30,7 +30,7 @@ enum class TokenType {
 
 class AcceptedTerms(
         @Id val profileId: UUID,
-        val lastDateAccepted: LocalDateTime
+        val lastDateAccepted: Instant
 )
 
 class ProfileInfo(
@@ -38,33 +38,33 @@ class ProfileInfo(
         val nickname: String,
         val gender: Gender,
         val birthday: LocalDate,
-        val createdAt: LocalDateTime?,
-        val updatedAt: LocalDateTime?
+        val createdAt: Instant?,
+        val updatedAt: Instant?
 )
 
 class Height(
         @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
-        val date: LocalDateTime,
+        val date: Instant,
         val height: Float
 )
 
 class Weight(
         @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
-        val date: LocalDateTime,
+        val date: Instant,
         val weight: Float
 )
 
 class Activity(
         @Id val profileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
         val name: String,
-        val date: LocalDateTime,
+        val date: Instant,
         val recurrence: Recurrence
 )
 
 class ProfileEvaluation(
         @Id val sourceProfileId: UUID, // the actual primary key is composite, specified here to avoid spring-data complaining
         val targetProfileId: UUID,
-        val date: LocalDateTime,
+        val date: Instant,
         val evaluation: Int,
         val comment: String?
 )
@@ -139,7 +139,7 @@ class UserInterest(
 )
 
 enum class Attitude {
-    likes, dislikes
+    Likes, Dislikes
 }
 
 class UserPersonalQuality(

@@ -16,7 +16,7 @@ const genderRadioData = [
         {Messages.female}
       </>
     ),
-    value: "female",
+    value: "Female",
   },
   {
     label: (
@@ -29,7 +29,7 @@ const genderRadioData = [
         {Messages.male}
       </>
     ),
-    value: "male",
+    value: "Male",
   },
 ];
 

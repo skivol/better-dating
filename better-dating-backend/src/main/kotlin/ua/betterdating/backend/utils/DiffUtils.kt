@@ -3,59 +3,60 @@ package ua.betterdating.backend.utils
 import ua.betterdating.backend.*
 import ua.betterdating.backend.ActivityType.*
 import ua.betterdating.backend.data.*
+import java.time.Instant
 
 fun changedHealthEvaluation(existingProfile: Profile, profile: Profile) = if (existingProfile.personalHealthEvaluation != profile.personalHealthEvaluation) {
-    ProfileEvaluation(existingProfile.id!!, existingProfile.id!!, now(), profile.personalHealthEvaluation, null)
+    ProfileEvaluation(existingProfile.id!!, existingProfile.id!!, Instant.now(), profile.personalHealthEvaluation, null)
 } else {
     null
 }
 
 fun changedActivities(existing: Profile, updated: Profile): List<Activity> {
     val changedActivities = mutableListOf<Activity>()
-    val now = now()
+    val now = Instant.now()
     val profileId = existing.id!!
 
     if (existing.physicalExercise != updated.physicalExercise) {
-        changedActivities.add(Activity(profileId, physicalExercise.name, now, updated.physicalExercise))
+        changedActivities.add(Activity(profileId, PhysicalExercise.name, now, updated.physicalExercise))
     }
     if (existing.smoking != updated.smoking) {
-        changedActivities.add(Activity(profileId, smoking.name, now, updated.smoking))
+        changedActivities.add(Activity(profileId, Smoking.name, now, updated.smoking))
     }
     if (existing.alcohol != updated.alcohol) {
-        changedActivities.add(Activity(profileId, alcohol.name, now, updated.alcohol))
+        changedActivities.add(Activity(profileId, Alcohol.name, now, updated.alcohol))
     }
     if (existing.computerGames != updated.computerGames) {
-        changedActivities.add(Activity(profileId, computerGames.name, now, updated.computerGames))
+        changedActivities.add(Activity(profileId, ComputerGames.name, now, updated.computerGames))
     }
     if (existing.gambling != updated.gambling) {
-        changedActivities.add(Activity(profileId, gambling.name, now, updated.gambling))
+        changedActivities.add(Activity(profileId, Gambling.name, now, updated.gambling))
     }
     if (existing.haircut != updated.haircut) {
-        changedActivities.add(Activity(profileId, haircut.name, now, updated.haircut))
+        changedActivities.add(Activity(profileId, Haircut.name, now, updated.haircut))
     }
     if (existing.hairColoring != updated.hairColoring) {
-        changedActivities.add(Activity(profileId, hairColoring.name, now, updated.hairColoring))
+        changedActivities.add(Activity(profileId, HairColoring.name, now, updated.hairColoring))
     }
     if (existing.makeup != updated.makeup) {
-        changedActivities.add(Activity(profileId, makeup.name, now, updated.makeup))
+        changedActivities.add(Activity(profileId, Makeup.name, now, updated.makeup))
     }
     if (updated.intimateRelationsOutsideOfMarriage != null && existing.intimateRelationsOutsideOfMarriage != updated.intimateRelationsOutsideOfMarriage) {
-        changedActivities.add(Activity(profileId, intimateRelationsOutsideOfMarriage.name, now, updated.intimateRelationsOutsideOfMarriage))
+        changedActivities.add(Activity(profileId, IntimateRelationsOutsideOfMarriage.name, now, updated.intimateRelationsOutsideOfMarriage))
     }
     if (updated.pornographyWatching != null && existing.pornographyWatching != updated.pornographyWatching) {
-        changedActivities.add(Activity(profileId, pornographyWatching.name, now, updated.pornographyWatching))
+        changedActivities.add(Activity(profileId, PornographyWatching.name, now, updated.pornographyWatching))
     }
     return changedActivities
 }
 
 fun changedWeight(existing: Profile, updated: Profile) = if (existing.weight != updated.weight) {
-    Weight(existing.id!!, now(), updated.weight)
+    Weight(existing.id!!, Instant.now(), updated.weight)
 } else {
     null
 }
 
 fun changedHeight(existing: Profile, updated: Profile) = if (existing.height != updated.height) {
-    Height(existing.id!!, now(), updated.height)
+    Height(existing.id!!, Instant.now(), updated.height)
 } else {
     null
 }
@@ -65,7 +66,7 @@ fun changedProfileInfo(existing: Profile, updated: Profile) = if (
         || existing.gender != updated.gender
         || existing.birthday != updated.birthday
 ) {
-    ProfileInfo(existing.id!!, updated.nickname, updated.gender, updated.birthday, null, now())
+    ProfileInfo(existing.id!!, updated.nickname, updated.gender, updated.birthday, null, Instant.now())
 } else {
     null
 }
@@ -135,7 +136,7 @@ fun changedLikedPersonalQualities(existing: Profile, updated: Profile): List<Use
 
     return if (existingLiked.size != updatedLiked.size
             || existingLiked.any { !updatedLiked.contains(it) }) {
-        updatedLiked.mapIndexed { i, likedQuality -> UserPersonalQuality(existing.id!!, likedQuality.id, Attitude.likes, i) }
+        updatedLiked.mapIndexed { i, likedQuality -> UserPersonalQuality(existing.id!!, likedQuality.id, Attitude.Likes, i) }
     } else {
         null
     }
@@ -147,7 +148,7 @@ fun changedDislikedPersonalQualities(existing: Profile, updated: Profile): List<
 
     return if (existingDisliked.size != updatedDisliked.size
             || existingDisliked.any { !updatedDisliked.contains(it) }) {
-        updatedDisliked.mapIndexed { i, dislikedQuality -> UserPersonalQuality(existing.id!!, dislikedQuality.id, Attitude.dislikes, i) }
+        updatedDisliked.mapIndexed { i, dislikedQuality -> UserPersonalQuality(existing.id!!, dislikedQuality.id, Attitude.Dislikes, i) }
     } else {
         null
     }

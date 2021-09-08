@@ -5,7 +5,7 @@ import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
 import org.springframework.r2dbc.core.DatabaseClient
 import ua.betterdating.backend.utils.toRecurrence
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.*
 
 class ActivityRepository(private val template: R2dbcEntityTemplate, private val client: DatabaseClient) {
@@ -21,7 +21,7 @@ class ActivityRepository(private val template: R2dbcEntityTemplate, private val 
                 Activity(
                         row["profile_id"] as UUID,
                         row["name"] as String,
-                        row["date"] as LocalDateTime,
+                        (row["date"] as OffsetDateTime).toInstant(),
                         row["recurrence"].toString().toRecurrence()
                 )
             }.all()

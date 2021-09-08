@@ -17,6 +17,7 @@ export interface ProfileFormData {
   pornographyWatching?: string;
   personalHealthEvaluation: number;
   eligibleForSecondStage?: boolean;
+  secondStageData?: any;
 }
 
 export const defaultValues = {

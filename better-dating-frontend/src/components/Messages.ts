@@ -386,15 +386,15 @@ export const formatProfileRemoved = (payload: any) =>
 export const removalReasonOptions = [
   {
     label: expectedSomethingElse,
-    value: "expectedSomethingElse",
+    value: "ExpectedSomethingElse",
   },
   {
     label: tooComplicated,
-    value: "tooComplicated",
+    value: "TooComplicated",
   },
   {
     label: other,
-    value: "other",
+    value: "Other",
   },
 ];
 

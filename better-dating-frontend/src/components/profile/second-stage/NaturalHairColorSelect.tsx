@@ -7,27 +7,27 @@ import * as Messages from "./Messages";
 const naturalHairColorOptions = [
   {
     label: Messages.black,
-    value: "black",
+    value: "Black",
   },
   {
     label: Messages.ginger,
-    value: "ginger",
+    value: "Ginger",
   },
   {
     label: Messages.blond,
-    value: "blond",
+    value: "Blond",
   },
   {
     label: Messages.brown,
-    value: "brown",
+    value: "Brown",
   },
   {
     label: Messages.fair,
-    value: "fair",
+    value: "Fair",
   },
   {
     label: Messages.gray,
-    value: "gray",
+    value: "Gray",
   },
 ].sort((a, b) => (a.label > b.label ? 1 : 0));
 
