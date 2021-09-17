@@ -63,7 +63,7 @@ data class DatingPair(
     var secondProfileSnapshot: ProfileMatchInformation? = null,
 )
 
-class FullDatingPairInfo(
+data class FullDatingPairInfo(
     val firstProfileNickname: String?,
     val secondProfileNickname: String?,
     val datingPair: DatingPair,

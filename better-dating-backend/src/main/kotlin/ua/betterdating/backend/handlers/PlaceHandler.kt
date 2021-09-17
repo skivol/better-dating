@@ -44,6 +44,8 @@ class PlaceHandler(
     private val mailSender: FreemarkerMailSender,
     private val mapboxConfig: MapboxConfig,
 ) {
+    private val log by LoggerDelegate()
+
     suspend fun resolvePopulatedLocalityCoordinatesForDate(request: ServerRequest): ServerResponse {
         val dateId = ensureCan(
             PlaceAction.AddPlace, request, dateIdFromRequest(request)
@@ -65,6 +67,7 @@ class PlaceHandler(
             }
             Coordinates(latLng[0], latLng[1], false)
         }
+        log.debug("Resolved {} coordinates", coordinates)
 
         return ok().json().bodyValueAndAwait(coordinates)
     }
@@ -157,10 +160,11 @@ class PlaceHandler(
             throw NotInTargetPopulatedLocalityException(populatedLocality.name)
         }
 
-        val suggestOtherPlaceFlow = relevantPlaces.size > 1
+        val suggestOtherPlaceFlow = relevantPlaces.isNotEmpty()
         val subject = "Нужно проверить ${if (suggestOtherPlaceFlow) "новое " else ""}место предложенное для организации свидания"
-        val secondProfileEmail = emailRepository.findById(pair.secondProfileId)!!.email
-        val secondProfileLastHost = loginInformationRepository.find(pair.secondProfileId).lastHost
+        val otherUserId = if (pair.firstProfileId == currentUserId) pair.secondProfileId else pair.firstProfileId
+        val otherUserProfileEmail = emailRepository.findById(otherUserId)!!.email
+        val otherUserProfileLastHost = loginInformationRepository.find(otherUserId).lastHost
         trackingTooCloseToOtherPlacesException(currentUserId) {
             transactionalOperator.executeAndAwait {
                 // save while checking new point is not too close to existing other points
@@ -178,9 +182,9 @@ class PlaceHandler(
                 // send mail to the second user
                 mailSender.sendLink(
                     "HelpToChooseThePlace.ftlh",
-                    secondProfileEmail,
+                    otherUserProfileEmail,
                     subject,
-                    secondProfileLastHost,
+                    otherUserProfileLastHost,
                     "проверка-места?свидание=${dateId}",
                 ) { link ->
                     object {

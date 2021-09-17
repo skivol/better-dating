@@ -36,8 +36,7 @@ export const Dating = ({ datingData }: Props) => {
       dateId: string,
       credibilityAndImprovement: any
     ) => {
-      const { otherCredibility, otherImprovement } =
-        credibilityAndImprovement || {};
+      const { otherCredibility, otherImprovement } = credibilityAndImprovement;
       const date = dateById(dateId);
       date.otherCredibility = otherCredibility;
       date.otherImprovement = otherImprovement;

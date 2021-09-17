@@ -60,7 +60,7 @@ class PlaceRepository(
         )
         ON CONFLICT (id, version) DO UPDATE SET
             name = EXCLUDED.name, status = EXCLUDED.status,
-            approved_by = EXCLUDED.approved_by, location = EXCLUDED.location
+            approved_by = EXCLUDED.approved_by, location = EXCLUDED.location, created_at = EXCLUDED.created_at
     """.trimIndent())
         .bind("id", place.id)
         .bind("name", place.name)

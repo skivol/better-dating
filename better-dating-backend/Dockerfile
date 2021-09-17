@@ -20,7 +20,8 @@ CMD ["sh", "-c", "java -XX:+UnlockExperimentalVMOptions \
       --mapbox.public.access-token=$MAPBOX_ACCESS_TOKEN_PUBLIC \
       --mapbox.private.access-token=$MAPBOX_ACCESS_TOKEN_PRIVATE \
       --google.access-token=$GOOGLE_ACCESS_TOKEN \
-      --datasource.url=\"r2dbc:postgresql://$DB_HOST/$DB_NAME\" \
+      --debug=$DEBUG \
+      --datasource.url=r2dbc:postgresql://$DB_HOST/$DB_NAME \
       --datasource.username=$DB_USER --passwordfiles.db=$DB_PASSWORD_FILE"]
 
 EXPOSE 8080

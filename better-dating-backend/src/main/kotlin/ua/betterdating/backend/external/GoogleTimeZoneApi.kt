@@ -18,7 +18,7 @@ import java.time.ZonedDateTime
      "timeZoneName": "Eastern European Summer Time"
     }
  */
-class GoogleTimeZoneApiResponse(
+data class GoogleTimeZoneApiResponse(
     val status: String,
     val errorMessage: String?,
     val timeZoneId: String?,

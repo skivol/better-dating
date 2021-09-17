@@ -101,4 +101,4 @@ fun createAuth(profileId: String, roles: List<UserRole>): UsernamePasswordAuthen
     return UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
 }
 
-class User(val id: String, val roles: List<String>, val secondStageEnabled: Boolean)
+data class User(val id: String, val roles: List<String>, val secondStageEnabled: Boolean)

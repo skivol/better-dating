@@ -89,7 +89,7 @@ export const DateRow = ({
     setLoading(true);
     dispatch(actions.evaluateProfile({ dateId, ...values }))
       .then((response: any) => {
-        dataUpdater.setCredibilityAndImprovement(dateId, response);
+        response && dataUpdater.setCredibilityAndImprovement(dateId, response);
         closeDialog();
         closeMenu();
       })
@@ -131,7 +131,7 @@ export const DateRow = ({
               const { dateStatus, pairActive } = response || {};
               closeDialog();
               closeMenu();
-              // think about error handling, currently we do not rethrow exception in from actions
+              // think about error handling, currently we do not rethrow exception from actions
               dateStatus && dataUpdater.setDate(dateId, { status: dateStatus });
               pairActive !== undefined &&
                 dataUpdater.setPairActive(pairId, pairActive);
@@ -144,7 +144,7 @@ export const DateRow = ({
               const { date, place } = response || {};
               closeDialog();
               closeMenu();
-              // think about error handling, currently we do not rethrow exception in from actions
+              // think about error handling, currently we do not rethrow exception from actions
               date && dataUpdater.setDate(dateId, date, place);
             }
           );

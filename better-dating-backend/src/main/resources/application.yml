@@ -60,16 +60,10 @@ logging:
 spring:
   config:
     activate:
-      on-profile: development | test
-datasource:
-  url: r2dbc:postgresql://localhost/postgres
----
-spring:
-  config:
-    activate:
       on-profile: test
 password-files:
   db: password.txt
   mail: password.txt
 datasource:
   username: postgres
+  url: r2dbc:postgresql://localhost/postgres

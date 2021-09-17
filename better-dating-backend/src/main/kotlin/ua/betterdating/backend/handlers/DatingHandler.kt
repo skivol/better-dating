@@ -12,6 +12,9 @@ import ua.betterdating.backend.*
 import ua.betterdating.backend.data.*
 import ua.betterdating.backend.external.GoogleTimeZoneApi
 import ua.betterdating.backend.tasks.findAvailableDatingSpotsIn
+import ua.betterdating.backend.tasks.generateAndSaveDateVerificationToken
+import ua.betterdating.backend.utils.bodyMentioningVerificationToken
+import ua.betterdating.backend.utils.bodyWithVerificationToken
 import ua.betterdating.backend.utils.formatDateTime
 import java.time.*
 import java.time.ZoneOffset.UTC
@@ -19,7 +22,7 @@ import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-class DatingData(val pairs: List<FullDatingPairInfo>, val dates: List<FullDateInfo>)
+data class DatingData(val pairs: List<FullDatingPairInfo>, val dates: List<FullDateInfo>)
 
 class DatingHandler(
     private val googleTimeZoneApi: GoogleTimeZoneApi,
@@ -228,9 +231,9 @@ class DatingHandler(
             ?: spotsShuffled.firstOrNull { it.timeAndDate != date.whenScheduled }
             ?: spotsShuffled.first()
 
-        val targetProfileId = if (pair.firstProfileId == currentUserId) pair.secondProfileId else pair.firstProfileId
-        val targetUserEmail = emailRepository.findById(targetProfileId)!!.email
-        val lastHost = loginInformationRepository.find(targetProfileId).lastHost
+        val otherUserProfileId = if (pair.firstProfileId == currentUserId) pair.secondProfileId else pair.firstProfileId
+        val otherUserEmail = emailRepository.findById(otherUserProfileId)!!.email
+        val otherUserLastHost = loginInformationRepository.find(otherUserProfileId).lastHost
         val currentUserName = profileInfoRepository.findByProfileId(currentUserId)!!.nickname
 
         val updatedDate = date.copy(
@@ -242,18 +245,48 @@ class DatingHandler(
         )
         val placeChanged = date.placeId != updatedDate.placeId
         val place = if (placeChanged) placeRepository.allById(updatedDate.placeId!!).maxByOrNull { it.version } else null
+        val (_, expiringToken) = dateVerificationTokenDataRepository.findToken(date.id) ?: throwNoSuchToken()
         transactionalOperator.executeAndAwait {
+            // Regenerate verification token (to among other things extend its expiration date)
+            val userWhoVerifies = expiringToken.profileId
+            val dateVerificationToken =
+                generateAndSaveDateVerificationToken(
+                    userWhoVerifies,
+                    date.whenScheduled,
+                    date.id,
+                    passwordEncoder,
+                    expiringTokenRepository,
+                    dateVerificationTokenDataRepository
+                )
+
             datesRepository.upsert(updatedDate)
 
             // notify other user about rescheduling
-            val subject = "Пользователь $currentUserName перенес свидание !${if (placeChanged) " Внимание! Место встречи также изменилось!" else ""}"
-            mailSender.sendLink("TitleBodyAndLinkMessage.ftlh", targetUserEmail, subject, lastHost, "свидания") { link ->
+            val otherUserVerifies = userWhoVerifies == otherUserProfileId
+            val placeChangedMessage = if (placeChanged) " Внимание! Место встречи также изменилось!" else ""
+            val subject = "Пользователь $currentUserName перенес свидание !${placeChangedMessage}"
+            val body = "Свидание теперь запланировано на ${formatDateTime(newSpot)} (предыдущее время было - ${formatDateTime(date.whenScheduled.withZoneSameInstant(newSpot.timeZone))})." +
+                    " Код подтверждения свидания также обновился." +
+                    if (placeChanged) " Подробности о новом месте встречи можно найти на сайте." else ""
+            mailSender.sendLink("TitleBodyAndLinkMessage.ftlh", otherUserEmail, subject, otherUserLastHost, "свидания") { link ->
                 object {
                     val title = subject
                     val actionLabel = "Свидания"
                     val actionUrl = link
-                    val body = "Свидание теперь запланировано на ${formatDateTime(newSpot)} (предыдущее время было - ${formatDateTime(date.whenScheduled.withZoneSameInstant(newSpot.timeZone))})." +
-                            if (placeChanged) " Подробности о новом месте встречи можно найти на сайте." else ""
+                    val body = if (!otherUserVerifies) bodyWithVerificationToken(body, dateVerificationToken) else body
+                }
+            }
+            if (placeChanged || otherUserVerifies) {
+                val currentUserEmail = emailRepository.findById(currentUserId)!!.email
+                val currentUserLastHost = loginInformationRepository.find(currentUserId).lastHost
+                val currentUserSubject = "Вы перенесли свидание !${placeChangedMessage}"
+                mailSender.sendLink("TitleBodyAndLinkMessage.ftlh", currentUserEmail, currentUserSubject, currentUserLastHost, "свидания") { link ->
+                    object {
+                        val title = currentUserSubject
+                        val actionLabel = "Свидания"
+                        val actionUrl = link
+                        val body = if (otherUserVerifies) bodyWithVerificationToken(body, dateVerificationToken) else body
+                    }
                 }
             }
         }

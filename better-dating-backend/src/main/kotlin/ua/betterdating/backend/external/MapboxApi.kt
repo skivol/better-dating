@@ -27,12 +27,12 @@ class MapboxConfig(
 ) {
     val publicAccessToken: String
         get() {
-            return environment["mapbox.public.access-token"]
+            return environment["mapbox.public.access-token"]?.let{ it.ifBlank { null } }
                 ?: throw RuntimeException("Mapbox public access token wasn't provided")
         }
     val privateAccessToken: String
         get() {
-            return environment["mapbox.private.access-token"]
+            return environment["mapbox.private.access-token"]?.let{ it.ifBlank { null } }
                 ?: throw RuntimeException("Mapbox private access token wasn't provided")
         }
 }
