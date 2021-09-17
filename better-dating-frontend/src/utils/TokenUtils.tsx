@@ -13,7 +13,7 @@ import { postData, useToken, unauthorized } from ".";
 export const onErrorUsingToken = (dispatch: any, errorMessage: string) =>
   dispatch(
     actions.openSnackbar(
-      resolveTokenMessage(errorMessage),
+      resolveTokenMessage(errorMessage) as string,
       SnackbarVariant.error
     )
   );

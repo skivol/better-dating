@@ -1,9 +1,5 @@
-- credits to koatuu / leafletjs / react-leaflet / mapbox / google timezone api
-- restrict mapbox token usage
-
 - протестировать обновление
 - обновить README
-- активировать PostGIS на сервере ("CREATE EXTENSION postgis;" / https://github.com/postgis/docker-postgis/blob/master/13-3.1/update-postgis.sh)
 - сделать выпуск v2.0 с начальной версией второго этапа
 
 - возможность предложить организацию нового свидания в текущей паре позже; (отмена свидания, продолжение / если текущее свидание просрочено)
@@ -84,7 +80,6 @@
 - checkout ReactiveCrudRepository ? https://docs.spring.io/spring-data/r2dbc/docs/1.0.0.M2/reference/html/#r2dbc.repositories
 - checkout reverse proxy written in rust: https://github.com/sozu-proxy/sozu
 - update dev proxy: https://github.com/chimurai/http-proxy-middleware
-- proxy tile requests through server thus effectively hiding the token ?
 
 # Goods / design
 

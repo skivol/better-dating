@@ -8,6 +8,7 @@ import {
   libraries as serverLibraries,
   tools as serverTools,
   infrastructure as serverInfrastructure,
+  thirdPartyServicesAndResources,
 } from "./acknowledgements/backend";
 import { devEnvironment } from "./acknowledgements/dev-environment";
 import { Licenses } from "./acknowledgements/licenses";
@@ -41,12 +42,14 @@ type AcknowledgementEntryProps = {
   url: string;
   license: any;
   copyright: any;
+  description?: string;
 };
 const AcknowledgementEntry = ({
   name,
   url,
   license,
   copyright,
+  description,
 }: AcknowledgementEntryProps) => {
   const licenses = Array.isArray(license || []) ? license : [license];
   const copyrights = Array.isArray(copyright || []) ? copyright : [copyright];
@@ -64,6 +67,7 @@ const AcknowledgementEntry = ({
           ))}
       {copyrights &&
         copyrights.map((c: any) => <Typography key={c}>{c}</Typography>)}
+      {description && <Typography>{description}</Typography>}
     </li>
   );
 };
@@ -110,6 +114,11 @@ const Acknowledgements = () => {
 
           <Typography variant="h4">{Messages.devEnvironment}</Typography>
           <AcknowledgementEntries entries={devEnvironment} />
+
+          <Typography variant="h4">
+            {Messages.thirdPartyServicesAndResources}
+          </Typography>
+          <AcknowledgementEntries entries={thirdPartyServicesAndResources} />
 
           <Typography className="u-margin-bottom-10px" variant="h4">
             {Messages.licensesText}

@@ -11,8 +11,7 @@ export const emptyUser = {
   loadError: null,
   id: null,
   roles: null,
+  secondStageEnabled: false,
 };
 
 export const updated = process.env.NEXT_APP_UPDATED || "not_available";
-export const mapboxToken =
-  process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "not_available";

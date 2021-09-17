@@ -88,7 +88,7 @@ export const DateRow = ({
   const onEvaluateProfile = (values: any) => {
     setLoading(true);
     dispatch(actions.evaluateProfile({ dateId, ...values }))
-      .then((response) => {
+      .then((response: any) => {
         dataUpdater.setCredibilityAndImprovement(dateId, response);
         closeDialog();
         closeMenu();
@@ -198,7 +198,7 @@ export const DateRow = ({
         .then((status: string) => {
           closeMenu();
           // think about error handling, currently we do not rethrow exception in from actions
-          status && setDate(dateId, { status });
+          status && dataUpdater.setDate(dateId, { status });
         })
         .finally(() => setCheckingIn(false));
     };

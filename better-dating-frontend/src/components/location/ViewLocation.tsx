@@ -5,8 +5,8 @@ type Place = {
   longitude: number;
   name: string;
 };
-type Props = { placeData: Place };
-const ViewLocation = ({ placeData }: Props) => {
+type Props = { placeData: Place; mapboxToken: string };
+const ViewLocation = ({ placeData, mapboxToken }: Props) => {
   const { name, latitude, longitude } = placeData;
   const center = { lat: latitude, lng: longitude };
   const initialValues = {
@@ -20,6 +20,7 @@ const ViewLocation = ({ placeData }: Props) => {
       initialValues={initialValues}
       center={center}
       zoom={17}
+      mapboxToken={mapboxToken}
     />
   );
 };

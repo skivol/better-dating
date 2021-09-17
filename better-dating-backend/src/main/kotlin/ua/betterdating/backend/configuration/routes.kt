@@ -55,6 +55,7 @@ fun routes(
 
     "/api/place".nest {
         GET("/resolve-coordinates", placeHandler::resolvePopulatedLocalityCoordinatesForDate)
+        GET("/token", placeHandler::token)
         POST("/add", placeHandler::addPlace)
         GET("", placeHandler::getPlaceData)
         POST("/approve", placeHandler::approvePlace)

@@ -96,6 +96,12 @@ export const tools = [
     license: Licenses.APACHE,
     copyright: null,
   },
+  {
+    name: "Класифікатор об’єктів адміністративно-територіального устрою України (КОАТУУ)",
+    url: "https://data.gov.ua/dataset/dc081fb0-f504-4696-916c-a5b24312ab6e",
+    description: "Основа для базы населенных пунктов Украины",
+    license: Licenses.CREATIVE_COMMONS,
+  },
 ];
 
 export const infrastructure = [
@@ -146,5 +152,18 @@ export const infrastructure = [
     url: "https://uptimerobot.com/",
     license: null,
     copyright: null,
+  },
+];
+
+export const thirdPartyServicesAndResources = [
+  {
+    name: "Mapbox",
+    url: "https://www.mapbox.com/",
+    description: "Отображение карт, геокодирование, обратное геокодирование",
+  },
+  {
+    name: "Google Timezone Api",
+    url: "https://developers.google.com/maps/documentation/timezone/overview",
+    description: "Определение временных зон",
   },
 ];

@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow,
   TablePagination,
+  TableFooter,
   IconButton,
   Collapse,
 } from "@material-ui/core";
@@ -250,17 +251,25 @@ export const PairsAndDates = ({ datingData, user, dataUpdater }: any) => {
                 }
               )}
           </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25, 50, 100]}
+                colSpan={8}
+                count={datingData.pairs.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                SelectProps={{
+                  inputProps: { "aria-label": "rows per page" },
+                  native: true,
+                }}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </TableRow>
+          </TableFooter>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={datingData.pairs.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
-      />
       {dialog}
     </>
   );

@@ -10,6 +10,7 @@ import ua.betterdating.backend.*
 import ua.betterdating.backend.data.*
 import ua.betterdating.backend.external.GoogleTimeZoneApi
 import ua.betterdating.backend.external.MapboxApi
+import ua.betterdating.backend.external.MapboxConfig
 import ua.betterdating.backend.tasks.findAvailableDatingSpotsIn
 import ua.betterdating.backend.tasks.generateAndSaveDateVerificationToken
 import ua.betterdating.backend.utils.*
@@ -41,6 +42,7 @@ class PlaceHandler(
     private val passwordEncoder: PasswordEncoder,
     private val transactionalOperator: TransactionalOperator,
     private val mailSender: FreemarkerMailSender,
+    private val mapboxConfig: MapboxConfig,
 ) {
     suspend fun resolvePopulatedLocalityCoordinatesForDate(request: ServerRequest): ServerResponse {
         val dateId = ensureCan(
@@ -66,6 +68,10 @@ class PlaceHandler(
 
         return ok().json().bodyValueAndAwait(coordinates)
     }
+
+    suspend fun token(request: ServerRequest) = ok().json().bodyValueAndAwait(object {
+        val token = mapboxConfig.publicAccessToken
+    })
 
     private fun dateIdFromRequest(request: ServerRequest) =
         UUID.fromString(

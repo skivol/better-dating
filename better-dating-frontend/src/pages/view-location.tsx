@@ -2,6 +2,7 @@ import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import { getData, handleUnauthorized, headers } from "../utils";
 import { dateIdName } from "../Messages";
+import { fetchMapboxToken } from "../utils/BackendUtils";
 
 const ViewLocationWithoutSsr = dynamic(
   () => import("../components/location/ViewLocation"),
@@ -18,7 +19,8 @@ export const getServerSideProps: GetServerSideProps = async ({
       { dateId: req.query[dateIdName], action: "view" },
       headers(req)
     );
-    return { props: { placeData } };
+    const mapboxToken = await fetchMapboxToken(req);
+    return { props: { placeData, mapboxToken } };
   } catch (error) {
     const result = handleUnauthorized(error, res);
     if (!result) {

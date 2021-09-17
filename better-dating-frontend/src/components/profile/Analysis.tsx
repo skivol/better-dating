@@ -469,12 +469,15 @@ export const analyze = (type: string, values: any) => {
   } else if (type === "makeup") {
     const { makeup } = values;
     analysisResult = analyzeMakeup(makeup);
-  } else if (type === "intimateRelationsOutsideOfMarriage") {
+  } else if (
+    type === "intimateRelationsOutsideOfMarriage" &&
+    values.intimateRelationsOutsideOfMarriage
+  ) {
     const { intimateRelationsOutsideOfMarriage } = values;
     analysisResult = analyzeIntimateRelationsOutsideOfMarriage(
       intimateRelationsOutsideOfMarriage
     );
-  } else if (type === "pornographyWatching") {
+  } else if (type === "pornographyWatching" && values.pornographyWatching) {
     const { pornographyWatching } = values;
     analysisResult = analyzePornographyWatching(pornographyWatching);
   } else if (type === "summary") {
@@ -482,10 +485,12 @@ export const analyze = (type: string, values: any) => {
   }
 
   return (
-    <Grid item>
-      <Paper elevation={3} className="u-padding-10px">
-        {analysisResult}
-      </Paper>
-    </Grid>
+    analysisResult && (
+      <Grid item>
+        <Paper elevation={3} className="u-padding-10px">
+          {analysisResult}
+        </Paper>
+      </Grid>
+    )
   );
 };

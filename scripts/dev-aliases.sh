@@ -55,10 +55,12 @@ bd-backend-server-impl() {
 							--spring.security.oauth2.client.registration.facebook.client-secret=$FACEBOOK_CLIENT_SECRET \
 							--spring.security.oauth2.client.registration.vk.client-id=$VK_CLIENT_ID \
 							--spring.security.oauth2.client.registration.vk.client-secret=$VK_CLIENT_SECRET \
-							--mapbox.access-token=$NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN \
+							--mapbox.public.access-token=$MAPBOX_ACCESS_TOKEN_PUBLIC \
+							--mapbox.private.access-token=$MAPBOX_ACCESS_TOKEN_PRIVATE \
 							--google.access-token=$GOOGLE_ACCESS_TOKEN \
 							--password-files.mail=$BD_MAIL_PASSWORD_FILE \
 							--datasource.username=$BD_DB_USER \
+							--datasource.url=r2dbc:postgresql://localhost/$BD_DB \
 							--password-files.db=$BD_DB_PASSWORD_FILE" | tr -d '\t'); # tabs really mess up spring args
 		bd-backend-gradle run ${@:2} --args="$programArgs"
 	)
@@ -92,7 +94,7 @@ alias docker-cleanup-everything='docker system prune --volumes --force'
 
 # https://hub.docker.com/_/postgres
 bd-db-run() {
-  docker run --name bd-db --publish 5432:5432 -e POSTGRES_PASSWORD=postgres -e PGDATA=/pgdata -d -v bd-db-data:/pgdata $* postgis/postgis:13-3.1-alpine
+  docker run --name bd-db --publish 5432:5432 -e POSTGRES_PASSWORD=postgres -e PGDATA=/pgdata -d -v bd-db-data:/pgdata $* skivol/better-dating-database:latest
 }
 alias bd-db-run-rm='bd-db-run --rm'
 alias bd-db-stop='docker stop bd-db'
@@ -186,6 +188,13 @@ troubleshooting-dns() {
 	local url="https://letsdebug.net/xn--h1aheckdj9e.xn--j1amh"
 	echo "Test on $url"
 	open-in-browser $url
+}
+
+# Restore dump
+# https://dba.stackexchange.com/questions/76417/restoring-postgres-database-pg-restore-vs-just-using-psql
+alias bd-prod-backup-db-list='ls -l --sort=newest $(zq backup/db)'
+bd-prod-backup-db-restore() {
+	cat $(zq backup/db)/$1 | gunzip | docker exec -i $(docker ps --filter "name=bd-db" --format "{{.Names}}") psql -h localhost -U postgres
 }
 
 # Api utils

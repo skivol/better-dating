@@ -13,6 +13,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableFooter,
   TablePagination,
 } from "@material-ui/core";
 import { Select, Autocomplete } from "mui-rff";
@@ -299,17 +300,25 @@ export const History = ({ initialHistoryData, relevantUsers }: any) => {
                           </TableRow>
                         ))}
                     </TableBody>
+                    <TableFooter>
+                      <TableRow>
+                        <TablePagination
+                          rowsPerPageOptions={[5, 10, 25, 50, 100]}
+                          colSpan={3}
+                          count={historyData.length}
+                          rowsPerPage={rowsPerPage}
+                          page={page}
+                          SelectProps={{
+                            inputProps: { "aria-label": "rows per page" },
+                            native: true,
+                          }}
+                          onPageChange={handleChangePage}
+                          onRowsPerPageChange={handleChangeRowsPerPage}
+                        />
+                      </TableRow>
+                    </TableFooter>
                   </Table>
                 </TableContainer>
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 25, 50, 100]}
-                  component="div"
-                  count={historyData.length}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onChangePage={handleChangePage}
-                  onChangeRowsPerPage={handleChangeRowsPerPage}
-                />
               </Grid>
             </Paper>
           </form>

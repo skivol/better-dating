@@ -27,7 +27,6 @@ import {
 import { AddLocationButton } from "./location";
 import { dating } from "./navigation/NavigationUrls";
 import { useDateId, ReactMarkdownMaterialUi, required } from "../utils";
-import { mapboxToken } from "../constants";
 import { addPlace } from "../actions";
 import { SpinnerAdornment } from "./common";
 import * as Messages from "./Messages";
@@ -117,6 +116,7 @@ export const LocationForm = ({
   zoom,
   onSubmitProp,
   mode = Mode.add,
+  mapboxToken,
 }: any) => {
   const dateId = useDateId();
 
@@ -360,8 +360,9 @@ export const LocationForm = ({
 
 type Props = {
   coordinates: { lat: number; lng: number; specific: boolean };
+  mapboxToken: string;
 };
-const AddLocation = ({ coordinates }: Props) => {
+const AddLocation = ({ coordinates, mapboxToken }: Props) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const dateId = useDateId();
@@ -373,7 +374,14 @@ const AddLocation = ({ coordinates }: Props) => {
   const onSubmit = (values: any) =>
     dispatch(addPlace({ dateId, ...values })).then(() => router.push(dating));
 
-  return <LocationForm center={center} zoom={zoom} onSubmitProp={onSubmit} />;
+  return (
+    <LocationForm
+      center={center}
+      zoom={zoom}
+      onSubmitProp={onSubmit}
+      mapboxToken={mapboxToken}
+    />
+  );
 };
 
 export default AddLocation;

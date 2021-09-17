@@ -147,7 +147,7 @@ export const removeAccount =
       showInfo(dispatch, Messages.profileWasRemoved);
       dispatch(user(constants.emptyUser));
     } catch (error) {
-      showError(dispatch, resolveTokenMessage(error.message));
+      showError(dispatch, resolveTokenMessage(error.message) as string);
     }
   };
 
@@ -199,7 +199,7 @@ export const requestAnotherValidationToken =
       });
       showSuccess(dispatch, Messages.successTriggeringNewVerificationMessage);
     } catch (error) {
-      showError(dispatch, resolveTokenMessage(error.message));
+      showError(dispatch, resolveTokenMessage(error.message) as string);
     }
   };
 
@@ -212,12 +212,12 @@ export const requestAnotherViewProfileToken =
       });
       showSuccess(dispatch, Messages.successRequestingNewProfileViewMessage);
     } catch (error) {
-      showError(dispatch, resolveTokenMessage(error.message));
+      showError(dispatch, resolveTokenMessage(error.message) as string);
     }
   };
 
 export const addPlace =
-  ({ dateId, name, lat, lng }: any): ThunkResult<void> =>
+  ({ dateId, name, lat, lng }: any): any =>
   async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       await postData("/api/place/add", {
@@ -234,7 +234,7 @@ export const addPlace =
   };
 
 export const approvePlace =
-  ({ dateId }: any): ThunkResult<void> =>
+  ({ dateId }: any): any =>
   async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       await postData("/api/place/approve", {
@@ -312,7 +312,8 @@ export const verifyDate =
   };
 
 export const evaluateProfile =
-  (values: any) => async (dispatch: ThunkDispatch<any, any, Action>) => {
+  (values: any): any =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       const response = await postData(
         "/api/user/dating/evaluate-profile",
@@ -326,7 +327,8 @@ export const evaluateProfile =
   };
 
 export const submitPairDecision =
-  (values: any) => async (dispatch: ThunkDispatch<any, any, Action>) => {
+  (values: any): any =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       const response = await postData("/api/user/pairs/decision", values);
       showSuccess(
@@ -344,7 +346,7 @@ export const submitPairDecision =
   };
 
 export const rescheduleDate =
-  (values: any, currentPlaceId: string) =>
+  (values: any, currentPlaceId: string): any =>
   async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       const response = await postData(
@@ -365,7 +367,8 @@ export const rescheduleDate =
   };
 
 export const cancelDate =
-  (values: any) => async (dispatch: ThunkDispatch<any, any, Action>) => {
+  (values: any): any =>
+  async (dispatch: ThunkDispatch<any, any, Action>) => {
     try {
       const response = await postData("/api/user/dating/cancel-date", values);
       showWarning(dispatch, Messages.dateIsCancelledAndOtherUserIsNotified);

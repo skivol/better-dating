@@ -17,11 +17,12 @@ CMD ["sh", "-c", "java -XX:+UnlockExperimentalVMOptions \
       --spring.security.oauth2.client.registration.vk.client-id=$VK_CLIENT_ID \
       --spring.security.oauth2.client.registration.vk.client-secret=$VK_CLIENT_SECRET \
       --spring.mail.username=$MAIL_USER --passwordfiles.mail=$MAIL_PASSWORD_FILE \
-      --mapbox.access-token=$NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN \
+      --mapbox.public.access-token=$MAPBOX_ACCESS_TOKEN_PUBLIC \
+      --mapbox.private.access-token=$MAPBOX_ACCESS_TOKEN_PRIVATE \
       --google.access-token=$GOOGLE_ACCESS_TOKEN \
       --datasource.url=\"r2dbc:postgresql://$DB_HOST/$DB_NAME\" \
       --datasource.username=$DB_USER --passwordfiles.db=$DB_PASSWORD_FILE"]
 
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=15s \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
+      CMD curl -f http://localhost:8080/actuator/health || exit 1

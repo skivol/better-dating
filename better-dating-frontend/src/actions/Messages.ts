@@ -69,10 +69,9 @@ export const resolveCheckInError = (error: any) => {
   const { message, details } = error;
   const formatMinutes = (moreThan1MinutePrefix: string, minutes: number) =>
     minutes > 0
-      ? `${moreThan1MinutePrefix} ${formatDuration(
-          { minutes },
-          { locale: ru }
-        )}`
+      ? `${moreThan1MinutePrefix} ${formatDuration({ minutes }, {
+          locale: ru,
+        } as any)}`
       : "меньше минуты";
   if ("too early to check in" === message) {
     return `Слишком рано отмечаться о прибытии на свидание! (${formatMinutes(

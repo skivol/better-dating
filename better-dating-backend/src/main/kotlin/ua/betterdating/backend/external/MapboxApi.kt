@@ -22,23 +22,31 @@ class Feature(
 class MapboxGeocodingResponse(
     val features: List<Feature>
 )
-class MapboxApi(
+class MapboxConfig(
     private val environment: Environment,
 ) {
-    private val log by LoggerDelegate()
-
-    private val mapboxAccessToken: String
+    val publicAccessToken: String
         get() {
-            return environment["mapbox.access-token"]
-                ?: throw RuntimeException("Mapbox access token wasn't provided")
+            return environment["mapbox.public.access-token"]
+                ?: throw RuntimeException("Mapbox public access token wasn't provided")
         }
+    val privateAccessToken: String
+        get() {
+            return environment["mapbox.private.access-token"]
+                ?: throw RuntimeException("Mapbox private access token wasn't provided")
+        }
+}
+class MapboxApi(
+    private val mapboxConfig: MapboxConfig,
+) {
+    private val log by LoggerDelegate()
 
     // https://docs.mapbox.com/api/search/geocoding/#example-request-forward-geocoding
     suspend fun forwardGeocoding(placeName: String): Coordinates? {
         return try {
             WebClient.builder().build().get()
                 .uri("https://api.mapbox.com/geocoding/v5/mapbox.places/$placeName.json") {
-                    it.queryParam("access_token", mapboxAccessToken)
+                    it.queryParam("access_token", mapboxConfig.privateAccessToken)
                         .queryParam("language", "uk")
                         .queryParam("types", "place,locality")
                         .build()
@@ -82,7 +90,7 @@ class MapboxApi(
         lat: Double
     ) = WebClient.builder().build().get()
         .uri("https://api.mapbox.com/geocoding/v5/mapbox.places/$lng,$lat.json") {
-            it.queryParam("access_token", mapboxAccessToken)
+            it.queryParam("access_token", mapboxConfig.privateAccessToken)
                 .queryParam("language", "uk")
                 .queryParam("types", "place,locality")
                 .build()

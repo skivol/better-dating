@@ -10,8 +10,8 @@ type Place = {
   longitude: number;
   name: string;
 };
-type Props = { placeData: Place };
-const CheckLocation = ({ placeData }: Props) => {
+type Props = { placeData: Place; mapboxToken: string };
+const CheckLocation = ({ placeData, mapboxToken }: Props) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const dateId = useDateId();
@@ -32,6 +32,7 @@ const CheckLocation = ({ placeData }: Props) => {
       center={center}
       zoom={17}
       onSubmitProp={onSubmit}
+      mapboxToken={mapboxToken}
     />
   );
 };

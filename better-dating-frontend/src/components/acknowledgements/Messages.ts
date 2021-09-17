@@ -4,6 +4,7 @@ export const libraries = "Библиотеки";
 export const tools = "Инструменты и ресурсы";
 export const infrastructure = "Инфраструктура";
 export const devEnvironment = "Инструменты разработки";
+export const thirdPartyServicesAndResources = "Третьесторонние сервисы";
 
 export const serverApplication = "Серверное приложение";
 

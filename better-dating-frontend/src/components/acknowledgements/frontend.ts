@@ -108,6 +108,27 @@ export const libraries = [
     license: Licenses.MIT,
     copyright: "Copyright (c) 2015 Steven Chim",
   },
+  {
+    name: "leafletjs",
+    url: "https://github.com/Leaflet/Leaflet",
+    license: {
+      name: "leafletjs license",
+      url: "https://github.com/Leaflet/Leaflet/blob/master/LICENSE",
+    },
+    copyright: [
+      "Copyright (c) 2010-2021, Vladimir Agafonkin",
+      "Copyright (c) 2010-2011, CloudMade",
+    ],
+  },
+  {
+    name: "react-leaflet",
+    url: "https://github.com/PaulLeCam/react-leaflet",
+    license: {
+      name: "Hippocratic License Version Number: 2.1",
+      url: "https://github.com/PaulLeCam/react-leaflet/blob/master/LICENSE.md",
+    },
+    copyright: "Copyright 2020 Paul Le Cam and contributors (“Licensor”)",
+  },
 ];
 
 export const tools = [
