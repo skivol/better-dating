@@ -17,7 +17,6 @@ import "leaflet/dist/leaflet.css";
 import * as L from "leaflet";
 import {
   MapContainer,
-  TileLayer,
   Marker,
   Circle,
   Popup,
@@ -25,6 +24,7 @@ import {
 } from "react-leaflet";
 
 import { AddLocationButton } from "./location";
+import { MyTileLayer } from "./location/MyTileLayer";
 import { dating } from "./navigation/NavigationUrls";
 import { useDateId, ReactMarkdownMaterialUi, required } from "../utils";
 import { addPlace } from "../actions";
@@ -218,15 +218,7 @@ export const LocationForm = ({
                       map = createdMap;
                     }}
                   >
-                    <TileLayer
-                      attribution='Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
-                      url="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}"
-                      accessToken={mapboxToken}
-                      tileSize={512}
-                      zoomOffset={-1}
-                      maxZoom={18}
-                      id="skivol/ckpimp0lc0bme18pbwegnv6ih"
-                    />
+                    <MyTileLayer mapboxToken={mapboxToken} />
                     <DraggableMarker
                       disabled={!adding}
                       reactsToUserLocation={adding}
@@ -362,10 +354,21 @@ type Props = {
   coordinates: { lat: number; lng: number; specific: boolean };
   mapboxToken: string;
 };
-const AddLocation = ({ coordinates, mapboxToken }: Props) => {
+type ErrorProps = {
+  error: string;
+};
+
+function isError(props: Props | ErrorProps): props is ErrorProps {
+  return (props as ErrorProps).error !== undefined;
+}
+const AddLocation = (props: Props | ErrorProps) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const dateId = useDateId();
+  if (isError(props)) {
+    return <Alert severity="error">{props.error}</Alert>;
+  }
+  const { coordinates, mapboxToken } = props;
 
   const { lat, lng, specific } = coordinates;
   const zoom = specific ? 13 : 5; // zoom closer if could find specific place coordinates

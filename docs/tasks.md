@@ -1,6 +1,3 @@
-- @add-location // TODO graceful handling of "other user should be adding place suggestion" exception (toast with redirect to dates & pairs page ?)
-- обновить/проверить страницу с идеей
-- добавить тест карты mapbox в администрирование
 - сделать выпуск v2.0 с начальной версией второго этапа
 
 - возможность предложить организацию нового свидания в текущей паре позже; (отмена свидания, продолжение / если текущее свидание просрочено)

@@ -1,7 +1,10 @@
 import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import { getData, handleUnauthorized, headers } from "../utils";
-import { dateIdName } from "../Messages";
+import {
+  dateIdName,
+  otherUserShouldBeAddingPlaceSuggestion,
+} from "../Messages";
 import { fetchMapboxToken } from "../utils/BackendUtils";
 
 const AddLocationWithoutSsr = dynamic(
@@ -22,6 +25,12 @@ export const getServerSideProps: GetServerSideProps = async ({
     const mapboxToken = await fetchMapboxToken(req);
     return { props: { coordinates, mapboxToken } };
   } catch (error) {
+    if (
+      error.message ===
+      '400 BAD_REQUEST "other user should be adding place suggestion"'
+    ) {
+      return { props: { error: otherUserShouldBeAddingPlaceSuggestion } };
+    }
     const result = handleUnauthorized(error, res);
     if (!result) {
       throw error;

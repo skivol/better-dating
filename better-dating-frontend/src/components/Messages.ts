@@ -5,14 +5,16 @@ export const selfDevelopment = "саморазвитие";
 export const dating = "свидания";
 export const family = "семья";
 export const flowDescription = `
-1. Саморазвитие
-2. Саморазвитие + свидания (взаимоотношения)
-3. Саморазвитие + свидания (взаимоотношения) + создание Семьи
+1. **Саморазвитие**
+2. **Саморазвитие + свидания (взаимоотношения)**
+3. Саморазвитие + свидания (взаимоотношения) + _создание Семьи_
 
 * Логотип взаимосвязан с этим циклом, но является более обширным символом. Как считаете, что он означает ?
 * _Обратите также внимание_: иконка семьи символизирует взаимоотношения между родителями и ребенком, но не определяет количество детей,
 т.к. в полноценной семье их должно быть более одного.
 `;
+export const developmentStatus =
+  "Первый и начальная версия второго этапа доступны сейчас на сайте, а третий будет разрабатываться далее.";
 export const metaDescription = `${description}. Альтернатива сервисам love.ua, tinder.com, loveeto.com, badoo.com, mamba.ru и т.д. Необычный, ведический, славянский сайт знакомств для саморазвития, свиданий, встреч, смотрин, серьезных отношений, создания семьи в Украине, России.`;
 export const proposal = "предложение";
 export const Proposal = "Предложение";
@@ -25,6 +27,8 @@ export const Technologies = "Технологии";
 export const logoTooltip = "Смотрины.укр & Смотрины.рус логотип";
 export const email = "Почта";
 export const updated = "Обновлено";
+export const pageInFacebook = "Мы в Facebook";
+export const pageInVk = "Мы в Vk";
 export const footer = "смотрины.укр & смотрины.рус";
 export const license = "Лицензия";
 export const acknowledgements = "Благодарности";
@@ -40,6 +44,10 @@ export const FirstStageThirdStep =
   "3. Этап обратной связи, в котором участники решают хотят они продолжать отношения или нет. Вне зависимости от выбора, участники дают оценку правдивости анкет друг друга в вежливой и конструктивной форме;";
 export const FirstStageFourthStep =
   '4. В случае совпадения желания обоих участников продолжать отношения они внимательно познают друг друга в реальной жизни и меняют цель использования системы с "хочу найти вторую половинку" на "хотим завести детей" (детали взаимодействия с системой на данном этапе будут оглашены позже). Иначе - происходит возврат ко второму шагу.';
+
+export const CurrentImplementation = "Текущая Реализация";
+export const currentImplementationDetails =
+  "Описание текущих функций вместе с изображениями системы можно посмотреть [здесь](https://github.com/skivol/better-dating/blob/master/README.md), а также [зарегистрировавшись](/регистрация) и начав ей пользоваться ;).";
 
 export const AreDatingSitesNeeded = "Нужны ли вообще сайты знакомств?";
 export const MotivationOfNeedTitle =
@@ -164,10 +172,12 @@ export const removedNumber = (number: any) =>
 export const unauthorized = "Не достаточно прав для просмотра этой страницы";
 export const testEmail = "Тестовое письмо";
 export const testEmailWasSent = "Тестовое письмо было отправлено";
-export const testGeolocation = "Проверить геолокацию";
+export const testGeolocation = "Геолокация";
 export const refresh = "Обновить";
 export const timeout = "Время на локацию";
 export const timeoutHelperText = "миллисекунды, 10 000 по умолчанию";
+
+export const testMap = "Карта";
 
 export const profileTabsAria = "Табы профиля";
 export const selfDevelopmentTab = "Саморазвитие";

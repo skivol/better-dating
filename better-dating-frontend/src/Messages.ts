@@ -50,3 +50,6 @@ export const didBeforeButDoNotKnowIfGoingToDoInFuture =
 export const didBeforeNotGoingInFuture =
   "Делал(а) раньше, не собираюсь в будущем";
 export const coupleTimesInYearOrMoreSeldom = "Несколько раз в год или реже";
+
+export const otherUserShouldBeAddingPlaceSuggestion =
+  "Другой пользователь должен добавлять место встречи";

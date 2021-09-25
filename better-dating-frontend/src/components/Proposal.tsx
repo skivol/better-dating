@@ -13,10 +13,12 @@ import {
   Dialog,
   CardMedia,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+import { faFacebook, faVk } from "@fortawesome/free-brands-svg-icons";
 
 import { getData, ReactMarkdownMaterialUi } from "../utils";
 import { updated } from "../constants";
@@ -57,9 +59,9 @@ export const Proposal = () => {
 
   return (
     <>
-      <Grid container justify="center">
-        <Paper className="u-padding-15px">
-          <Grid item className="u-margin-bottom-10px">
+      <Paper className="u-padding-25px">
+        <Grid container justify="center" spacing={3}>
+          <Grid item>
             <Typography variant="h5" className="u-text-align-center">
               {Messages.description}
             </Typography>
@@ -105,8 +107,17 @@ export const Proposal = () => {
               </ReactMarkdownMaterialUi>
             </Grid>
           </Grid>
-        </Paper>
-      </Grid>
+          <Grid item>
+            <Alert
+              severity="success"
+              variant="filled"
+              className="u-max-width-400px"
+            >
+              {Messages.developmentStatus}
+            </Alert>
+          </Grid>
+        </Grid>
+      </Paper>
 
       <Grid
         container
@@ -144,6 +155,18 @@ export const Proposal = () => {
                   <Typography>{Messages.FirstStageFourthStep}</Typography>
                 </Grid>
               </Grid>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography className={clsx("c-heading", classes.heading)}>
+                {Messages.CurrentImplementation}
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ReactMarkdownMaterialUi>
+                {Messages.currentImplementationDetails}
+              </ReactMarkdownMaterialUi>
             </AccordionDetails>
           </Accordion>
           <Accordion>
@@ -228,7 +251,7 @@ export const Proposal = () => {
             </Grid>
           </Paper>
         </Grid>
-        <Grid item>
+        <Grid item className="u-margin-bottom-10px">
           <Paper className="u-max-width-650px u-center-horizontally">
             <Grid
               container
@@ -254,6 +277,35 @@ export const Proposal = () => {
             </Grid>
           </Paper>
         </Grid>
+        <Paper className="u-max-width-650px u-center-horizontally">
+          <Grid
+            container
+            justify="center"
+            spacing={1}
+            className="u-padding-10px"
+          >
+            <Grid item>
+              <Button
+                href="https://www.facebook.com/Смотриныукр-Смотринырус-112219810635447"
+                variant="text"
+                color="primary"
+                startIcon={<FontAwesomeIcon icon={faFacebook} />}
+              >
+                <Typography>{Messages.pageInFacebook}</Typography>
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                href="https://vk.com/public198979643"
+                variant="text"
+                color="default"
+                startIcon={<FontAwesomeIcon icon={faVk} />}
+              >
+                <Typography>{Messages.pageInVk}</Typography>
+              </Button>
+            </Grid>
+          </Grid>
+        </Paper>
         {dialog}
       </Grid>
       <Paper className="c-updated-time-paper u-center-horizontally">

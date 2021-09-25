@@ -36,6 +36,9 @@ input:-webkit-autofill {
 .u-padding-15px {
   padding: 15px;
 }
+.u-padding-25px {
+  padding: 25px;
+}
 .u-min-width-30px {
   min-width: 30px !important; /* .MuiListItemIcon-root has it as well */
 }

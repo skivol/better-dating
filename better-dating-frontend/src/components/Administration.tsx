@@ -1,44 +1,22 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Typography } from "@material-ui/core";
+import { Button, Typography, Grid } from "@material-ui/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTools,
   faMailBulk,
   faMapMarkedAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  getData,
-  unauthorized,
-  showError,
-  showSuccess,
-  postData,
-  useDialog,
-} from "../utils";
+import { showError, showSuccess, postData, useDialog } from "../utils";
 import * as ActionMessages from "../actions/Messages";
 import * as Messages from "./Messages";
-import { CenteredSpinner, SpinnerAdornment } from "./common";
-import { GeolocationDialog } from "./administration/GeolocationDialog";
+import { SpinnerAdornment } from "./common";
+import { GeolocationDialog, MapTest } from "./administration";
+import "leaflet/dist/leaflet.css";
 
-const Administration = () => {
-  const [usageStats, setUsageStats] = useState<any>(null);
+const Administration = ({ mapboxToken, usageStats }: any) => {
   const [sending, setSending] = useState(false);
-
   const dispatch = useDispatch();
-  const router = useRouter();
-  useEffect(() => {
-    getData("/api/admin/usage-stats")
-      .then(setUsageStats)
-      .catch((e) => {
-        const isUnauthorized = unauthorized(e);
-        const message = isUnauthorized
-          ? Messages.unauthorized
-          : ActionMessages.oopsSomethingWentWrong;
-        showError(dispatch, message);
-        isUnauthorized && router.push("/");
-      });
-  }, []);
 
   const onSendTestMail = async () => {
     setSending(true);
@@ -50,50 +28,59 @@ const Administration = () => {
 
   const { dialogIsOpen, openDialog, closeDialog } = useDialog();
 
-  if (!usageStats) {
-    return <CenteredSpinner />;
-  }
   return (
     <>
-      <div className="u-center-horizontally u-margin-bottom-10px">
-        <Typography variant="h3" className="u-bold u-text-align-center">
-          <FontAwesomeIcon icon={faTools} /> {Messages.Administration}
-        </Typography>
-      </div>
-      <div className="u-padding-16px"></div>
-      <div className="u-max-content u-center-horizontally">
-        {Messages.registeredNumber(usageStats.registered)}
-      </div>
-      <div className="u-max-content u-center-horizontally u-margin-bottom-10px">
-        {Messages.removedNumber(usageStats.removed)}
-      </div>
-      <div className="u-max-content u-center-horizontally u-margin-bottom-10px">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={onSendTestMail}
-          disabled={sending}
-          startIcon={
-            sending ? (
-              <SpinnerAdornment />
-            ) : (
-              <FontAwesomeIcon icon={faMailBulk} />
-            )
-          }
-        >
-          {Messages.testEmail}
-        </Button>
-      </div>
-      <div className="u-max-content u-center-horizontally">
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => openDialog()}
-          startIcon={<FontAwesomeIcon icon={faMapMarkedAlt} />}
-        >
-          {Messages.testGeolocation}
-        </Button>
-      </div>
+      <Grid
+        container
+        direction="column"
+        alignItems="center"
+        justify="center"
+        spacing={2}
+        className="u-margin-bottom-10px"
+      >
+        <Grid item>
+          <Typography variant="h3" className="u-bold">
+            <FontAwesomeIcon icon={faTools} /> {Messages.Administration}
+          </Typography>
+        </Grid>
+        <Grid style={{ height: "16px" }}></Grid>
+        <Grid item>
+          <div className="u-text-align-center">
+            {Messages.registeredNumber(usageStats.registered)}
+          </div>
+          <div className="u-text-align-center">
+            {Messages.removedNumber(usageStats.removed)}
+          </div>
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={onSendTestMail}
+            disabled={sending}
+            startIcon={
+              sending ? (
+                <SpinnerAdornment />
+              ) : (
+                <FontAwesomeIcon icon={faMailBulk} />
+              )
+            }
+          >
+            {Messages.testEmail}
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => openDialog()}
+            startIcon={<FontAwesomeIcon icon={faMapMarkedAlt} />}
+          >
+            {Messages.testGeolocation}
+          </Button>
+        </Grid>
+      </Grid>
+      <MapTest mapboxToken={mapboxToken} />
       {dialogIsOpen && <GeolocationDialog closeDialog={closeDialog} />}
     </>
   );
