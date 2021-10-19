@@ -60,13 +60,13 @@ export const Proposal = () => {
   return (
     <>
       <Paper className="u-padding-25px">
-        <Grid container justify="center" spacing={3}>
+        <Grid container justifyContent="center" spacing={3}>
           <Grid item>
             <Typography variant="h5" className="u-text-align-center">
               {Messages.description}
             </Typography>
           </Grid>
-          <Grid container justify="center" spacing={3}>
+          <Grid container justifyContent="center" spacing={3}>
             <Grid item>
               <Image
                 src="/img/self-development-stage.svg"
@@ -92,7 +92,7 @@ export const Proposal = () => {
               />
             </Grid>
           </Grid>
-          <Grid container justify="center">
+          <Grid container justifyContent="center">
             <Grid
               item
               style={{
@@ -280,7 +280,7 @@ export const Proposal = () => {
         <Paper className="u-max-width-650px u-center-horizontally">
           <Grid
             container
-            justify="center"
+            justifyContent="center"
             spacing={1}
             className="u-padding-10px"
           >

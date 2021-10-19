@@ -17,6 +17,7 @@ import org.springframework.web.reactive.function.server.ServerResponse.ok
 import org.springframework.web.reactive.function.server.awaitBody
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import ua.betterdating.backend.*
+import ua.betterdating.backend.configuration.setSessionIdleTimeout
 import ua.betterdating.backend.data.TokenType.ONE_TIME_PASSWORD
 import ua.betterdating.backend.data.*
 import ua.betterdating.backend.utils.okEmptyJsonObject
@@ -91,6 +92,7 @@ class AuthHandler(
     suspend fun authenticate(profileId: UUID, request: ServerRequest) {
         val auth = createAuth(profileId.toString(), roleRepository.findAll(profileId))
         SecurityContextHolder.getContext().authentication = auth
+        setSessionIdleTimeout(request.exchange()).awaitFirstOrNull()
         serverSecurityContextRepository.save(request.exchange(), SecurityContextHolder.getContext()).awaitFirstOrNull()
         loginInformationRepository.upsert(LoginInformation(profileId, unicodeHostHeader(request)))
     }

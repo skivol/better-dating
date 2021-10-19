@@ -352,8 +352,29 @@ export const someThingsCanBeImproved =
   "С моей точки зрения можно кое-что улучшить";
 export const moreDetailedImprovementReasoning =
   "Конструктивные советы по улучшению профиля. *Возможна модерация* (255 символов)";
-export const suggestProfileImprovementInfo =
-  "Можно ли что-то улучшить в профиле участника ? Нужно быть доброжелательными, честными и конструктивными в своих предложениях :)";
+export const suggestProfileImprovementInfo = `Можно ли что-то улучшить в профиле участника ? Нужно быть доброжелательными, честными и конструктивными в своих предложениях :)
+
+Совет из книги "Городской Шаман" ("Urban Shaman" Serge Kahili King):
+
+"Переворот" относится к перестановке в обычной форме критики, который заключается в признании чего-либо хорошего и потом предложении критики.
+Как в "Это красивый рисунок, но ты используешь слишком много красного в небе."
+Для лучшего эффекта переставьте их наоборот, чтобы фраза звучала как
+"Я думаю ты используешь слишком много красного в небе, но это красивый рисунок."
+Причина этой перестановки в том чтобы окончить похвалой, так как, в понятиях напряжения и расслабления в теле,
+похвала нейтрализует критику - особенно в теле говорящего, но также в большой мере и в теле слушателя, который будет более открыт к помощи.
+
+"Бутерброд" похож, только на этот раз Вы начинаете с похвалы, даете критику и заканчиваете похвалой,
+как в "Это красивый рисунок, хотя в нём и слишком много красного в небе, но мне очень понравилось как ты изобразил(а) волны."
+Такой подход поощряет более расслабленное восприятие критики и бОльшую склонность к изменению, помимо помощи в снятии напряжения.
+
+> (The Twister refers to twisting around the usual pattern of criticism, which is to acknowledge something good and then offer the criticism.
+As in, "That's a beautiful painting, but you put too much red in the sky." For better effect, twist it around so that it's like this: "I think you put too much red in the sky, but it's a beautiful painting."
+The reason for twisting is to finish with the compliment, because in terms of tension and relaxation in the body, a compliment neutralizes a criticism - especially in the body of the speaker, but also to a large degree in the body of the listener, who will be more open to assistance.
+
+> The Sandwich is similar, except that this time you start with a compliment,
+give the criticism and end with a compliment, as in, "That's a beautiful painting, although it has too much red in the sky, but I really like the way you did the waves."
+Such approach will encourage a more relaxed acceptance of the criticism and a greater inclination to change, besides helping to relieve stress.)
+`;
 export const sendEvaluation = "Отправить";
 
 export const viewProfileEvaluationMenu = "Посмотреть оценку своего профиля";

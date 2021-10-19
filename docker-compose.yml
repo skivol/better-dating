@@ -70,7 +70,7 @@ services:
       MAPBOX_ACCESS_TOKEN_PUBLIC: "${MAPBOX_ACCESS_TOKEN_PUBLIC}"
       MAPBOX_ACCESS_TOKEN_PRIVATE: "${MAPBOX_ACCESS_TOKEN_PRIVATE}"
       GOOGLE_ACCESS_TOKEN: "${GOOGLE_ACCESS_TOKEN}"
-      DEBUG: "${DEBUG}"
+      # DEBUG: "${DEBUG}"
     dns: 8.8.8.8
     depends_on:
       - bd-postgres

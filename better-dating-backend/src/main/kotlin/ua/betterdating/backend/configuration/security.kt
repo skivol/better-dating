@@ -37,10 +37,14 @@ import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 import ua.betterdating.backend.*
 import ua.betterdating.backend.data.EmailRepository
+import ua.betterdating.backend.data.LoginInformation
+import ua.betterdating.backend.data.LoginInformationRepository
 import ua.betterdating.backend.data.UserRoleRepository
 import ua.betterdating.backend.handlers.createAuth
+import ua.betterdating.backend.utils.unicodeHostHeader
 import java.net.URLEncoder.encode
 import java.nio.charset.Charset.defaultCharset
+import java.time.Duration
 
 fun simpleOAuth2LoginWebFilter(authenticationManager: ReactiveAuthenticationManager, authenticationConverter: ServerAuthenticationConverter, securityContextRepository: ServerSecurityContextRepository): OAuth2SimpleLoginWebFilter {
     // superseding OAuth2LoginAuthenticationWebFilter which does too much (for example, saves AuthorizedClients)
@@ -51,8 +55,7 @@ fun simpleOAuth2LoginWebFilter(authenticationManager: ReactiveAuthenticationMana
     oAuthWebFilter.setRequiresAuthenticationMatcher(authenticationMatcher)
 
     // path from request cache by default (in oauth2Login's authentication filter)
-    val authenticationSuccessHandler = RedirectServerAuthenticationSuccessHandler("/${encode("профиль", defaultCharset())}")
-    oAuthWebFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler)
+    oAuthWebFilter.setAuthenticationSuccessHandler(SuccessHandler())
 
     // "/login?error" by default (in oauth2Login's authentication filter)
     val authenticationFailureHandler = object : RedirectServerAuthenticationFailureHandler("/${encode("вход", defaultCharset())}?oauth-error") {
@@ -84,13 +87,30 @@ fun authenticationConverter(clientRegistrationRepository: ReactiveClientRegistra
     }
 }
 
+val sessionTimeout: Duration = Duration.ofMinutes(60 * 24 * 30) // month
+fun setSessionIdleTimeout(exchange: ServerWebExchange): Mono<Void> {
+    return exchange.session.flatMap { s ->
+        s.maxIdleTime = sessionTimeout
+        Mono.empty()
+    }
+}
+class SuccessHandler: RedirectServerAuthenticationSuccessHandler("/${encode("профиль", defaultCharset())}") {
+    override fun onAuthenticationSuccess(webFilterExchange: WebFilterExchange, authentication: Authentication): Mono<Void> {
+        // https://stackoverflow.com/a/62210992
+        return setSessionIdleTimeout(webFilterExchange.exchange).then(
+            Mono.defer { super.onAuthenticationSuccess(webFilterExchange, authentication) }
+        )
+    }
+}
+
 class OAuth2SimpleLoginWebFilter(authenticationManager: ReactiveAuthenticationManager) : AuthenticationWebFilter(authenticationManager)
 
 class OAuth2SimpleAuthenticationManager(
         client: ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
         userService: ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User>,
         private val emailRepository: EmailRepository,
-        private val roleRepository: UserRoleRepository
+        private val roleRepository: UserRoleRepository,
+        private val loginInformationRepository: LoginInformationRepository
 ) : OAuth2LoginReactiveAuthenticationManager(client, userService) {
     override fun authenticate(authentication: Authentication?): Mono<Authentication> {
         val token = authentication as OAuth2AuthorizationCodeAuthenticationToken
@@ -115,7 +135,10 @@ class OAuth2SimpleAuthenticationManager(
                             emailRepository.updateMono(profile)
                         } else {
                             Mono.empty()
-                        }.then(roleRepository.findAllMono(profile.id).map { roles ->
+                        }.then(Mono.defer {
+                            val host = unicodeHostHeader(token.authorizationExchange.authorizationResponse.redirectUri)
+                            loginInformationRepository.upsertMono(LoginInformation(profile.id, host))
+                        }).then(roleRepository.findAllMono(profile.id).map { roles ->
                             createAuth(profile.id.toString(), roles)
                         })
                     }.switchIfEmpty(Mono.error(EmailNotRegisteredException(email)))

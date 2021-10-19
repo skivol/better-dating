@@ -7,10 +7,12 @@ import java.time.LocalDate
 import java.util.*
 
 class Email(
-        var email: String,
+        email: String,
         var verified: Boolean,
         @Id var id: UUID = UUID.randomUUID()
-)
+) {
+        var email: String = email.toLowerCase()
+}
 
 class ExpiringToken(
         @Id val id: UUID = UUID.randomUUID(),

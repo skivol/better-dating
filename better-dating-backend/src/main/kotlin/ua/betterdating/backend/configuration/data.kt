@@ -12,7 +12,7 @@ import ua.betterdating.backend.data.*
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
-fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleRepository, dbPasswordFile: String) = configuration {
+fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleRepository, loginInformationRepository: LoginInformationRepository, dbPasswordFile: String) = configuration {
     val dbPassword = readPassword(profiles, dbPasswordFile)
     val r2dbcProperties = configurationProperties<R2dbcProperties>(prefix = "datasource")
     dataR2dbc {
@@ -36,6 +36,7 @@ fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleReposi
     beans {
         bean { emailRepository }
         bean { rolesRepository }
+        bean { loginInformationRepository }
         bean<ExpiringTokenRepository>()
         bean<AcceptedTermsRepository>()
         bean<ProfileInfoRepository>()
@@ -58,7 +59,6 @@ fun dataConfig(emailRepository: EmailRepository, rolesRepository: UserRoleReposi
 
         bean<PairsRepository>()
         bean<DatesRepository>()
-        bean<LoginInformationRepository>()
         bean<PlaceRepository>()
         bean<CheckInRepository>()
         bean<DateVerificationTokenDataRepository>()

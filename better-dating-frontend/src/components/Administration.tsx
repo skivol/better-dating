@@ -34,7 +34,7 @@ const Administration = ({ mapboxToken, usageStats }: any) => {
         container
         direction="column"
         alignItems="center"
-        justify="center"
+        justifyContent="center"
         spacing={2}
         className="u-margin-bottom-10px"
       >
@@ -77,6 +77,16 @@ const Administration = ({ mapboxToken, usageStats }: any) => {
             startIcon={<FontAwesomeIcon icon={faMapMarkedAlt} />}
           >
             {Messages.testGeolocation}
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button href="https://account.mapbox.com/">
+            <Typography>Mapbox (Tiling / Geocoding)</Typography>
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button href="https://console.cloud.google.com/apis/credentials?authuser=1">
+            <Typography>Google Cloud Platform (TimeZone API)</Typography>
           </Button>
         </Grid>
       </Grid>

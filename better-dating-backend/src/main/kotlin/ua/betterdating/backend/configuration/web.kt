@@ -30,6 +30,7 @@ import org.springframework.web.server.WebFilterChain
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer
 import reactor.core.publisher.Mono
 import ua.betterdating.backend.data.EmailRepository
+import ua.betterdating.backend.data.LoginInformationRepository
 import ua.betterdating.backend.data.UserRoleRepository
 import ua.betterdating.backend.external.GoogleTimeZoneApi
 import ua.betterdating.backend.external.MapboxApi
@@ -37,7 +38,7 @@ import ua.betterdating.backend.external.MapboxConfig
 import ua.betterdating.backend.generateUrlSafeToken
 import ua.betterdating.backend.handlers.*
 
-fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleRepository) = configuration {
+fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleRepository, loginInformationRepository: LoginInformationRepository) = configuration {
     val securityContextRepository = WebSessionServerSecurityContextRepository()
     val delegatingLogoutHandler = logoutHandler()
 
@@ -82,7 +83,7 @@ fun webConfig(emailRepository: EmailRepository, roleRepository: UserRoleReposito
     val authenticationManager = OAuth2SimpleAuthenticationManager(
             WebClientReactiveAuthorizationCodeTokenResponseClient(),
             DefaultReactiveOAuth2UserService(),
-            emailRepository, roleRepository
+            emailRepository, roleRepository, loginInformationRepository
     )
     val authorizationRequestRepository = WebSessionOAuth2ServerAuthorizationRequestRepository()
     val authorizationRequestResolver = DefaultServerOAuth2AuthorizationRequestResolver(

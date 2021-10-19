@@ -13,11 +13,13 @@ import ua.betterdating.backend.Gender
 import ua.betterdating.backend.Recurrence
 import ua.betterdating.backend.data.WhenAndWhere
 import java.net.IDN
+import java.net.URI
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 fun host(request: ServerRequest): String = request.uri().host
 fun unicodeHostHeader(request: ServerRequest): String = IDN.toUnicode(host(request))
+fun unicodeHostHeader(url: String): String = IDN.toUnicode(URI.create(url).host)
 suspend fun renderTemplate(
     templateConfigurationFactory: FreeMarkerConfigurationFactoryBean, templateName: String, param: Any
 ): String = withContext(Dispatchers.IO) {

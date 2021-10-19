@@ -20,8 +20,6 @@ spring:
           ssl:
             enable: true
   session:
-    # 30 days
-    timeout: 2592000
     store-type: redis
     redis:
       namespace: "spring:session"
