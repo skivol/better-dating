@@ -12,7 +12,7 @@ class EmailRepository(templateSupplier: Lazy<R2dbcEntityTemplate>) {
     private val template by templateSupplier
 
     fun findByEmailMono(email: String) = template.select<Email>()
-            .matching(Query.query(Criteria.where("email").`is`(email.toLowerCase()))).one()
+            .matching(Query.query(Criteria.where("email").`is`(email.lowercase()))).one()
 
     suspend fun findByEmail(email: String) = findByEmailMono(email).awaitFirstOrNull()
 

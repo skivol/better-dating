@@ -87,7 +87,7 @@ fun authenticationConverter(clientRegistrationRepository: ReactiveClientRegistra
     }
 }
 
-val sessionTimeout: Duration = Duration.ofMinutes(60 * 24 * 30) // month
+val sessionTimeout: Duration = Duration.ofMinutes(60L * 24 * 30) // month
 fun setSessionIdleTimeout(exchange: ServerWebExchange): Mono<Void> {
     return exchange.session.flatMap { s ->
         s.maxIdleTime = sessionTimeout

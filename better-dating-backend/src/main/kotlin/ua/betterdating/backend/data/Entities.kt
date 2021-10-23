@@ -11,7 +11,7 @@ class Email(
         var verified: Boolean,
         @Id var id: UUID = UUID.randomUUID()
 ) {
-        var email: String = email.toLowerCase()
+        var email: String = email.lowercase()
 }
 
 class ExpiringToken(

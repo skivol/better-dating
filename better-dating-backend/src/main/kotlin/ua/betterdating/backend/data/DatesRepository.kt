@@ -204,6 +204,7 @@ class DatesRepository(
         (row["${prefix}created_at"] as OffsetDateTime).toInstant(),
     )
 
+    @SuppressWarnings("UNCHECKED_CAST")
     private fun extractDateInfo(row: Row) = DateInfo(
         row["id"] as UUID,
         row["pair_id"] as UUID,

@@ -2,11 +2,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     application
-	id("org.springframework.boot") version "2.4.0"
-	id("io.spring.dependency-management") version "1.0.10.RELEASE"
+	id("org.springframework.boot") version "2.5.3"
+	id("io.spring.dependency-management") version "1.0.11.RELEASE"
 
-	kotlin("jvm") version "1.4.30"
-	kotlin("plugin.spring") version "1.4.30"
+	kotlin("jvm") version "1.5.21"
+	kotlin("plugin.spring") version "1.5.21"
 
 	// Better checking of dependencies update
 	// https://github.com/patrikerdes/gradle-use-latest-versions-plugin
@@ -14,7 +14,7 @@ plugins {
 	id("com.github.ben-manes.versions") version "0.22.0"
 
 	// Git properties
-	id("com.gorylenko.gradle-git-properties") version "2.1.0"
+	id("com.gorylenko.gradle-git-properties") version "2.3.1"
 }
 
 group = "ua.betterdating"
@@ -33,7 +33,7 @@ dependencyManagement {
 	imports {
 		mavenBom("io.projectreactor:reactor-bom:Bismuth-RELEASE") // https://projectreactor.io/docs/core/release/reference/#getting
 		mavenBom("io.netty:netty-bom:4.1.50.Final")
-		mavenBom("org.springframework.boot:spring-boot-dependencies:2.4.0")
+		mavenBom("org.springframework.boot:spring-boot-dependencies:2.5.3")
 	}
 }
 

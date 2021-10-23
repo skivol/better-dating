@@ -72,6 +72,7 @@ class PlaceHandler(
         return ok().json().bodyValueAndAwait(coordinates)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     suspend fun token(request: ServerRequest) = ok().json().bodyValueAndAwait(object {
         val token = mapboxConfig.publicAccessToken
     })

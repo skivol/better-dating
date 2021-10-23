@@ -121,7 +121,7 @@ class ErrorResponseEntity(
     request: ServerRequest,
     status: HttpStatus,
     val message: String,
-    val code: String? = message.toLowerCase().replace(" ", "."),
+    val code: String? = message.lowercase().replace(" ", "."),
     val details: Map<String, Any> = emptyMap()
 ) {
     val path = request.path()
