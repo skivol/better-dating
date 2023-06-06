@@ -8,8 +8,11 @@ COPY ./next-env.d.ts /app/next-env.d.ts
 COPY ./next.config.js /app/next.config.js
 COPY ./public /app/public
 COPY ./package.json /app/package.json
+COPY ./package-lock.json /app/package-lock.json
 COPY ./src /app/src
 
+# https://stackoverflow.com/questions/18136746/npm-install-failed-with-cannot-run-in-wd#comment89313677_48170041
+RUN npm set unsafe-perm true
 RUN cd /app && npm i && NEXT_APP_UPDATED="$(date -u --iso-8601=seconds)" npm run build
 
 FROM node:14.11.0-alpine

@@ -40,7 +40,12 @@
     "dev": "node server.js",
     "build": "next build",
     "prod": "NODE_ENV=production node server.js",
-    "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
+    "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
+    "preinstall": "npx npm-force-resolutions"
+  },
+  "react-types-issue-temp-fix": "https://github.com/facebook/react/issues/24304#issuecomment-1092563688",
+  "resolutions": {
+    "@types/react": "17.0.4"
   },
   "husky": {
     "hooks": {
